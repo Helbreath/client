@@ -19,13 +19,13 @@
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v110</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
-    <CharacterSet>MultiByte</CharacterSet>
+    <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -66,7 +66,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
@@ -78,7 +78,7 @@
       <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\fantasy-server\Shared\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\fantasy-server\Shared\;include</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -96,7 +96,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>netapi32.lib;winmm.lib;lib/search.lib;ws2_32.lib;lib/cximage.lib;lib/ddraw.lib;lib/dinput.lib;lib/dsound.lib;lib/dxguid.lib;lib/jpeg.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lib/Irrlicht.lib;netapi32.lib;winmm.lib;lib/search.lib;ws2_32.lib;lib/cximage.lib;lib/jpeg.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Bscmake>
@@ -128,7 +128,7 @@
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WarningLevel>Level1</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalIncludeDirectories>..\fantasy-server\Shared\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\fantasy-server\Shared\;include</AdditionalIncludeDirectories>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -142,7 +142,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>netapi32.lib;winmm.lib;lib/search.lib;ws2_32.lib;lib/cximage.lib;lib/ddraw.lib;lib/dinput.lib;lib/dsound.lib;lib/dxguid.lib;lib/jpeg.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>lib/Irrlicht.lib;netapi32.lib;winmm.lib;lib/search.lib;ws2_32.lib;lib/cximage.lib;lib/ddraw.lib;lib/dinput.lib;lib/dsound.lib;lib/dxguid.lib;lib/jpeg.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <Bscmake>
@@ -168,12 +168,6 @@
     <ClInclude Include="char\item\Item.h" />
     <ClInclude Include="char\item\ItemName.h" />
     <ClInclude Include="DirectX\d3dtypes.h" />
-    <ClInclude Include="DirectX\DDraw.h" />
-    <ClInclude Include="DirectX\DInput.h" />
-    <ClInclude Include="DirectX\DSound.h" />
-    <ClInclude Include="DirectX\DXC_ddraw.h" />
-    <ClInclude Include="DirectX\DXC_dinput.h" />
-    <ClInclude Include="DirectX\DXC_dsound.h" />
     <ClInclude Include="DirectX\Effect.h" />
     <ClInclude Include="DirectX\Mydib.h" />
     <ClInclude Include="DirectX\SoundBuffer.h" />
@@ -181,7 +175,6 @@
     <ClInclude Include="DirectX\Sprite.h" />
     <ClInclude Include="DirectX\SpriteID.h" />
     <ClInclude Include="DirectX\TileSpr.h" />
-    <ClInclude Include="DirectX\YWSound.h" />
     <ClInclude Include="Map\MapData.h" />
     <ClInclude Include="Map\Tile.h" />
     <ClInclude Include="titles\Title.h" />
@@ -212,15 +205,11 @@
     <ClCompile Include="char\item\BuildItem.cpp" />
     <ClCompile Include="char\item\Item.cpp" />
     <ClCompile Include="char\item\ItemName.cpp" />
-    <ClCompile Include="DirectX\DXC_ddraw.cpp" />
-    <ClCompile Include="DirectX\DXC_dinput.cpp" />
-    <ClCompile Include="DirectX\DXC_dsound.cpp" />
     <ClCompile Include="DirectX\Effect.cpp" />
     <ClCompile Include="DirectX\Mydib.cpp" />
     <ClCompile Include="DirectX\SoundBuffer.cpp" />
     <ClCompile Include="DirectX\Sprite.cpp" />
     <ClCompile Include="DirectX\TileSpr.cpp" />
-    <ClCompile Include="DirectX\YWSound.cpp" />
     <ClCompile Include="Map\MapData.cpp" />
     <ClCompile Include="Map\Tile.cpp" />
     <ClCompile Include="titles\Title.cpp" />

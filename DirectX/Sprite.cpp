@@ -3,6 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Sprite.h"
+#include "../Game.h"
 
 extern char G_cSpriteAlphaDegree;
 
@@ -16,84 +17,174 @@ extern long    G_lTransG25[64][64], G_lTransRB25[64][64];
 extern long    G_lTransG2[64][64], G_lTransRB2[64][64];
 
 
+extern CGame * G_pGame;
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-CSprite::CSprite(HANDLE hPakFile, DXC_ddraw *pDDraw, char *cPakFileName, short sNthFile, bool bAlphaEffect, std::vector<int> * framePositions)
+CSprite::CSprite(std::ifstream & hPakFile, std::wstring & cPakFileName, short sNthFile, bool bAlphaEffect)
 {
-	DWORD  nCount;
 	int iASDstart;
 
 	m_stBrush	= NULL;
-	m_lpSurface = NULL;
 	m_bIsSurfaceEmpty = TRUE;
-	ZeroMemory(m_cPakFileName, sizeof(m_cPakFileName));
 
 	m_cAlphaDegree = 1;
 	m_bOnCriticalSection = FALSE;
 	m_iTotalFrame = 0;
-	m_pDDraw = pDDraw;
-	if (framePositions) {
-		iASDstart = (*framePositions)[sNthFile];
-	} 
-	else {
-		SetFilePointer(hPakFile, 24 + sNthFile*8, NULL, FILE_BEGIN);
-		ReadFile(hPakFile, &iASDstart,  4, &nCount, NULL); 
-	}
-	//i+100       Sprite Confirm
-	SetFilePointer(hPakFile, iASDstart+100, NULL, FILE_BEGIN); 
-	ReadFile(hPakFile, &m_iTotalFrame,  4, &nCount, NULL);
+	_localimage = _localshadow = 0;
+
+	hPakFile.seekg (24 + sNthFile*8, std::ios::beg);
+	hPakFile.read ((char*)&iASDstart, 4);
+	hPakFile.seekg (iASDstart+100, std::ios::beg);
+	hPakFile.read ((char*)&m_iTotalFrame, 4);
+
+	// 	SetFilePointer(hPakFile, 24 + sNthFile*8, NULL, FILE_BEGIN);
+	// 	ReadFile(hPakFile, &iASDstart,  4, &nCount, NULL); // i는 ASD파일의 시작위치
+	// 	SetFilePointer(hPakFile, iASDstart+100, NULL, FILE_BEGIN); 
+	// 	ReadFile(hPakFile, &m_iTotalFrame,  4, &nCount, NULL);
 	m_dwBitmapFileStartLoc = iASDstart  + (108 + (12*m_iTotalFrame));
 	m_stBrush = new stBrush[m_iTotalFrame];
-	ReadFile(hPakFile, m_stBrush, 12*m_iTotalFrame, &nCount, NULL);
-	// PAK
-	memcpy(m_cPakFileName, cPakFileName, strlen(cPakFileName));
+	hPakFile.read ((char*)m_stBrush, 12*m_iTotalFrame);
+	//ReadFile(hPakFile, m_stBrush, 12*m_iTotalFrame, &nCount, NULL);
+	m_cPakFileName = cPakFileName;
 	m_bAlphaEffect = bAlphaEffect;
+	wPageid = sNthFile;
+	subtextures = new ITexture *[m_iTotalFrame];
+	for (int i = 0; i < m_iTotalFrame; ++i)
+		subtextures[i] = 0;
+	//_pMakeSpriteSurface();
 }
 
-CSprite::~CSprite()
+CSprite::~CSprite(void)
 {
 	if (m_stBrush != NULL) delete[] m_stBrush;
-	if (m_lpSurface != NULL) m_lpSurface->Release();
+	delete[] subtextures;
 }
 
-IDirectDrawSurface7 * CSprite::_pMakeSpriteSurface()
+// IDirectDrawSurface7 * CSprite::_pMakeSpriteSurface()
+// {
+//  IDirectDrawSurface7 * pdds4;
+//  HDC hDC;
+//  WORD * wp;
+// 
+// 	m_bOnCriticalSection = TRUE;
+// 
+// 	if( m_stBrush == NULL ) return NULL;
+// 
+// 	CMyDib mydib(m_cPakFileName, m_dwBitmapFileStartLoc);
+// 	m_wBitmapSizeX = mydib.m_wWidthX;
+// 	m_wBitmapSizeY = mydib.m_wWidthY;
+// 	pdds4 = m_pDDraw->pCreateOffScreenSurface(m_wBitmapSizeX, m_wBitmapSizeY);
+//     if (pdds4 == NULL) return NULL; 
+// 	pdds4->GetDC(&hDC);
+// 	mydib.PaintImage(hDC);
+// 	pdds4->ReleaseDC(hDC);
+// 
+// 	DDSURFACEDESC2  ddsd;
+// 	ddsd.dwSize = 124;
+// 	if (pdds4->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL) != DD_OK) return NULL;
+// 	pdds4->Unlock(NULL);
+// 
+// 	wp = (WORD *)ddsd.lpSurface;
+// 	m_wColorKey = *wp;
+// 
+// 	m_bOnCriticalSection = FALSE;
+// 
+//     return pdds4;
+// }
+video::ITexture * CSprite::_pMakeSpriteSurface()
 {
- IDirectDrawSurface7 * pdds4;
- HDC hDC;
- WORD * wp;
-
-	m_bOnCriticalSection = TRUE;
-
 	if( m_stBrush == NULL ) return NULL;
+	if (!m_bIsSurfaceEmpty) return NULL;
 
 	CMyDib mydib(m_cPakFileName, m_dwBitmapFileStartLoc);
+
+	if (!mydib.success)
+	{
+		//failed to load pak
+		return 0;
+	}
 	m_wBitmapSizeX = mydib.m_wWidthX;
 	m_wBitmapSizeY = mydib.m_wWidthY;
-	pdds4 = m_pDDraw->pCreateOffScreenSurface(m_wBitmapSizeX, m_wBitmapSizeY);
-    if (pdds4 == NULL) return NULL; 
-	pdds4->GetDC(&hDC);
-	mydib.PaintImage(hDC);
-	pdds4->ReleaseDC(hDC);
 
-	DDSURFACEDESC2  ddsd;
-	ddsd.dwSize = 124;
-	if (pdds4->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL) != DD_OK) return NULL;
-	pdds4->Unlock(NULL);
+	//ECF_A8R8G8B8 - desired
+	//ECF_R5G6B5 - most hb paks are
+	core::dimension2d<u32> size;
+	std::wstringstream ss;
+	ss << m_cPakFileName << wPageid;
+	io::IReadFile * bmpfile = G_pGame->device->getFileSystem()->createMemoryReadFile(mydib.m_lpDib, mydib.fh.bfSize, ss.str().c_str(), false);
+	_localimage = G_pGame->driver->getTexture(bmpfile);
+	G_pGame->driver->makeColorKeyTexture(_localimage, core::position2d<s32>(0,0));
+	bmpfile->drop();
+	size = _localimage->getSize();
 
-	wp = (WORD *)ddsd.lpSurface;
-	m_wColorKey = *wp;
+	m_bIsSurfaceEmpty = FALSE;
 
-	m_bOnCriticalSection = FALSE;
+	//CreateShadow();
 
-    return pdds4;
+	return _localimage;
 }
+CSprite * CSprite::CreateSprite(wchar_t * cPakFileName, short sNthFile, bool bAlphaEffect)
+{
+	std::wstringstream ss;
+	ss << L"sprites\\" << cPakFileName << L".pak";
+	std::wstring str = ss.str();
+	std::ifstream szfile(str.c_str(),std::ios::in|std::ios::binary);
+
+	if (!szfile.is_open())
+	{
+		//error
+		//MessageBoxW(NULL, (L"Error loading pak: " + str).c_str(), L"ERROR", MB_OK);
+	}
+
+	return new CSprite(szfile,std::wstring(cPakFileName), sNthFile, bAlphaEffect);
+}
+// video::ITexture * Sprite::CreateTexture()
+// {
+// 	return _pMakeSpriteSurface();
+// }
+void CSprite::DrawShadow(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
+{
+	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+	G_pGame->driver->draw2DImage(_localshadow, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
+		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
+		color, true);
+}
+void CSprite::DrawSubSprite(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
+{
+	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+	G_pGame->driver->draw2DImage(subtextures[sFrame], core::position2d<s32>(sX,sY),
+		core::rect<s32>(0,0,m_stBrush[sFrame].szx,m_stBrush[sFrame].szy), 0,
+		video::SColor(255,255,255,255), true);
+}
+void CSprite::DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
+{
+	DrawRGB(sX, sY, sFrame, dwTime, color);
+}
+void CSprite::DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
+{
+	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
+		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
+		color, true);
+}
+void CSprite::DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, video::SColor color)
+{
+	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX,sY),
+		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+sWidth,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
+		color, true);
+}
+
 
 // Crash is because it tries to read non-existing sprite. but what sprite?;O Well let's use trace and 1337 skills to work it out :P 1 sec just need to do some business with my friend
 // he is leaving in a minute.
 // aaah.. imma go peeeeee then :D
 void CSprite::PutSpriteFast(int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
 	RECT rcRect;
 	if( this == NULL ) return;
@@ -185,6 +276,8 @@ void CSprite::PutSpriteFast(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutSpriteFastDst(LPDIRECTDRAWSURFACE7 lpDstS, int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  RECT rcRect;
 	if( this == NULL ) return;
@@ -270,7 +363,10 @@ void CSprite::PutSpriteFastDst(LPDIRECTDRAWSURFACE7 lpDstS, int sX, int sY, int 
 
 
 void CSprite::PutSpriteFastNoColorKey(int sX, int sY, int sFrame, DWORD dwTime)
-{short dX,dY,sx,sy,szx,szy,pvx,pvy;
+{
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
+	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  RECT rcRect;
 	if( this == NULL ) return;
 	if( m_stBrush == NULL ) return;
@@ -347,6 +443,8 @@ void CSprite::PutSpriteFastNoColorKey(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutSpriteFastNoColorKeyDst(LPDIRECTDRAWSURFACE7 lpDstS, int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  RECT rcRect;
 	if( this == NULL ) return;
@@ -433,6 +531,8 @@ void CSprite::PutSpriteFastNoColorKeyDst(LPDIRECTDRAWSURFACE7 lpDstS, int sX, in
 
 void CSprite::PutSpriteFastFrontBuffer(int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  RECT rcRect;
 	if( this == NULL ) return;
@@ -526,6 +626,8 @@ void CSprite::PutSpriteFastFrontBuffer(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, DWORD dwTime)
 {
+	DrawWidth(sX, sY, sFrame, sWidth, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  RECT rcRect;
 	if( this == NULL ) return;
@@ -622,6 +724,7 @@ void CSprite::PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, DWORD d
 
 void CSprite::iRestore()
 {
+/*
  HDC     hDC;
 	
 	if (m_bIsSurfaceEmpty) return;
@@ -637,11 +740,13 @@ void CSprite::iRestore()
 	CMyDib mydib(m_cPakFileName, m_dwBitmapFileStartLoc);
 	m_lpSurface->GetDC(&hDC);
 	mydib.PaintImage(hDC);
-	m_lpSurface->ReleaseDC(hDC);
+	m_lpSurface->ReleaseDC(hDC);*/
 }
 
 void CSprite::PutShadowSprite(int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short sx,sy,szx,szy,pvx,pvy;
 	int  ix, iy;
 	WORD * pSrc, * pDst;
@@ -715,6 +820,8 @@ void CSprite::PutShadowSprite(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutShadowSpriteClip(int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
 	int  ix, iy;
 	WORD * pSrc, * pDst;
@@ -814,6 +921,8 @@ void CSprite::PutShadowSpriteClip(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutTransSprite(int sX, int sY, int sFrame, DWORD dwTime, int alphaDepth)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(alphaDepth,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -940,6 +1049,8 @@ void CSprite::PutTransSprite(int sX, int sY, int sFrame, DWORD dwTime, int alpha
 
 void CSprite::PutTransSprite_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime, int alphaDepth)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(alphaDepth,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -1061,6 +1172,8 @@ void CSprite::PutTransSprite_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime
 
 void CSprite::PutTransSprite70(int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/70,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -1189,6 +1302,8 @@ void CSprite::PutTransSprite70(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/70,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -1310,6 +1425,8 @@ void CSprite::PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
 
 void CSprite::PutTransSprite50(int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/50,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -1438,6 +1555,8 @@ void CSprite::PutTransSprite50(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/50,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -1558,6 +1677,8 @@ void CSprite::PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
 
 void CSprite::PutTransSprite25(int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/25,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -1686,6 +1807,8 @@ void CSprite::PutTransSprite25(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/25,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -1807,6 +1930,8 @@ void CSprite::PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
 
 void CSprite::PutTransSprite2(int sX, int sY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -1923,6 +2048,8 @@ void CSprite::PutTransSprite2(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -2043,6 +2170,8 @@ void CSprite::PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame,
 
 void CSprite::PutFadeSprite(short sX, short sY, short sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -2155,6 +2284,8 @@ void CSprite::PutFadeSprite(short sX, short sY, short sFrame, DWORD dwTime)
 
 void CSprite::PutFadeSpriteDst(WORD * pDstAddr, short sPitch, short sX, short sY, short sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
  WORD * pSrc, * pDst;
@@ -2266,37 +2397,39 @@ void CSprite::PutFadeSpriteDst(WORD * pDstAddr, short sPitch, short sX, short sY
 }
 
 
-bool CSprite::_iOpenSprite()
-{
-  	if (m_lpSurface != NULL) return FALSE;
-	m_lpSurface = _pMakeSpriteSurface(); 
-	if (m_lpSurface == NULL) return FALSE;
-	m_pDDraw->iSetColorKey(m_lpSurface, m_wColorKey);
-	m_bIsSurfaceEmpty  = FALSE;
-	DDSURFACEDESC2  ddsd;
-	ddsd.dwSize = 124;
-	if (m_lpSurface->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL) != DD_OK) return FALSE;	
-	m_pSurfaceAddr = (WORD *)ddsd.lpSurface;
-	m_sPitch = (short)ddsd.lPitch >> 1;	
-	m_lpSurface->Unlock(NULL);
-	_SetAlphaDegree();
-//	m_dwRefTime = timeGetTime();
-	return TRUE;
-}
-
-void CSprite::_iCloseSprite()
-{
-	if( m_stBrush == NULL ) return;
-	if (m_lpSurface == NULL) return;
-	if (m_lpSurface->IsLost() != DD_OK)	return;
-	m_lpSurface->Release();
-	m_lpSurface = NULL;
-	m_bIsSurfaceEmpty = TRUE;
-	m_cAlphaDegree = 1;
-}
+// bool CSprite::_iOpenSprite()
+// {
+//   	if (m_lpSurface != NULL) return FALSE;
+// 	m_lpSurface = _pMakeSpriteSurface(); 
+// 	if (m_lpSurface == NULL) return FALSE;
+// 	m_pDDraw->iSetColorKey(m_lpSurface, m_wColorKey);
+// 	m_bIsSurfaceEmpty  = FALSE;
+// 	DDSURFACEDESC2  ddsd;
+// 	ddsd.dwSize = 124;
+// 	if (m_lpSurface->Lock(NULL, &ddsd, DDLOCK_WAIT, NULL) != DD_OK) return FALSE;	
+// 	m_pSurfaceAddr = (WORD *)ddsd.lpSurface;
+// 	m_sPitch = (short)ddsd.lPitch >> 1;	
+// 	m_lpSurface->Unlock(NULL);
+// 	_SetAlphaDegree();
+// //	m_dwRefTime = timeGetTime();
+// 	return TRUE;
+// }
+// 
+// void CSprite::_iCloseSprite()
+// {
+// 	if( m_stBrush == NULL ) return;
+// 	if (m_lpSurface == NULL) return;
+// 	if (m_lpSurface->IsLost() != DD_OK)	return;
+// 	m_lpSurface->Release();
+// 	m_lpSurface = NULL;
+// 	m_bIsSurfaceEmpty = TRUE;
+// 	m_cAlphaDegree = 1;
+// }
 
 void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,sRed,sGreen,sBlue));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy, iRedPlus255, iGreenPlus255, iBluePlus255;
  WORD * pSrc, * pDst;
@@ -2427,6 +2560,8 @@ void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int
 
 void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,sRed,sGreen,sBlue));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  short ix, iy, iRedPlus255, iGreenPlus255, iBluePlus255;
  WORD  * pSrc, * pDst;
@@ -2558,6 +2693,8 @@ void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen
 
 void CSprite::PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,sRed,sGreen,sBlue));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  short ix, iy, iRedPlus255, iGreenPlus255, iBluePlus255;
  WORD  * pSrc, * pDst;
@@ -2749,7 +2886,8 @@ void CSprite::_GetSpriteRect(int sX, int sY, int sFrame)
 
 void CSprite::_SetAlphaDegree()
 {
- WORD * pSrc, wR, wG, wB, wTemp, ix, iy;
+	return;
+	WORD * pSrc, wR, wG, wB, wTemp, ix, iy;
  int iR, iG, iB, sRed, sGreen, sBlue;
  
 	if( this == NULL ) return;
@@ -2932,6 +3070,8 @@ BOOL CSprite::_bCheckCollison(int sX, int sY, short sFrame, int msX, int msY)
 
 void CSprite::PutShiftSpriteFast(int sX, int sY, int shX, int shY, int sFrame, DWORD dwTime)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  RECT rcRect;
 	if( this == NULL ) return;
@@ -3027,6 +3167,8 @@ void CSprite::PutShiftSpriteFast(int sX, int sY, int shX, int shY, int sFrame, D
 
 void CSprite::PutRevTransSprite(int sX, int sY, int sFrame, DWORD dwTime, int alphaDepth)
 {
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	return;
 	int  ix, iy;
 	int  iR, iG, iB;
 	WORD * pSrc, * pDst;
@@ -3156,6 +3298,7 @@ void CSprite::PutRevTransSprite(int sX, int sY, int sFrame, DWORD dwTime, int al
 
 void ReadFramePositions(HANDLE hPakFile, std::vector<int> & framePositions, int frames)
 {
+	return;
 	DWORD * dwp, count;
 	char * fileHeader = new char[frames*8 +8];
 	SetFilePointer(hPakFile, 24, NULL, FILE_BEGIN);

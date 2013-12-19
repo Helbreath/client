@@ -19,9 +19,10 @@
 #include <fcntl.h>
 #include <errno.h>
 #include "Tile.h"
-#include "..\char\ActionID.h"
-#include "..\Game.h"
-#include "..\directx\TileSpr.h"
+#include "../GlobalDef.h"
+#include "../char/ActionID.h"
+#include "../Game.h"
+#include "../directx/TileSpr.h"
 
 
 #define MAPDATASIZEX	40

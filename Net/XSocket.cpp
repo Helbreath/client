@@ -646,7 +646,7 @@ void XSocket::GetMACaddress(char * buffer)
 		//	lenum.lana[i], uRetCode );
 		if ( uRetCode == 0 )
 		{
-			wsprintf(buffer, "%02x%02x%02x%02x%02x%02x",
+			wsprintfA(buffer, "%02x%02x%02x%02x%02x%02x",
 				Adapter.adapt.adapter_address[0],
 				Adapter.adapt.adapter_address[1],
 				Adapter.adapt.adapter_address[2],

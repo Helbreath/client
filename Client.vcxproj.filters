@@ -77,24 +77,6 @@
     <ClInclude Include="DirectX\d3dtypes.h">
       <Filter>directx</Filter>
     </ClInclude>
-    <ClInclude Include="DirectX\DDraw.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\DInput.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\DSound.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\DXC_ddraw.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\DXC_dinput.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\DXC_dsound.h">
-      <Filter>directx</Filter>
-    </ClInclude>
     <ClInclude Include="DirectX\Effect.h">
       <Filter>directx</Filter>
     </ClInclude>
@@ -114,9 +96,6 @@
       <Filter>directx</Filter>
     </ClInclude>
     <ClInclude Include="DirectX\TileSpr.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\YWSound.h">
       <Filter>directx</Filter>
     </ClInclude>
     <ClInclude Include="Map\MapData.h">
@@ -184,15 +163,6 @@
     <ClCompile Include="char\item\ItemName.cpp">
       <Filter>char\item</Filter>
     </ClCompile>
-    <ClCompile Include="DirectX\DXC_ddraw.cpp">
-      <Filter>directx</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX\DXC_dinput.cpp">
-      <Filter>directx</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX\DXC_dsound.cpp">
-      <Filter>directx</Filter>
-    </ClCompile>
     <ClCompile Include="DirectX\Effect.cpp">
       <Filter>directx</Filter>
     </ClCompile>
@@ -206,9 +176,6 @@
       <Filter>directx</Filter>
     </ClCompile>
     <ClCompile Include="DirectX\TileSpr.cpp">
-      <Filter>directx</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX\YWSound.cpp">
       <Filter>directx</Filter>
     </ClCompile>
     <ClCompile Include="Map\MapData.cpp">

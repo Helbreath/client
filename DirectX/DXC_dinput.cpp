@@ -81,6 +81,7 @@ void DXC_dinput::SetAcquire(BOOL bFlag)
 
 void DXC_dinput::UpdateMouseState(short * pX, short * pY, short * pZ, char * pLB, char * pRB, char * pMB)
 {
+	return;
 	if ( m_pMouse->GetDeviceState( sizeof(DIMOUSESTATE), &dims ) != DI_OK )
 	{
 		m_pMouse->Acquire();

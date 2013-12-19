@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "MapData.h"
-//#include "GlobalDef.h"
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -1185,7 +1184,7 @@ void CMapData::OpenMapDataFile(char * cFn)
 	char cHeader[260];
 	char *cp, *cpMapData;
 	ZeroMemory( cHeader, sizeof(cHeader) );
-	hFileRead = CreateFile(cFn, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+	hFileRead = CreateFileA(cFn, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	if (hFileRead == INVALID_HANDLE_VALUE) return;
 	SetFilePointer(hFileRead, 0, NULL, FILE_BEGIN);
 	ReadFile(hFileRead, cHeader, 256, &nCount, NULL);

@@ -1,6 +1,7 @@
 #include "DialogBox.h"
 
-//extern class CGame *   g_game;
+extern class CGame *   G_pGame;
+#include "../Game.h"
 
 CDialogBox::CDialogBox(void)
 {
@@ -112,8 +113,8 @@ void CDialogBox::AddScrollBar(short X, short X2, short Y, short Y2, char ID/*, b
 
 char CDialogBox::OnButton() const
 {
-	short X = ms::X - m_X;
-	short Y = ms::Y - m_Y;
+	short X = G_pGame->m_stMCursor.sX - m_X;
+	short Y = G_pGame->m_stMCursor.sY - m_Y;
 	for(int i = 0; i < _buttonCount; ++i) {
 		if(X < _buttons[i]._X) continue;
 		if(Y < _buttons[i]._Y) continue;
@@ -156,11 +157,11 @@ Point CDialogBox::HandleScroll(int visibleAmt, int listSize)
 
 		if (IsTop()) //Scroll only if top dialog
 		{
-			if (ms::LB != 0) 
+			if (G_pGame->m_stMCursor.LB != 0) 
 			{
 				if(OnButton() == _scrollBar)// Possibly change to use pre-calculated onButton value
 				{
-					double d1 = ms::Y - m_Y - scroll->_Y - 10;
+					double d1 = G_pGame->m_stMCursor.sY - m_Y - scroll->_Y - 10;
 
 					sView = (short)((d2 * d1)/d3 + 0.5);
 				}
@@ -170,12 +171,12 @@ Point CDialogBox::HandleScroll(int visibleAmt, int listSize)
 				bIsScrollSelected = FALSE;
 			}
 
-			if (ms::Z != 0)
+			if (G_pGame->m_stMCursor.sZ != 0)
 			{
 				if (d2 > 8) //Scroll slower on smaller lists
-					sView -= ms::Z/60;
+					sView -= G_pGame->m_stMCursor.sZ/60;
 				else
-					sView -= ms::Z/120;				
+					sView -= G_pGame->m_stMCursor.sZ/120;				
 			}
 
 			if( sView < 0 ) sView = 0;
@@ -202,8 +203,8 @@ void CDialogBox::ClearButtons()
 
 bool CDialogBox::OnDialogBox() const
 {
-	if(ms::X < m_X || ms::X > m_X + sSizeX ||
-		ms::Y < m_Y || ms::Y > m_Y + sSizeY)
+	if(G_pGame->m_stMCursor.sX < m_X || G_pGame->m_stMCursor.sX > m_X + sSizeX ||
+		G_pGame->m_stMCursor.sY < m_Y || G_pGame->m_stMCursor.sY > m_Y + sSizeY)
 	{
 		return false;
 	}

@@ -43,3 +43,4 @@ include/
 bin/screenshots/*
 *.zip
 *.brs
+bin/data/*

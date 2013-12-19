@@ -16,6 +16,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <vector>
+#include <irrlicht.h>
+#include <sstream>
+#include <stdint.h>
+
+using namespace irr;
+using namespace video;
 
 #include "DXC_ddraw.h"
 #include "Mydib.h"
@@ -36,15 +42,33 @@ class CSprite
 {
 public:
 	void * operator new (size_t size) 
-	{	return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
+	{
+		return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
 	};
 	
 	void operator delete(void * mem)
-	{	HeapFree(GetProcessHeap(), HEAP_NO_SERIALIZE, mem);
+	{
+		HeapFree(GetProcessHeap(), HEAP_NO_SERIALIZE, mem);
 	};
 
-	CSprite(HANDLE hPakFile, class DXC_ddraw * pDDraw, char * cPakFileName, short sNthFile, bool bAlphaEffect = TRUE, std::vector<int> * framePositions = NULL);
+
+	video::ITexture * _pMakeSpriteSurface();
+	video::ITexture * _localimage;
+	video::ITexture * _localshadow;
+	video::ITexture ** subtextures;
+
+
+	CSprite(std::ifstream & hPakFile, std::wstring & cPakFileName, short sNthFile, bool bAlphaEffect = TRUE);
+	//CSprite(HANDLE hPakFile, class DXC_ddraw * pDDraw, char * cPakFileName, short sNthFile, bool bAlphaEffect = TRUE, std::vector<int> * framePositions = NULL);
 	virtual ~CSprite();
+	static CSprite * CreateSprite(wchar_t * cPakFileName, short sNthFile, bool bAlphaEffect = TRUE);
+	void DrawSubSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
+	void DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
+	void DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
+	void DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
+	void DrawShadow(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
+	void CreateShadow();
+
 
 	void PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, DWORD dwTime);
 
@@ -81,11 +105,13 @@ public:
 	void _SetAlphaDegree();
 	BOOL _bCheckCollison(int sX, int sY, short sFrame, int msX, int msY);
 	void _GetSpriteRect(int sX, int sY, int sFrame);
-	void _iCloseSprite();
-	bool _iOpenSprite();
+// 	void _iCloseSprite();
+// 	bool _iOpenSprite();
+	bool _iOpenSprite() { return _pMakeSpriteSurface() != 0; }
+	void _iCloseSprite() { _localimage->drop(); m_bIsSurfaceEmpty = TRUE; }
 	void iRestore();
-	IDirectDrawSurface7 *  _pMakeSpriteSurface();
-		
+	//IDirectDrawSurface7 *  _pMakeSpriteSurface();
+
 	RECT	m_rcBound;
 	DWORD	m_dwRefTime;
 	bool	m_bIsSurfaceEmpty;
@@ -100,8 +126,10 @@ public:
 	char	m_cAlphaDegree;
 	WORD	m_wBitmapSizeX, m_wBitmapSizeY;
 	WORD	m_wColorKey;
-	char	m_cPakFileName[16];
+	std::wstring m_cPakFileName;
+//	char	m_cPakFileName[16];
 	stBrush* m_stBrush;
+	uint16_t	wPageid;
 	LPDIRECTDRAWSURFACE7 m_lpSurface;
 };
 

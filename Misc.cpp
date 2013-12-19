@@ -264,7 +264,7 @@ int CMisc::_iGetFileCheckSum(char * pFn)
 	for (i = 0; i < strlen(cRealFn); i++)
 	if (cRealFn[i] != NULL)	cRealFn[i]++;
 
-	hFile = CreateFile(cRealFn, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);//CreateFile(cRealFn, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
+	hFile = CreateFileA(cRealFn, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);//CreateFile(cRealFn, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
 	dwFileSize = GetFileSize(hFile, NULL);
 	CloseHandle(hFile);
 	if (hFile == INVALID_HANDLE_VALUE) {
@@ -302,7 +302,7 @@ BOOL CMisc::_iConvertFileXor(char *pFn, char * pDestFn, char cKey)
  //	.mando
  char pHeader[10];
  char cHeaderKey = 20;
-	hFile = CreateFile(pFn, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+	hFile = CreateFileA(pFn, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	dwFileSize = GetFileSize(hFile, NULL) - 10;
 	if (hFile != INVALID_HANDLE_VALUE) CloseHandle(hFile);
 	pFile = fopen(pFn, "rt");
@@ -350,7 +350,7 @@ int CMisc::iGetTextLengthLoc(HDC hDC, char *pStr, int iLength)
 	while (bFlag == FALSE) {
 		if (i > len) return 0;
 		i++;
-		GetTextExtentPoint32(hDC, pStr, i, &Size);
+		GetTextExtentPoint32A(hDC, pStr, i, &Size);
 		if (Size.cx > iLength) bFlag = TRUE;
 	}
 	return i-1;

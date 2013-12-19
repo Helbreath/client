@@ -30,11 +30,11 @@
 #include "maths.h"
 
 #include "GlobalDef.h"
-#include "directx\DXC_ddraw.h"
-#include "directx\DXC_dinput.h"
-#include "directx\DSound.h"
-#include "directx\SoundBuffer.h"
-#include "directx\YWSound.h"
+// #include "directx\DXC_ddraw.h"
+// #include "directx\DXC_dinput.h"
+// #include "directx\DSound.h"
+// #include "directx\SoundBuffer.h"
+// #include "directx\YWSound.h"
 #include "net\XSocket.h"
 #include "directx\Sprite.h"
 #include "directx\SpriteID.h"
@@ -59,6 +59,11 @@
 
 #include "titles\Title.h" // Titles xRisenx
 #include "tlhelp32.h" // Anti Hack xRisenx
+
+
+
+#include <irrlicht.h>
+
 
 #ifdef USING_WIN_IME
 	#include <RICHEDIT.H>
@@ -162,9 +167,67 @@
 // ShadowEvil Defines
 #define MAXITEMSTATS		1000
 
-class CGame
+extern HWND G_hWnd;
+
+extern video::E_DRIVER_TYPE driverType;
+
+
+class CGame : public irr::IEventReceiver
 {
 public:
+	IrrlichtDevice * device;
+	video::IVideoDriver * driver;
+	scene::ISceneManager* smgr;
+	gui::IGUIFont * font[100];
+	bool CreateRenderer()
+	{
+		device = createDevice(driverType,irr::core::dimension2d<u32>(GetWidth(), GetHeight()));
+		if (device == 0)
+		{
+			MessageBox(NULL, L"Cannot create video device!", L"ERROR!", MB_OK);
+			return false; // could not create selected driver.
+		}
+		device->setEventReceiver(this);
+
+
+
+		wchar_t winName[256];
+		wsprintfW(winName, L"Helbreath Fantasy %u.%u.%u", HBF_MAJOR, HBF_MINOR, HBF_LOWER);
+		device->setWindowCaption(winName);
+
+		driver = device->getVideoDriver();
+		driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
+		smgr = device->getSceneManager();
+
+		irr::video::SExposedVideoData vdata = driver->getExposedVideoData();
+		G_hWnd = reinterpret_cast<HWND>(vdata.D3D9.HWnd);
+
+		driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
+		driver->getMaterial2D().AntiAliasing=video::EAAM_FULL_BASIC;
+		return true;
+	}
+	virtual bool OnEvent(const irr::SEvent& event);
+	virtual bool IsKeyDown(irr::EKEY_CODE keyCode) const { return KeyIsDown[keyCode]; }
+
+	bool KeyIsDown[irr::KEY_KEY_CODES_COUNT];
+
+
+	bool clipmousegame;
+	bool clipmousewindow;
+	bool isactive;
+	uint16_t screenwidth;
+	uint16_t screenheight;
+	void SetResolution(uint16_t width, uint16_t height) { screenwidth = width; screenheight = height; }
+	uint16_t GetWidth() { return screenwidth; }
+	uint16_t GetHeight() { return screenheight; }
+
+	void DrawScene(u32 time);
+	//void DrawFPS2();//debug func
+	void DrawMouse();
+	void DrawVersion2();
+	uint64_t mtime;
+
+
 	void emptyfunc(void){};
 	void ShowSoccerVictory(short sSide);
 	void NotifyMsg_Soccer(char * pData);
@@ -516,12 +579,12 @@ public:
 	void UpdateScreen_OnGame();
 	void UpdateScreen_OnConnecting();
 	void UpdateScreen_OnWaitInitData();
-	void MakeSprite( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
-	void MakeLegionSprite( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
-	void MakeTileSpr( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
-	void MakeLegionTileSpr( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
-	void MakeEffectSpr( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
-	void MakeLegionEffectSpr( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
+// 	void MakeSprite( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
+// 	void MakeLegionSprite( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
+// 	void MakeTileSpr( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
+// 	void MakeLegionTileSpr( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
+// 	void MakeEffectSpr( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
+// 	void MakeLegionEffectSpr( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
 	void UpdateScreen_OnLoading(bool bActive);
 	void UpdateScreen_OnConnectionLost();
 	void UpdateScreen_OnLogin();
@@ -729,6 +792,10 @@ public:
 	struct {
 		short sX;
 		short sY;
+		short sZ;
+		bool LB;
+		bool RB;
+		bool MB;
 		short sCursorFrame;
 		char  cPrevStatus;
 		char  cSelectedObjectType;
@@ -854,13 +921,13 @@ public:
 		char TargetName[22];
 	} m_stQuestList[50];
 
-	class YWSound m_DSound;
-	class CSoundBuffer *	m_pCSound[MAXSOUNDEFFECTS];
-	class CSoundBuffer *	m_pMSound[MAXSOUNDEFFECTS];
-	class CSoundBuffer *	m_pESound[MAXSOUNDEFFECTS];
-	class CSoundBuffer *    m_pBGM;
-	class DXC_ddraw  m_DDraw;
-	class DXC_dinput m_DInput;
+//	class YWSound m_DSound;
+// 	class CSoundBuffer *	m_pCSound[MAXSOUNDEFFECTS];
+// 	class CSoundBuffer *	m_pMSound[MAXSOUNDEFFECTS];
+// 	class CSoundBuffer *	m_pESound[MAXSOUNDEFFECTS];
+// 	class CSoundBuffer *    m_pBGM;
+//	class DXC_ddraw  m_DDraw;
+//	class DXC_dinput m_DInput;
 	class CMisc      m_Misc;
 	class CSprite  * m_pSprite[MAXSPRITES];
 	class CSprite  * m_pTileSpr[MAXTILES];

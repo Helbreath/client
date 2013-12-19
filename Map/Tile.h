@@ -11,7 +11,7 @@
 
 #include <windows.h>
 #include <mmsystem.h>
-#include "GlobalDef.h" //xRisenx needed for #define SHOWALLDAMAGE
+#include "../GlobalDef.h" //xRisenx needed for #define SHOWALLDAMAGE
 
 class CTile  
 {
