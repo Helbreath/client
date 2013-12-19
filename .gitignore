@@ -36,3 +36,10 @@
 lib/
 include/
 *.ilk
+*.amd
+*.pak
+*.wav
+*.lpk
+bin/screenshots/*
+*.zip
+*.brs

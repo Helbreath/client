@@ -734,7 +734,8 @@ BOOL CGame::bInit(HWND hWnd, HINSTANCE hInst, char * pCmdLine)
 	for (i = 0; i < MAXSPRITES; i++)
 		m_pSprite[i] = NULL;
 	if (pCmdLine != NULL)
-	{	ZeroMemory(G_cCmdLine, sizeof(G_cCmdLine));
+	{
+		ZeroMemory(G_cCmdLine, sizeof(G_cCmdLine));
 		ZeroMemory(G_cCmdLineTokenA, sizeof(G_cCmdLineTokenA));
 		ZeroMemory(G_cCmdLineTokenB, sizeof(G_cCmdLineTokenB));
 		ZeroMemory(G_cCmdLineTokenC, sizeof(G_cCmdLineTokenC));
@@ -747,12 +748,14 @@ BOOL CGame::bInit(HWND hWnd, HINSTANCE hInst, char * pCmdLine)
 		pStrTok = new class CStrTok(pCmdLine, seps);
 		token = pStrTok->pGet();
 		while( token != NULL )
-		{	switch (iIndex) {
-			case 0:	strcpy(G_cCmdLineTokenA, token); break;
-			case 1: strcpy(G_cCmdLineTokenB, token); break;
-			case 2: strcpy(G_cCmdLineTokenC, token); break;
-			case 3: strcpy(G_cCmdLineTokenD, token); break;
-			case 4: strcpy(G_cCmdLineTokenE, token); break;
+		{
+			switch (iIndex)
+			{
+				case 0:	strcpy(G_cCmdLineTokenA, token); break;
+				case 1: strcpy(G_cCmdLineTokenB, token); break;
+				case 2: strcpy(G_cCmdLineTokenC, token); break;
+				case 3: strcpy(G_cCmdLineTokenD, token); break;
+				case 4: strcpy(G_cCmdLineTokenE, token); break;
 			}
 			token = pStrTok->pGet();
 			iIndex++;
@@ -773,7 +776,8 @@ BOOL CGame::bInit(HWND hWnd, HINSTANCE hInst, char * pCmdLine)
 
 
 	if (memcmp(str.c_str(), "/egparam", 8) == 0)
-	{	ZeroMemory(G_cCmdLineTokenA, sizeof(G_cCmdLineTokenA));
+	{
+		ZeroMemory(G_cCmdLineTokenA, sizeof(G_cCmdLineTokenA));
 		memcpy(G_cCmdLineTokenA,"dataq",5);
 	}
 	m_hWnd = hWnd;
@@ -796,24 +800,28 @@ BOOL CGame::bInit(HWND hWnd, HINSTANCE hInst, char * pCmdLine)
 	else m_bIsXmas = FALSE;
 
 	if (bCheckImportantFile() == FALSE)
-	{	MessageBox(m_hWnd, MSG_NOTIFY_CHECKSUM, "ERROR1", MB_ICONEXCLAMATION | MB_OK);
+	{
+		MessageBox(m_hWnd, MSG_NOTIFY_CHECKSUM, "ERROR1", MB_ICONEXCLAMATION | MB_OK);
 		return FALSE;
 	}
 
 	if (_bDecodeBuildItemContents() == FALSE)
-	{	MessageBox(m_hWnd, MSG_NOTIFY_CHECKSUM,"ERROR2",MB_ICONEXCLAMATION | MB_OK);
+	{
+		MessageBox(m_hWnd, MSG_NOTIFY_CHECKSUM,"ERROR2",MB_ICONEXCLAMATION | MB_OK);
 		return FALSE;
 	}
 
 #ifdef LOGINCFG
 	if(bReadLoginConfigFile("GM.cfg") == FALSE)
-	{	MessageBox(m_hWnd, MSG_NOTIFY_LOGIN,"ERROR",MB_ICONEXCLAMATION | MB_OK);
+	{
+		MessageBox(m_hWnd, MSG_NOTIFY_LOGIN,"ERROR",MB_ICONEXCLAMATION | MB_OK);
 		return FALSE;
 	}
 #endif
 
 	if(bReadItemNameConfigFile() == FALSE)
-	{	MessageBox(m_hWnd, MSG_NOTIFY_ITEMNAME,"ERROR",MB_ICONEXCLAMATION | MB_OK);
+	{
+		MessageBox(m_hWnd, MSG_NOTIFY_ITEMNAME,"ERROR",MB_ICONEXCLAMATION | MB_OK);
 		return FALSE;
 	}
 
@@ -822,28 +830,32 @@ BOOL CGame::bInit(HWND hWnd, HINSTANCE hInst, char * pCmdLine)
 		g_socketMap[ i ] = SocketGems[i];
 	}
 
-	if (bInitMagicCfgList() == FALSE) {
+	if (bInitMagicCfgList() == FALSE)
+	{
 		MessageBox(m_hWnd, MSG_NOTIFY_MAGICCFG,"ERROR",MB_ICONEXCLAMATION | MB_OK);
 		return FALSE;
 	}
 	// Skill
 	if (bInitSkillCfgList() == FALSE)
-	{	MessageBox(m_hWnd, MSG_NOTIFY_SKILLCFG,"ERROR",MB_ICONEXCLAMATION | MB_OK);
+	{
+		MessageBox(m_hWnd, MSG_NOTIFY_SKILLCFG,"ERROR",MB_ICONEXCLAMATION | MB_OK);
 		return FALSE;
 	}
 
 	if (m_DDraw.bInit(m_hWnd) == FALSE)
-	{	MessageBox(m_hWnd, MSG_NOTIFY_DIRECTX7,"ERROR",MB_ICONEXCLAMATION | MB_OK);
+	{
+		MessageBox(m_hWnd, MSG_NOTIFY_DIRECTX7,"ERROR",MB_ICONEXCLAMATION | MB_OK);
 		return FALSE;
 	}
 
-	if (m_DInput.bInit(hWnd, hInst) == FALSE) {
+	if (m_DInput.bInit(hWnd, hInst) == FALSE)
+	{
 		MessageBox(m_hWnd, MSG_NOTIFY_DIRECTX7,"ERROR",MB_ICONEXCLAMATION | MB_OK);
 		return FALSE;
 	}
 
 
-		m_hPakFile = CreateFile("sprites\\New-Dialog.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+	m_hPakFile = CreateFile("sprites\\New-Dialog.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	m_pSprite[SPRID_INTERFACE_ND_LOADING] = new class CSprite(m_hPakFile, &m_DDraw, "New-Dialog", 0, FALSE);
 	CloseHandle(m_hPakFile);
 
@@ -855,14 +867,16 @@ BOOL CGame::bInit(HWND hWnd, HINSTANCE hInst, char * pCmdLine)
 	// CLEROTH - LOAD FONTS BEFORE MAIN LOADING
 	m_hPakFile = CreateFile("sprites\\interface2.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	if( m_hPakFile != INVALID_HANDLE_VALUE )
-	{	m_pSprite[SPRID_INTERFACE_SPRFONTS2] = new class CSprite(m_hPakFile, &m_DDraw, "interface2", 1, FALSE);
+	{
+		m_pSprite[SPRID_INTERFACE_SPRFONTS2] = new class CSprite(m_hPakFile, &m_DDraw, "interface2", 1, FALSE);
 		m_pSprite[SPRID_INTERFACE_F1HELPWINDOWS] = new class CSprite(m_hPakFile, &m_DDraw, "interface2", 2, FALSE);
 		CloseHandle(m_hPakFile);
 	}
 
 	m_hPakFile = CreateFile("sprites\\sprfonts.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
 	if( m_hPakFile != INVALID_HANDLE_VALUE )
-	{	m_pSprite[SPRID_INTERFACE_FONT1] = new class CSprite(m_hPakFile, &m_DDraw, "sprfonts", 0, FALSE);
+	{
+		m_pSprite[SPRID_INTERFACE_FONT1] = new class CSprite(m_hPakFile, &m_DDraw, "sprfonts", 0, FALSE);
 		m_pSprite[SPRID_INTERFACE_FONT2] = new class CSprite(m_hPakFile, &m_DDraw, "sprfonts", 1, FALSE);
 		CloseHandle(m_hPakFile);
 	}
