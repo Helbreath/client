@@ -171,23 +171,36 @@ extern HWND G_hWnd;
 
 extern video::E_DRIVER_TYPE driverType;
 
+#define FONT_BUILTIN 0
+#define FONT_TREBMS10PX 1
+#define FONT_TREBMS8PX 2
+#define FONT_TREBMS6PX 3
+
 
 class CGame : public irr::IEventReceiver
 {
 public:
+	void DrawStatusText(int sX, int sY);
+
 	IrrlichtDevice * device;
 	video::IVideoDriver * driver;
 	scene::ISceneManager* smgr;
 	gui::IGUIFont * font[100];
+	gui::IGUIEnvironment* env;
+
+	video::ITexture* bg;
+
+	int16_t lastchar;
+	bool capslock;
 	bool CreateRenderer()
 	{
-		device = createDevice(driverType,irr::core::dimension2d<u32>(GetWidth(), GetHeight()));
+		device = createDevice(driverType,irr::core::dimension2d<u32>(GetWidth(), GetHeight()), 16, false, false, false, this);
 		if (device == 0)
 		{
 			MessageBox(NULL, L"Cannot create video device!", L"ERROR!", MB_OK);
 			return false; // could not create selected driver.
 		}
-		device->setEventReceiver(this);
+		//device->setEventReceiver(this);
 
 
 
@@ -198,12 +211,24 @@ public:
 		driver = device->getVideoDriver();
 		driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
 		smgr = device->getSceneManager();
+		env = device->getGUIEnvironment();
 
 		irr::video::SExposedVideoData vdata = driver->getExposedVideoData();
 		G_hWnd = reinterpret_cast<HWND>(vdata.D3D9.HWnd);
 
 		driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
 		driver->getMaterial2D().AntiAliasing=video::EAAM_FULL_BASIC;
+
+
+		if (driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
+		{
+			bg = driver->addRenderTargetTexture(core::dimension2d<u32>(900,700), "RTT1");
+		}
+		else
+		{
+			MessageBoxA(0, "Unable to RTT", "RTT", MB_OK);
+		}
+
 		return true;
 	}
 	virtual bool OnEvent(const irr::SEvent& event);
@@ -700,24 +725,21 @@ public:
 	void OnSysKeyDown(WPARAM wParam);
 	void OnSysKeyUp(WPARAM wParam);
 	void ChangeGameMode(char cMode);
-	void PutString(int iX, int iY, char const * pString, COLORREF color);
-	void PutString(int iX, int iY, char const * pString, COLORREF color, BOOL bHide, char cBGtype, BOOL bIsPreDC = FALSE);
+	void PutFontString(gui::IGUIFont * font, int iX, int iY, char * pString, video::SColor color);
+	void PutFontString(gui::IGUIFont * font, int iX, int iY, char const * pString, video::SColor color, BOOL bHide, char cBGtype, BOOL bIsPreDC = FALSE);
+	void PutChatString(int iX, int iY, char * pString, video::SColor color);
+	void PutString(int iX, int iY, char const * pString, video::SColor color);
+	void PutString(int iX, int iY, char const * pString, video::SColor color, BOOL bHide, char cBGtype, BOOL bIsPreDC = FALSE);
 	void PutString2(int iX, int iY, char * pString, short sR, short sG, short sB);
-	void PutString3(int iX, int iY, char const * pString, COLORREF color);
-	void PutAlignedString(int iX1, int iX2, int iY, char const * const pString, short sR = 0, short sG = 0, short sB = 0);
-	void PutAlignedLabel(int iX1, int iX2, int iY, char const * const pString);
-	void PutAlignedLabel(const RECT * rect, char const * const pString);
-	void PutLabel(const RECT & rect, char const * const pString, Alignment pos = POS_CENTER);
-	void PutAlignedString(int iX1, int iX2, int iY, char const * const pString, bool highlight);
-	void PutAlignedString(int iX1, int iX2, int iY, char const * const pString, COLORREF color);
-	void PutAlignedString(int iX1, int iX2, int iY, char const * const pString, bool wordWrap, COLORREF color);
-	void PutAlignedString(const RECT * rect, char const * const pString, COLORREF color);
-	void ButtonString(CDialogBox & dlg, int button, char const * const pString, Alignment pos = POS_CENTER);
-	void ButtonStringToggle(CDialogBox & dlg, int button, char const * const pString, bool enabled = true, Alignment pos = POS_CENTER);
-	void PutStringRight(int iX1, int iX2, int iY, char const * const pString, COLORREF color = RGB(0,0,0));
-	void PutStringLeft(int iX1, int iX2, int iY, char const * const pString, COLORREF color = RGB(0,0,0), bool wordWrap = false);
-	void PutStringLeft(int iX1, int iX2, int iY, char const * const pString, bool highlight, bool wordWrap = false);
-	void PutStringLeft(const RECT * rect, char const * const pString, COLORREF color = RGB(0,0,0), bool wordWrap = false);
+	void PutString3(int iX, int iY, char const * pString, ::SColor color);
+	void PutAlignedString(int iX1, int iX2, int iY, char const * const pString, video::SColor color = video::SColor(255,255,255,255));
+	void PutAlignedString(int iX1, int iX2, int iY, char const * const pString, short sR, short sG, short sB)
+	{
+		//finish replacing eventually
+		PutAlignedString(iX1, iX2, iY, pString, video::SColor(255, sR, sG, sB));
+	}
+	//void ButtonString(CDialogBox & dlg, int button, char const * const pString, Alignment pos = POS_CENTER);
+	//void ButtonStringToggle(CDialogBox & dlg, int button, char const * const pString, bool enabled = true, Alignment pos = POS_CENTER);
 	void PutString_SprFont(int iX, int iY, char * pStr, short sR, short sG, short sB);
 	void PutString_SprFont2(int iX, int iY, char * pStr, short sR, short sG, short sB);
 	void PutString_SprFont3(int iX, int iY, char * pStr, short sR, short sG, short sB, BOOL bTrans = FALSE, int iType = 0);
@@ -1025,7 +1047,7 @@ public:
 	BOOL m_bInputStatus;
 	BOOL m_bToggleScreen;
 	BOOL m_bIsSpecial;
-	COLORREF m_itemColor;
+	video::SColor m_itemColor;
 
 	BOOL m_bIsF1HelpWindowEnabled;
 	int m_bIsTeleportRequested;//was BOOL

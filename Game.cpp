@@ -71,11 +71,12 @@ bool CGame::OnEvent(const irr::SEvent& event)
 		KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
 		if (event.KeyInput.PressedDown)
 		{
-			OnKeyDown(event.KeyInput.Key);
+			//OnKeyDown(event.KeyInput.Key);
+			//lastchar = event.KeyInput.Key;
 		}
 		else
 		{
-			OnKeyUp(event.KeyInput.Key);
+			//OnKeyUp(event.KeyInput.Key);
 		}
 		return false;
 	}
@@ -371,8 +372,9 @@ CGame::CGame()
 	srand( (unsigned)time( NULL ) );
 	ReadSettings();
 
-	screenwidth = 800;
-	screenheight = 600;
+//	screenwidth = 800;
+//	screenheight = 600;
+	SetResolution(800,600);
 
 #ifdef _DEBUG
 	m_bToggleScreen = TRUE;
@@ -383,7 +385,7 @@ CGame::CGame()
 	m_voteState = 0;
 	m_voteSocket = NULL;
 	m_cLoading = 0;
-	m_bZoomMap = TRUE;
+	m_bZoomMap = FALSE;
 	m_bIsFirstConn = TRUE;
 	m_iItemDropCnt = 0;
 	m_bItemDrop = FALSE;
@@ -986,77 +988,77 @@ BOOL CGame::bInit(HWND hWnd, HINSTANCE hInst, char * pCmdLine)
 	m_cSoundVolume = 100;
 	m_cMusicVolume = 100;
 
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(  70,  70,  80), &m_wWR[1], &m_wWG[1], &m_wWB[1]); // Light-blue
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(  70,  70,  80), &m_wWR[2], &m_wWG[2], &m_wWB[2]); // light-blue
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(  70,  70,  80), &m_wWR[3], &m_wWG[3], &m_wWB[3]); // light-blue
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(  70, 100,  70), &m_wWR[4], &m_wWG[4], &m_wWB[4]); // Green
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 130,  90,  10), &m_wWR[5], &m_wWG[5], &m_wWB[5]); // Critical
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(  42,  53, 111), &m_wWR[6], &m_wWG[6], &m_wWB[6]); // Heavy-blue
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 145, 145, 145), &m_wWR[7], &m_wWG[7], &m_wWB[7]); // White
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 120, 100, 120), &m_wWR[8], &m_wWG[8], &m_wWB[8]);
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(  75,  10,  10), &m_wWR[9], &m_wWG[9], &m_wWB[9]); // Heavy-Red
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 135, 104,  30), &m_wWR[10],&m_wWG[10],&m_wWB[10]);	// Gold
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  70,  70,  80), &m_wWR[1], &m_wWG[1], &m_wWB[1]); // Light-blue
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  70,  70,  80), &m_wWR[2], &m_wWG[2], &m_wWB[2]); // light-blue
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  70,  70,  80), &m_wWR[3], &m_wWG[3], &m_wWB[3]); // light-blue
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  70, 100,  70), &m_wWR[4], &m_wWG[4], &m_wWB[4]); // Green
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 130,  90,  10), &m_wWR[5], &m_wWG[5], &m_wWB[5]); // Critical
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  42,  53, 111), &m_wWR[6], &m_wWG[6], &m_wWB[6]); // Heavy-blue
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 145, 145, 145), &m_wWR[7], &m_wWG[7], &m_wWB[7]); // White
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 120, 100, 120), &m_wWR[8], &m_wWG[8], &m_wWB[8]);
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  75,  10,  10), &m_wWR[9], &m_wWG[9], &m_wWB[9]); // Heavy-Red
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 135, 104,  30), &m_wWR[10],&m_wWG[10],&m_wWB[10]);	// Gold
 
 	// Weapon's
 	// 
 	// 
 	//TODO: need to remap all colors into irrlicht capable shit
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x7f/3, 0xff/3, 0xd4/3), &m_wWR[1], &m_wWG[1], &m_wWB[1]); // Agile
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x0f/3, 0xc0/3, 0xfc/3), &m_wWR[2], &m_wWG[2], &m_wWB[2]); // Light
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x00/4, 0xff/4, 0xff/4), &m_wWR[3], &m_wWG[3], &m_wWB[3]); // Strong
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x00/4, 0xff/4, 0x00/4), &m_wWR[4], &m_wWG[4], &m_wWB[4]); // Poison
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff/2, 0xa5/2, 0x00/2), &m_wWR[5], &m_wWG[5], &m_wWB[5]); // Critical
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x00/4, 0x00/4, 0xff/4), &m_wWR[6], &m_wWG[6], &m_wWB[6]); // Sharp
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 145, 145, 145), &m_wWR[7], &m_wWG[7], &m_wWB[7]); // Rightous
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 120, 100, 120), &m_wWR[8], &m_wWG[8], &m_wWB[8]); // Ancient
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(  75,  10,  10), &m_wWR[9], &m_wWG[9], &m_wWB[9]); // Heavy-Red
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 175, 175, 175), &m_wWR[10], &m_wWG[10], &m_wWB[10]); // White
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff/2, 0xd7/2, 0x00/2), &m_wWR[11], &m_wWG[11], &m_wWB[11]); // Gold
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 40, 40, 40), &m_wWR[12], &m_wWG[12], &m_wWB[12]); // Black
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff/4, 0x00/4, 0xff/4), &m_wWR[13], &m_wWG[13], &m_wWB[13]); // Violet
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xf4/4, 0xa4/4, 0x60/4), &m_wWR[14], &m_wWG[14], &m_wWB[14]); // Sandy Brown
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x4b/4, 0x00/4, 0x82/4), &m_wWR[15], &m_wWG[15], &m_wWB[15]); // Indigo
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x7f/3, 0xff/3, 0xd4/3), &m_wWR[1], &m_wWG[1], &m_wWB[1]); // Agile
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x0f/3, 0xc0/3, 0xfc/3), &m_wWR[2], &m_wWG[2], &m_wWB[2]); // Light
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x00/4, 0xff/4, 0xff/4), &m_wWR[3], &m_wWG[3], &m_wWB[3]); // Strong
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x00/4, 0xff/4, 0x00/4), &m_wWR[4], &m_wWG[4], &m_wWB[4]); // Poison
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff/2, 0xa5/2, 0x00/2), &m_wWR[5], &m_wWG[5], &m_wWB[5]); // Critical
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x00/4, 0x00/4, 0xff/4), &m_wWR[6], &m_wWG[6], &m_wWB[6]); // Sharp
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 145, 145, 145), &m_wWR[7], &m_wWG[7], &m_wWB[7]); // Rightous
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 120, 100, 120), &m_wWR[8], &m_wWG[8], &m_wWB[8]); // Ancient
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  75,  10,  10), &m_wWR[9], &m_wWG[9], &m_wWB[9]); // Heavy-Red
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 175, 175, 175), &m_wWR[10], &m_wWG[10], &m_wWB[10]); // White
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff/2, 0xd7/2, 0x00/2), &m_wWR[11], &m_wWG[11], &m_wWB[11]); // Gold
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 40, 40, 40), &m_wWR[12], &m_wWG[12], &m_wWB[12]); // Black
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff/4, 0x00/4, 0xff/4), &m_wWR[13], &m_wWG[13], &m_wWB[13]); // Violet
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xf4/4, 0xa4/4, 0x60/4), &m_wWR[14], &m_wWG[14], &m_wWB[14]); // Sandy Brown
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x4b/4, 0x00/4, 0x82/4), &m_wWR[15], &m_wWG[15], &m_wWB[15]); // Indigo
 // #ifdef MoreColors
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x00, 0xff, 0x00), &m_wWR[16], &m_wWG[16], &m_wWB[16]); // Test 1 Green
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff, 0xff, 0x00), &m_wWR[17], &m_wWG[17], &m_wWB[17]); // Test 2 Yellow
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff, 0xff, 0xff), &m_wWR[18], &m_wWG[18], &m_wWB[18]); // Test 3 White
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff, 0x00, 0x00), &m_wWR[19], &m_wWG[19], &m_wWB[19]); // Test 4 Red
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff, 0x00, 0xff), &m_wWR[20], &m_wWG[20], &m_wWB[20]); // Test 5 PINK
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x00, 0xff, 0x00), &m_wWR[16], &m_wWG[16], &m_wWB[16]); // Test 1 Green
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff, 0xff, 0x00), &m_wWR[17], &m_wWG[17], &m_wWB[17]); // Test 2 Yellow
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff, 0xff, 0xff), &m_wWR[18], &m_wWG[18], &m_wWB[18]); // Test 3 White
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff, 0x00, 0x00), &m_wWR[19], &m_wWG[19], &m_wWB[19]); // Test 4 Red
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff, 0x00, 0xff), &m_wWR[20], &m_wWG[20], &m_wWB[20]); // Test 5 PINK
 // #endif
 // 	// Armor's
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 200/2,  200/2,  200/2),  &m_wR[0], &m_wG[0], &m_wB[0]); // Normal Dont Change
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x00/4, 0x00/4, 0xff/4),  &m_wR[1], &m_wG[1], &m_wB[1]); // Blue
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xf4/4, 0xa4/4, 0x60/4),  &m_wR[2], &m_wG[2], &m_wB[2]); // Sandy Brown 
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x7f/3, 0xff/3, 0xd4/3),  &m_wR[3], &m_wG[3], &m_wB[3]); // AquaMarine
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff/4, 0x00/4, 0x00/4),  &m_wR[4], &m_wG[4], &m_wB[4]); // Red
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x00/4, 0xff/4, 0x00/4),  &m_wR[5], &m_wG[5], &m_wB[5]); // Green
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x4b/4, 0x00/4, 0x82/4),  &m_wR[6], &m_wG[6], &m_wB[6]); // Indigo
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x00/4, 0xff/4, 0xff/4),  &m_wR[7], &m_wG[7], &m_wB[7]); // Aqua
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff/2, 0x14/2, 0x93/2),  &m_wR[8], &m_wG[8], &m_wB[8]); // Pink
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff/4, 0x00/4, 0xff/4),  &m_wR[9], &m_wG[9], &m_wB[9]); // Violet
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 175, 175, 175),  &m_wR[10], &m_wG[10], &m_wB[10]); // White
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff/2, 0xa5/2, 0x00/2),  &m_wR[11], &m_wG[11], &m_wB[11]); // Orange
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0x0f/3, 0xc0/3, 0xfc/3),  &m_wR[12], &m_wG[12], &m_wB[12]); // Disco Blue
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff/2, 0xd7/2, 0x00/2),  &m_wR[13], &m_wG[13], &m_wB[13]); // Yellow Damage Monster Txt
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 0xff/4, 0x00/4, 0x00/4),  &m_wR[14], &m_wG[14], &m_wB[14]); // Red Casting Txt
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 40, 40, 40),  &m_wR[15], &m_wG[15], &m_wB[15]); // Black
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 200/2,  200/2,  200/2),  &m_wR[0], &m_wG[0], &m_wB[0]); // Normal Dont Change
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x00/4, 0x00/4, 0xff/4),  &m_wR[1], &m_wG[1], &m_wB[1]); // Blue
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xf4/4, 0xa4/4, 0x60/4),  &m_wR[2], &m_wG[2], &m_wB[2]); // Sandy Brown 
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x7f/3, 0xff/3, 0xd4/3),  &m_wR[3], &m_wG[3], &m_wB[3]); // AquaMarine
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff/4, 0x00/4, 0x00/4),  &m_wR[4], &m_wG[4], &m_wB[4]); // Red
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x00/4, 0xff/4, 0x00/4),  &m_wR[5], &m_wG[5], &m_wB[5]); // Green
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x4b/4, 0x00/4, 0x82/4),  &m_wR[6], &m_wG[6], &m_wB[6]); // Indigo
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x00/4, 0xff/4, 0xff/4),  &m_wR[7], &m_wG[7], &m_wB[7]); // Aqua
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff/2, 0x14/2, 0x93/2),  &m_wR[8], &m_wG[8], &m_wB[8]); // Pink
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff/4, 0x00/4, 0xff/4),  &m_wR[9], &m_wG[9], &m_wB[9]); // Violet
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 175, 175, 175),  &m_wR[10], &m_wG[10], &m_wB[10]); // White
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff/2, 0xa5/2, 0x00/2),  &m_wR[11], &m_wG[11], &m_wB[11]); // Orange
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0x0f/3, 0xc0/3, 0xfc/3),  &m_wR[12], &m_wG[12], &m_wB[12]); // Disco Blue
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff/2, 0xd7/2, 0x00/2),  &m_wR[13], &m_wG[13], &m_wB[13]); // Yellow Damage Monster Txt
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 0xff/4, 0x00/4, 0x00/4),  &m_wR[14], &m_wG[14], &m_wB[14]); // Red Casting Txt
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 40, 40, 40),  &m_wR[15], &m_wG[15], &m_wB[15]); // Black
 
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 200/2,  200/2,  200/2),  &m_wR[0], &m_wG[0], &m_wB[0]);
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(0x50/2, 0x50/2, 0xC0/2),  &m_wR[1], &m_wG[1], &m_wB[1]); // Indigo Blue
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(    87,   87,     62),  &m_wR[2], &m_wG[2], &m_wB[2]); // Custom-Weapon Color
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(   135,    104,     30),  &m_wR[3], &m_wG[3], &m_wB[3]); // Gold
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB( 255/2,   36/2,      0),  &m_wR[4], &m_wG[4], &m_wB[4]); // Crimson
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(    10,     60,     10),  &m_wR[5], &m_wG[5], &m_wB[5]); // Green
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(0x50/2, 0x50/2, 0x50/2),  &m_wR[6], &m_wG[6], &m_wB[6]); // Gray
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(0x5F/2, 0x9E/2, 0xA0/2),  &m_wR[7], &m_wG[7], &m_wB[7]); // Aqua
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(0xFF/2, 0x69/2, 0xB4/2),  &m_wR[8], &m_wG[8], &m_wB[8]); // Pink
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(    90,     60,     90),  &m_wR[9], &m_wG[9], &m_wB[9]);
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(     60,     60,     80),  &m_wR[10], &m_wG[10], &m_wB[10]); // Blue
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(0xD2/2, 0xB4/2, 0x8C/2),  &m_wR[11], &m_wG[11], &m_wB[11]); // Tan
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(0xBD/2, 0xB7/2, 0x6B/2),  &m_wR[12], &m_wG[12], &m_wB[12]); // Khaki
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(    85,     85,      8),  &m_wR[13], &m_wG[13], &m_wB[13]); // Yellow
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(    75,     10,     10),  &m_wR[14], &m_wG[14], &m_wB[14]); // Red
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(  12,   20,   30),  &m_wR[15], &m_wG[15], &m_wB[15]); // Black
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 200/2,  200/2,  200/2),  &m_wR[0], &m_wG[0], &m_wB[0]);
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,0x50/2, 0x50/2, 0xC0/2),  &m_wR[1], &m_wG[1], &m_wB[1]); // Indigo Blue
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,    87,   87,     62),  &m_wR[2], &m_wG[2], &m_wB[2]); // Custom-Weapon Color
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,   135,    104,     30),  &m_wR[3], &m_wG[3], &m_wB[3]); // Gold
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255, 255/2,   36/2,      0),  &m_wR[4], &m_wG[4], &m_wB[4]); // Crimson
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,    10,     60,     10),  &m_wR[5], &m_wG[5], &m_wB[5]); // Green
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,0x50/2, 0x50/2, 0x50/2),  &m_wR[6], &m_wG[6], &m_wB[6]); // Gray
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,0x5F/2, 0x9E/2, 0xA0/2),  &m_wR[7], &m_wG[7], &m_wB[7]); // Aqua
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,0xFF/2, 0x69/2, 0xB4/2),  &m_wR[8], &m_wG[8], &m_wB[8]); // Pink
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,    90,     60,     90),  &m_wR[9], &m_wG[9], &m_wB[9]);
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,     60,     60,     80),  &m_wR[10], &m_wG[10], &m_wB[10]); // Blue
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,0xD2/2, 0xB4/2, 0x8C/2),  &m_wR[11], &m_wG[11], &m_wB[11]); // Tan
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,0xBD/2, 0xB7/2, 0x6B/2),  &m_wR[12], &m_wG[12], &m_wB[12]); // Khaki
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,    85,     85,      8),  &m_wR[13], &m_wG[13], &m_wB[13]); // Yellow
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,    75,     10,     10),  &m_wR[14], &m_wG[14], &m_wB[14]); // Red
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  12,   20,   30),  &m_wR[15], &m_wG[15], &m_wB[15]); // Black
 
 	ZeroMemory(m_cWorldServerName, sizeof(m_cWorldServerName));
 
@@ -1273,25 +1275,27 @@ void CGame::UpdateScreen()
 	}	}	}
 #endif
 	char cfps[20];
-	sprintf(cfps, "FPS: %d", G_pGame->driver->getFPS());
+	sprintf(cfps, "FPS: %d", driver->getFPS());
 
-	G_pGame->font[0]->draw(cfps,
+	font[0]->draw(cfps,
 		core::rect<s32>(5,5,40,10),
 		video::SColor(255,255,255,255));
 
-	sprintf(cfps, "Mouse: (%d,%d)", G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+	sprintf(cfps, "Mouse: (%d,%d)", m_stMCursor.sX, m_stMCursor.sY);
 
-	G_pGame->font[0]->draw(cfps,
+	font[0]->draw(cfps,
 		core::rect<s32>(5,15,40,20),
 		video::SColor(255,255,255,255));
 
-	if (G_pGame->device->isWindowActive())
+	if (device->isWindowActive())
 	{
-		G_pGame->font[0]->draw("Active",
+		font[0]->draw("Active",
 			core::rect<s32>(5,25,40,30),
 			video::SColor(255,255,255,255));
 	}
-	G_pGame->driver->endScene();
+
+	m_stMCursor.sZ = 0;
+	driver->endScene();
 }
 
 
@@ -3059,12 +3063,12 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 				}
 				//DIRECTX m_DDraw.DrawShadowBox(iItemDropPosX[ix][iy]+2, iItemDropPosY[ix][iy]+2, iItemDropPosX[ix][iy]+4+iTempX*11/5, iItemDropPosY[ix][iy]+4+iTempY*15);
 				iTempY = 0;
-				PutString(iItemDropPosX[ix][iy]+4, iItemDropPosY[ix][iy]+4, cStr1, RGB(250,0,0));
+				PutString(iItemDropPosX[ix][iy]+4, iItemDropPosY[ix][iy]+4, cStr1,video::SColor(255,250,0,0));
 				if (strlen(cStr2) > 0) {
-					PutString(iItemDropPosX[ix][iy]+6, iItemDropPosY[ix][iy]+4+15, cStr2, RGB(0,250,0));
+					PutString(iItemDropPosX[ix][iy]+6, iItemDropPosY[ix][iy]+4+15, cStr2,video::SColor(255,0,250,0));
 					iTempY = 1;
 				}
-				if (strlen(cStr3) > 0) PutString(iItemDropPosX[ix][iy]+6, iItemDropPosY[ix][iy]+4+15+15*iTempY, cStr3, RGB(0,250,0));
+				if (strlen(cStr3) > 0) PutString(iItemDropPosX[ix][iy]+6, iItemDropPosY[ix][iy]+4+15+15*iTempY, cStr3,video::SColor(255,0,250,0));
 			}
 	}	}*/
 
@@ -4674,7 +4678,8 @@ BOOL CGame::DlgBoxPress_Inventory()
 		cItemID = m_cItemOrder[MAXITEMS - 1 - i];
 
 		if (m_pItemList[cItemID] != NULL)
-		{	m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->_GetSpriteRect(sX + 32 + m_pItemList[cItemID]->m_sX,
+		{
+			m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->_GetSpriteRect(sX + 32 + m_pItemList[cItemID]->m_sX,
 			                                                   sY + 44 + m_pItemList[cItemID]->m_sY, m_pItemList[cItemID]->m_sSpriteFrame);
 			x1 = (short)m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->m_rcBound.left;
 			y1 = (short)m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->m_rcBound.top;
@@ -4702,7 +4707,10 @@ BOOL CGame::DlgBoxPress_Inventory()
 						m_stMCursor.sDistY = msY - y1 + (short)m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->m_sPivotY;
 					}
 					return TRUE;
-	}	}	}	}
+				}
+			}
+		}
+	}
 	return FALSE;
 }
 
@@ -5240,8 +5248,46 @@ void CGame::InitGameSettings()
 	m_SoccerElvineGoals		= 0;
 }
 
+/*
 void CGame::_GetHairColorRGB(int iColorType, int * pR, int * pG, int * pB)
 {	switch (iColorType) {
+	case 0: // rouge foncé
+		*pR = 14; *pG = -5; *pB = -5; break;
+	case 1: // Orange
+		*pR = 20; *pG = 0; *pB = 0; break;
+	case 2: // marron tres clair
+		*pR = 22; *pG = 13; *pB = -10; break;
+	case 3:
+		*pR = 0; *pG = 10; *pB = 0; break;
+	case 4: // Bleu flashy
+		*pR = 0; *pG = 0; *pB = 22; break;
+	case 5: // Bleu foncé
+		*pR = -5; *pG = -5; *pB = 15; break;
+	case 6: //Mauve
+		*pR = 15; *pG = -5; *pB = 16; break;
+	case 7: // Noir
+		*pR = -6; *pG = -6; *pB = -6; break;
+	case 8:
+		*pR = 10; *pG = 3; *pB = 10; break;
+	case 9:
+		*pR = 10; *pG = 3; *pB = -10; break;
+	case 10:
+		*pR = -10; *pG = 3; *pB = 10; break;
+	case 11:
+		*pR = 10; *pG = 3; *pB = 20; break;
+	case 12:
+		*pR = 21; *pG = 3; *pB = 3; break;
+	case 13:
+		*pR = 3; *pG = 3; *pB = 25; break;
+	case 14:
+		*pR = 3; *pG = 11; *pB = 3; break;
+	case 15:
+		*pR = 6; *pG = 8; *pB = 0; break;
+	}
+}*/
+void CGame::_GetHairColorRGB(int iColorType, int * pR, int * pG, int * pB)
+{
+	switch (iColorType) {
 	case 0: // rouge foncé
 		*pR = 14; *pG = -5; *pB = -5; break;
 	case 1: // Orange
@@ -6221,11 +6267,14 @@ uint32 CGame::GetItemCount(char * pItemName)
 
 
 void CGame::AddEventList(char const * const pTxt, char cColor, BOOL bDupAllow)
-{int i;
+{
+	int i;
 	if ((bDupAllow == FALSE) && (strcmp(m_stEventHistory[5].cTxt, pTxt) == 0)) return;
 	if (cColor == 10)
-	{	for (i = 1; i < 6; i++)
-		{	strcpy(m_stEventHistory2[i-1].cTxt, m_stEventHistory2[i].cTxt);
+	{
+		for (i = 1; i < 6; i++)
+		{
+			strcpy(m_stEventHistory2[i-1].cTxt, m_stEventHistory2[i].cTxt);
 			m_stEventHistory2[i-1].cColor = m_stEventHistory2[i].cColor;
 			m_stEventHistory2[i-1].dwTime = m_stEventHistory2[i].dwTime;
 		}
@@ -6233,9 +6282,12 @@ void CGame::AddEventList(char const * const pTxt, char cColor, BOOL bDupAllow)
 		strcpy(m_stEventHistory2[5].cTxt, pTxt);
 		m_stEventHistory2[5].cColor = cColor;
 		m_stEventHistory2[5].dwTime = m_dwCurTime;
-	}else
-	{	for (i = 1; i < 6; i++)
-		{	strcpy(m_stEventHistory[i-1].cTxt, m_stEventHistory[i].cTxt);
+	}
+	else
+	{
+		for (i = 1; i < 6; i++)
+		{
+			strcpy(m_stEventHistory[i-1].cTxt, m_stEventHistory[i].cTxt);
 			m_stEventHistory[i-1].cColor = m_stEventHistory[i].cColor;
 			m_stEventHistory[i-1].dwTime = m_stEventHistory[i].dwTime;
 		}
@@ -7777,7 +7829,7 @@ void CGame::DrawEffects()
 			if (cTempFrame < 0) break;
 			dX  = (m_pEffectList[i]->m_mX)  - m_sViewPointX;
 			dY  = (m_pEffectList[i]->m_mY)  - m_sViewPointY;
-			//PutString(dX, dY, "*", RGB(255,255,255));
+			//PutString(dX, dY, "*",video::SColor(255,255,255,255));
 			if (cTempFrame < 7) {
 				iDvalue = -8*(6 - cTempFrame);
 				m_pEffectSpr[m_pEffectList[i]->m_sType-1]->PutTransSpriteRGB(dX, dY, cTempFrame+1, iDvalue, iDvalue, iDvalue, dwTime);
@@ -8910,14 +8962,15 @@ void CGame::PutString_SprFont3(int iX, int iY, char * pStr, short sR, short sG, 
 
 static char __cSpace2[] = {6,4,6,6,6,6,6,6,6,6,6}; //{8,6,9,8,8,9,8,8,8,8};
 void CGame::PutString_SprNum(int iX, int iY, char * pStr, short sR, short sG, short sB)
-{int iXpos;
+{
+	int iXpos;
  unsigned char iCnt;
  DWORD dwTime = G_dwGlobalTime;
  char  cTmpStr[200];
  WORD  wR, wG, wB;
 	ZeroMemory(cTmpStr, sizeof(cTmpStr));
 	strcpy(cTmpStr, pStr);
-	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(sR, sG, sB), &wR, &wG, &wB);
+	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,sR, sG, sB), &wR, &wG, &wB);
 	iXpos = iX;
 	for (iCnt = 0; iCnt < strlen(cTmpStr); iCnt++)
 	{	if ((cTmpStr[iCnt] >= 0x30) && (cTmpStr[iCnt] <= 0x39))
@@ -8930,49 +8983,116 @@ void CGame::PutString_SprNum(int iX, int iY, char * pStr, short sR, short sG, sh
 	}	}
 }
 
-void CGame::PutString(int iX, int iY, char const * pString, COLORREF color, BOOL bHide, char cBGtype, BOOL bIsPreDC)
-{char * pTmp;
+void CGame::PutString(int iX, int iY, char const * pString, video::SColor color, BOOL bHide, char cBGtype, BOOL bIsPreDC)
+{
+	char * pTmp;
  int i;
 	if (strlen(pString) == 0) return;
 	//if (bIsPreDC == FALSE) //DIRECTX m_DDraw._GetBackBufferDC();
 	if (bHide == FALSE)
-	{	switch (cBGtype) {
+	{
+		switch (cBGtype)
+		{
 		case 0:
+			PutString(iX+1, iY, (char*)pString, color);
 			//DIRECTX m_DDraw.TextOut(iX+1, iY, pString, color);
 			break;
 		case 1:
-			//DIRECTX m_DDraw.TextOut(iX, iY+1, pString, RGB(5,5,5));
-			//DIRECTX m_DDraw.TextOut(iX+1, iY+1, pString, RGB(5,5,5));
-			//DIRECTX m_DDraw.TextOut(iX+1, iY, pString, RGB(5,5,5));
+			PutString(iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutString(iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutString(iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
+			//DIRECTX m_DDraw.TextOut(iX, iY+1, pString,video::SColor(255,5,5,5));
+			//DIRECTX m_DDraw.TextOut(iX+1, iY+1, pString,video::SColor(255,5,5,5));
+			//DIRECTX m_DDraw.TextOut(iX+1, iY, pString,video::SColor(255,5,5,5));
 			break;
 		}
+		PutString(iX, iY, (char*)pString, color);
 		//DIRECTX m_DDraw.TextOut(iX, iY, pString, color);
-	}else
-	{ 	pTmp = new char[strlen(pString)+2];
+	}
+	else
+	{
+		pTmp = new char[strlen(pString)+2];
 		ZeroMemory(pTmp, strlen(pString)+2);
 		strcpy(pTmp, pString);
 		for (i = 0; i < (int)strlen(pString); i++)
 			if (pTmp[i] != NULL) pTmp[i] = '*';
 
-		switch (cBGtype) {
+		switch (cBGtype)
+		{
 		case 0:
-			//DIRECTX m_DDraw.TextOut(iX+1, iY, pTmp, color);
+			PutString(iX+1, iY, (char*)pString, color);
+			//DIRECTX m_DDraw.TextOut(iX+1, iY, pString, color);
 			break;
 		case 1:
-			//DIRECTX m_DDraw.TextOut(iX, iY+1, pTmp, RGB(5,5,5));
-			//DIRECTX m_DDraw.TextOut(iX+1, iY+1, pTmp, RGB(5,5,5));
-			//DIRECTX m_DDraw.TextOut(iX+1, iY, pTmp, RGB(5,5,5));
+			PutString(iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutString(iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutString(iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
+			//DIRECTX m_DDraw.TextOut(iX, iY+1, pString,video::SColor(255,5,5,5));
+			//DIRECTX m_DDraw.TextOut(iX+1, iY+1, pString,video::SColor(255,5,5,5));
+			//DIRECTX m_DDraw.TextOut(iX+1, iY, pString,video::SColor(255,5,5,5));
 			break;
 		}
+		PutString(iX, iY, (char*)pString, color);
 		//DIRECTX m_DDraw.TextOut(iX, iY, pTmp, color);
 		delete[] pTmp;
 	}
 	//if (bIsPreDC == FALSE) //DIRECTX m_DDraw._ReleaseBackBufferDC();
 }
-
-void CGame::PutString(int iX, int iY, char const * pString, COLORREF color)
+void CGame::PutFontString(gui::IGUIFont * font, int iX, int iY, char const * pString, video::SColor color, BOOL bHide, char cBGtype, BOOL bIsPreDC)
 {
-	font[0]->draw(pString,core::rect<s32>(iX,iY,iX+40,iY+10),video::SColor(color&0xFF000000>>24,color&0xFF0000>>16,color&0xFF00>>8,color&0xFF));
+	char * pTmp;
+	int i;
+	if (strlen(pString) == 0) return;
+	if (bHide == FALSE)
+	{
+		switch (cBGtype)
+		{
+		case 0:
+			PutFontString(font, iX+1, iY, (char*)pString, color);
+			break;
+		case 1:
+			PutFontString(font, iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutFontString(font, iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutFontString(font, iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
+			break;
+		}
+		PutFontString(font, iX, iY, (char*)pString, color);
+	}
+	else
+	{
+		pTmp = new char[strlen(pString)+2];
+		ZeroMemory(pTmp, strlen(pString)+2);
+		strcpy(pTmp, pString);
+		for (i = 0; i < (int)strlen(pString); i++)
+			if (pTmp[i] != NULL) pTmp[i] = '*';
+
+		switch (cBGtype)
+		{
+		case 0:
+			PutFontString(font, iX+1, iY, (char*)pString, color);
+			break;
+		case 1:
+			PutFontString(font, iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutFontString(font, iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutFontString(font, iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
+			break;
+		}
+		PutFontString(font, iX, iY, (char*)pString, color);
+		delete[] pTmp;
+	}
+}
+void CGame::PutChatString(int iX, int iY, char * pString, video::SColor color)
+{
+	font[1]->draw(pString,core::rect<s32>(iX,iY,iX+40,iY+10),video::SColor(color));
+//	PutFontString(font[1], iX, iY, pString, color);
+}
+void CGame::PutFontString(gui::IGUIFont * font, int iX, int iY, char * pString, video::SColor color)
+{
+	font->draw(pString,core::rect<s32>(iX,iY,iX+40,iY+10),(color));
+}
+void CGame::PutString(int iX, int iY, char const * pString, video::SColor color)
+{
+	font[FONT_TREBMS8PX]->draw(pString,core::rect<s32>(iX,iY,iX+40,iY+10),video::SColor(color));
 
 	//DIRECTX m_DDraw._GetBackBufferDC();
 	//DIRECTX m_DDraw.TextOut(iX, iY, pString, color);
@@ -8981,155 +9101,33 @@ void CGame::PutString(int iX, int iY, char const * pString, COLORREF color)
 
 void CGame::PutString2(int iX, int iY, char * pString, short sR, short sG, short sB)
 {
-	font[0]->draw(pString,core::rect<s32>(iX,iY,iX+40,iY+10),video::SColor(255,sR,sG,sB));
+	font[FONT_TREBMS8PX]->draw(pString,core::rect<s32>(iX+1,iY+1,iX+40+1,iY+10+1),video::SColor(255, 0, 0, 0));
+	font[FONT_TREBMS8PX]->draw(pString,core::rect<s32>(iX,iY,iX+40,iY+10),video::SColor(255,sR,sG,sB));
 	//DIRECTX m_DDraw._GetBackBufferDC();
-	//DIRECTX m_DDraw.TextOut(iX+1, iY, pString, RGB(0, 0, 0));
-	//DIRECTX m_DDraw.TextOut(iX, iY+1, pString, RGB(0, 0, 0));
-	//DIRECTX m_DDraw.TextOut(iX+1, iY+1, pString, RGB(0, 0, 0));
-	//DIRECTX m_DDraw.TextOut(iX, iY, pString, RGB(sR, sG, sB));
+	//DIRECTX m_DDraw.TextOut(iX+1, iY, pString,video::SColor(255,0, 0, 0));
+	//DIRECTX m_DDraw.TextOut(iX, iY+1, pString,video::SColor(255,0, 0, 0));
+	//DIRECTX m_DDraw.TextOut(iX+1, iY+1, pString,video::SColor(255,0, 0, 0));
+	//DIRECTX m_DDraw.TextOut(iX, iY, pString,video::SColor(255,sR, sG, sB));
 	//DIRECTX m_DDraw._ReleaseBackBufferDC();
 }
 
-void CGame::PutString3(int iX, int iY, char const * pString, COLORREF color)
+void CGame::PutString3(int iX, int iY, char const * pString, video::SColor color)
 {
-	font[0]->draw(pString,core::rect<s32>(iX,iY,iX+40,iY+10),video::SColor(color&0xFF000000>>24,color&0xFF0000>>16,color&0xFF00>>8,color&0xFF));
+	font[FONT_TREBMS8PX]->draw(pString,core::rect<s32>(iX,iY,iX+40,iY+10),color);
 	//DIRECTX m_DDraw._GetBackBufferDC();
 	//DIRECTX m_DDraw.TextOut(iX, iY, pString, color);
 	//DIRECTX m_DDraw.TextOut(iX+1, iY, pString, color);
 	//DIRECTX m_DDraw._ReleaseBackBufferDC();
 }
 
-void CGame::PutAlignedString(int iX1, int iX2, int iY, char const * const pString, short sR, short sG, short sB)
+void CGame::PutAlignedString(int iX1, int iX2, int iY, char const * const pString, video::SColor color)
 {
-	font[0]->draw(pString,core::rect<s32>(iX1,iY,iX2,iY+10),video::SColor(255, sR, sG, sB));
-	RECT rt;
-	//DIRECTX m_DDraw._GetBackBufferDC();
-	SetRect(&rt, iX1, iY, iX2, iY+15);
-	//DIRECTX m_DDraw.DrawText(&rt, pString, RGB(sR, sG, sB));
-	//DIRECTX m_DDraw._ReleaseBackBufferDC();
-}
-
-void CGame::PutAlignedLabel(int iX1, int iX2, int iY, char const * const pString)
-{
-	PutAlignedString(iX1, iX2, iY, pString, 55,25,25);
-}
-
-void CGame::PutAlignedLabel(const RECT * rect, char const * const pString)
-{
-	PutAlignedString(rect->left, rect->right, rect->top, pString, 55,25,25);
-}
-
-void CGame::PutLabel(const RECT & rect, char const * const pString, Alignment pos)
-{
-	switch(pos)
-	{
-	case POS_CENTER:
-		PutAlignedString(rect.left, rect.right, rect.top, pString, 55,25,25);
-		break;
-
-	case POS_LEFT:
-		PutStringLeft(rect.left, rect.right, rect.top, pString, RGB(55,25,25));
-		break;
-	}
-}
-
-void CGame::PutAlignedString(int iX1, int iX2, int iY, char const * const pString, bool highlight)
-{
-	PutAlignedString(iX1, iX2, iY, pString, highlight ? 255 : 4, highlight ? 255 : 0, highlight ? 255 : 50);
-}
-
-void CGame::PutAlignedString(int iX1, int iX2, int iY, char const * const pString, COLORREF color)
-{
-	RECT rt;
-	//DIRECTX m_DDraw._GetBackBufferDC();
-	SetRect(&rt, iX1, iY, iX2, iY+15);
-	//DIRECTX m_DDraw.DrawText(&rt, pString, color);
-	//DIRECTX m_DDraw._ReleaseBackBufferDC();
-}
-
-void CGame::PutAlignedString(int iX1, int iX2, int iY, char const * const pString, bool wordWrap, COLORREF color)
-{
-	font[0]->draw(pString,core::rect<s32>(iX1,iY,iX2,iY+10),video::SColor(color&0xFF000000>>24,color&0xFF0000>>16,color&0xFF00>>8,color&0xFF));
-	RECT rt;
-	//DIRECTX m_DDraw._GetBackBufferDC();
-	SetRect(&rt, iX1, iY, iX2, iY+15);
-	//DIRECTX m_DDraw.DrawText(&rt, pString, color, wordWrap);
-	//DIRECTX m_DDraw._ReleaseBackBufferDC();
-}
-
-void CGame::PutAlignedString(const RECT * rect, char const * const pString, COLORREF color)
-{
-	//DIRECTX m_DDraw._GetBackBufferDC();
-	//DIRECTX m_DDraw.DrawText(const_cast<LPRECT> (rect), pString, color);
-	//DIRECTX m_DDraw._ReleaseBackBufferDC();
-}
-
-void CGame::PutStringRight(int iX1, int iX2, int iY, char const * const pString, COLORREF color)
-{
-	RECT rt;
-	//DIRECTX m_DDraw._GetBackBufferDC();
-	SetRect(&rt, iX1, iY, iX2, iY+15);
-	//DIRECTX m_DDraw.DrawTextEx(&rt, pString, color, DT_RIGHT);
-	//DIRECTX m_DDraw._ReleaseBackBufferDC();
-}
-
-void CGame::PutStringLeft(int iX1, int iX2, int iY, char const * const pString, COLORREF color, bool wordWrap)
-{
-	RECT rt;
-	//DIRECTX m_DDraw._GetBackBufferDC();
-	SetRect(&rt, iX1, iY, iX2, iY+15);
-	//DIRECTX m_DDraw.DrawTextEx(&rt, pString, color, DT_LEFT, true);
-	//DIRECTX m_DDraw._ReleaseBackBufferDC();
-}
-
-void CGame::PutStringLeft(int iX1, int iX2, int iY, char const * const pString, bool highlight, bool wordWrap)
-{
-	PutStringLeft(iX1, iX2, iY, pString, highlight ? RGB(255,255,255) : RGB(4,0,50), wordWrap);
-}
-
-void CGame::PutStringLeft(const RECT * rect, char const * const pString, COLORREF color, bool wordWrap)
-{
-	//DIRECTX m_DDraw._GetBackBufferDC();
-	//DIRECTX m_DDraw.DrawTextEx(const_cast<LPRECT> (rect), pString, color, DT_LEFT, true);
-	//DIRECTX m_DDraw._ReleaseBackBufferDC();
-}
-
-void CGame::ButtonString(CDialogBox & dlg, int button, char const * const pString, Alignment pos)
-{
-	switch(pos)
-	{
-	case POS_CENTER:
-		PutAlignedString(&dlg.GetButton(button), pString, (dlg.OnButton() == button) ? RGB(255,255,255) : RGB(4,0,50));
-		break;
-
-	case POS_LEFT:
-		PutStringLeft(&dlg.GetButton(button), pString, (dlg.OnButton() == button) ? RGB(255,255,255) : RGB(4,0,50));
-		break;
-	}
-}
-
-void CGame::ButtonStringToggle(CDialogBox & dlg, int button, char const * const pString, bool enabled, Alignment pos)
-{
-	COLORREF c;
-	if(dlg.OnButton() == button)
-	{
-		c = RGB(255,255,255);
-	} else if(enabled) {
-		c = RGB(50,220,50);
-	} else {
-		c = RGB(220,50,50);
-	}
-
-	switch(pos)
-	{
-	case POS_CENTER:
-		PutAlignedString(&dlg.GetButton(button), pString, c);
-		break;
-
-	case POS_LEFT:
-		PutStringLeft(&dlg.GetButton(button), pString, c);
-		break;
-	}
+	font[0]->draw(pString,core::rect<s32>(iX1,iY,iX2+40,iY+10),color);
+// 	RECT rt;
+// 	m_DDraw._GetBackBufferDC();
+// 	SetRect(&rt, iX1, iY, iX2, iY+15);
+// 	m_DDraw.DrawText(&rt, pString, RGB(sR, sG, sB));
+// 	m_DDraw._ReleaseBackBufferDC();
 }
 
 BOOL CGame::bInitMagicCfgList()
@@ -14551,6 +14549,28 @@ BOOL CGame::DrawObject_OnMove_ForMenu(int indexX, int indexY, int sX, int sY, BO
 	return FALSE;
 }
 
+void CGame::DrawStatusText(int sX, int sY)
+{
+	if (m_altPressed)
+	{
+		wsprintfA(G_cTxt,"Appr1: 0x%.4X ",(WORD)_tmp_sAppr1);
+		PutString2(sX+70, sY+(14*1), G_cTxt, 30,255,30);
+		wsprintfA(G_cTxt,"Appr2: 0x%.4X ",(WORD)_tmp_sAppr2);
+		PutString2(sX+70, sY+(14*2), G_cTxt, 30,255,30);
+		wsprintfA(G_cTxt,"Appr3: 0x%.4X ",(WORD)_tmp_sAppr3);
+		PutString2(sX+70, sY+(14*3), G_cTxt, 30,255,30);
+		wsprintfA(G_cTxt,"Appr4: 0x%.4X ",(WORD)_tmp_sAppr4);
+		PutString2(sX+70, sY+(14*4), G_cTxt, 30,255,30);
+		wsprintfA(G_cTxt,"HeadAppr: 0x%.4X ",(WORD)_tmp_sHeadApprValue); // Re-Coding Sprite xRisenx
+		PutString2(sX+70, sY+(14*5), G_cTxt, 30,255,30);
+		wsprintfA(G_cTxt,"BodyAppr: 0x%.4X ",(WORD)_tmp_sBodyApprValue); // Re-Coding Sprite xRisenx
+		PutString2(sX+70, sY+(14*6), G_cTxt, 30,255,30);
+		wsprintfA(G_cTxt,"ArmAppr: 0x%.4X ",(WORD)_tmp_sArmApprValue); // Re-Coding Sprite xRisenx
+		PutString2(sX+70, sY+(14*7), G_cTxt, 30,255,30);
+		wsprintfA(G_cTxt,"LegAppr: 0x%.4X ",(WORD)_tmp_sLegApprValue); // Re-Coding Sprite xRisenx
+		PutString2(sX+70, sY+(14*8), G_cTxt, 30,255,30);
+	}
+}
 
 BOOL   CGame::DrawObject_OnStop(int indexX, int indexY, int sX, int sY, BOOL bTrans, DWORD dwTime, int msX, int msY)
 {int iBodyIndex, iUndiesIndex, iHairIndex, iBodyArmorIndex, iArmArmorIndex, iPantsIndex, iBootsIndex, iHelmIndex, iR, iG, iB;
@@ -15165,22 +15185,7 @@ BOOL   CGame::DrawObject_OnStop(int indexX, int indexY, int sX, int sY, BOOL bTr
 			DrawNpcName(sX, sY, _tmp_sOwnerType, _tmp_iStatus);
 		}
 #ifdef _DEBUG
-		wsprintfA(G_cTxt,"Appr1: 0x%.4X ",(WORD)_tmp_sAppr1);
-		PutString2(sX+70, sY+(14*1), G_cTxt, 30,255,30);
-		wsprintfA(G_cTxt,"Appr2: 0x%.4X ",(WORD)_tmp_sAppr2);
-		PutString2(sX+70, sY+(14*2), G_cTxt, 30,255,30);
-		wsprintfA(G_cTxt,"Appr3: 0x%.4X ",(WORD)_tmp_sAppr3);
-		PutString2(sX+70, sY+(14*3), G_cTxt, 30,255,30);
-		wsprintfA(G_cTxt,"Appr4: 0x%.4X ",(WORD)_tmp_sAppr4);
-		PutString2(sX+70, sY+(14*4), G_cTxt, 30,255,30);
-		wsprintfA(G_cTxt,"HeadAppr: 0x%.4X ",(WORD)_tmp_sHeadApprValue); // Re-Coding Sprite xRisenx
-		PutString2(sX+70, sY+(14*5), G_cTxt, 30,255,30);
-		wsprintfA(G_cTxt,"BodyAppr: 0x%.4X ",(WORD)_tmp_sBodyApprValue); // Re-Coding Sprite xRisenx
-		PutString2(sX+70, sY+(14*6), G_cTxt, 30,255,30);
-		wsprintfA(G_cTxt,"ArmAppr: 0x%.4X ",(WORD)_tmp_sArmApprValue); // Re-Coding Sprite xRisenx
-		PutString2(sX+70, sY+(14*7), G_cTxt, 30,255,30);
-		wsprintfA(G_cTxt,"LegAppr: 0x%.4X ",(WORD)_tmp_sLegApprValue); // Re-Coding Sprite xRisenx
-		PutString2(sX+70, sY+(14*8), G_cTxt, 30,255,30);
+		DrawStatusText(sX, sY);
 #endif
 	}
 
@@ -16035,7 +16040,7 @@ void CGame::UpdateScreen_OnMsg()
 
 
 	////DIRECTX m_DDraw.ClearBackB4();//DIRECTX
-	PutString(10, 10, m_cMsg, RGB(255,155,155), FALSE, 1);
+	PutString(10, 10, m_cMsg,video::SColor(255,255,155,155), FALSE, 1);
 	DrawVersion();
 	////DIRECTX m_dInput.UpdateMouseState(&msX, &msY, &msZ, &cLB, &cRB, &cMB);//DIRECTX
 	m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(msX, msY, 0, dwTime);
@@ -16290,13 +16295,15 @@ void CGame::ChatMsgHandler(char * pData)
 	TimeStamp(timeStamp);
 
 	ZeroMemory(cMsg, sizeof(cMsg));
-	if(cMsgType == CHAT_WHISPER && (memcmp(m_cPlayerName, cName, 10) == 0))\
+	if(cMsgType == CHAT_WHISPER && (memcmp(m_cPlayerName, cName, 10) == 0))
 	{
 		if (m_showTimeStamp)
 			wsprintfA(cMsg, "[%s](%s) %s: %s", timeStamp, m_cWhisperName, cName, cTemp);
 		else
 			wsprintfA(cMsg, "(%s) %s: %s", m_cWhisperName, cName, cTemp);
-	}else{
+	}
+	else
+	{
 		if (m_showTimeStamp)
 			wsprintfA(cMsg, "[%s] %s: %s", timeStamp, cName, cTemp);
 		else
@@ -16307,14 +16314,21 @@ void CGame::ChatMsgHandler(char * pData)
 	bFlag = FALSE;
 	short sCheckByte = 0;
 	while (bFlag == FALSE)
-	{	//DIRECTXiLoc = m_Misc.iGetTextLengthLoc(//DIRECTX m_DDraw.m_hDC, cMsg, 305);
-		for( int i=0 ; i<iLoc ; i++ ) if( cMsg[i] < 0 ) sCheckByte ++;
+	{
+		//DIRECTX iLoc = m_Misc.iGetTextLengthLoc(m_DDraw.m_hDC, cMsg, 305);
+		iLoc = 0;
+		for( int i=0 ; i<iLoc ; i++ )
+			if( cMsg[i] < 0 ) sCheckByte ++;
 		if (iLoc == 0)
-		{	PutChatScrollList(cMsg, cMsgType);
+		{
+			PutChatScrollList(cMsg, cMsgType);
 			bFlag = TRUE;
-		}else
-		{	if ((sCheckByte%2)==0)
-			{	ZeroMemory(cTemp, sizeof(cTemp));
+		}
+		else
+		{
+			if ((sCheckByte%2)==0)
+			{
+				ZeroMemory(cTemp, sizeof(cTemp));
 				memcpy(cTemp, cMsg, iLoc);
 				PutChatScrollList(cTemp, cMsgType);
 				ZeroMemory(cTemp, sizeof(cTemp));
@@ -16322,7 +16336,8 @@ void CGame::ChatMsgHandler(char * pData)
 				ZeroMemory(cMsg, sizeof(cMsg));
 				strcpy(cMsg, " ");
 				strcat(cMsg, cTemp);
-			}else
+			}
+			else
 			{	ZeroMemory(cTemp, sizeof(cTemp));
 				memcpy(cTemp, cMsg, iLoc+1);
 				PutChatScrollList(cTemp, cMsgType);
@@ -16331,7 +16346,9 @@ void CGame::ChatMsgHandler(char * pData)
 				ZeroMemory(cMsg, sizeof(cMsg));
 				strcpy(cMsg, " ");
 				strcat(cMsg, cTemp);
-	}	}	}
+			}
+		}
+	}
 
 	//DIRECTX m_DDraw._ReleaseBackBufferDC();
 
@@ -16424,26 +16441,40 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, 800+32, 600+32); // 800x600 Resolution xRisenx
 		indexY = sDivY+m_pMapData->m_sPivotY;
 		//for (iy = -sModY; iy < 427+48 ; iy += 32)
-		for (iy = -sModY; iy < 547+48 ; iy += 32) // 800x600 xRisenx
+		driver->setRenderTarget(bg, true, true, video::SColor(0,0,0,0));
+		for (iy = -sModY; iy < 547+48 +32; iy += 32) // 800x600 xRisenx
 		//for (iy = -sModY; iy < iyMax ; iy += 32) Resolution Need to check? Core code changed?
 		{
 			indexX = sDivX+m_pMapData->m_sPivotX;
 			//for (ix = -sModX; ix < 640+48 ; ix += 32)
-			for (ix = -sModX; ix < 800+48 ; ix += 32) // 800x600 Resolution xRisenx
+			for (ix = -sModX; ix < 800+48 +32; ix += 32) // 800x600 Resolution xRisenx
 			{	sSpr      = m_pMapData->m_tile[indexX][indexY].m_sTileSprite;
 				sSprFrame = m_pMapData->m_tile[indexX][indexY].m_sTileSpriteFrame;
-				//m_pTileSpr[sSpr]->PutSpriteFastNoColorKeyDst(//DIRECTX m_DDraw.m_lpPDBGS, ix - 16 +sModX, iy - 16 +sModY, sSprFrame, m_dwCurTime);
+				m_pTileSpr[sSpr]->PutSpriteFastNoColorKeyDst((LPDIRECTDRAWSURFACE7)0, ix - 16 +sModX, iy - 16 +sModY, sSprFrame, m_dwCurTime);
 				indexX++;
 			}
 			indexY++;
 		}
+		driver->setRenderTarget(0);
 		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, 640, 480);
 		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, 800, 600); // 800x600 Resolution xRisenx
 	}
 	RECT rcRect;
 	//SetRect(&rcRect, sModX, sModY, 640+sModX, 480+sModY); // our fictitious sprite bitmap is
-	//SetRect(&rcRect, sModX, sModY, 800+sModX, 600+sModY); // 800x600 Resolution xRisenx
+	SetRect(&rcRect, sModX, sModY, 800+sModX, 600+sModY); // 800x600 Resolution xRisenx
 	//DIRECTX m_DDraw.m_lpBackB4->BltFast( 0, 0, //DIRECTX m_DDraw.m_lpPDBGS, &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
+	
+	driver->draw2DImage(bg, core::vector2d<s32>(0-sModX,0-sModY));
+
+
+	char cfps[20];
+	sprintf(cfps, "sModX: %d sModY: %d", sModX, sModY);
+
+	font[0]->draw(cfps,
+		core::rect<s32>(5,100,40,110),
+		video::SColor(255,255,255,255));
+
+
 
 	if (m_showGrid)
 	{
@@ -18764,8 +18795,8 @@ void CGame::DrawDialogBox_GuideMap()
 		//if( sY > 213 ) shY = sY - 17;
 		if( sY > 273 ) shY = sY - 17; // 800x600 Resolution xRisenx
 		else shY = sY + szY + 4;
-		if( m_bZoomMap ) PutString( sX, shY, MSG_GUIDEMAP_MIN, RGB(200, 200, 120) );//"(-)
-		else PutString( sX, shY, MSG_GUIDEMAP_MAX, RGB(200, 200, 120) );//"(+)
+		if( m_bZoomMap ) PutString( sX, shY, MSG_GUIDEMAP_MIN,video::SColor(255,200, 200, 120) );//"(-)
+		else PutString( sX, shY, MSG_GUIDEMAP_MAX,video::SColor(255,200, 200, 120) );//"(+)
 
 		if( m_bZoomMap )
 		{
@@ -18887,7 +18918,7 @@ void CGame::DrawDialogBox_GuideMap()
 			else if( shX > 60 && shX < 80 && shY > 20 && shY < 40 )  strcpy( G_cTxt, "Elvine");
 		}
 
-		PutString( G_pGame->m_stMCursor.sX-10, G_pGame->m_stMCursor.sY-13, G_cTxt, RGB(200, 200, 120) );
+		PutString( G_pGame->m_stMCursor.sX-10, G_pGame->m_stMCursor.sY-13, G_cTxt,video::SColor(255,200, 200, 120) );
 	}
 }
 
@@ -18933,7 +18964,7 @@ void CGame::DrawDialogBoxes()
 				DrawLine(j->left, j->bottom, j->right-1, j->bottom , 255,255,255);
 				DrawLine(j->right, j->top, j->right, j->bottom-1, 255,255,255);
 				wsprintfA(G_cTxt,"%d",k);
-				PutAlignedString(j->left,j->right,j->top - 7 + (j->bottom-j->top)/2, G_cTxt,RGB(255,255,255));
+				PutAlignedString(j->left,j->right,j->top - 7 + (j->bottom-j->top)/2, G_cTxt,video::SColor(255,255,255,255));
 			}
 		}
 #endif
@@ -20239,15 +20270,15 @@ void CGame::ShowReceivedString(BOOL bIsHide)
 
 	if(m_iInputX2 == 0)
 	{
-		PutString(m_iInputX+1, m_iInputY+1, G_cTxt2, RGB(0,0,0));
-		PutString(m_iInputX, m_iInputY+1, G_cTxt2, RGB(0,0,0));
-		PutString(m_iInputX+1, m_iInputY, G_cTxt2, RGB(0,0,0));
-		PutString(m_iInputX, m_iInputY, G_cTxt2, RGB(255,255,255));
+		PutString(m_iInputX+1, m_iInputY+1, G_cTxt2,video::SColor(255,0,0,0));
+		PutString(m_iInputX, m_iInputY+1, G_cTxt2,video::SColor(255,0,0,0));
+		PutString(m_iInputX+1, m_iInputY, G_cTxt2,video::SColor(255,0,0,0));
+		PutString(m_iInputX, m_iInputY, G_cTxt2,video::SColor(255,255,255,255));
 	} else {
-		PutStringLeft(m_iInputX+1, m_iInputX2+1, m_iInputY+1, G_cTxt2, RGB(0,0,0), true);
-		PutStringLeft(m_iInputX, m_iInputX2, m_iInputY+1, G_cTxt2, RGB(0,0,0), true);
-		PutStringLeft(m_iInputX+1, m_iInputX2+1, m_iInputY, G_cTxt2, RGB(0,0,0), true);
-		PutStringLeft(m_iInputX, m_iInputX2, m_iInputY, G_cTxt2, RGB(255,255,255), true);
+		PutAlignedString(m_iInputX+1, m_iInputX2+1, m_iInputY+1, G_cTxt2,video::SColor(255,0,0,0));
+		PutAlignedString(m_iInputX, m_iInputX2, m_iInputY+1, G_cTxt2,video::SColor(255,0,0,0));
+		PutAlignedString(m_iInputX+1, m_iInputX2+1, m_iInputY, G_cTxt2,video::SColor(255,0,0,0));
+		PutAlignedString(m_iInputX, m_iInputX2, m_iInputY, G_cTxt2,video::SColor(255,255,255,255));
 	}
 }
 
@@ -20758,7 +20789,7 @@ void CGame::DrawTopMsg()
 
 	if ((((G_dwGlobalTime - m_dwTopMsgTime)/250) % 2) == 0)
 		//PutAlignedString(0, 639, 10, m_cTopMsg, 255,255,255);
-		PutAlignedString(0, 799, 30, m_cTopMsg, 255,255,255); // 800x600 Resolution xRisenx
+		PutAlignedString(0, 799, 30, m_cTopMsg, video::SColor(255,255,255,255)); // 800x600 Resolution xRisenx
 
 	if ( G_dwGlobalTime > (m_iTopMsgLastSec*CLOCKS_PER_SEC+m_dwTopMsgTime) ) {
 		ZeroMemory(m_cTopMsg, sizeof(m_cTopMsg));
@@ -20808,7 +20839,7 @@ void CGame::DrawDialogBox_TopPanel()
 		//else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(368+127, 440+120, 5, dwTime); // 800x600 Resolution xRisenx Right? +127 +120
 		else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(506+127, 433+120, 46, dwTime); // Fixed xRisenx
 	}
-	PutAlignedString(103+25, 245+25, 456+120, G_cTxt, 250,250,220); // Fixed xRisenx
+	PutAlignedString(103+25, 245+25, 456+120, G_cTxt, video::SColor(255,250,250,220)); // Fixed xRisenx
 }
 void CGame::DrawDialogBox_IconPanel()
 {
@@ -20828,10 +20859,10 @@ void CGame::DrawDialogBox_IconPanel()
 	}
 
 	wsprintfA(G_cTxt, "Contri Pts: %d - Majs Pts: %d",m_iContribution ,m_iGizonItemUpgradeLeft);
-	PutAlignedString(188, 342, 555, G_cTxt, 0,20,0);
+	PutAlignedString(188, 342, 555, G_cTxt, video::SColor(255,0,20,0));
 	//wsprintfA(G_cTxt, "Def Ratio: %d - Hit Ratio: %d",m_iAC ,m_iTHAC0); // Armor Def dont show, Hitrate Only shows weaps. Fix later xRisenx
 	wsprintfA(G_cTxt, "Def Ratio: %d - Hit Ratio: %d", m_iDefenseRatio ,m_iTHAC0); // Hitrate Only shows weaps. Fix later xRisenx
-	PutAlignedString(188, 342, 565, G_cTxt, 0,20,0);
+	PutAlignedString(188, 342, 565, G_cTxt, video::SColor(255,0,20,0));
 
 	if ((m_bIsCrusadeMode) && (m_iCrusadeDuty != 0)) {
 		if (m_side == ARESDEN) {
@@ -20862,38 +20893,38 @@ void CGame::DrawDialogBox_IconPanel()
 	if (onButton == 3) { // Character    
 			m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(573, 555, 49, dwTime);
 			wsprintfA(G_cTxt, "Character Menu");
-		PutString(textX, textY, G_cTxt, RGB(250,250,220));
+		PutString(textX, textY, G_cTxt,video::SColor(255,250,250,220));
 		}
 	else if (onButton == 4) { // Inventory
 			m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(610, 555, 50, dwTime);
 			wsprintfA(G_cTxt, "Inventory");
-		PutString(textX, textY, G_cTxt, RGB(250,250,220));
+		PutString(textX, textY, G_cTxt,video::SColor(255,250,250,220));
 		}
 	else if (onButton == 5) { // Magic
 			m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(647, 555, 51, dwTime);
 			wsprintfA(G_cTxt, "Spell Book");
-		PutString(textX, textY, G_cTxt, RGB(250,250,220));
+		PutString(textX, textY, G_cTxt,video::SColor(255,250,250,220));
 		}
 	else if (onButton == 6) { // Skill
 			m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(684, 555, 52, dwTime);
 			wsprintfA(G_cTxt, "Title List"); // Titles xRisenx
-		PutString(textX, textY, G_cTxt, RGB(250,250,220));
+		PutString(textX, textY, G_cTxt,video::SColor(255,250,250,220));
 		}
 	else if (onButton == 7) { // History
 			m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(721, 555, 53, dwTime);
 			wsprintfA(G_cTxt, "Chat History");
-		PutString(textX, textY, G_cTxt, RGB(250,250,220));
+		PutString(textX, textY, G_cTxt,video::SColor(255,250,250,220));
 		}
 	else if (onButton == 8) { // System Menu
 			m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(758, 555, 54, dwTime);
 			wsprintfA(G_cTxt, "Options");
-		PutString(textX, textY, G_cTxt, RGB(250,250,220));
+		PutString(textX, textY, G_cTxt,video::SColor(255,250,250,220));
 		}
 
 	// Experience Status Bar xRisenx
     if (onButton == 12) {
         wsprintfA(G_cTxt, MSG_EXP "%d / %d", m_iExp, iGetLevelExp(m_iLevel+1));
-        PutString(textX, textY, G_cTxt, RGB(250,250,220));
+        PutString(textX, textY, G_cTxt,video::SColor(255,250,250,220));
     }
 
 	// Magic Icons xRisenx
@@ -20949,7 +20980,7 @@ void CGame::DrawDialogBox_IconPanel()
 			}
 #endif
 	wsprintfA(G_cTxt, "%s(%d,%d)", m_cMapMessage, m_sPlayerX, m_sPlayerY);
-	PutAlignedString(188, 342, 576, G_cTxt, 250,250,220); // Fixed xRisenx
+	PutAlignedString(188, 342, 576, G_cTxt, video::SColor(255,250,250,220)); // Fixed xRisenx
 
 }
 
@@ -21079,12 +21110,12 @@ void CGame::DrawDialogBox_Text()
 	if (m_pMsgTextList[i + m_dialogBoxes[18].sView] != NULL) {
 		if (m_bDialogTrans == FALSE) {
 			switch (m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg[0]) {
-			case '_': PutAlignedString(sX +24, sX +236, sY + 50 +i*13, (m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg+1), 255,255,255); break;
-			case ';': PutAlignedString(sX +24, sX +236, sY + 50 +i*13, (m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg+1), 4, 0, 50); break;
-			default: PutAlignedString(sX +24, sX +236, sY + 50 +i*13, m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg, 45,25,25); break;
+			case '_': PutAlignedString(sX +24, sX +236, sY + 50 +i*13, (m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg+1), video::SColor(255,255,255,255)); break;
+			case ';': PutAlignedString(sX +24, sX +236, sY + 50 +i*13, (m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg+1), video::SColor(255,4, 0, 50)); break;
+			default: PutAlignedString(sX +24, sX +236, sY + 50 +i*13, m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg, video::SColor(255,45,25,25)); break;
 			}
 		}
-		else PutAlignedString(sX +24, sX +236, sY + 50 +i*13, m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg, 0,0,0);
+		else PutAlignedString(sX +24, sX +236, sY + 50 +i*13, m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg, video::SColor(255,0,0,0));
 	}
 
 	if (m_dialogBoxes[18].OnButton() == 1)
@@ -21111,10 +21142,10 @@ void CGame::DrawDialogBox_WarningMsg()
 	//DrawNewDialogBox(SPRID_INTERFACE_ND_GAME4, sX, sY, 2);
 
 	PutString2(sX + 72, sY + 32, MSG_WARNING1, 200,200,25);//" ** This is a battle area **"
-	PutString(sX + 30, sY + 55, MSG_WARNING2, RGB(220,130,45) );//"This is a dangerous area where you"
-	PutString(sX + 30, sY + 72, MSG_WARNING3, RGB(220,130,45) );//"cannot protected from others' attack."
-	PutString(sX + 30, sY + 90, MSG_WARNING4, RGB(220,130,45) );//"To play the game in safe, go to the"
-	PutString(sX + 30, sY +108, MSG_WARNING5, RGB(220,130,45) );//" cityhall and change to civilian mode."
+	PutString(sX + 30, sY + 55, MSG_WARNING2,video::SColor(255,220,130,45) );//"This is a dangerous area where you"
+	PutString(sX + 30, sY + 72, MSG_WARNING3,video::SColor(255,220,130,45) );//"cannot protected from others' attack."
+	PutString(sX + 30, sY + 90, MSG_WARNING4,video::SColor(255,220,130,45) );//"To play the game in safe, go to the"
+	PutString(sX + 30, sY +108, MSG_WARNING5,video::SColor(255,220,130,45) );//" cityhall and change to civilian mode."
 
 	if (onButton == 1)
 		  DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + 122, sY + 127 , 1);
@@ -21138,23 +21169,23 @@ void CGame::DrawDialogBox_ItemDrop()
 	if (strlen(m_dialogBoxes[4].cStr) == 0)  wsprintfA(cTxt, "%s", cStr1);
 
 	if(m_bIsSpecial){
-		PutString3(sX + 35, sY + 20, cTxt, RGB(0, 255, 0));
+		PutString3(sX + 35, sY + 20, cTxt,video::SColor(255,0, 255, 0));
 	}else{
-		PutString3(sX + 35, sY + 20, cTxt, RGB(4,0,50));
+		PutString3(sX + 35, sY + 20, cTxt,video::SColor(255,4,0,50));
 	}
-	PutString3(sX + 35, sY + 36, DRAW_DIALOGBOX_ITEM_DROP1 , RGB(4,0,50));
+	PutString3(sX + 35, sY + 36, DRAW_DIALOGBOX_ITEM_DROP1 ,video::SColor(255,4,0,50));
 
 	if(m_bItemDrop){
 		if (onButton == 3){
-			PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP2, RGB(255,255,255));
+			PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP2,video::SColor(255,255,255,255));
 		}else{
-			PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP2, RGB(4,0,50));
+			PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP2,video::SColor(255,4,0,50));
 		}
 	}else{
 		if (onButton == 3){
-			PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP3, RGB(255,255,255));
+			PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP3,video::SColor(255,255,255,255));
 		}else{
-			PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP3, RGB(4,0,50));
+			PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP3,video::SColor(255,4,0,50));
 		}	
 	}
 
@@ -21204,7 +21235,7 @@ void CGame::DrawDialogBox_NpcTalk()
 
 	for (i = 0; i < 17; i++)
 	if ((i < TEXTDLGMAXLINES) && (m_pMsgTextList2[i + m_dialogBoxes[21].sView] != NULL)) {
-		PutAlignedString(sX, sX+m_dialogBoxes[21].sSizeX, sY + 57 +i*15, m_pMsgTextList2[i + m_dialogBoxes[21].sView]->m_pMsg, 45,25,25);
+		PutAlignedString(sX, sX+m_dialogBoxes[21].sSizeX, sY + 57 +i*15, m_pMsgTextList2[i + m_dialogBoxes[21].sView]->m_pMsg, video::SColor(255,45,25,25));
 	}
 
 	iTotalLines = 0;
@@ -21271,8 +21302,8 @@ void CGame::DrawDialogBox_Slates()
 		m_pSprite[SPRID_INTERFACE_ND_INVENTORY]->PutSpriteFast(sX, sY, 4, dwTime);
 		m_pSprite[SPRID_INTERFACE_ND_INVENTORY]->PutSpriteFast(sX+22, sY+14, 3, dwTime);
 		//PutString_SprFont(sX + iAdjX + 170, sY + iAdjY + 170, "KURURURURURURURURU!!!", 20,6,6);
-		PutAlignedString(199, 438, 201, "KURURURURURURURURU!!!", 220,140,160);
-		PutAlignedString(200, 439, 200, "KURURURURURURURURU!!!", 90,220,200);
+		PutAlignedString(199, 438, 201, "KURURURURURURURURU!!!", video::SColor(255,220,140,160));
+		PutAlignedString(200, 439, 200, "KURURURURURURURURU!!!", video::SColor(255,90,220,200));
 
 		if ((dwTime - m_dialogBoxes[40].dwT1) > 1000)
 		{	m_dialogBoxes[40].dwT1 = dwTime;
@@ -21351,20 +21382,20 @@ void CGame::DrawDialogBox_Chat()
 	
 	if ( G_pGame->m_stMCursor.sZ != 0 && dlg.IsTop())
 	{
-		dlg.sView = dlg.sView + G_pGame->m_stMCursor.sZ/30;
+		dlg.sView = dlg.sView + G_pGame->m_stMCursor.sZ/*/30*/;
 		////DIRECTX m_dInput.m_sZ = 0;//DIRECTX
 	}
 	if( dlg.sView < 0 ) dlg.sView = 0;
 	if( dlg.sView > MAXCHATSCROLLMSGS-8 ) dlg.sView = MAXCHATSCROLLMSGS-8; 
 		
-	ButtonStringToggle(dlg, 2, DRAW_CHAT1, m_chatToggle[CHAT_SHOUT]);
-	ButtonStringToggle(dlg, 3, DRAW_CHAT2, m_chatToggle[CHAT_NATIONSHOUT]);
-	ButtonStringToggle(dlg, 4, DRAW_CHAT3, m_chatToggle[CHAT_NORMAL]);
-	ButtonStringToggle(dlg, 5, DRAW_CHAT4, m_chatToggle[CHAT_GUILD]);
-	ButtonStringToggle(dlg, 6, DRAW_CHAT5, m_chatToggle[CHAT_PARTY]);
-	ButtonStringToggle(dlg, 7, DRAW_CHAT6, m_chatToggle[CHAT_WHISPER]);
-	ButtonStringToggle(dlg, 8, DRAW_CHAT7, m_chatToggle[CHAT_GM]);
-	ButtonStringToggle(dlg, 9, DRAW_CHAT8);
+//uncomment	ButtonStringToggle(dlg, 2, DRAW_CHAT1, m_chatToggle[CHAT_SHOUT]);
+//uncomment	ButtonStringToggle(dlg, 3, DRAW_CHAT2, m_chatToggle[CHAT_NATIONSHOUT]);
+//uncomment	ButtonStringToggle(dlg, 4, DRAW_CHAT3, m_chatToggle[CHAT_NORMAL]);
+//uncomment	ButtonStringToggle(dlg, 5, DRAW_CHAT4, m_chatToggle[CHAT_GUILD]);
+//uncomment	ButtonStringToggle(dlg, 6, DRAW_CHAT5, m_chatToggle[CHAT_PARTY]);
+//uncomment	ButtonStringToggle(dlg, 7, DRAW_CHAT6, m_chatToggle[CHAT_WHISPER]);
+//uncomment	ButtonStringToggle(dlg, 8, DRAW_CHAT7, m_chatToggle[CHAT_GM]);
+//uncomment	ButtonStringToggle(dlg, 9, DRAW_CHAT8);
 
 	uint32 chatsize = m_chatDisplay->size();
 
@@ -21413,7 +21444,7 @@ void CGame::DrawDialogBox_Chat()
 			break;
 		}
 
-		PutString2(sX + 25, sY + 130 - i*13, msg->m_pMsg, r, g, b); 
+		PutFontString(font[1], sX + 25, sY + 130 - i*13, msg->m_pMsg, video::SColor(255, r, g, b), false, 1);
 	}
 
 
@@ -21818,10 +21849,10 @@ void CGame::DisplayCommaNumber_G_cTxt(int iGold)
 void CGame::DrawDialogBox_Inventory()
 {
 	int i;
- short sX, sY;
- DWORD dwTime = m_dwCurTime;
- char cItemColor;
- int uTotalItem = 0;
+	short sX, sY;
+	DWORD dwTime = m_dwCurTime;
+	char cItemColor;
+	int uTotalItem = 0;
 	char onButton = m_dialogBoxes[2].OnButton();
 	sX = m_dialogBoxes[2].m_X;
 	sY = m_dialogBoxes[2].m_Y;
@@ -21830,57 +21861,79 @@ void CGame::DrawDialogBox_Inventory()
 	if ((m_cItemOrder[i] != -1) && (m_pItemList[m_cItemOrder[i]] != NULL))
 	{	
 		uTotalItem++; // Added Current/Max xRisenx
-		if (   ((m_stMCursor.cSelectedObjectType == SELECTEDOBJTYPE_ITEM)
-			&& (m_stMCursor.sSelectedObjectID   ==	m_cItemOrder[i])) || (m_bIsItemEquipped[m_cItemOrder[i]] == TRUE) )
-		{}else
-		{	cItemColor = m_pItemList[m_cItemOrder[i]]->m_cItemColor;
+		if (   ((m_stMCursor.cSelectedObjectType == SELECTEDOBJTYPE_ITEM) && (m_stMCursor.sSelectedObjectID   ==	m_cItemOrder[i])) || (m_bIsItemEquipped[m_cItemOrder[i]] == TRUE) )
+		{
+
+		}
+		else
+		{
+			cItemColor = m_pItemList[m_cItemOrder[i]]->m_cItemColor;
 			if (m_bIsItemDisabled[ m_cItemOrder[i] ] == TRUE)
-			{	if (cItemColor == 0)
+			{
+				if (cItemColor == 0)
 					 m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutTransSprite2(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 					 	                                                sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame, dwTime);
 				else
-				{	if (   (m_pItemList[m_cItemOrder[i]]->m_cEquipPos == EQUIPPOS_LHAND)
+				{
+					if (   (m_pItemList[m_cItemOrder[i]]->m_cEquipPos == EQUIPPOS_LHAND)
 						|| (m_pItemList[m_cItemOrder[i]]->m_cEquipPos == EQUIPPOS_RHAND)
 						|| (m_pItemList[m_cItemOrder[i]]->m_cEquipPos == EQUIPPOS_TWOHAND))
-					{	m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutTransSpriteRGB(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
+					{
+						m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutTransSpriteRGB(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 																			sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame,
 																			m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0],
 																			dwTime);
-					}else
-					{	m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutTransSpriteRGB(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
+					}
+					else
+					{
+						m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutTransSpriteRGB(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 																			sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame,
 																			m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0],
 																			dwTime);
-				}	}
-			}else
-			{	if (cItemColor == 0)
+					}
+				}
+			}
+			else
+			{
+				if (cItemColor == 0)
 					 m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutSpriteFast(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 																		sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame, dwTime);
 				else
-				{	if (   (m_pItemList[m_cItemOrder[i]]->m_cEquipPos == EQUIPPOS_LHAND)
+				{
+					if (   (m_pItemList[m_cItemOrder[i]]->m_cEquipPos == EQUIPPOS_LHAND)
 						|| (m_pItemList[m_cItemOrder[i]]->m_cEquipPos == EQUIPPOS_RHAND)
 						|| (m_pItemList[m_cItemOrder[i]]->m_cEquipPos == EQUIPPOS_TWOHAND))
-					{	m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutSpriteRGB(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
+					{
+
+						m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutSpriteRGB(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 																			sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame,
 																			m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0],
 																			dwTime);
-					}else {
+					}
+					else
+					{
 						m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutSpriteRGB(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 																			sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame,
 																			m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0],
 																			dwTime);
-			}	}	}
+					}
+				}
+			}
 			if (   (m_pItemList[m_cItemOrder[i]]->m_cItemType == ITEMTYPE_CONSUME)
 				|| (m_pItemList[m_cItemOrder[i]]->m_cItemType == ITEMTYPE_ARROW) )
-			{	DisplayCommaNumber_G_cTxt((int)m_pItemList[m_cItemOrder[i]]->m_dwCount); // nbe show, as US: 1,200,000
-				PutString2(sX + 29 + m_pItemList[m_cItemOrder[i]]->m_sX +10, sY + 41 + m_pItemList[m_cItemOrder[i]]->m_sY +10
-					, G_cTxt, 200,200,200);
-	}	}	}
+			{
+				DisplayCommaNumber_G_cTxt((int)m_pItemList[m_cItemOrder[i]]->m_dwCount); // nbe show, as US: 1,200,000
+				PutString2(sX + 29 + m_pItemList[m_cItemOrder[i]]->m_sX +10, sY + 41 + m_pItemList[m_cItemOrder[i]]->m_sY +10, G_cTxt, 200,200,200);
+			}
+		}
+	}
 	if (onButton == 1)
-	{	DrawNewDialogBox(SPRID_INTERFACE_ND_INVENTORY, sX+23, sY+172, 1);
+	{
+		DrawNewDialogBox(SPRID_INTERFACE_ND_INVENTORY, sX+23, sY+172, 1);
 	}
 	else if (onButton == 2)
-	{	DrawNewDialogBox(SPRID_INTERFACE_ND_INVENTORY, sX+140, sY+172, 2);
+	{
+		DrawNewDialogBox(SPRID_INTERFACE_ND_INVENTORY, sX+140, sY+172, 2);
 	}
 
 	wsprintfA(G_cTxt, "%d/%d", uTotalItem, MAXITEMS);
@@ -22063,16 +22116,16 @@ void CGame::_Draw_UpdateScreen_OnCreateNewAccount()
 	//DIRECTX m_DDraw.ClearBackB4();
 	DrawNewDialogBox(SPRID_INTERFACE_ND_NEWACCOUNT, 0,0,0, TRUE);
 	PutString2((800/2)-80, (600/2)-120, m_cAccountName, 200,200,200);
-	PutString( (800/2)-80, (600/2)-120+20, m_cAccountPassword, RGB(200,200,200), TRUE, 1);
-	PutString( (800/2)-80, (600/2)-120+20*2, m_cAccountPassword, RGB(200,200,200), TRUE, 1);
+	PutString( (800/2)-80, (600/2)-120+20, m_cAccountPassword,video::SColor(255,200,200,200), TRUE, 1);
+	PutString( (800/2)-80, (600/2)-120+20*2, m_cAccountPassword,video::SColor(255,200,200,200), TRUE, 1);
 	PutString2((800/2)-80, (600/2)-120+20*3, m_cAccountCountry, 200,200,200);
 	PutString2((800/2)-80, (600/2)-120+20*4, m_cAccountSSN, 200,200,200);
 	PutString2((800/2)-80, (600/2)-120+20*5, m_cEmailAddr, 200,200,200);
 	/*//DIRECTX m_DDraw.ClearBackB4();
 	DrawNewDialogBox(SPRID_INTERFACE_ND_NEWACCOUNT, 0,0,0, TRUE);
 	PutString2(329, 110, m_cAccountName, 200,200,200);
-	PutString( 329, 125, m_cAccountPassword, RGB(200,200,200), TRUE, 1);
-	PutString( 329, 140, m_cAccountPassword, RGB(200,200,200), TRUE, 1);
+	PutString( 329, 125, m_cAccountPassword,video::SColor(255,200,200,200), TRUE, 1);
+	PutString( 329, 140, m_cAccountPassword,video::SColor(255,200,200,200), TRUE, 1);
 	PutString2(300, 202, m_cAccountCountry, 200,200,200);
 	PutString2(300, 218, m_cAccountSSN, 200,200,200);
 	PutString2(194, 257, m_cEmailAddr, 200,200,200);*/
@@ -22083,7 +22136,7 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, BOOL bIsPreDC)
  char cMsg[200], cMsgA[22], cMsgB[22], cMsgC[22], * cp;
  int  iRet, iLines, i, iSize, iSize2, iLoc, iFontSize;
  DWORD dwTime;
- COLORREF rgb;
+ video::SColor rgb;
  BOOL bIsTrans;
  RECT rcRect;
  SIZE Size;
@@ -22107,22 +22160,22 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, BOOL bIsPreDC)
 	cp = (char *)cMsg;
 	iLines = 0;
 
-	rgb = RGB(255,255,255);
+	rgb =video::SColor(255,255,255,255);
 	switch (m_pChatMsgList[iChatIndex]->m_cType) {
 	case 1:
-		rgb = RGB(255,255,255);
+		rgb =video::SColor(255,255,255,255);
 		break;
 	case 20:
-		rgb = RGB(255,255,20);
+		rgb =video::SColor(255,255,255,20);
 				if ((m_dwCurTime - dwTime) < 650) return;
 		else dwTime += 650;
 		break;
 	case 41:
-		rgb = RGB(255,80,80);
+		rgb =video::SColor(255,255,80,80);
 		break;
 
 	case 42:
-		rgb = RGB(255,80,80);
+		rgb =video::SColor(255,255,80,80);
 		if ((m_dwCurTime - dwTime) < 650) return;
 		else dwTime += 650;
 		break;
@@ -22206,7 +22259,7 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, BOOL bIsPreDC)
 		else iSize2 += 4;
 		if( m_Misc.bCheckIMEString(cMsg) == FALSE )
 		{
-			PutString3(sX - iSize2, sY - 65 - iLoc, cMsg, RGB(180, 30, 30));
+			PutString3(sX - iSize2, sY - 65 - iLoc, cMsg,video::SColor(255,180, 30, 30));
 		}
 		else PutString_SprFont3(sX - iSize2, sY - 65 - iLoc, cMsg, m_wR[14]*4, m_wG[14]*4, m_wB[14]*4, FALSE, 0);
 		break;
@@ -22241,10 +22294,10 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, BOOL bIsPreDC)
 		switch (Size.cx / 160) {
 		case 0:
 			SetRect(&rcRect, sX-80 +1, sY-65 -iLoc, sX+80 +1, sY -iLoc);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, RGB(0,0,0));
+			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
 
 			SetRect(&rcRect, sX-80, sY-65 -iLoc +1, sX+80, sY -iLoc +1);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, RGB(0,0,0));
+			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
 
 			SetRect(&rcRect, sX-80, sY-65 -iLoc, sX+80, sY -iLoc);
 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, rgb);
@@ -22252,10 +22305,10 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, BOOL bIsPreDC)
 
 		case 1:
 			SetRect(&rcRect, sX-80 +1, sY-83 -iLoc, sX+80 +1, sY -iLoc);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, RGB(0,0,0));
+			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
 
 			SetRect(&rcRect, sX-80, sY-83 -iLoc +1, sX+80, sY -iLoc +1);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, RGB(0,0,0));
+			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
 
 			SetRect(&rcRect, sX-80, sY-83 -iLoc, sX+80, sY -iLoc);
 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, rgb);
@@ -22263,10 +22316,10 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, BOOL bIsPreDC)
 
 		case 2:
 			SetRect(&rcRect, sX-80 +1, sY-101 -iLoc, sX+80 +1, sY -iLoc);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, RGB(0,0,0));
+			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
 
 			SetRect(&rcRect, sX-80, sY-101 -iLoc +1, sX+80, sY -iLoc +1);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, RGB(0,0,0));
+			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
 
 			SetRect(&rcRect, sX-80, sY-101 -iLoc, sX+80, sY -iLoc);
 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, rgb);
@@ -22274,10 +22327,10 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, BOOL bIsPreDC)
 
 		case 3:
 			SetRect(&rcRect, sX-80 +1, sY-119 -iLoc, sX+80 +1, sY -iLoc);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, RGB(0,0,0));
+			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
 
 			SetRect(&rcRect, sX-80, sY-119 -iLoc +1, sX+80, sY -iLoc +1);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, RGB(0,0,0));
+			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
 
 			SetRect(&rcRect, sX-80, sY-119 -iLoc, sX+80, sY -iLoc);
 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, rgb);
@@ -22450,7 +22503,8 @@ void CGame::UpdateScreen_OnSelectCharacter()
 						strcpy(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
 						m_iLevel = (int)m_pCharList[m_cCurFocus-1]->m_sLevel;
 						if (m_Misc.bCheckValidString(m_cPlayerName) == TRUE)
-						{	m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
+						{
+							m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
 							m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
 							m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
 							m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
@@ -23461,9 +23515,9 @@ void CGame::DrawDialogBox_GuildContribute()
 		PutAlignedString(sX, sX + szX, sY + 35, DRAW_DIALOGBOX_GUILDCONTRIBUTE2);
 
 		if(iGetTopDialogBoxIndex() != 58)
-			PutString(sX + 40, sY + 57, m_cAmountString, RGB(255,255,255), FALSE, 2);
+			PutString(sX + 40, sY + 57, m_cAmountString,video::SColor(255,255,255,255), FALSE, 2);
 		wsprintfA(cTxt, "__________ (0 ~ %d)", GetGold());
-		PutString(sX + 38, sY + 62, cTxt, RGB(25,35,25));
+		PutString(sX + 38, sY + 62, cTxt,video::SColor(255,25,35,25));
 		break;
 
 	case 1: // Maj
@@ -23471,9 +23525,9 @@ void CGame::DrawDialogBox_GuildContribute()
 		PutAlignedString(sX, sX + szX, sY + 35, DRAW_DIALOGBOX_GUILDCONTRIBUTE4);
 
 		if(iGetTopDialogBoxIndex() != 58)
-			PutString(sX + 40, sY + 57, m_cAmountString, RGB(255,255,255), FALSE, 2);
+			PutString(sX + 40, sY + 57, m_cAmountString,video::SColor(255,255,255,255), FALSE, 2);
 		wsprintfA(cTxt, "__________ (0 ~ %d)", m_iGizonItemUpgradeLeft);
-		PutString(sX + 38, sY + 62, cTxt, RGB(25,35,25));
+		PutString(sX + 38, sY + 62, cTxt,video::SColor(255,25,35,25));
 		break;
 
 	case 2: // Cont
@@ -23481,9 +23535,9 @@ void CGame::DrawDialogBox_GuildContribute()
 		PutAlignedString(sX, sX + szX, sY + 35, DRAW_DIALOGBOX_GUILDCONTRIBUTE8);
 
 		if(iGetTopDialogBoxIndex() != 58)
-			PutString(sX + 40, sY + 57, m_cAmountString, RGB(255,255,255), FALSE, 2);
+			PutString(sX + 40, sY + 57, m_cAmountString,video::SColor(255,255,255,255), FALSE, 2);
 		wsprintfA(cTxt, "__________ (0 ~ %d)", m_iContribution);
-		PutString(sX + 38, sY + 62, cTxt, RGB(25,35,25));
+		PutString(sX + 38, sY + 62, cTxt,video::SColor(255,25,35,25));
 		break;
 	}
 
@@ -23970,10 +24024,10 @@ void CGame::_DrawThunderEffect(int sX, int sY, int dX, int dY, int rX, int rY, c
 	dwTime = m_dwCurTime;
 	sX = pX1 = iX1 = tX = sX;
 	sY = pY1 = iY1 = tY = sY;
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(50, 50, 100), &wR1, &wG1, &wB1);
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(30, 30, 100), &wR2, &wG2, &wB2);
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(0, 0, 30), &wR3, &wG3, &wB3);
-// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(50, 50, 200), &wR4, &wG4, &wB4);
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,50, 50, 100), &wR1, &wG1, &wB1);
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,30, 30, 100), &wR2, &wG2, &wB2);
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,0, 0, 30), &wR3, &wG3, &wB3);
+// 	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,50, 50, 200), &wR4, &wG4, &wB4);
 
 	for (j = 0; j < 100; j++)
 	{	switch (cType) {
@@ -26091,25 +26145,39 @@ void CGame::CreateScreenShot()
 	struct tm * now = localtime( & t );
 
 	driver->beginScene(false, false);
-	PutAlignedString(620, 800, 10, SStime, 255, 255, 255); //ScreenShot time
-	PutAlignedString(620, 800, 30, SStime2, 255, 255, 255); //ScreenShot time
-	PutAlignedString(620, 800, 50, SStime3, 255, 255, 255); //ScreenShot time
+	PutAlignedString(620, 800, 10, SStime, video::SColor(255,255, 255, 255)); //ScreenShot time
+	PutAlignedString(620, 800, 30, SStime2, video::SColor(255,255, 255, 255)); //ScreenShot time
+	PutAlignedString(620, 800, 50, SStime3, video::SColor(255,255, 255, 255)); //ScreenShot time
 	driver->endScene();
 	IImage * screenshot = driver->createScreenShot();
 
-	_mkdir("SAVE");
+	_mkdir("screenshots");
 	for (i = 0; i < 1000; i++)
 	{
 		ZeroMemory(cFn, sizeof(cFn));
 		wchar_t tempstr[300];
-		wsprintfW(tempstr, L"save\\HelShot%04d%02d%02d_%02d%02d%02d.jpg",
+		wsprintfW(tempstr, L"screenshots\\HelShot%04d%02d%02d_%02d%02d%02d.jpg",
+			(now->tm_year + 1900), (now->tm_mon + 1), now->tm_mday,
+			now->tm_hour, now->tm_min, now->tm_sec);
+		wsprintfA(cFn, "screenshots\\HelShot%04d%02d%02d_%02d%02d%02d.jpg",
 			(now->tm_year + 1900), (now->tm_mon + 1), now->tm_mday,
 			now->tm_hour, now->tm_min, now->tm_sec);
 		//		   wsprintfA(cFn, "SAVE\\Helbreath Fantasy SS #%d.bmp", i);
 
 		if(_access(cFn, 0 ) == -1){
 
-			driver->writeImageToFile(screenshot, cFn);
+			driver->writeImageToFile(screenshot, tempstr);
+
+// 			video::IImage* image = driver->createImageFromData (
+// 				bg->getColorFormat(),
+// 				bg->getSize(),
+// 				bg->lock(),
+// 				false  //copy mem
+// 				);
+// 
+// 			bg->unlock();
+// 
+// 			driver->writeImageToFile(image, "drawbackground.png");
 			screenshot->drop();
 			//				pFile = fopen(cFn, "rb");
 			//				//DIRECTX m_DDraw.Screenshot(cFn, //DIRECTX m_DDraw.m_lpBackB4);
@@ -26303,7 +26371,7 @@ void CGame::UpdateScreen_OnConnectionLost()
 	////DIRECTX m_DDraw.ClearBackB4();//DIRECTX
 	DrawNewDialogBox(SPRID_INTERFACE_ND_GAME4, 162+80,125+80,2); // xRisenx added x+80 and y+80
 	PutString_SprFont(172 + 54+80, 180+80, "Connection Lost!", 7,0,0); // xRisenx added x+80 and y+80
-	PutString(172+50+80, 180+30+80, UPDATE_SCREEN_ON_CONNECTION_LOST, RGB(0,0,0));//" // xRisenx added x+80 and y+80
+	PutString(172+50+80, 180+30+80, UPDATE_SCREEN_ON_CONNECTION_LOST,video::SColor(255,0,0,0));//" // xRisenx added x+80 and y+80
 	DrawVersion();
 	////DIRECTX m_dInput.UpdateMouseState(&msX, &msY, &msZ, &cLB, &cRB, &cMB);//DIRECTX
 	m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(msX, msY, 0, dwTime);
@@ -26331,45 +26399,45 @@ BOOL CGame::_bDraw_OnCreateNewCharacter(char * pName, short msX, short msY, int 
 
 	DrawNewDialogBox(SPRID_INTERFACE_ND_NEWCHAR, 0, 0, 0, TRUE);
 	//DrawNewDialogBox(DEF_SPRID_INTERFACE_ND_BUTTON, 0, 0, 69, TRUE);
-	PutString(124, 139-5, _BDRAW_ON_CREATE_NEW_CHARACTER1, RGB(255,255,255));//"
-	PutString(96, 159-5, MSG_CHARACTERNAME, RGB(255,255,255));//"Character Name"
-	if (m_cCurFocus != 1) PutString(239+3, 153+3, pName, RGB(25,35,25));
-	PutString(119, 189-5, _BDRAW_ON_CREATE_NEW_CHARACTER2, RGB(255,255,255));//"
-	PutString(113, 209-5, MSG_GENDER, RGB(255,255,255));//"Gender"
-	PutString(113, 224-5, MSG_SKINCOLOR, RGB(255,255,255));//"Skin Color"
-	PutString(113, 239-5, MSG_HAIRSTYLE, RGB(255,255,255));//"Hair Style"
-	PutString(113, 254-5, MSG_HAIRCOLOR, RGB(255,255,255));//"Hair Color"
-	PutString(113, 269-5, MSG_UNDERWEARCOLOR, RGB(255,255,255));//"Underwear Color"
+	PutString(124, 139-5, _BDRAW_ON_CREATE_NEW_CHARACTER1,video::SColor(255,255,255,255));//"
+	PutString(96, 159-5, MSG_CHARACTERNAME,video::SColor(255,255,255,255));//"Character Name"
+	if (m_cCurFocus != 1) PutString(239+3, 153+3, pName,video::SColor(255,25,35,25));
+	PutString(119, 189-5, _BDRAW_ON_CREATE_NEW_CHARACTER2,video::SColor(255,255,255,255));//"
+	PutString(113, 209-5, MSG_GENDER,video::SColor(255,255,255,255));//"Gender"
+	PutString(113, 224-5, MSG_SKINCOLOR,video::SColor(255,255,255,255));//"Skin Color"
+	PutString(113, 239-5, MSG_HAIRSTYLE,video::SColor(255,255,255,255));//"Hair Style"
+	PutString(113, 254-5, MSG_HAIRCOLOR,video::SColor(255,255,255,255));//"Hair Color"
+	PutString(113, 269-5, MSG_UNDERWEARCOLOR,video::SColor(255,255,255,255));//"Underwear Color"
 	//PutAlignedString(64, 282, 245, _BDRAW_ON_CREATE_NEW_CHARACTER3, 5,5,5);
 	//wsprintfA(G_cTxt, _BDRAW_ON_CREATE_NEW_CHARACTER4,  iPoint);//" %d points"
 	//PutAlignedString(64, 282, 260, G_cTxt, 15,10,10);
-	PutString(113, 324, MSG_STRENGTH, RGB(255,255,255));//"Strength"
-	PutString(113, 341, MSG_VITALITY, RGB(255,255,255));//"Vitality"
-	PutString(113, 358, MSG_DEXTERITY, RGB(255,255,255));//"Dexterity"
-	PutString(113, 375, MSG_INTELLIGENCE, RGB(255,255,255));//"Intelligence"
-	PutString(113, 392, MSG_MAGIC, RGB(255,255,255));//"Magic"
-	PutString(113, 409, MSG_CHARISMA, RGB(255,255,255));//"Agility"
+	PutString(113, 324, MSG_STRENGTH,video::SColor(255,255,255,255));//"Strength"
+	PutString(113, 341, MSG_VITALITY,video::SColor(255,255,255,255));//"Vitality"
+	PutString(113, 358, MSG_DEXTERITY,video::SColor(255,255,255,255));//"Dexterity"
+	PutString(113, 375, MSG_INTELLIGENCE,video::SColor(255,255,255,255));//"Intelligence"
+	PutString(113, 392, MSG_MAGIC,video::SColor(255,255,255,255));//"Magic"
+	PutString(113, 409, MSG_CHARISMA,video::SColor(255,255,255,255));//"Agility"
 
 	//DrawNewDialogBox(SPRID_INTERFACE_ND_NEWCHAR, 0, 0, 0, TRUE);
 	//DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, 0, 0, 69, TRUE);
 	//PutAlignedString(64, 282, 90, _BDRAW_ON_CREATE_NEW_CHARACTER1, 5,5,5);//"
 	//PutAlignedString(57, 191, 110, MSG_CHARACTERNAME, 5,5,5);//"Character Name"
-	//if (m_cCurFocus != 1) PutString(197, 112, pName, RGB(25,35,25));
+	//if (m_cCurFocus != 1) PutString(197, 112, pName,video::SColor(255,25,35,25));
 	//PutAlignedString(64, 282, 140, _BDRAW_ON_CREATE_NEW_CHARACTER2, 5,5,5);//"
-	//PutString(100, 160, MSG_GENDER, RGB(5,5,5));//"Gender"
-	//PutString(100, 175, MSG_SKINCOLOR, RGB(5,5,5));//"Skin Color"
-	//PutString(100, 190, MSG_HAIRSTYLE, RGB(5,5,5));//"Hair Style"
-	//PutString(100, 205, MSG_HAIRCOLOR, RGB(5,5,5));//"Hair Color"
-	//PutString(100, 220, MSG_UNDERWEARCOLOR, RGB(5,5,5));//"Underwear Color"
+	//PutString(100, 160, MSG_GENDER,video::SColor(255,5,5,5));//"Gender"
+	//PutString(100, 175, MSG_SKINCOLOR,video::SColor(255,5,5,5));//"Skin Color"
+	//PutString(100, 190, MSG_HAIRSTYLE,video::SColor(255,5,5,5));//"Hair Style"
+	//PutString(100, 205, MSG_HAIRCOLOR,video::SColor(255,5,5,5));//"Hair Color"
+	//PutString(100, 220, MSG_UNDERWEARCOLOR,video::SColor(255,5,5,5));//"Underwear Color"
 	////PutAlignedString(64, 282, 245, _BDRAW_ON_CREATE_NEW_CHARACTER3, 5,5,5);
 	////wsprintfA(G_cTxt, _BDRAW_ON_CREATE_NEW_CHARACTER4,  iPoint);//" %d points"
 	////PutAlignedString(64, 282, 260, G_cTxt, 15,10,10);
-	//PutString(100, 275, MSG_STRENGTH, RGB(5,5,5));//"Strength"
-	//PutString(100, 292, MSG_VITALITY, RGB(5,5,5));//"Vitality"
-	//PutString(100, 309, MSG_DEXTERITY, RGB(5,5,5));//"Dexterity"
-	//PutString(100, 326, MSG_INTELLIGENCE, RGB(5,5,5));//"Intelligence"
-	//PutString(100, 343, MSG_MAGIC, RGB(5,5,5));//"Magic"
-	//PutString(100, 360, MSG_CHARISMA, RGB(5,5,5));//"Charisma"
+	//PutString(100, 275, MSG_STRENGTH,video::SColor(255,5,5,5));//"Strength"
+	//PutString(100, 292, MSG_VITALITY,video::SColor(255,5,5,5));//"Vitality"
+	//PutString(100, 309, MSG_DEXTERITY,video::SColor(255,5,5,5));//"Dexterity"
+	//PutString(100, 326, MSG_INTELLIGENCE,video::SColor(255,5,5,5));//"Intelligence"
+	//PutString(100, 343, MSG_MAGIC,video::SColor(255,5,5,5));//"Magic"
+	//PutString(100, 360, MSG_CHARISMA,video::SColor(255,5,5,5));//"Charisma"
 
 	for(int i=1;i<=6;i++)
 	{
@@ -26377,27 +26445,27 @@ BOOL CGame::_bDraw_OnCreateNewCharacter(char * pName, short msX, short msY, int 
 		{
 		case 1:
 			wsprintfA(G_cTxt, "%d", m_createStat[STAT_STR]);
-			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt, RGB(255,255,255));
+			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt,video::SColor(255,255,255,255));
 			break;
 		case 2:
 			wsprintfA(G_cTxt, "%d", m_createStat[STAT_VIT]);
-			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt, RGB(255,255,255));
+			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt,video::SColor(255,255,255,255));
 			break;
 		case 3:
 			wsprintfA(G_cTxt, "%d", m_createStat[STAT_DEX]);
-			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt, RGB(255,255,255));
+			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt,video::SColor(255,255,255,255));
 			break;
 		case 4:
 			wsprintfA(G_cTxt, "%d", m_createStat[STAT_INT]);
-			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt, RGB(255,255,255));
+			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt,video::SColor(255,255,255,255));
 			break;
 		case 5:
 			wsprintfA(G_cTxt, "%d", m_createStat[STAT_MAG]);
-			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt, RGB(255,255,255));
+			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt,video::SColor(255,255,255,255));
 			break;
 		case 6:
 			wsprintfA(G_cTxt, "%d", m_createStat[STAT_CHR]);
-			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt, RGB(255,255,255));
+			PutAlignedString(269+3, 307-3, 308+i*16, G_cTxt,video::SColor(255,255,255,255));
 			break;
 		}
 	}
@@ -26602,18 +26670,18 @@ BOOL CGame::_bDraw_OnCreateNewCharacter(char * pName, short msX, short msY, int 
 
     i = 0 ;
 
-	PutString(572, 129, MSG_HITPOINT, RGB(255,255,255));//"Hit Point"
+	PutString(572, 129, MSG_HITPOINT,video::SColor(255,255,255,255));//"Hit Point"
 	//wsprintfA(G_cTxt, "%d", m_createStat[STAT_VIT]*3 + 2 + m_createStat[STAT_STR]/2);
 	wsprintfA(G_cTxt, "%d", m_createStat[STAT_VIT]*8 + m_createStat[STAT_STR]*2 + m_createStat[STAT_INT]*2 + 8); // HP System xRisenx
-	PutString(572+120, 129 + 16*i++, G_cTxt, RGB(255,255,255));
+	PutString(572+120, 129 + 16*i++, G_cTxt,video::SColor(255,255,255,255));
 
-	PutString(572, 145, MSG_MANAPOINT, RGB(255,255,255));//"Mana Point"
+	PutString(572, 145, MSG_MANAPOINT,video::SColor(255,255,255,255));//"Mana Point"
 	wsprintfA(G_cTxt, "%d", m_createStat[STAT_MAG]*3 + 2 + m_createStat[STAT_INT]*2); // MP System xRisenx
-	PutString(572+120, 129 + 16*i++, G_cTxt, RGB(255,255,255));
+	PutString(572+120, 129 + 16*i++, G_cTxt,video::SColor(255,255,255,255));
 
-	PutString(572, 161, MSG_STAMINARPOINT, RGB(255,255,255));//"Stamina Point"
+	PutString(572, 161, MSG_STAMINARPOINT,video::SColor(255,255,255,255));//"Stamina Point"
 	wsprintfA(G_cTxt, "%d", m_createStat[STAT_STR] + 17); // SP System xRisenx
-	PutString(572+120, 129 + 16*i++, G_cTxt, RGB(255,255,255));
+	PutString(572+120, 129 + 16*i++, G_cTxt,video::SColor(255,255,255,255));
 
 	return bFlag;
 }
@@ -27457,7 +27525,7 @@ void CGame::UpdateScreen_OnAgreement()
 
 	for (i = 0; i < 20; i++)
 	if (m_pAgreeMsgTextList[i + m_iAgreeView] != NULL) {
-		PutAlignedString(60, 360, sY + 65 +i*13, m_pAgreeMsgTextList[i + m_iAgreeView]->m_pMsg, 45,25,25);
+		PutAlignedString(60, 360, sY + 65 +i*13, m_pAgreeMsgTextList[i + m_iAgreeView]->m_pMsg, video::SColor(255, 45,25,25));
 	}
 
 	if( msZ != 0 )
@@ -27662,14 +27730,14 @@ void CGame::UpdateScreen_OnCreateNewAccount()
 	}
 	if (m_cCurFocus != 2) {
 		if (m_Misc.bCheckValidName(cPassword) != FALSE)
-			 PutString(336, 70+157+20, cPassword, RGB(100,200,100), TRUE, 1);
-		else PutString(336, 70+157+20, cPassword, RGB(200,100,100), TRUE, 1);
+			 PutString(336, 70+157+20, cPassword,video::SColor(255,100,200,100), TRUE, 1);
+		else PutString(336, 70+157+20, cPassword,video::SColor(255,200,100,100), TRUE, 1);
 	}
 
 	if (m_cCurFocus != 3) {
 		if (memcmp(cPassword, cConfirm, 10) == 0)
-			 PutString(336, 70+157+20*2, cConfirm, RGB(100,200,100), TRUE, 1);
-		else PutString(336, 70+157+20*2, cConfirm, RGB(200,100,100), TRUE, 1);
+			 PutString(336, 70+157+20*2, cConfirm,video::SColor(255,100,200,100), TRUE, 1);
+		else PutString(336, 70+157+20*2, cConfirm,video::SColor(255,200,100,100), TRUE, 1);
 	}
 	if (memcmp(cPassword, cConfirm, 10) != 0) iFlag = 9;
 
@@ -27681,12 +27749,12 @@ void CGame::UpdateScreen_OnCreateNewAccount()
 
 	/*//DIRECTX m_DDraw.ClearBackB4();
 	DrawNewDialogBox(SPRID_INTERFACE_ND_NEWACCOUNT, 0,0,0, TRUE);
-	PutString(377, 84,  "Account:", RGB(100,100,200));
-	PutString(372, 106, "Password:", RGB(100,100,200));
-	PutString(372, 129, "(confirm)", RGB(100,100,200));
-	PutString(271, 215, "eMail:", RGB(100,100,200));
-	PutString(276, 253, "Quiz:", RGB(100,100,200));
-	PutString(266, 291, "Answer:", RGB(100,100,200));
+	PutString(377, 84,  "Account:",video::SColor(255,100,100,200));
+	PutString(372, 106, "Password:",video::SColor(255,100,100,200));
+	PutString(372, 129, "(confirm)",video::SColor(255,100,100,200));
+	PutString(271, 215, "eMail:",video::SColor(255,100,100,200));
+	PutString(276, 253, "Quiz:",video::SColor(255,100,100,200));
+	PutString(266, 291, "Answer:",video::SColor(255,100,100,200));
 
 	if ((m_cCurFocus == 2) || (m_cCurFocus == 3))
 		 ShowReceivedString(TRUE);
@@ -27700,14 +27768,14 @@ void CGame::UpdateScreen_OnCreateNewAccount()
 	}
 	if (m_cCurFocus != 2) {
 		if (m_Misc.bCheckValidName(cPassword) != FALSE)
-			 PutString(427, 106, cPassword, RGB(100,200,100), TRUE, 1);
-		else PutString(427, 106, cPassword, RGB(200,100,100), TRUE, 1);
+			 PutString(427, 106, cPassword,video::SColor(255,100,200,100), TRUE, 1);
+		else PutString(427, 106, cPassword,video::SColor(255,200,100,100), TRUE, 1);
 	}
 
 	if (m_cCurFocus != 3) {
 		if (memcmp(cPassword, cConfirm, 10) == 0)
-			 PutString(427, 129, cConfirm, RGB(100,200,100), TRUE, 1);
-		else PutString(427, 129, cConfirm, RGB(200,100,100), TRUE, 1);
+			 PutString(427, 129, cConfirm,video::SColor(255,100,200,100), TRUE, 1);
+		else PutString(427, 129, cConfirm,video::SColor(255,200,100,100), TRUE, 1);
 	}
 	if (memcmp(cPassword, cConfirm, 10) != 0) iFlag = 9;
 
@@ -28939,6 +29007,7 @@ void CGame::OnKeyUp(WPARAM wParam)
 		if (m_bIsDialogEnabled[19] == FALSE)
 			EnableDialogBox(19, NULL, NULL, NULL);
 		else DisableDialogBox(19);
+		CreateScreenShot();
 		break;
 
 	case VK_F1:
@@ -29021,7 +29090,7 @@ void CGame::OnKeyUp(WPARAM wParam)
 
 	case VK_RETURN:
 		m_bEnterPressed = TRUE;
-		if (m_altPressed)
+		//if (m_altPressed)
 			//change screen mode
 		break;
 #endif
@@ -29192,33 +29261,33 @@ void CGame::OnKeyDown(WPARAM wParam)
 		}
 		break;
 	}
-	if (m_pInputBuffer == NULL) return;
-	if(wParam == 8)
-	{
-		if(strlen(m_pInputBuffer) > 0)
-		{
-			int len = strlen(m_pInputBuffer);
-
-			switch (GetCharKind(m_pInputBuffer, len-1))
-			{
-			case 1:
-				m_pInputBuffer[len-1] = NULL;
-				break;
-			case 2:
-			case 3:
-				m_pInputBuffer[len-2]  = NULL;
-				m_pInputBuffer[len-1]  = NULL;
-				break;
-			}
-			ZeroMemory(m_cEdit, sizeof(m_cEdit));
-		}
-	}
-	else if ((wParam != 9) && (wParam != 13) && (wParam != 27)) {
-		int len = strlen(m_pInputBuffer);
-		if (len >= m_inputMaxLen-1) return;
-		m_pInputBuffer[len] = wParam & 0xff;
-		m_pInputBuffer[len+1] = 0;
-	}
+// 	if (m_pInputBuffer == NULL) return;
+// 	if(wParam == 8)
+// 	{
+// 		if(strlen(m_pInputBuffer) > 0)
+// 		{
+// 			int len = strlen(m_pInputBuffer);
+// 
+// 			switch (GetCharKind(m_pInputBuffer, len-1))
+// 			{
+// 			case 1:
+// 				m_pInputBuffer[len-1] = NULL;
+// 				break;
+// 			case 2:
+// 			case 3:
+// 				m_pInputBuffer[len-2]  = NULL;
+// 				m_pInputBuffer[len-1]  = NULL;
+// 				break;
+// 			}
+// 			ZeroMemory(m_cEdit, sizeof(m_cEdit));
+// 		}
+// 	}
+// 	else if ((wParam != 9) && (wParam != 13) && (wParam != 27)) {
+// 		int len = strlen(m_pInputBuffer);
+// 		if (len >= m_inputMaxLen-1) return;
+// 		m_pInputBuffer[len] = wParam & 0xff;
+// 		m_pInputBuffer[len+1] = 0;
+// 	}
 }
 
 void CGame::UpdateScreen_OnQuit()
@@ -29457,35 +29526,35 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
 					{
 					case 0:	// Position 1
 						wsprintfA(G_cTxt, "Name: %s", m_pCharList[i]->m_cName);
-						PutString(sX+46+i*161+96, sY+160, G_cTxt, RGB(255,255,255));//25,35,25);	// sY = 14
+						PutString(sX+46+i*161+96, sY+160, G_cTxt, video::SColor(255,255,255,255));//25,35,25);	// sY = 14
 					
 						wsprintfA(G_cTxt, "Level: %d", _sLevel);
-						PutString(sX+46+i*161+96, sY +160+17, G_cTxt, RGB(255,255,255)); //25,35,25);
+						PutString(sX+46+i*161+96, sY +160+17, G_cTxt, video::SColor(255,255,255,255)); //25,35,25);
 						break;
 					case 1:	// Position 2
 						wsprintfA(G_cTxt, "Name: %s", m_pCharList[i]->m_cName);
-						PutString(sX+27+i*161+96, sY+160, G_cTxt, RGB(255,255,255));//25,35,25);	// sY = 14
+						PutString(sX+27+i*161+96, sY+160, G_cTxt, video::SColor(255,255,255,255));//25,35,25);	// sY = 14
 					
 						wsprintfA(G_cTxt, "Level: %d", _sLevel);
-						PutString(sX+27+i*161+96, sY +160+17, G_cTxt, RGB(255,255,255)); //25,35,25);
+						PutString(sX+27+i*161+96, sY +160+17, G_cTxt, video::SColor(255,255,255,255)); //25,35,25);
 						break;
 					case 2:	// Position 3
 						wsprintfA(G_cTxt, "Name: %s", m_pCharList[i]->m_cName);
-						PutString(sX+4+i*161+96, sY+160, G_cTxt, RGB(255,255,255));//25,35,25);	// sY = 14
+						PutString(sX+4+i*161+96, sY+160, G_cTxt, video::SColor(255,255,255,255));//25,35,25);	// sY = 14
 					
 						wsprintfA(G_cTxt, "Level: %d", _sLevel);
-						PutString(sX+4+i*161+96, sY +160+17, G_cTxt, RGB(255,255,255)); //25,35,25);
+						PutString(sX+4+i*161+96, sY +160+17, G_cTxt, video::SColor(255,255,255,255)); //25,35,25);
 						break;
 					case 3:	// Position 4
 						wsprintfA(G_cTxt, "Name: %s", m_pCharList[i]->m_cName);
-						PutString(sX-20+i*161+96, sY+160, G_cTxt, RGB(255,255,255));//25,35,25);	// sY = 14
+						PutString(sX-20+i*161+96, sY+160, G_cTxt, video::SColor(255,255,255,255));//25,35,25);	// sY = 14
 					
 						wsprintfA(G_cTxt, "Level: %d", _sLevel);
-						PutString(sX-20+i*161+96, sY +160+17, G_cTxt, RGB(255,255,255)); //25,35,25);
+						PutString(sX-20+i*161+96, sY +160+17, G_cTxt, video::SColor(255,255,255,255)); //25,35,25);
 						break;
 					}
 					/*wsprintfA(G_cTxt, "%d", m_pCharList[i]->m_iExp);
-					PutString(sX-10+i*161+96, sY +179 -9+118+19-2, G_cTxt, RGB(255,255,255)); //25,35,25);*/
+					PutString(sX-10+i*161+96, sY +179 -9+118+19-2, G_cTxt,video::SColor(255,255,255,255)); //25,35,25);*/
 				}
 				iTemp2 = m_pCharList[i]->m_iYear*1000000 + m_pCharList[i]->m_iMonth*60000 + m_pCharList[i]->m_iDay*1700 + m_pCharList[i]->m_iHour*70 + m_pCharList[i]->m_iMinute;
 				if (iTemp1 < iTemp2)
@@ -29506,52 +29575,52 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
 
 	if ((msX > 716) && (msY >= 560) && (msX < 794) & (msY <= 594)) {
 		DrawNewDialogBox(SPRID_INTERFACE_ND_SELECTCHAR, 715, 560, 1);		// Start Game rollover
-		PutAlignedString(98+80-20, 357+80-20, 290 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER1, 255,255,255);//"
-		PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER2, 255,255,255);//"
-		PutAlignedString(98+80-20, 357+80-20, 320 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER3, 255,255,255);//"
-		PutAlignedString(98+80-20, 357+80-20, 335 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER4, 255,255,255);//"
+		PutAlignedString(98+80-20, 357+80-20, 290 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER1, video::SColor(255,255,255,255));//"
+		PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER2, video::SColor(255,255,255,255));//"
+		PutAlignedString(98+80-20, 357+80-20, 320 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER3, video::SColor(255,255,255,255));//"
+		PutAlignedString(98+80-20, 357+80-20, 335 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER4, video::SColor(255,255,255,255));//"
 	} else
 	if ((msX > 255) && (msY >= 558) && (msX < 346) & (msY <= 595)) {
 		DrawNewDialogBox(SPRID_INTERFACE_ND_SELECTCHAR, 254, 558, 4);		// Create Rollover
-		PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER5, 255,255,255);//"
+		PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER5, video::SColor(255,255,255,255));//"
 
 	} else
 	if ((msX > 355) && (msY >= 558) && (msX < 446) & (msY <= 595)) {
 
 		DrawNewDialogBox(SPRID_INTERFACE_ND_SELECTCHAR, 354, 558, 3);	// Delete Rollover
-		PutAlignedString(98+80-20, 357+80-20, 275 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER6, 255,255,255);//"
-		PutAlignedString(98+80-20, 357+80-20, 290 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER7, 255,255,255);//"
-		PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER8, 255,255,255);//"
-		PutAlignedString(98+80-20, 357+80-20, 320 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER9, 255,255,255);//"
-		PutAlignedString(98+80-20, 357+80-20, 335 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER10, 255,255,255);//"
-		PutAlignedString(98+80-20, 357+80-20, 350 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER11, 255,255,255);//"
+		PutAlignedString(98+80-20, 357+80-20, 275 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER6, video::SColor(255,255,255,255));//"
+		PutAlignedString(98+80-20, 357+80-20, 290 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER7, video::SColor(255,255,255,255));//"
+		PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER8, video::SColor(255,255,255,255));//"
+		PutAlignedString(98+80-20, 357+80-20, 320 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER9, video::SColor(255,255,255,255));//"
+		PutAlignedString(98+80-20, 357+80-20, 335 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER10, video::SColor(255,255,255,255));//"
+		PutAlignedString(98+80-20, 357+80-20, 350 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER11, video::SColor(255,255,255,255));//"
 
 	}else if ((msX > 455) && (msY >= 558) && (msX < 545) & (msY <= 595))
 	{	DrawNewDialogBox(SPRID_INTERFACE_ND_SELECTCHAR, 454, 558,2);			// Change Password Rollover
-		PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER12, 255,255,255);//"
+		PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER12, video::SColor(255,255,255,255));//"
 	}else if ((msX > 5) && (msY >= 558) && (msX < 96) & (msY <= 595)) {
 		DrawNewDialogBox(SPRID_INTERFACE_ND_SELECTCHAR, 4,558,5);			// Logout
-		PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER13, 255,255,255);//"
+		PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER13, video::SColor(255,255,255,255));//"
 	}else
 	{	if (cTotalChar == 0)
-		{	PutAlignedString(98+80-20, 357+80-20, 275 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER14, 255,255,255);//"
-			PutAlignedString(98+80-20, 357+80-20, 290 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER15, 255,255,255);//"
-			PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER16, 255,255,255);//"
-			PutAlignedString(98+80-20, 357+80-20, 320 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER17, 255,255,255);//"New Character
-			PutAlignedString(98+80-20, 357+80-20, 335 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER18, 255,255,255);//"
+		{	PutAlignedString(98+80-20, 357+80-20, 275 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER14, video::SColor(255,255,255,255));//"
+			PutAlignedString(98+80-20, 357+80-20, 290 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER15, video::SColor(255,255,255,255));//"
+			PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER16, video::SColor(255,255,255,255));//"
+			PutAlignedString(98+80-20, 357+80-20, 320 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER17, video::SColor(255,255,255,255));//"New Character
+			PutAlignedString(98+80-20, 357+80-20, 335 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER18, video::SColor(255,255,255,255));//"
 		}else if (cTotalChar < 4)
-		{	PutAlignedString(98+80-20, 357+80-20, 275 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER19, 255,255,255);//"
-			PutAlignedString(98+80-20, 357+80-20, 290 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER20, 255,255,255);
-			PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER21, 255,255,255);//"
-			PutAlignedString(98+80-20, 357+80-20, 320 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER22, 255,255,255);//"
-			PutAlignedString(98+80-20, 357+80-20, 335 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER23, 255,255,255);//"Delete Character
-			PutAlignedString(98+80-20, 357+80-20, 350 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER24, 255,255,255);//"
+		{	PutAlignedString(98+80-20, 357+80-20, 275 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER19, video::SColor(255,255,255,255));//"
+			PutAlignedString(98+80-20, 357+80-20, 290 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER20, video::SColor(255,255,255,255));
+			PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER21, video::SColor(255,255,255,255));//"
+			PutAlignedString(98+80-20, 357+80-20, 320 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER22, video::SColor(255,255,255,255));//"
+			PutAlignedString(98+80-20, 357+80-20, 335 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER23, video::SColor(255,255,255,255));//"Delete Character
+			PutAlignedString(98+80-20, 357+80-20, 350 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER24, video::SColor(255,255,255,255));//"
 		}
 		if (cTotalChar == 4)
-		{	PutAlignedString(98+80-20, 357+80-20, 290 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER25, 255,255,255);//"
-			PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER26, 255,255,255);//"Play
-			PutAlignedString(98+80-20, 357+80-20, 320 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER27, 255,255,255);//"Delete Character
-			PutAlignedString(98+80-20, 357+80-20, 335 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER28, 255,255,255);//"
+		{	PutAlignedString(98+80-20, 357+80-20, 290 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER25, video::SColor(255,255,255,255));//"
+			PutAlignedString(98+80-20, 357+80-20, 305 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER26, video::SColor(255,255,255,255));//"Play
+			PutAlignedString(98+80-20, 357+80-20, 320 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER27, video::SColor(255,255,255,255));//"Delete Character
+			PutAlignedString(98+80-20, 357+80-20, 335 +15+120-40,  UPDATE_SCREEN_ON_SELECT_CHARACTER28, video::SColor(255,255,255,255));//"
 	}	}
 	int iTempMon, iTempDay, iTempHour, iTempMin ;
 	iTempMon = iTempDay = iTempHour =iTempMin = 0;
@@ -29749,10 +29818,10 @@ void CGame::UpdateScreen_OnQueryDeleteCharacter()
 	DrawNewDialogBox(SPRID_INTERFACE_ND_GAME4, 162+80,125+80,2);
 
 	PutString_SprFont(172 + 86+80, 160+80, "Delete Character", 7,0,0);
-	PutString(215+80, 195+80, UPDATE_SCREEN_ON_QUERY_DELETE_CHARACTER1, RGB(5,5,5));//"Character Name"
+	PutString(215+80, 195+80, UPDATE_SCREEN_ON_QUERY_DELETE_CHARACTER1, video::SColor(255,5,5,5));//"Character Name"
 	                   //"Character Name"
-	PutString(335+80, 199+80, "__________", RGB(5,5,5));
-	PutString(335+80, 195+80, m_pCharList[m_wEnterGameType - 1]->m_cName, RGB(25,35,25));
+	PutString(335+80, 199+80, "__________", video::SColor(255,5,5,5));
+	PutString(335+80, 195+80, m_pCharList[m_wEnterGameType - 1]->m_cName, video::SColor(255,25,35,25));
 	PutAlignedString(178+80, 453+80, 220+80, UPDATE_SCREEN_ON_QUERY_DELETE_CHARACTER2);//"Do you want to delete the character above?"
 
 
@@ -33076,34 +33145,34 @@ void CGame::UpdateScreen_OnChangePassword()
 	//DrawNewDialogBox(SPRID_INTERFACE_ND_TEXT , 153, 112, 13);
 	DrawNewDialogBox(SPRID_INTERFACE_ND_GAME4, 152 + 157, 112 + 109, 7);//
 
-	PutString(206, 155, UPDATE_SCREEN_ON_CHANGE_PASSWORD1, RGB(25,35,25));
-	PutString(206, 179, UPDATE_SCREEN_ON_CHANGE_PASSWORD2, RGB(25,35,25));
-	PutString(206, 203, UPDATE_SCREEN_ON_CHANGE_PASSWORD3, RGB(25,35,25));
-	PutString(206, 227, UPDATE_SCREEN_ON_CHANGE_PASSWORD4, RGB(25,35,25));
+	PutString(206, 155, UPDATE_SCREEN_ON_CHANGE_PASSWORD1,video::SColor(255,25,35,25));
+	PutString(206, 179, UPDATE_SCREEN_ON_CHANGE_PASSWORD2,video::SColor(255,25,35,25));
+	PutString(206, 203, UPDATE_SCREEN_ON_CHANGE_PASSWORD3,video::SColor(255,25,35,25));
+	PutString(206, 227, UPDATE_SCREEN_ON_CHANGE_PASSWORD4,video::SColor(255,25,35,25));
 
 	if (m_cCurFocus != 1) {
 		if (m_Misc.bCheckValidString(cName) != FALSE)
-			 PutString(314, 155, cName, RGB(25,35,25));
-		else PutString(314, 155, cName, RGB(55,18,13));
+			 PutString(314, 155, cName,video::SColor(255,25,35,25));
+		else PutString(314, 155, cName,video::SColor(255,55,18,13));
 	}
 	if ((m_Misc.bCheckValidString(cName) == FALSE) || (strlen(cName) == 0)) bFlag = FALSE;
 
 	if (m_cCurFocus != 2) {
 		if ((m_Misc.bCheckValidString(cPassword) != FALSE))
-			 PutString(314, 179, cPassword, RGB(25,35,25), TRUE, 3);
-		else PutString(314, 179, cPassword, RGB(55,18,13), TRUE, 3);
+			 PutString(314, 179, cPassword,video::SColor(255,25,35,25), TRUE, 3);
+		else PutString(314, 179, cPassword,video::SColor(255,55,18,13), TRUE, 3);
 	}
 
 	if (m_cCurFocus != 3) {
 		if ((m_Misc.bCheckValidName(cNewPassword) != FALSE))
-			 PutString(314, 203, cNewPassword, RGB(25,35,25), TRUE, 3);
-		else PutString(314, 203, cNewPassword, RGB(55,18,13), TRUE, 3);
+			 PutString(314, 203, cNewPassword,video::SColor(255,25,35,25), TRUE, 3);
+		else PutString(314, 203, cNewPassword,video::SColor(255,55,18,13), TRUE, 3);
 	}
 
 	if (m_cCurFocus != 4) {
 		if ((m_Misc.bCheckValidName(cNewPassConfirm) != FALSE))
-			 PutString(314, 227, cNewPassConfirm, RGB(25,35,25), TRUE, 3);
-		else PutString(314, 227, cNewPassConfirm, RGB(55,18,13), TRUE, 3);
+			 PutString(314, 227, cNewPassConfirm,video::SColor(255,25,35,25), TRUE, 3);
+		else PutString(314, 227, cNewPassConfirm,video::SColor(255,55,18,13), TRUE, 3);
 	}
 
 	if ( (m_Misc.bCheckValidString(cPassword) == FALSE) || (strlen(cPassword) == 0) ||
@@ -33800,7 +33869,7 @@ void CGame::DrawVersion(BOOL bAuthor)
 	DWORD dwTime = timeGetTime();
 	WORD  wR, wG, wB;
 
-//	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat, RGB(140, 140, 140), &wR, &wG, &wB);
+//	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,140, 140, 140), &wR, &wG, &wB);
 
 	m_pSprite[SPRID_INTERFACE_ADDINTERFACE]->PutTransSpriteRGB(12, 463+63, 19, wR, wG, wB, dwTime); // Added +120 to support 800x600 Resolution xRisenx
 	// Upper Version
@@ -34696,7 +34765,7 @@ void CGame::GetNpcName(short sType, char *pName)
 }
 Vector<string> * CGame::GetItemName(CItem * item, bool isWH)
 {
-	m_itemColor = RGB(255,255,255);
+	m_itemColor =video::SColor(255,255,255,255);
 
 	static Vector<string> lines;
 	lines.clear();
@@ -34738,7 +34807,7 @@ Vector<string> * CGame::GetItemName(CItem * item, bool isWH)
 	if(item->IsVortexed())
 	{
 		str.append("Vortexed ");
-		m_itemColor = RGB(132,132,180);
+		m_itemColor =video::SColor(255,132,132,180);
 	}
 
 	switch(GetNibble(item->m_dwAttribute, 5))
@@ -34961,7 +35030,7 @@ EQUIPPOS_FULLBODY
 
 	if(item->IsManued())
 	{
-		m_itemColor = RGB(172,95,95);
+		m_itemColor =video::SColor(255,172,95,95);
 		if (item->m_cItemType == ITEMTYPE_MATERIAL)
 		{
 			wsprintfA(G_cTxt, GET_ITEM_NAME1, item->m_sItemSpecEffectValue2);		//"Purity: %d%%"
@@ -34984,7 +35053,7 @@ EQUIPPOS_FULLBODY
 
 	if(GetNibble(item->m_dwAttribute, 5) && !item->IsVortexed())
 	{
-		m_itemColor = RGB(0,200,0);	// Solid green
+		m_itemColor =video::SColor(255,0,200,0);	// Solid green
 	}
 
 	switch(GetNibble(item->m_dwAttribute, 5))
@@ -35131,7 +35200,7 @@ EQUIPPOS_FULLBODY
 
 	if((strcmp(item->m_cName, "ZemstoneofSacrifice") == 0) || (strcmp(item->m_cName, "AcientTablet") == 0))
 	{
-		m_itemColor = RGB(145,250,255);	// Light baby blue
+		m_itemColor =video::SColor(255,145,250,255);	// Light baby blue
 		wsprintfA(G_cTxt, UPDATE_SCREEN_ONGAME15, item->m_wCurLifeSpan);
 		str = G_cTxt;
 		lines.push_back(str);
@@ -35167,7 +35236,7 @@ EQUIPPOS_FULLBODY
 			str = G_cTxt;
 			lines.push_back(str);
 			str.clear();
-			//PutString(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY + 40, G_cTxt, RGB(150,150,150), FALSE, 1);
+			//PutString(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY + 40, G_cTxt,video::SColor(255,150,150,150), FALSE, 1);
 		}
 	}
 	return &lines;
@@ -35175,7 +35244,7 @@ EQUIPPOS_FULLBODY
 
 Vector<string> * CGame::GetItemName(char * cItemName, DWORD attr, uint8 sockets[MAXITEMSOCKETS], uint32 count)
 {
-	m_itemColor = RGB(255,255,255);
+	m_itemColor =video::SColor(255,255,255,255);
 
 	static Vector<string> lines;
 	lines.clear();
@@ -35218,7 +35287,7 @@ Vector<string> * CGame::GetItemName(char * cItemName, DWORD attr, uint8 sockets[
 	if(sockets[0] == SG_VORTEXGEM)
 	{
 		str.append("Vortexed ");
-		m_itemColor = RGB(132,132,180);
+		m_itemColor =video::SColor(255,132,132,180);
 	}
 
 	switch(GetNibble(attr, 5))
@@ -35351,7 +35420,7 @@ Vector<string> * CGame::GetItemName(char * cItemName, DWORD attr, uint8 sockets[
 
 	if(attr & 1)
 	{
-		m_itemColor = RGB(172,172,95);
+		m_itemColor =video::SColor(255,172,172,95);
 	}
 
 	G_cTxt[0] = NULL;
@@ -35359,7 +35428,7 @@ Vector<string> * CGame::GetItemName(char * cItemName, DWORD attr, uint8 sockets[
 
 	if(GetNibble(attr, 5) && sockets[0] != SG_VORTEXGEM)
 	{
-		m_itemColor = RGB(90,220,90);
+		m_itemColor =video::SColor(255,90,220,90);
 	}
 
 	switch(GetNibble(attr, 5))
@@ -35782,7 +35851,7 @@ void CGame::UpdateScreen_OnGame()
 	DWORD dwTime = timeGetTime();
 	static DWORD dwPrevChatTime = 0;
 	static int   imX = 0, imY = 0;
-
+	iUpdateRet = 1;
 	if (m_cGameModeCount == 0)
 	{	
 		//DIRECTX m_DDraw.ClearBackB4();
@@ -36096,7 +36165,7 @@ void CGame::UpdateScreen_OnGame()
 //   int iEntry = 0;
 //
 //   wsprintfA(cEntry, "Name      Kills      Deaths");
-//   PutString( 10, 100, cEntry, RGB(255,255,255) );
+//   PutString( 10, 100, cEntry,video::SColor(255,255,255,255) );
 //
 //   for (i = 0; i < MAXARENAPLAYERS; i++)
 //   {
@@ -36106,7 +36175,7 @@ void CGame::UpdateScreen_OnGame()
 //      {
 //         iEntry++;
 //         wsprintfA(cEntry, "%s      %i     %i", m_stArenaPlayers[i].cCharName, m_stArenaPlayers[i].iKills, m_stArenaPlayers[i].iDeaths);
-//         PutString( 10, 100 + (iEntry*15), cEntry, RGB(255,255,255) );
+//         PutString( 10, 100 + (iEntry*15), cEntry,video::SColor(255,255,255,255) );
 //      }
 //   }
 //}
@@ -36229,13 +36298,13 @@ void CGame::UpdateScreen_OnGame()
 
 		iter = lines->begin();
 
-		PutString(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY +25, iter->c_str(), m_itemColor, FALSE, 1);
+		PutFontString(font[2], G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY +25, iter->c_str(), m_itemColor, FALSE, 1);
 		iLoc += 13;
 		++iter;
 
 		while(iter != end)
 		{
-			PutString(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY +25 +iLoc, iter->c_str(), RGB(150,150,150), FALSE, 1);
+			PutFontString(font[2], G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY +25 +iLoc, iter->c_str(),video::SColor(255,150,150,150), FALSE, 1);
 			iLoc += 13;
 			++iter;
 		}
@@ -36255,7 +36324,7 @@ void CGame::UpdateScreen_OnGame()
 		//	if( iLoc > 1 )
 		//	{
 		//		wsprintfA(G_cTxt, MSG_TOTAL_NUMBER, iLoc);
-		//		PutString(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY + 40, G_cTxt, RGB(150,150,150), FALSE, 1);
+		//		PutString(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY + 40, G_cTxt,video::SColor(255,150,150,150), FALSE, 1);
 		//	}
 		//}
 	}
@@ -36285,10 +36354,12 @@ void CGame::UpdateScreen_OnGame()
 	}
 	
 #ifdef _DEBUG
+#ifdef MOUSEDEBUG
 	if(iUpdateRet){
 		wsprintfA(G_cTxt, "M(%d,%d) T(%d,%d)", G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY, (m_sViewPointX + G_pGame->m_stMCursor.sX)/32, (m_sViewPointY + G_pGame->m_stMCursor.sY)/32);
-		PutString(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY +30, G_cTxt, RGB(255,255,255));
+		PutString(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY +30, G_cTxt,video::SColor(255,255,255,255));
 	}
+#endif
 #endif
 
 	// LogOut process
@@ -36361,38 +36432,38 @@ void CGame::UpdateScreen_OnGame()
 	{
 		if(m_adminLevel > 1)
 		{
-			//PutAlignedString(0, 639, 0, "Ethereal", (m_GMFlags & GMFLAG_ETHEREAL) ? RGB(50,220,50) : RGB(220,50,50));
-			PutAlignedString(0, 799, 0, "Ethereal", (m_GMFlags & GMFLAG_ETHEREAL) ? RGB(50,220,50) : RGB(220,50,50)); // 800x600 Resolution xRisenx
+			//PutAlignedString(0, 639, 0, "Ethereal", (m_GMFlags & GMFLAG_ETHEREAL) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50));
+			PutAlignedString(0, 799, 0, "Ethereal", (m_GMFlags & GMFLAG_ETHEREAL) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50)); // 800x600 Resolution xRisenx
 
 			if(m_adminLevel >= 4)
 			{
-				//PutAlignedString(0, 639, 15, "No aggro", (m_GMFlags & GMFLAG_NOAGGRO) ? RGB(50,220,50) : RGB(220,50,50));
-				//PutAlignedString(0, 639, 30,  "Invincible", (m_GMFlags & GMFLAG_INVINCIBLE) ? RGB(50,220,50) : RGB(220,50,50));
-				PutAlignedString(0, 799, 15, "No aggro", (m_GMFlags & GMFLAG_NOAGGRO) ? RGB(50,220,50) : RGB(220,50,50)); // 800x600 Resolution xRisenx
-				PutAlignedString(0, 799, 30,  "Invincible", (m_GMFlags & GMFLAG_INVINCIBLE) ? RGB(50,220,50) : RGB(220,50,50)); // 800x600 Resolution xRisenx
+				//PutAlignedString(0, 639, 15, "No aggro", (m_GMFlags & GMFLAG_NOAGGRO) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50));
+				//PutAlignedString(0, 639, 30,  "Invincible", (m_GMFlags & GMFLAG_INVINCIBLE) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50));
+				PutAlignedString(0, 799, 15, "No aggro", (m_GMFlags & GMFLAG_NOAGGRO) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50)); // 800x600 Resolution xRisenx
+				PutAlignedString(0, 799, 30,  "Invincible", (m_GMFlags & GMFLAG_INVINCIBLE) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50)); // 800x600 Resolution xRisenx
 			}
 		}
 
 		if(m_eventPot != -1)
 		{
 			wsprintfA( G_cTxt, "Total pot: %d", m_eventPot);
-			//PutAlignedString(0, 639, 45,  G_cTxt, RGB(50,220,50));
-			PutAlignedString(0, 799, 45,  G_cTxt, RGB(50,220,50)); // 800x600 Resolution xRisenx
+			//PutAlignedString(0, 639, 45,  G_cTxt,video::SColor(255,50,220,50));
+			PutAlignedString(0, 799, 45,  G_cTxt,video::SColor(255,50,220,50)); // 800x600 Resolution xRisenx
 		}
 
 		if(m_showTime)
 		{
 			wsprintfA( G_cTxt, "  %d", timeGetTime()/1000 % 60 );
-			PutString( 10, 100, G_cTxt, RGB(255,255,255), FALSE, 1 );
+			PutString( 10, 100, G_cTxt,video::SColor(255,255,255,255), FALSE, 1 );
 		}
 
-		if( m_bShowFPS )
-		{
-			wsprintfA( G_cTxt, "FPS: %d", m_iFPS);
-			PutString( 10, 115, G_cTxt, RGB(255,255,255), FALSE, 1 );
-			wsprintfA( G_cTxt, "PC: %dk", perfCnt/1000 );
-			PutString( 10, 130, G_cTxt, RGB(255,255,255), FALSE, 1 );
-		}
+// 		if( m_bShowFPS )
+// 		{
+// 			wsprintfA( G_cTxt, "FPS: %d", m_iFPS);
+// 			PutString( 10, 115, G_cTxt,video::SColor(255,255,255,255), FALSE, 1 );
+// 			wsprintfA( G_cTxt, "PC: %dk", perfCnt/1000 );
+// 			PutString( 10, 130, G_cTxt,video::SColor(255,255,255,255), FALSE, 1 );
+// 		}
 
 #ifdef TitleClient
 		// notify of title level up
@@ -38197,8 +38268,8 @@ void CGame::DrawDialogBox_Bank()
 
 	switch (m_dialogBoxes[14].GetMode()) {
 	case -1:
-		PutString(sX + 30 + 15, sY + 70, DRAW_DIALOGBOX_BANK1, RGB(0,0,0));//"
-		PutString(sX + 30 + 15, sY + 85, DRAW_DIALOGBOX_BANK2, RGB(0,0,0));//"
+		PutString(sX + 30 + 15, sY + 70, DRAW_DIALOGBOX_BANK1,video::SColor(255,0,0,0));//"
+		PutString(sX + 30 + 15, sY + 85, DRAW_DIALOGBOX_BANK2,video::SColor(255,0,0,0));//"
 		break;
 
 	case 0:
@@ -38247,7 +38318,7 @@ void CGame::DrawDialogBox_Bank()
 
 				while(iter != end)
 				{
-					PutString(sX + 70, sY +25 +iLoc, iter->c_str(), RGB(150,150,150), FALSE, 1);
+					PutString(sX + 70, sY +25 +iLoc, iter->c_str(),video::SColor(255,150,150,150), FALSE, 1);
 					iLoc += 13;
 					++iter;
 				}
@@ -38271,7 +38342,7 @@ void CGame::DrawDialogBox_Bank()
 			}
 			else if(iter != end)
 			{
-				if (m_itemColor != RGB(255,255,255))
+				if (m_itemColor !=video::SColor(255,255,255,255))
 					PutAlignedString(sX, sX+szX, sY + 110 + i*15, iter->c_str(), m_itemColor);
 				else
 					PutAlignedString(sX, sX+szX, sY + 110 + i*15, iter->c_str(), 0, 0, 0);
@@ -39037,7 +39108,7 @@ void CGame::DrawDialogBox_LevelUpSetting()
 
 #ifdef _DEBUG
 	wsprintfA( G_cTxt, "m_stat[STAT_STR]: %d   m_angelStat[STAT_STR]: %d", m_stat[STAT_STR], m_angelStat[STAT_STR] );
-	PutString( 10, 10, G_cTxt, RGB(255,255,255) );
+	PutString( 10, 10, G_cTxt,video::SColor(255,255,255,255) );
 #endif
 
 	char onButton = m_dialogBoxes[12].OnButton();
@@ -39053,23 +39124,23 @@ void CGame::DrawDialogBox_LevelUpSetting()
 	PutAlignedString(sX, sX + szX, sY + 65, DRAW_DIALOGBOX_LEVELUP_SETTING2);
 
 	// Points Left - Display in green if > 0
-	PutString(sX + 20,  sY + 85, DRAW_DIALOGBOX_LEVELUP_SETTING3, RGB(0,0,0));
+	PutString(sX + 20,  sY + 85, DRAW_DIALOGBOX_LEVELUP_SETTING3,video::SColor(255,0,0,0));
 	wsprintfA(cTxt, "%d", m_iLU_Point);
 	if (m_iLU_Point > 0)
-	{	PutString(sX + 73,  sY + 102, cTxt, RGB(0,255,0));
+	{	PutString(sX + 73,  sY + 102, cTxt,video::SColor(255,0,255,0));
 	}else
-	{	PutString(sX + 73,  sY + 102, cTxt, RGB(0,0,0));
+	{	PutString(sX + 73,  sY + 102, cTxt,video::SColor(255,0,0,0));
 	}
 	// Strength
-	PutString(sX + 24, sY + 125, DRAW_DIALOGBOX_LEVELUP_SETTING4, RGB(5,5,5));
+	PutString(sX + 24, sY + 125, DRAW_DIALOGBOX_LEVELUP_SETTING4,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_STR] - m_angelStat[STAT_STR]);
-	PutString(sX + 109, sY + 125, cTxt, RGB(0,0,0));
+	PutString(sX + 109, sY + 125, cTxt,video::SColor(255,0,0,0));
 	iStats = m_stat[STAT_STR] + m_luStat[STAT_STR] - m_angelStat[STAT_STR];
 	wsprintfA(cTxt, "%d", iStats);
 	if (iStats != m_stat[STAT_STR] - m_angelStat[STAT_STR])
-	{	PutString(sX + 162, sY + 125, cTxt, RGB(255,0,0));
+	{	PutString(sX + 162, sY + 125, cTxt,video::SColor(255,255,0,0));
 	}else
-	{	PutString(sX + 162, sY + 125, cTxt, RGB(0,0,0));
+	{	PutString(sX + 162, sY + 125, cTxt,video::SColor(255,0,0,0));
 	}
 	if (onButton == 3 && (m_stat[STAT_STR] < Stats_Limit))
 	//if (onButton == 3 && (m_stat[STAT_STR] < 450))
@@ -39078,15 +39149,15 @@ void CGame::DrawDialogBox_LevelUpSetting()
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 127, 6, dwTime);
 
 
-	PutString(sX + 24, sY + 144, DRAW_DIALOGBOX_LEVELUP_SETTING5, RGB(5,5,5));
+	PutString(sX + 24, sY + 144, DRAW_DIALOGBOX_LEVELUP_SETTING5,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_VIT]);
-	PutString(sX + 109, sY + 144, cTxt, RGB(0,0,0));
+	PutString(sX + 109, sY + 144, cTxt,video::SColor(255,0,0,0));
 	iStats = m_stat[STAT_VIT] + m_luStat[STAT_VIT];
 	wsprintfA(cTxt, "%d", iStats);
 	if (iStats != m_stat[STAT_VIT])
-	{	PutString(sX + 162, sY + 144, cTxt, RGB(255,0,0));
+	{	PutString(sX + 162, sY + 144, cTxt,video::SColor(255,255,0,0));
 	}else
-	{	PutString(sX + 162, sY + 144, cTxt, RGB(0,0,0));
+	{	PutString(sX + 162, sY + 144, cTxt,video::SColor(255,0,0,0));
 	}
 	if (onButton == 5 && (m_stat[STAT_VIT] < Stats_Limit))
 	//if (onButton == 5 && (m_stat[STAT_VIT] < 450))
@@ -39095,15 +39166,15 @@ void CGame::DrawDialogBox_LevelUpSetting()
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 146, 6, dwTime);
 
 	// Dexterity
-	PutString(sX + 24, sY + 163, DRAW_DIALOGBOX_LEVELUP_SETTING6, RGB(5,5,5));
+	PutString(sX + 24, sY + 163, DRAW_DIALOGBOX_LEVELUP_SETTING6,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_DEX] - m_angelStat[STAT_DEX]);
-	PutString(sX + 109, sY + 163, cTxt, RGB(0,0,0));
+	PutString(sX + 109, sY + 163, cTxt,video::SColor(255,0,0,0));
 	iStats = m_stat[STAT_DEX] + m_luStat[STAT_DEX] - m_angelStat[STAT_DEX];
 	wsprintfA(cTxt, "%d", iStats);
 	if (iStats != m_stat[STAT_DEX] - m_angelStat[STAT_DEX])
-	{	PutString(sX + 162, sY + 163, cTxt, RGB(255,0,0));
+	{	PutString(sX + 162, sY + 163, cTxt,video::SColor(255,255,0,0));
 	}else
-	{	PutString(sX + 162, sY + 163, cTxt, RGB(0,0,0));
+	{	PutString(sX + 162, sY + 163, cTxt,video::SColor(255,0,0,0));
 	}
 	if (onButton == 7 && (m_stat[STAT_DEX] < Stats_Limit))
 	//if (onButton == 7 && (m_stat[STAT_DEX] < 450))
@@ -39112,15 +39183,15 @@ void CGame::DrawDialogBox_LevelUpSetting()
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 165, 6, dwTime);
 
 	// Intelligence
-	PutString(sX + 24, sY + 182, DRAW_DIALOGBOX_LEVELUP_SETTING7, RGB(5,5,5));
+	PutString(sX + 24, sY + 182, DRAW_DIALOGBOX_LEVELUP_SETTING7,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_INT] - m_angelStat[STAT_INT]);
-	PutString(sX + 109, sY + 182, cTxt, RGB(0,0,0));
+	PutString(sX + 109, sY + 182, cTxt,video::SColor(255,0,0,0));
 	iStats = m_stat[STAT_INT] + m_luStat[STAT_INT] - m_angelStat[STAT_INT];
 	wsprintfA(cTxt, "%d", iStats);
 	if (iStats != m_stat[STAT_INT] - m_angelStat[STAT_INT])
-	{	PutString(sX + 162, sY + 182, cTxt, RGB(255,0,0));
+	{	PutString(sX + 162, sY + 182, cTxt,video::SColor(255,255,0,0));
 	}else
-	{	PutString(sX + 162, sY + 182, cTxt, RGB(0,0,0));
+	{	PutString(sX + 162, sY + 182, cTxt,video::SColor(255,0,0,0));
 	}
 	if (onButton == 9 && (m_stat[STAT_INT] < Stats_Limit))
 	//if (onButton == 9 && (m_stat[STAT_INT] < 450))
@@ -39129,15 +39200,15 @@ void CGame::DrawDialogBox_LevelUpSetting()
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 184, 6, dwTime);
 
 	// Magic
-	PutString(sX + 24, sY + 201, DRAW_DIALOGBOX_LEVELUP_SETTING8, RGB(5,5,5));
+	PutString(sX + 24, sY + 201, DRAW_DIALOGBOX_LEVELUP_SETTING8,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_MAG] - m_angelStat[STAT_MAG]);
-	PutString(sX + 109, sY + 201, cTxt, RGB(0,0,0));
+	PutString(sX + 109, sY + 201, cTxt,video::SColor(255,0,0,0));
 	iStats = m_stat[STAT_MAG] + m_luStat[STAT_MAG] - m_angelStat[STAT_MAG];
 	wsprintfA(cTxt, "%d", iStats);
 	if (iStats != m_stat[STAT_MAG] - m_angelStat[STAT_MAG])
-	{	PutString(sX + 162, sY + 201, cTxt, RGB(255,0,0));
+	{	PutString(sX + 162, sY + 201, cTxt,video::SColor(255,255,0,0));
 	}else
-	{	PutString(sX + 162, sY + 201, cTxt, RGB(0,0,0));
+	{	PutString(sX + 162, sY + 201, cTxt,video::SColor(255,0,0,0));
 	}
 	if (onButton == 11 && (m_stat[STAT_MAG] < Stats_Limit))
 	//if (onButton == 11 && (m_stat[STAT_MAG] < 450))
@@ -39146,15 +39217,15 @@ void CGame::DrawDialogBox_LevelUpSetting()
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 203, 6, dwTime);
 
 	// Charisma
-	PutString(sX + 24, sY + 220, DRAW_DIALOGBOX_LEVELUP_SETTING9, RGB(5,5,5));
+	PutString(sX + 24, sY + 220, DRAW_DIALOGBOX_LEVELUP_SETTING9,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_CHR]);
-	PutString(sX + 109, sY + 220, cTxt, RGB(0,0,0));
+	PutString(sX + 109, sY + 220, cTxt,video::SColor(255,0,0,0));
 	iStats = m_stat[STAT_CHR] + m_luStat[STAT_CHR];
 	wsprintfA(cTxt, "%d", iStats);
 	if (iStats != m_stat[STAT_CHR])
-	{	PutString(sX + 162, sY + 220, cTxt, RGB(255,0,0));
+	{	PutString(sX + 162, sY + 220, cTxt,video::SColor(255,255,0,0));
 	}else
-	{	PutString(sX + 162, sY + 220, cTxt, RGB(0,0,0));
+	{	PutString(sX + 162, sY + 220, cTxt,video::SColor(255,0,0,0));
 	}
 	if (onButton == 13 && (m_stat[STAT_CHR] < Stats_Limit))
 	//if (onButton == 13 && (m_stat[STAT_CHR] < 450))
@@ -39202,77 +39273,77 @@ void CGame::DrawDialogBox_CityHallMenu()
 		if (m_side == NEUTRAL)
 		{	
 			if (onButton == 1)
-				 PutAlignedString(sX, sX + szX, sY + 70, DRAW_DIALOGBOX_CITYHALL_MENU1, 255,255,255);
-			else PutAlignedString(sX, sX + szX, sY + 70, DRAW_DIALOGBOX_CITYHALL_MENU1, 4,0,50);
+				 PutAlignedString(sX, sX + szX, sY + 70, DRAW_DIALOGBOX_CITYHALL_MENU1, video::SColor(255,255,255,255));
+			else PutAlignedString(sX, sX + szX, sY + 70, DRAW_DIALOGBOX_CITYHALL_MENU1, video::SColor(255,4,0,50));
 		}
-		else PutAlignedString(sX, sX + szX, sY + 70, DRAW_DIALOGBOX_CITYHALL_MENU1, 65,65,65);
+		else PutAlignedString(sX, sX + szX, sY + 70, DRAW_DIALOGBOX_CITYHALL_MENU1, video::SColor(255,65,65,65));
 
 		if (m_iRewardGold > 0)
 		{	
 			if (onButton == 2)
-				 PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU4, 255,255,255);
-			else PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU4, 4,0,50);
+				 PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU4, video::SColor(255,255,255,255));
+			else PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU4, video::SColor(255,4,0,50));
 		}
-		else PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU4, 65,65,65);
+		else PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU4, video::SColor(255,65,65,65));
 
 		// 3.51 Cityhall Menu - Request Hero's Items - Diuuude
 		if ((m_iEnemyKillCount >= 100) && (m_iContribution >= 10))
 		{	
 			if (onButton == 3)
-				 PutAlignedString(sX, sX + szX, sY + 120, DRAW_DIALOGBOX_CITYHALL_MENU8, 255,255,255);
-			else PutAlignedString(sX, sX + szX, sY + 120, DRAW_DIALOGBOX_CITYHALL_MENU8, 4,0,50);
+				 PutAlignedString(sX, sX + szX, sY + 120, DRAW_DIALOGBOX_CITYHALL_MENU8, video::SColor(255,255,255,255));
+			else PutAlignedString(sX, sX + szX, sY + 120, DRAW_DIALOGBOX_CITYHALL_MENU8, video::SColor(255,4,0,50));
 		}
-		else PutAlignedString(sX, sX + szX, sY + 120, DRAW_DIALOGBOX_CITYHALL_MENU8, 65,65,65);
+		else PutAlignedString(sX, sX + szX, sY + 120, DRAW_DIALOGBOX_CITYHALL_MENU8, video::SColor(255,65,65,65));
 
 		// Cancel quest
 		if (m_stQuest.sQuestType != NULL && !m_stQuest.bIsQuestCompleted)
 		{	
 			if (onButton == 4)
-				 PutAlignedString(sX, sX + szX, sY + 145, DRAW_DIALOGBOX_CITYHALL_MENU10, 255,255,255);
-			else PutAlignedString(sX, sX + szX, sY + 145, DRAW_DIALOGBOX_CITYHALL_MENU10, 4,0,50);
+				 PutAlignedString(sX, sX + szX, sY + 145, DRAW_DIALOGBOX_CITYHALL_MENU10, video::SColor(255,255,255,255));
+			else PutAlignedString(sX, sX + szX, sY + 145, DRAW_DIALOGBOX_CITYHALL_MENU10, video::SColor(255,4,0,50));
 		}
-		else PutAlignedString(sX, sX + szX, sY + 145, DRAW_DIALOGBOX_CITYHALL_MENU10, 65,65,65);
+		else PutAlignedString(sX, sX + szX, sY + 145, DRAW_DIALOGBOX_CITYHALL_MENU10, video::SColor(255,65,65,65));
 
 		// Legion point services
 		if (onButton == 5)
-			PutAlignedString(sX, sX + szX, sY + 170, DRAW_DIALOGBOX_CITYHALL_MENU11, 255,255,255);
+			PutAlignedString(sX, sX + szX, sY + 170, DRAW_DIALOGBOX_CITYHALL_MENU11, video::SColor(255,255,255,255));
 		else
-			PutAlignedString(sX, sX + szX, sY + 170, DRAW_DIALOGBOX_CITYHALL_MENU11, 4,0,50);
+			PutAlignedString(sX, sX + szX, sY + 170, DRAW_DIALOGBOX_CITYHALL_MENU11, video::SColor(255,4,0,50));
 
 		// Teleport list
 		if ( (m_bIsCrusadeMode==FALSE))
 		{	if (onButton == 6)
-				 PutAlignedString(sX, sX + szX, sY + 195, DRAW_DIALOGBOX_CITYHALL_MENU12, 255,255,255);
-			else PutAlignedString(sX, sX + szX, sY + 195, DRAW_DIALOGBOX_CITYHALL_MENU12, 4,0,50);
-		}else    PutAlignedString(sX, sX + szX, sY + 195, DRAW_DIALOGBOX_CITYHALL_MENU12, 65,65,65);
+				 PutAlignedString(sX, sX + szX, sY + 195, DRAW_DIALOGBOX_CITYHALL_MENU12, video::SColor(255,255,255,255));
+			else PutAlignedString(sX, sX + szX, sY + 195, DRAW_DIALOGBOX_CITYHALL_MENU12, video::SColor(255,4,0,50));
+		}else    PutAlignedString(sX, sX + szX, sY + 195, DRAW_DIALOGBOX_CITYHALL_MENU12, video::SColor(255,65,65,65));
 
 		// Quest list
 		if (onButton == 7)
-				 PutAlignedString(sX, sX + szX, sY + 220, DRAW_DIALOGBOX_CITYHALL_MENU9, 255,255,255);
-			else PutAlignedString(sX, sX + szX, sY + 220, DRAW_DIALOGBOX_CITYHALL_MENU9, 4,0,50);
+				 PutAlignedString(sX, sX + szX, sY + 220, DRAW_DIALOGBOX_CITYHALL_MENU9, video::SColor(255,255,255,255));
+			else PutAlignedString(sX, sX + szX, sY + 220, DRAW_DIALOGBOX_CITYHALL_MENU9, video::SColor(255,4,0,50));
 		
 		//Change crusade role
 		if ( m_bIsCrusadeMode && m_side != NEUTRAL )
 		{	if (onButton == 8)
-				 PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU13, 255,255,255);
-			else PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU13, 4,0,50);
-		}else    PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU13, 65,65,65);
+				 PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU13, video::SColor(255,255,255,255));
+			else PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU13, video::SColor(255,4,0,50));
+		}else    PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU13, video::SColor(255,65,65,65));
 
 		PutAlignedString(sX, sX + szX, sY + 285, DRAW_DIALOGBOX_CITYHALL_MENU17);//"Select an Item you want."
 
 		break;
 
 	case 1: // become citizen warning
-		PutAlignedString(sX, sX + szX, sY + 80, DRAW_DIALOGBOX_CITYHALL_MENU18, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU19, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 110, DRAW_DIALOGBOX_CITYHALL_MENU20, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU21, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 140,DRAW_DIALOGBOX_CITYHALL_MENU22, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 155,DRAW_DIALOGBOX_CITYHALL_MENU23, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 170,DRAW_DIALOGBOX_CITYHALL_MENU24, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 200,DRAW_DIALOGBOX_CITYHALL_MENU25, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 215,DRAW_DIALOGBOX_CITYHALL_MENU26, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 230,DRAW_DIALOGBOX_CITYHALL_MENU27, 55,25,25);//"
+		PutAlignedString(sX, sX + szX, sY + 80, DRAW_DIALOGBOX_CITYHALL_MENU18, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU19, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 110, DRAW_DIALOGBOX_CITYHALL_MENU20, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU21, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 140,DRAW_DIALOGBOX_CITYHALL_MENU22, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 155,DRAW_DIALOGBOX_CITYHALL_MENU23, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 170,DRAW_DIALOGBOX_CITYHALL_MENU24, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 200,DRAW_DIALOGBOX_CITYHALL_MENU25, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 215,DRAW_DIALOGBOX_CITYHALL_MENU26, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 230,DRAW_DIALOGBOX_CITYHALL_MENU27, video::SColor(255,55,25,25));//"
 
 		if (onButton == 1)
 			 DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 19);
@@ -39284,11 +39355,11 @@ void CGame::DrawDialogBox_CityHallMenu()
 		break;
 
 	case 2: // Offering Citizenship.
-		PutAlignedString(sX, sX + szX, sY + 140, DRAW_DIALOGBOX_CITYHALL_MENU28, 55,25,25);//"
+		PutAlignedString(sX, sX + szX, sY + 140, DRAW_DIALOGBOX_CITYHALL_MENU28, video::SColor(255,55,25,25));//"
 		break;
 
 	case 3: //Congratulations!! You acquired Citizenship"
-		PutAlignedString(sX, sX + szX, sY + 140, DRAW_DIALOGBOX_CITYHALL_MENU29, 55,25,25);//"
+		PutAlignedString(sX, sX + szX, sY + 140, DRAW_DIALOGBOX_CITYHALL_MENU29, video::SColor(255,55,25,25));//"
 
 		if (onButton == 1)
 			 DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + RBTNPOSX, sY + BTNPOSY, 1);
@@ -39296,9 +39367,9 @@ void CGame::DrawDialogBox_CityHallMenu()
 		break;
 
 	case 4: //Failed on acquiring citizenship!"
-		PutAlignedString(sX, sX + szX, sY + 80,  DRAW_DIALOGBOX_CITYHALL_MENU30, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 100, DRAW_DIALOGBOX_CITYHALL_MENU31, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 115, DRAW_DIALOGBOX_CITYHALL_MENU32, 55,25,25);//"
+		PutAlignedString(sX, sX + szX, sY + 80,  DRAW_DIALOGBOX_CITYHALL_MENU30, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 100, DRAW_DIALOGBOX_CITYHALL_MENU31, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 115, DRAW_DIALOGBOX_CITYHALL_MENU32, video::SColor(255,55,25,25));//"
 
 		if (onButton == 1)
 			 DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + RBTNPOSX, sY + BTNPOSY, 1);
@@ -39306,10 +39377,10 @@ void CGame::DrawDialogBox_CityHallMenu()
 		break;
 
 	case 5: //The prize gold for your"
-		PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU33, 55,25,25);//"
+		PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU33, video::SColor(255,55,25,25));//"
 		wsprintfA(cTxt, DRAW_DIALOGBOX_CITYHALL_MENU34, m_iRewardGold);//"
-		PutAlignedString(sX, sX + szX, sY + 140, cTxt, 55,25,25);
-		PutAlignedString(sX, sX + szX, sY + 155, DRAW_DIALOGBOX_CITYHALL_MENU35, 55,25,25);//"
+		PutAlignedString(sX, sX + szX, sY + 140, cTxt, video::SColor(255,55,25,25));
+		PutAlignedString(sX, sX + szX, sY + 155, DRAW_DIALOGBOX_CITYHALL_MENU35, video::SColor(255,55,25,25));//"
 
 		if (onButton == 1)
 			 DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 19);
@@ -39321,61 +39392,61 @@ void CGame::DrawDialogBox_CityHallMenu()
 		break;
 
 	case 7:// 3.51 Cityhall Menu - Request Hero's Items - Diuuude
-		PutAlignedString(sX, sX + szX, sY + 60,  DRAW_DIALOGBOX_CITYHALL_MENU46, 255,255,255);// Here are the Hero's Item aivable :
+		PutAlignedString(sX, sX + szX, sY + 60,  DRAW_DIALOGBOX_CITYHALL_MENU46, video::SColor(255,255,255,255));// Here are the Hero's Item aivable :
 		// Hero's Cape (EK 300)
 		if (m_iEnemyKillCount >= 300)
 		{	if (onButton == 1)
-				 PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU47, 255,255,255);// On mouse over Mode
-			else PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU47, 4,0,50);// Normal Mode
+				 PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU47, video::SColor(255,255,255,255));// On mouse over Mode
+			else PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU47, video::SColor(255,4,0,50));// Normal Mode
 		}
-		else PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU47, 65,65,65);// Disabled Mode
+		else PutAlignedString(sX, sX + szX, sY + 95, DRAW_DIALOGBOX_CITYHALL_MENU47, video::SColor(255,65,65,65));// Disabled Mode
 		// Hero's Helm (EK 150 - Contrib 20)
 		if ((m_iEnemyKillCount >= 150) && (m_iContribution >= 20))
 		{	if (onButton == 2)
-				 PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU48, 255,255,255);// On mouse over Mode
-			else PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU48, 4,0,50);// Normal Mode
+				 PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU48, video::SColor(255,255,255,255));// On mouse over Mode
+			else PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU48, video::SColor(255,4,0,50));// Normal Mode
 		}
-		else PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU48, 65,65,65);// Disabled Mode
+		else PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU48, video::SColor(255,65,65,65));// Disabled Mode
 		// Hero's Cap (EK 100 - Contrib 20)
 		if ((m_iEnemyKillCount >= 100) && (m_iContribution >= 20))
 		{	if (onButton == 3)
-				 PutAlignedString(sX, sX + szX, sY + 155, DRAW_DIALOGBOX_CITYHALL_MENU49, 255,255,255);// On mouse over Mode
-			else PutAlignedString(sX, sX + szX, sY + 155, DRAW_DIALOGBOX_CITYHALL_MENU49, 4,0,50);// Normal Mode
+				 PutAlignedString(sX, sX + szX, sY + 155, DRAW_DIALOGBOX_CITYHALL_MENU49, video::SColor(255,255,255,255));// On mouse over Mode
+			else PutAlignedString(sX, sX + szX, sY + 155, DRAW_DIALOGBOX_CITYHALL_MENU49, video::SColor(255,4,0,50));// Normal Mode
 		}
-		else PutAlignedString(sX, sX + szX, sY + 155, DRAW_DIALOGBOX_CITYHALL_MENU49, 65,65,65);// Disabled Mode
+		else PutAlignedString(sX, sX + szX, sY + 155, DRAW_DIALOGBOX_CITYHALL_MENU49, video::SColor(255,65,65,65));// Disabled Mode
 		// Hero's Armor (EK 300 - Contrib 30)
 		if ((m_iEnemyKillCount >= 300) && (m_iContribution >= 30))
 		{	if (onButton == 4)
-				 PutAlignedString(sX, sX + szX, sY + 185, DRAW_DIALOGBOX_CITYHALL_MENU50, 255,255,255);// On mouse over Mode
-			else PutAlignedString(sX, sX + szX, sY + 185, DRAW_DIALOGBOX_CITYHALL_MENU50, 4,0,50);// Normal Mode
+				 PutAlignedString(sX, sX + szX, sY + 185, DRAW_DIALOGBOX_CITYHALL_MENU50, video::SColor(255,255,255,255));// On mouse over Mode
+			else PutAlignedString(sX, sX + szX, sY + 185, DRAW_DIALOGBOX_CITYHALL_MENU50, video::SColor(255,4,0,50));// Normal Mode
 		}
-		else PutAlignedString(sX, sX + szX, sY + 185, DRAW_DIALOGBOX_CITYHALL_MENU50, 65,65,65);// Disabled Mode
+		else PutAlignedString(sX, sX + szX, sY + 185, DRAW_DIALOGBOX_CITYHALL_MENU50, video::SColor(255,65,65,65));// Disabled Mode
 		// Hero's Robe (EK 200 - Contrib 20)
 		if ((m_iEnemyKillCount >= 200) && (m_iContribution >= 20))
 		{	if (onButton == 5)
-				 PutAlignedString(sX, sX + szX, sY + 215, DRAW_DIALOGBOX_CITYHALL_MENU51, 255,255,255);// On mouse over Mode
-			else PutAlignedString(sX, sX + szX, sY + 215, DRAW_DIALOGBOX_CITYHALL_MENU51, 4,0,50);// Normal Mode
+				 PutAlignedString(sX, sX + szX, sY + 215, DRAW_DIALOGBOX_CITYHALL_MENU51, video::SColor(255,255,255,255));// On mouse over Mode
+			else PutAlignedString(sX, sX + szX, sY + 215, DRAW_DIALOGBOX_CITYHALL_MENU51, video::SColor(255,4,0,50));// Normal Mode
 		}
-		else PutAlignedString(sX, sX + szX, sY + 215, DRAW_DIALOGBOX_CITYHALL_MENU51, 65,65,65);// Disabled Mode
+		else PutAlignedString(sX, sX + szX, sY + 215, DRAW_DIALOGBOX_CITYHALL_MENU51, video::SColor(255,65,65,65));// Disabled Mode
 		// Hero's Hauberk (EK 100 - Contrib 10)
 		if ((m_iEnemyKillCount >= 100) && (m_iContribution >= 10))
 		{	if (onButton == 6)
-				 PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU52, 255,255,255);// On mouse over Mode
-			else PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU52, 4,0,50);// Normal Mode
+				 PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU52, video::SColor(255,255,255,255));// On mouse over Mode
+			else PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU52, video::SColor(255,4,0,50));// Normal Mode
 		}
-		else PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU52, 65,65,65);// Disabled Mode
+		else PutAlignedString(sX, sX + szX, sY + 245, DRAW_DIALOGBOX_CITYHALL_MENU52, video::SColor(255,65,65,65));// Disabled Mode
 		// Hero's Leggings (EK 150 - Contrib 15)
 		if ((m_iEnemyKillCount >= 150) && (m_iContribution >= 15))
 		{	if (onButton == 7)
-				 PutAlignedString(sX, sX + szX, sY + 275, DRAW_DIALOGBOX_CITYHALL_MENU53, 255,255,255);// On mouse over Mode
-			else PutAlignedString(sX, sX + szX, sY + 275, DRAW_DIALOGBOX_CITYHALL_MENU53, 4,0,50);// Normal Mode
+				 PutAlignedString(sX, sX + szX, sY + 275, DRAW_DIALOGBOX_CITYHALL_MENU53, video::SColor(255,255,255,255));// On mouse over Mode
+			else PutAlignedString(sX, sX + szX, sY + 275, DRAW_DIALOGBOX_CITYHALL_MENU53, video::SColor(255,4,0,50));// Normal Mode
 		}
-		else PutAlignedString(sX, sX + szX, sY + 275, DRAW_DIALOGBOX_CITYHALL_MENU53, 65,65,65);// Disabled Mode
+		else PutAlignedString(sX, sX + szX, sY + 275, DRAW_DIALOGBOX_CITYHALL_MENU53, video::SColor(255,65,65,65));// Disabled Mode
 		break;
 
 	case 8: // cancel current quest?
-		PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU54, 55,25,25);//"
-		PutAlignedString(sX, sX + szX, sY + 140, DRAW_DIALOGBOX_CITYHALL_MENU55, 55,25,25);//"
+		PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU54, video::SColor(255,55,25,25));//"
+		PutAlignedString(sX, sX + szX, sY + 140, DRAW_DIALOGBOX_CITYHALL_MENU55, video::SColor(255,55,25,25));//"
 
 		if (onButton == 1)
 			 DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 19);
@@ -39388,14 +39459,14 @@ void CGame::DrawDialogBox_CityHallMenu()
 
 	case LEGIONPTSSERVICES:
 		wsprintfA(cTxt, "Fantasy points: %u", m_cash);
-		PutAlignedString(sX, sX + szX, sY + 35,  cTxt, 55,25,25);
+		PutAlignedString(sX, sX + szX, sY + 35,  cTxt, video::SColor(255,55,25,25));
 		if (onButton == 1)
-			PutAlignedString(sX + 160, sX + szX, sY + 35, DRAW_DIALOGBOX_CITYHALL_MENU14 , 255,255,255);
+			PutAlignedString(sX + 160, sX + szX, sY + 35, DRAW_DIALOGBOX_CITYHALL_MENU14 , video::SColor(255,255,255,255));
 		else
-			PutAlignedString(sX + 160, sX + szX, sY + 35, DRAW_DIALOGBOX_CITYHALL_MENU14 , 4,0,50);
+			PutAlignedString(sX + 160, sX + szX, sY + 35, DRAW_DIALOGBOX_CITYHALL_MENU14 , video::SColor(255,4,0,50));
 
-		PutAlignedString(sX - 20, sX + szX, sY + 55, DRAW_DIALOGBOX_CITYHALL_MENU15, 55,25,25);
-		PutAlignedString(sX + 180, sX + szX, sY + 55, DRAW_DIALOGBOX_CITYHALL_MENU16, 55,25,25);
+		PutAlignedString(sX - 20, sX + szX, sY + 55, DRAW_DIALOGBOX_CITYHALL_MENU15, video::SColor(255,55,25,25));
+		PutAlignedString(sX + 180, sX + szX, sY + 55, DRAW_DIALOGBOX_CITYHALL_MENU16, video::SColor(255,55,25,25));
 
 		pointerLoc = m_dialogBoxes[13].HandleScroll(16, CMD_LGNSVC_MAX);
 
@@ -39408,14 +39479,14 @@ void CGame::DrawDialogBox_CityHallMenu()
 			{
 				if (onButton == i + 2)
 				{
-					PutAlignedString(sX-30, sX + szX, sY + 75 + 15*i, lgnPtsSvcs[i + m_dialogBoxes[13].sView].desc, 255,255,255);
+					PutAlignedString(sX-30, sX + szX, sY + 75 + 15*i, lgnPtsSvcs[i + m_dialogBoxes[13].sView].desc, video::SColor(255,255,255,255));
 					wsprintfA(cTxt, "%u", lgnPtsSvcs[i + m_dialogBoxes[13].sView].price);
-					PutAlignedString(sX + 190, sX + szX, sY + 75 + 15*i, cTxt, 255,255,255);
+					PutAlignedString(sX + 190, sX + szX, sY + 75 + 15*i, cTxt, video::SColor(255,255,255,255));
 				}
 				else {
-					PutAlignedString(sX-30, sX + szX, sY + 75 + 15*i, lgnPtsSvcs[i + m_dialogBoxes[13].sView].desc, 4,0,50);
+					PutAlignedString(sX-30, sX + szX, sY + 75 + 15*i, lgnPtsSvcs[i + m_dialogBoxes[13].sView].desc, video::SColor(255,4,0,50));
 					wsprintfA(cTxt, "%u", lgnPtsSvcs[i + m_dialogBoxes[13].sView].price);
-					PutAlignedString(sX + 190, sX + szX, sY + 75 + 15*i, cTxt, 4,0,50);
+					PutAlignedString(sX + 190, sX + szX, sY + 75 + 15*i, cTxt, video::SColor(255,4,0,50));
 				}
 			}
 		}
@@ -39441,22 +39512,22 @@ void CGame::DrawDialogBox_CityHallMenu()
 				}
 
 				if( onButton == i + 1 )
-					PutAlignedString(sX, sX + szX, sY + 130 + i*15, G_cTxt, 255, 255, 255);
+					PutAlignedString(sX, sX + szX, sY + 130 + i*15, G_cTxt, video::SColor(255,255, 255, 255));
 				else 
-					PutAlignedString(sX, sX + szX, sY + 130 + i*15, G_cTxt,  250,  250,  0);
+					PutAlignedString(sX, sX + szX, sY + 130 + i*15, G_cTxt,  video::SColor(255,250,  250,  0));
 			}
 		}else if( m_iTeleportMapCount == -1 )
-		{	PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU73, 55,25,25);
-		PutAlignedString(sX, sX + szX, sY + 150, DRAW_DIALOGBOX_CITYHALL_MENU74, 55,25,25);
+		{	PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_CITYHALL_MENU73, video::SColor(255,55,25,25));
+		PutAlignedString(sX, sX + szX, sY + 150, DRAW_DIALOGBOX_CITYHALL_MENU74, video::SColor(255,55,25,25));
 		}else
-		{	PutAlignedString(sX, sX + szX, sY + 150, DRAW_DIALOGBOX_CITYHALL_MENU76, 55,25,25);//"There is no area that you can teleport."
+		{	PutAlignedString(sX, sX + szX, sY + 150, DRAW_DIALOGBOX_CITYHALL_MENU76, video::SColor(255,55,25,25));//"There is no area that you can teleport."
 		}
 		break;
 
 	case 11: //drajwer - ask for tooking hero mantle
-		PutAlignedString(sX,sX+szX-1,sY+125,m_cTakeHeroItemName, 55,25,25);
-		PutAlignedString(sX+1,sX+szX,sY+125,m_cTakeHeroItemName, 55,25,25);
-		PutAlignedString(sX,sX+szX,sY+260,DRAW_DIALOGBOX_CITYHALL_MENU46A, 55,25,25); // would you like..
+		PutAlignedString(sX,sX+szX-1,sY+125,m_cTakeHeroItemName, video::SColor(255,55,25,25));
+		PutAlignedString(sX+1,sX+szX,sY+125,m_cTakeHeroItemName, video::SColor(255,55,25,25));
+		PutAlignedString(sX,sX+szX,sY+260,DRAW_DIALOGBOX_CITYHALL_MENU46A, video::SColor(255,55,25,25)); // would you like..
 		if (onButton == 1)
 		   DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 19);
 		else DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 18);
@@ -39466,11 +39537,11 @@ void CGame::DrawDialogBox_CityHallMenu()
  	break;
 
 	case 12: // Bleeding Island Teleport
-		PutAlignedString(sX,sX+szX-1,sY+125,"Bleeding Island", 55,25,25);
-		PutAlignedString(sX+1,sX+szX,sY+125,"Bleeding Island", 55,25,25);
-		PutAlignedString(sX,sX+szX-1,sY+140,"(100) Gold Required", 55,25,25);
-		PutAlignedString(sX+1,sX+szX,sY+140,"(100) Gold Required", 55,25,25);
-		PutAlignedString(sX,sX+szX,sY+260,"Would you like to teleport here?", 55,25,25); // would you like..
+		PutAlignedString(sX,sX+szX-1,sY+125,"Bleeding Island", video::SColor(255,55,25,25));
+		PutAlignedString(sX+1,sX+szX,sY+125,"Bleeding Island", video::SColor(255,55,25,25));
+		PutAlignedString(sX,sX+szX-1,sY+140,"(100) Gold Required", video::SColor(255,55,25,25));
+		PutAlignedString(sX+1,sX+szX,sY+140,"(100) Gold Required", video::SColor(255,55,25,25));
+		PutAlignedString(sX,sX+szX,sY+260,"Would you like to teleport here?", video::SColor(255,55,25,25)); // would you like..
 		if (onButton == 1)
 		   DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 19);
 		else DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 18);
@@ -39480,11 +39551,11 @@ void CGame::DrawDialogBox_CityHallMenu()
  	break;
 
 	case 13: // Players Arena Teleport
-		PutAlignedString(sX,sX+szX-1,sY+125,"Players Arena", 55,25,25);
-		PutAlignedString(sX+1,sX+szX,sY+125,"Players Arena", 55,25,25);
-		PutAlignedString(sX,sX+szX-1,sY+140,"(500) Gold Required", 55,25,25);
-		PutAlignedString(sX+1,sX+szX,sY+140,"(500) Gold Required", 55,25,25);
-		PutAlignedString(sX,sX+szX,sY+260,"Would you like to teleport here?", 55,25,25); // would you like..
+		PutAlignedString(sX,sX+szX-1,sY+125,"Players Arena", video::SColor(255,55,25,25));
+		PutAlignedString(sX+1,sX+szX,sY+125,"Players Arena", video::SColor(255,55,25,25));
+		PutAlignedString(sX,sX+szX-1,sY+140,"(500) Gold Required", video::SColor(255,55,25,25));
+		PutAlignedString(sX+1,sX+szX,sY+140,"(500) Gold Required", video::SColor(255,55,25,25));
+		PutAlignedString(sX,sX+szX,sY+260,"Would you like to teleport here?", video::SColor(255,55,25,25)); // would you like..
 		if (onButton == 1)
 		   DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 19);
 		else DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 18);
@@ -39494,11 +39565,11 @@ void CGame::DrawDialogBox_CityHallMenu()
  	break;
 
 	case 14: // Dungeon Level 2 Teleport
-		PutAlignedString(sX,sX+szX-1,sY+125,"Dark Crypt", 55,25,25);
-		PutAlignedString(sX+1,sX+szX,sY+125,"Dark Crypt", 55,25,25);
-		PutAlignedString(sX,sX+szX-1,sY+140,"(5000) Gold Required", 55,25,25);
-		PutAlignedString(sX+1,sX+szX,sY+140,"(5000) Gold Required", 55,25,25);
-		PutAlignedString(sX,sX+szX,sY+260,"Would you like to teleport here?", 55,25,25); // would you like..
+		PutAlignedString(sX,sX+szX-1,sY+125,"Dark Crypt", video::SColor(255,55,25,25));
+		PutAlignedString(sX+1,sX+szX,sY+125,"Dark Crypt", video::SColor(255,55,25,25));
+		PutAlignedString(sX,sX+szX-1,sY+140,"(5000) Gold Required", video::SColor(255,55,25,25));
+		PutAlignedString(sX+1,sX+szX,sY+140,"(5000) Gold Required", video::SColor(255,55,25,25));
+		PutAlignedString(sX,sX+szX,sY+260,"Would you like to teleport here?", video::SColor(255,55,25,25)); // would you like..
 		if (onButton == 1)
 		   DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 19);
 		else DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 18);
@@ -39508,11 +39579,11 @@ void CGame::DrawDialogBox_CityHallMenu()
  	break;
 
 	case 15: // Dungeon Level 2 Teleport
-		PutAlignedString(sX,sX+szX-1,sY+125,"Promiseland", 55,25,25);
-		PutAlignedString(sX+1,sX+szX,sY+125,"Promiseland", 55,25,25);
-		PutAlignedString(sX,sX+szX-1,sY+140,"(5000) Gold Required", 55,25,25);
-		PutAlignedString(sX+1,sX+szX,sY+140,"(5000) Gold Required", 55,25,25);
-		PutAlignedString(sX,sX+szX,sY+260,"Would you like to teleport here?", 55,25,25); // would you like..
+		PutAlignedString(sX,sX+szX-1,sY+125,"Promiseland", video::SColor(255,55,25,25));
+		PutAlignedString(sX+1,sX+szX,sY+125,"Promiseland", video::SColor(255,55,25,25));
+		PutAlignedString(sX,sX+szX-1,sY+140,"(5000) Gold Required", video::SColor(255,55,25,25));
+		PutAlignedString(sX+1,sX+szX,sY+140,"(5000) Gold Required", video::SColor(255,55,25,25));
+		PutAlignedString(sX,sX+szX,sY+260,"Would you like to teleport here?", video::SColor(255,55,25,25)); // would you like..
 		if (onButton == 1)
 		   DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 19);
 		else DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 18);
@@ -39536,7 +39607,7 @@ void CGame::DrawDialogBox_ConfirmExchange()
 
 	switch (m_dialogBoxes[41].GetMode()) {
 	case 1: // Question
-		PutString3(sX + 35, sY + 30, "Do you really want to exchange?", RGB(4,0,50));
+		PutString3(sX + 35, sY + 30, "Do you really want to exchange?",video::SColor(255,4,0,50));
 
 		if (onButton == 1)
 			 DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + 30, sY + 55 , 19);
@@ -39548,7 +39619,7 @@ void CGame::DrawDialogBox_ConfirmExchange()
 		break;
 
 	case 2: // Waiting for response
-		PutString3(sX + 45, sY + 36, "Waiting for response...", RGB(4,0,50));
+		PutString3(sX + 45, sY + 36, "Waiting for response...",video::SColor(255,4,0,50));
 		break;
 	}
 }
@@ -39563,11 +39634,11 @@ void CGame::DrawDialogBox_YesNo()
 	switch (dlg.GetMode())
 	{
 	case 1: // Mail deletion
-		PutString3(sX + 35, sY + 30, DRAW_DIALOGBOX_YESNO1, RGB(4,0,50));
+		PutString3(sX + 35, sY + 30, DRAW_DIALOGBOX_YESNO1,video::SColor(255,4,0,50));
 		break;
 		
 	case 2: // Post deletion
-		PutString3(sX + 35, sY + 30, DRAW_DIALOGBOX_YESNO2, RGB(4,0,50));
+		PutString3(sX + 35, sY + 30, DRAW_DIALOGBOX_YESNO2,video::SColor(255,4,0,50));
 		break;
 	}
 
@@ -39762,19 +39833,19 @@ void CGame::DrawDialogBox_Exchange()
 
 					iter = lines->begin();
 
-					if(m_itemColor != RGB(255,255,255))
+					if(video::SColor(m_itemColor) !=video::SColor(255,255,255,255))
 					{
 						PutString(sX + 5, sY + 215+iLoc, iter->c_str(), m_itemColor, FALSE, 1);
 					}else
 					{
-						PutString(sX + 5, sY + 215+iLoc, iter->c_str(), RGB(180,180,180), FALSE, 1);
+						PutString(sX + 5, sY + 215+iLoc, iter->c_str(),video::SColor(255,180,180,180), FALSE, 1);
 					}
 					iLoc += 13;
 					++iter;
 
 					while(iter != end)
 					{
-						PutString(sX + 5, sY + 215+iLoc, iter->c_str(), RGB(150,150,150), FALSE, 1);
+						PutString(sX + 5, sY + 215+iLoc, iter->c_str(),video::SColor(255,150,150,150), FALSE, 1);
 						iLoc += 13;
 						++iter;
 					}
@@ -39784,18 +39855,18 @@ void CGame::DrawDialogBox_Exchange()
 		break;
 
 	case 2: // You have confirmed the exchange
-		PutAlignedString(sX + 80, sX + 180, sY + 38, m_cPlayerName, 35,55,35); // my name
+		PutAlignedString(sX + 80, sX + 180, sY + 38, m_cPlayerName, video::SColor(255,35,55,35)); // my name
 		if (m_stDialogBoxExchangeInfo[4].sV1 != -1) // Other name if applicable
-			PutAlignedString(sX + 250, sX + 540, sY + 38, m_stDialogBoxExchangeInfo[4].cStr2, 35,55,35);
+			PutAlignedString(sX + 250, sX + 540, sY + 38, m_stDialogBoxExchangeInfo[4].cStr2, video::SColor(255,35,55,35));
 
 		wsprintfA(cTxt, DRAW_DIALOGBOX_EXCHANGE33, m_stDialogBoxExchangeInfo[4].cStr2);
-		PutAlignedString(sX, sX + szX, sY + 205 +10, cTxt, 55,25,25);                     // Please wait until %s agrees to
-		PutAlignedString(sX, sX + szX, sY + 220 +10, DRAW_DIALOGBOX_EXCHANGE34, 55,25,25);// exchange. The exchange can't be achieved
-		PutAlignedString(sX, sX + szX, sY + 235 +10, DRAW_DIALOGBOX_EXCHANGE35, 55,25,25);// unless both people agree.
-		PutAlignedString(sX, sX + szX, sY + 250 +10, DRAW_DIALOGBOX_EXCHANGE36, 55,25,25);//  If other player does not decide to exchange
-		PutAlignedString(sX, sX + szX, sY + 265 +10, DRAW_DIALOGBOX_EXCHANGE37, 55,25,25);// you can cancel the exchange by pressing the
-		PutAlignedString(sX, sX + szX, sY + 280 +10, DRAW_DIALOGBOX_EXCHANGE38, 55,25,25);// CANCEL button. But if other player already
-		PutAlignedString(sX, sX + szX, sY + 295 +10, DRAW_DIALOGBOX_EXCHANGE39, 55,25,25);// decided to exchange, you can't cancel anymore
+		PutAlignedString(sX, sX + szX, sY + 205 +10, cTxt, video::SColor(255,55,25,25));                     // Please wait until %s agrees to
+		PutAlignedString(sX, sX + szX, sY + 220 +10, DRAW_DIALOGBOX_EXCHANGE34, video::SColor(255,55,25,25));// exchange. The exchange can't be achieved
+		PutAlignedString(sX, sX + szX, sY + 235 +10, DRAW_DIALOGBOX_EXCHANGE35, video::SColor(255,55,25,25));// unless both people agree.
+		PutAlignedString(sX, sX + szX, sY + 250 +10, DRAW_DIALOGBOX_EXCHANGE36, video::SColor(255,55,25,25));//  If other player does not decide to exchange
+		PutAlignedString(sX, sX + szX, sY + 265 +10, DRAW_DIALOGBOX_EXCHANGE37, video::SColor(255,55,25,25));// you can cancel the exchange by pressing the
+		PutAlignedString(sX, sX + szX, sY + 280 +10, DRAW_DIALOGBOX_EXCHANGE38, video::SColor(255,55,25,25));// CANCEL button. But if other player already
+		PutAlignedString(sX, sX + szX, sY + 295 +10, DRAW_DIALOGBOX_EXCHANGE39, video::SColor(255,55,25,25));// decided to exchange, you can't cancel anymore
 
 		for (i=0; i<8; i++) // draw items
 		{	sXadd = (58 * i) + 48; if (i>3) sXadd += 20;
@@ -39870,19 +39941,19 @@ void CGame::DrawDialogBox_Exchange()
 
 					iter = lines->begin();
 
-					if(m_itemColor != RGB(255,255,255))
+					if(video::SColor(m_itemColor) !=video::SColor(255,255,255,255))
 					{
-						PutString(sX + 5, sY + 215+iLoc, iter->c_str(), m_itemColor, FALSE, 1);
+						PutString(sX + 5, sY + 215+iLoc, iter->c_str(), video::SColor(m_itemColor), FALSE, 1);
 					}else
 					{
-						PutString(sX + 5, sY + 215+iLoc, iter->c_str(), RGB(180,180,180), FALSE, 1);
+						PutString(sX + 5, sY + 215+iLoc, iter->c_str(),video::SColor(255,180,180,180), FALSE, 1);
 					}
 					iLoc += 13;
 					++iter;
 
 					while(iter != end)
 					{
-						PutString(sX + 5, sY + 215+iLoc, iter->c_str(), RGB(150,150,150), FALSE, 1);
+						PutString(sX + 5, sY + 215+iLoc, iter->c_str(),video::SColor(255,150,150,150), FALSE, 1);
 						iLoc += 13;
 						++iter;
 					}
@@ -39913,10 +39984,10 @@ void CGame::DrawDialogBox_Fishing()
 	case 0:
 		m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_dialogBoxes[24].sV3]->PutSpriteFast(sX + 18 + 35, sY + 18 + 17, m_dialogBoxes[24].sV4, dwTime);
 		wsprintfA(cTxt, "%s", cStr1);
-		PutString(sX + 98, sY + 14, cTxt, RGB(255,255,255));
+		PutString(sX + 98, sY + 14, cTxt,video::SColor(255,255,255,255));
 		wsprintfA(cTxt, DRAW_DIALOGBOX_FISHING1, m_dialogBoxes[24].sV2);
-		PutString(sX + 98, sY + 28, cTxt, RGB(0,0,0));
-		PutString(sX + 97, sY + 43, DRAW_DIALOGBOX_FISHING2, RGB(0,0,0));
+		PutString(sX + 98, sY + 28, cTxt,video::SColor(255,0,0,0));
+		PutString(sX + 97, sY + 43, DRAW_DIALOGBOX_FISHING2,video::SColor(255,0,0,0));
 		wsprintfA(cTxt, "%d %%", m_dialogBoxes[24].sV1);
 		PutString_SprFont(sX + 157,  sY + 40, cTxt, 10,0,0);
 		if (onButton == 1)
@@ -39985,10 +40056,10 @@ void CGame::DrawDialogBox_GuildMenu()
 
 	case 1:
 		PutAlignedString(sX + 24, sX + 239, sY + 125, DRAW_DIALOGBOX_GUILDMENU18, 55,25,25);//"
-		PutString(sX + 75, sY + 144, "____________________", RGB(25,35,25));
+		PutString(sX + 75, sY + 144, "____________________",video::SColor(255,25,35,25));
 
 		if (iGetTopDialogBoxIndex() != 7)
-			PutString(sX + 75, sY + 140, m_cGuildName, RGB(255,255,255), 16, FALSE, 2);
+			PutString(sX + 75, sY + 140, m_cGuildName,video::SColor(255,255,255,255), 16, FALSE, 2);
 
 		if (onButton == 1) {
 			if ((strcmp(m_cGuildName, "NONE") == 0) || (strlen(m_cGuildName) == 0)) {
@@ -40105,36 +40176,36 @@ void CGame::DrawDialogBox_GuildMenu()
 		PutAlignedString(sX, sX + szX, sY + iAdjY + 130, DRAW_DIALOGBOX_GUILDMENU50);//"
 
 		if (onButton == 1)
-			 PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 170, DRAW_DIALOGBOX_GUILDMENU51, RGB(255,255,255));
-		else PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 170, DRAW_DIALOGBOX_GUILDMENU51, RGB(4,0,50));
+			 PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 170, DRAW_DIALOGBOX_GUILDMENU51,video::SColor(255,255,255,255));
+		else PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 170, DRAW_DIALOGBOX_GUILDMENU51,video::SColor(255,4,0,50));
 
 		if (onButton == 2)
-			 PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 170, DRAW_DIALOGBOX_GUILDMENU53, RGB(255,255,255));
-		else PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 170, DRAW_DIALOGBOX_GUILDMENU53, RGB(4,0,50));
+			 PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 170, DRAW_DIALOGBOX_GUILDMENU53,video::SColor(255,255,255,255));
+		else PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 170, DRAW_DIALOGBOX_GUILDMENU53,video::SColor(255,4,0,50));
 
 		if (onButton == 3)
-			 PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 190, DRAW_DIALOGBOX_GUILDMENU55, RGB(255,255,255));
-		else PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 190, DRAW_DIALOGBOX_GUILDMENU55, RGB(4,0,50));
+			 PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 190, DRAW_DIALOGBOX_GUILDMENU55,video::SColor(255,255,255,255));
+		else PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 190, DRAW_DIALOGBOX_GUILDMENU55,video::SColor(255,4,0,50));
 
 		if (onButton == 4)
-			 PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 190, DRAW_DIALOGBOX_GUILDMENU57, RGB(255,255,255));
-		else PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 190, DRAW_DIALOGBOX_GUILDMENU57, RGB(4,0,50));
+			 PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 190, DRAW_DIALOGBOX_GUILDMENU57,video::SColor(255,255,255,255));
+		else PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 190, DRAW_DIALOGBOX_GUILDMENU57,video::SColor(255,4,0,50));
 
 		if (onButton == 5)
-			 PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 210, DRAW_DIALOGBOX_GUILDMENU59, RGB(255,255,255));
-		else PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 210, DRAW_DIALOGBOX_GUILDMENU59, RGB(4,0,50));
+			 PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 210, DRAW_DIALOGBOX_GUILDMENU59,video::SColor(255,255,255,255));
+		else PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 210, DRAW_DIALOGBOX_GUILDMENU59,video::SColor(255,4,0,50));
 
 		if (onButton == 6)
-			 PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 210, DRAW_DIALOGBOX_GUILDMENU61, RGB(255,255,255));
-		else PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 210, DRAW_DIALOGBOX_GUILDMENU61, RGB(4,0,50));
+			 PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 210, DRAW_DIALOGBOX_GUILDMENU61,video::SColor(255,255,255,255));
+		else PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 210, DRAW_DIALOGBOX_GUILDMENU61,video::SColor(255,4,0,50));
 
 		if (onButton == 7)
-			 PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 230, DRAW_DIALOGBOX_GUILDMENU63, RGB(255,255,255));
-		else PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 230, DRAW_DIALOGBOX_GUILDMENU63, RGB(4,0,50));
+			 PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 230, DRAW_DIALOGBOX_GUILDMENU63,video::SColor(255,255,255,255));
+		else PutString(sX + iAdjX +65 + 25 -23, sY + iAdjY + 230, DRAW_DIALOGBOX_GUILDMENU63,video::SColor(255,4,0,50));
 
 		if (onButton == 8)
-			 PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 230, DRAW_DIALOGBOX_GUILDMENU65, RGB(255,255,255));
-		else PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 230, DRAW_DIALOGBOX_GUILDMENU65, RGB(4,0,50));
+			 PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 230, DRAW_DIALOGBOX_GUILDMENU65,video::SColor(255,255,255,255));
+		else PutString(sX + iAdjX +150 + 25 -23, sY + iAdjY + 230, DRAW_DIALOGBOX_GUILDMENU65,video::SColor(255,4,0,50));
 
 		if (onButton == 9)
 			 DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + RBTNPOSX, sY + BTNPOSY, 17);
@@ -40185,8 +40256,8 @@ void CGame::DrawDialogBox_GuildMenu()
 
 	case 20:
 		PutAlignedString(sX, sX + szX, sY + 125, DRAW_DIALOGBOX_GUILDMENU75, 55,25,25);//"
-		PutString(sX + 75, sY + 144, "____________________", RGB(25,35,25));
-		PutString(sX + 75, sY + 140, m_cGuildName, RGB(255,255,255), FALSE, 2);
+		PutString(sX + 75, sY + 144, "____________________",video::SColor(255,25,35,25));
+		PutString(sX + 75, sY + 140, m_cGuildName,video::SColor(255,255,255,255), FALSE, 2);
 		if (onButton == 1)
 			 DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 25);
 		else DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 24);
@@ -40238,36 +40309,36 @@ void CGame::DrawDialogBox_Guild()
 		!(dlg.GetMode() >= 8 && dlg.GetMode() <= 10)) // message board
 	{
 		wsprintfA(txt, DRAW_DIALOGBOX_GUILD4, m_guild.GetOnlineCnt() + 1);
-		PutStringLeft(sX + cropX, sX + szX - cropX, sY + 35, txt);
+		PutAlignedString(sX + cropX, sX + szX - cropX, sY + 35, txt);
 
 		DisplayCommaNumber_G_cTxt( m_guild.m_gold );
 		wsprintfA(txt, DRAW_DIALOGBOX_GUILD10, G_cTxt);
-		PutStringLeft(sX + cropX, sX + szX - cropX, sY + 50, txt);
+		PutAlignedString(sX + cropX, sX + szX - cropX, sY + 50, txt);
 
 		DisplayCommaNumber_G_cTxt( m_guild.m_maj );
 		wsprintfA(txt, DRAW_DIALOGBOX_GUILD11, G_cTxt);
-		PutStringRight(sX + cropX, sX + szX - cropX, sY + 35, txt);
+		PutAlignedString(sX + cropX, sX + szX - cropX, sY + 35, txt);
 
 		DisplayCommaNumber_G_cTxt( m_guild.m_cont );
 		wsprintfA(txt, DRAW_DIALOGBOX_GUILD29, G_cTxt);
-		PutStringRight(sX + cropX, sX + szX - cropX, sY + 50, txt);
+		PutAlignedString(sX + cropX, sX + szX - cropX, sY + 50, txt);
 	}
 
 	switch (dlg.GetMode())
 	{
 	case 0:
 		// online members
-		ButtonString(dlg, 1, DRAW_DIALOGBOX_GUILD1);
+//uncomment		ButtonString(dlg, 1, DRAW_DIALOGBOX_GUILD1);
 		// give gold
-		ButtonString(dlg, 2, DRAW_DIALOGBOX_GUILD2);
+//uncomment		ButtonString(dlg, 2, DRAW_DIALOGBOX_GUILD2);
 		// give maj
-		ButtonString(dlg, 3, DRAW_DIALOGBOX_GUILD3);
+//uncomment		ButtonString(dlg, 3, DRAW_DIALOGBOX_GUILD3);
 		// give cont
-		ButtonString(dlg, 4, DRAW_DIALOGBOX_GUILD43);
+//uncomment		ButtonString(dlg, 4, DRAW_DIALOGBOX_GUILD43);
 		// Upgrades
-		ButtonString(dlg, 5, DRAW_DIALOGBOX_GUILD12);
+//uncomment		ButtonString(dlg, 5, DRAW_DIALOGBOX_GUILD12);
 		// Message board
-		ButtonString(dlg, 6, DRAW_DIALOGBOX_GUILD45);
+//uncomment		ButtonString(dlg, 6, DRAW_DIALOGBOX_GUILD45);
 
 		break;
 
@@ -40398,7 +40469,7 @@ void CGame::DrawDialogBox_Guild()
 
 	case 3:
 		sprintf(txt, DRAW_DIALOGBOX_GUILD16, m_guild.m_upgrades[GU_WAREHOUSE] );
-		PutStringLeft(sX + cropX, sX + szX, sY + iAdjY + 45+15*0, txt);
+		PutAlignedString(sX + cropX, sX + szX, sY + iAdjY + 45+15*0, txt);
 
 		// upgrade
 		if(m_iGuildRank == GUILDRANK_MASTER)
@@ -40413,16 +40484,16 @@ void CGame::DrawDialogBox_Guild()
 			 PutAlignedString(sX, sX + szX, sY + iAdjY + 45+15*1, DRAW_DIALOGBOX_GUILD15, 255,255,255);
 		else PutAlignedString(sX, sX + szX, sY + iAdjY + 45+15*1, DRAW_DIALOGBOX_GUILD15, 4,0,50);
 
-		PutStringLeft(sX + cropX, sX + szX, sY + iAdjY + 45+15*2, DRAW_DIALOGBOX_GUILD18, true);
+		PutAlignedString(sX + cropX, sX + szX, sY + iAdjY + 45+15*2, DRAW_DIALOGBOX_GUILD18, true);
 
 		for(int i=0; i < gldUps[GU_WAREHOUSE].maxLvl; i++)
 		{
 			sprintf(txt, DRAW_DIALOGBOX_GUILD20, i+1);
-			PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(5+i*2), txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(5+i*2), txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD21, gldUps[ GU_WAREHOUSE ].costGold[i+1] / 1000,
 				gldUps[ GU_WAREHOUSE ].costMaj[i+1] / 1000, gldUps[ GU_WAREHOUSE ].costCont[i+1] / 1000);
-			PutStringRight(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(5+i*2), txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(5+i*2), txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD22, maxGWHItems[i+1]);
 			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(6+i*2), txt);
@@ -40431,7 +40502,7 @@ void CGame::DrawDialogBox_Guild()
 
 	case 4:
 		sprintf(txt, DRAW_DIALOGBOX_GUILD23, m_guild.m_upgrades[GU_SUMMONS] );
-		PutStringLeft(sX + cropX, sX + szX, sY + iAdjY + 45+15*0, txt);
+		PutAlignedString(sX + cropX, sX + szX, sY + iAdjY + 45+15*0, txt);
 
 		// upgrade
 		if(m_iGuildRank == GUILDRANK_MASTER)
@@ -40448,49 +40519,49 @@ void CGame::DrawDialogBox_Guild()
 
 
 		sprintf(txt, DRAW_DIALOGBOX_GUILD24, GUILDSUMMONSGOLDCOST );
-		PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*2, txt, true);
+		PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*2, txt, true);
 
 		{
 			int lvl = 1;
 			sprintf(txt, DRAW_DIALOGBOX_GUILD20, lvl);
-			PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*6, txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*6, txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD21, gldUps[ GU_SUMMONS ].costGold[lvl] / 1000,
 				gldUps[ GU_SUMMONS ].costMaj[lvl] / 1000, gldUps[ GU_SUMMONS ].costCont[lvl] / 1000);
-			PutStringRight(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*6, txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*6, txt);
 
 			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*7, DRAW_DIALOGBOX_GUILD25, true);
 		}
 		{
 			int lvl = 2;
 			sprintf(txt, DRAW_DIALOGBOX_GUILD20, lvl);
-			PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*8, txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*8, txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD21, gldUps[ GU_SUMMONS ].costGold[lvl] / 1000,
 				gldUps[ GU_SUMMONS ].costMaj[lvl] / 1000, gldUps[ GU_SUMMONS ].costCont[lvl] / 1000);
-			PutStringRight(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*8, txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*8, txt);
 
 			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*9, DRAW_DIALOGBOX_GUILD26, true);
 		}
 		{
 			int lvl = 3;
 			sprintf(txt, DRAW_DIALOGBOX_GUILD20, lvl);
-			PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*10, txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*10, txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD21, gldUps[ GU_SUMMONS ].costGold[lvl] / 1000,
 				gldUps[ GU_SUMMONS ].costMaj[lvl] / 1000, gldUps[ GU_SUMMONS ].costCont[lvl] / 1000);
-			PutStringRight(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*10, txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*10, txt);
 
 			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*11, DRAW_DIALOGBOX_GUILD27, true);
 		}
 		{
 			int lvl = 4;
 			sprintf(txt, DRAW_DIALOGBOX_GUILD20, lvl);
-			PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*13, txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*13, txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD21, gldUps[ GU_SUMMONS ].costGold[lvl] / 1000,
 				gldUps[ GU_SUMMONS ].costMaj[lvl] / 1000, gldUps[ GU_SUMMONS ].costCont[lvl] / 1000);
-			PutStringRight(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*13, txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*13, txt);
 
 			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*14, DRAW_DIALOGBOX_GUILD28, true);
 		}
@@ -40498,10 +40569,10 @@ void CGame::DrawDialogBox_Guild()
 
 	case 5:
 		sprintf(txt, DRAW_DIALOGBOX_GUILD30, m_guild.m_upgrades[GU_CAPTAINCY] );
-		PutStringLeft(sX + cropX, sX + szX, sY + iAdjY + 45+15*0, txt);
+		PutAlignedString(sX + cropX, sX + szX, sY + iAdjY + 45+15*0, txt);
 
 		sprintf(txt, DRAW_DIALOGBOX_GUILD44, GetGuildRankName(GUILDRANK_CAPTAIN), m_guild.m_captains );
-		PutStringLeft(sX + cropX, sX + szX, sY + iAdjY + 45+15*1, txt);
+		PutAlignedString(sX + cropX, sX + szX, sY + iAdjY + 45+15*1, txt);
 
 		// upgrade
 		if(m_iGuildRank == GUILDRANK_MASTER)
@@ -40516,16 +40587,16 @@ void CGame::DrawDialogBox_Guild()
 			 PutAlignedString(sX, sX + szX, sY + iAdjY + 45+15*1, DRAW_DIALOGBOX_GUILD15, 255,255,255);
 		else PutAlignedString(sX, sX + szX, sY + iAdjY + 45+15*1, DRAW_DIALOGBOX_GUILD15, 4,0,50);
 
-		PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*2, DRAW_DIALOGBOX_GUILD36, true);
+		PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*2, DRAW_DIALOGBOX_GUILD36, true);
 
 		for(int i=0; i < gldUps[GU_CAPTAINCY].maxLvl; i++)
 		{
 			sprintf(txt, DRAW_DIALOGBOX_GUILD20, i+1);
-			PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(7+i*2), txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(7+i*2), txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD21, gldUps[ GU_CAPTAINCY ].costGold[i+1] / 1000,
 				gldUps[ GU_CAPTAINCY ].costMaj[i+1] / 1000, gldUps[ GU_CAPTAINCY ].costCont[i+1] / 1000);
-			PutStringRight(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(7+i*2), txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(7+i*2), txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD37, i+1);
 			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(8+i*2), txt);
@@ -40534,10 +40605,10 @@ void CGame::DrawDialogBox_Guild()
 
 	case 6:
 		sprintf(txt, DRAW_DIALOGBOX_GUILD31, m_guild.m_upgrades[GU_RAIDMASTERS] );
-		PutStringLeft(sX + cropX, sX + szX, sY + iAdjY + 45+15*0, txt);
+		PutAlignedString(sX + cropX, sX + szX, sY + iAdjY + 45+15*0, txt);
 
 		sprintf(txt, DRAW_DIALOGBOX_GUILD44, GetGuildRankName(GUILDRANK_RAIDMASTER), m_guild.m_raidmasters );
-		PutStringLeft(sX + cropX, sX + szX, sY + iAdjY + 45+15*1, txt);
+		PutAlignedString(sX + cropX, sX + szX, sY + iAdjY + 45+15*1, txt);
 
 		// upgrade
 		if(m_iGuildRank == GUILDRANK_MASTER)
@@ -40552,16 +40623,16 @@ void CGame::DrawDialogBox_Guild()
 			 PutAlignedString(sX, sX + szX, sY + iAdjY + 45+15*1, DRAW_DIALOGBOX_GUILD15, 255,255,255);
 		else PutAlignedString(sX, sX + szX, sY + iAdjY + 45+15*1, DRAW_DIALOGBOX_GUILD15, 4,0,50);
 
-		PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*2, DRAW_DIALOGBOX_GUILD40, true);
+		PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*2, DRAW_DIALOGBOX_GUILD40, true);
 
 		for(int i=0; i < gldUps[GU_RAIDMASTERS].maxLvl; i++)
 		{
 			sprintf(txt, DRAW_DIALOGBOX_GUILD20, i+1);
-			PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(8+i*2), txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(8+i*2), txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD21, gldUps[ GU_RAIDMASTERS ].costGold[i+1] / 1000,
 				gldUps[ GU_RAIDMASTERS ].costMaj[i+1] / 1000, gldUps[ GU_RAIDMASTERS ].costCont[i+1] / 1000);
-			PutStringRight(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(8+i*2), txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(8+i*2), txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD38, i+1);
 			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(9+i*2), txt);
@@ -40570,10 +40641,10 @@ void CGame::DrawDialogBox_Guild()
 
 	case 7:
 		sprintf(txt, DRAW_DIALOGBOX_GUILD32, m_guild.m_upgrades[GU_HUNTMASTERS] );
-		PutStringLeft(sX + cropX, sX + szX, sY + iAdjY + 45+15*0, txt);
+		PutAlignedString(sX + cropX, sX + szX, sY + iAdjY + 45+15*0, txt);
 
 		sprintf(txt, DRAW_DIALOGBOX_GUILD44, GetGuildRankName(GUILDRANK_HUNTMASTER), m_guild.m_huntmasters );
-		PutStringLeft(sX + cropX, sX + szX, sY + iAdjY + 45+15*1, txt);
+		PutAlignedString(sX + cropX, sX + szX, sY + iAdjY + 45+15*1, txt);
 
 		// upgrade
 		if(m_iGuildRank == GUILDRANK_MASTER)
@@ -40588,16 +40659,16 @@ void CGame::DrawDialogBox_Guild()
 			 PutAlignedString(sX, sX + szX, sY + iAdjY + 45+15*1, DRAW_DIALOGBOX_GUILD15, 255,255,255);
 		else PutAlignedString(sX, sX + szX, sY + iAdjY + 45+15*1, DRAW_DIALOGBOX_GUILD15, 4,0,50);
 
-		PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*2, DRAW_DIALOGBOX_GUILD41, true);
+		PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*2, DRAW_DIALOGBOX_GUILD41, true);
 
 		for(int i=0; i < gldUps[GU_HUNTMASTERS].maxLvl; i++)
 		{
 			sprintf(txt, DRAW_DIALOGBOX_GUILD20, i+1);
-			PutStringLeft(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(8+i*2), txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(8+i*2), txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD21, gldUps[ GU_HUNTMASTERS ].costGold[i+1] / 1000,
 				gldUps[ GU_HUNTMASTERS ].costMaj[i+1] / 1000, gldUps[ GU_HUNTMASTERS ].costCont[i+1] / 1000);
-			PutStringRight(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(8+i*2), txt);
+			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(8+i*2), txt);
 
 			sprintf(txt, DRAW_DIALOGBOX_GUILD39, i+1);
 			PutAlignedString(sX + cropX, sX + szX - cropX, sY + iAdjY + 45+15*(9+i*2), txt);
@@ -40614,14 +40685,14 @@ void CGame::DrawDialogBox_Guild()
 		}
 	
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX19, GUILDBOARD_POST_COST);
-		ButtonString(dlg, 1, G_cTxt);
+//uncomment		ButtonString(dlg, 1, G_cTxt);
 
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX20, m_gldBoard.size());
-		PutAlignedLabel(sX + 161, sX + szX, sY + 35, G_cTxt);
+		PutAlignedString(sX + 161, sX + szX, sY + 35, G_cTxt);
 
-		PutAlignedLabel(sX - 20, sX + szX/2, sY + 55, DRAW_DIALOGBOX_MAILBOX2);
-		PutAlignedLabel(sX + 56, sX + szX, sY + 55, DRAW_DIALOGBOX_MAILBOX21);
-		PutAlignedLabel(sX + 158, sX + szX, sY + 55, DRAW_DIALOGBOX_MAILBOX4);
+		PutAlignedString(sX - 20, sX + szX/2, sY + 55, DRAW_DIALOGBOX_MAILBOX2);
+		PutAlignedString(sX + 56, sX + szX, sY + 55, DRAW_DIALOGBOX_MAILBOX21);
+		PutAlignedString(sX + 158, sX + szX, sY + 55, DRAW_DIALOGBOX_MAILBOX4);
 
 		for(int i = 0; i < 15; i++)
 		{
@@ -40629,49 +40700,49 @@ void CGame::DrawDialogBox_Guild()
 			if(idx < m_gldBoard.size())
 			{
 				idx = m_gldBoard.size()-1 - idx;
-				PutStringLeft(sX + 25, sX + szX/3 * 2, sY + 75 + 15*i, m_gldBoard[idx]->title.c_str(), (onButton == i + 4));
+				PutAlignedString(sX + 25, sX + szX/3 * 2, sY + 75 + 15*i, m_gldBoard[idx]->title.c_str(), (onButton == i + 4));
 				PutAlignedString(sX + 56, sX + szX, sY + 75 + 15*i, m_gldBoard[idx]->sender.c_str(), (onButton == i + 4));
 				wsprintfA(G_cTxt, "%.2u/%.2u", m_gldBoard[idx]->date.day, m_gldBoard[idx]->date.month);
 				PutAlignedString(sX + 158, sX + szX, sY + 75 + 15*i, G_cTxt, (onButton == i + 4));
 			}
 		}
 
-		ButtonString(dlg, 3, DRAW_DIALOGBOX_MAILBOX16);
+//uncomment		ButtonString(dlg, 3, DRAW_DIALOGBOX_MAILBOX16);
 		break;
 
 	case 9:
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX12, m_gldBoard[dlg.sV1]->sender.c_str());
-		PutLabel(dlg.GetButton(1), G_cTxt, POS_LEFT);
+		//PutLabel(dlg.GetButton(1), G_cTxt, POS_LEFT);
 
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX17, m_gldBoard[dlg.sV1]->title.c_str());
-		PutLabel(dlg.GetButton(2), G_cTxt, POS_LEFT);
+		//PutLabel(dlg.GetButton(2), G_cTxt, POS_LEFT);
 
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX13, strlen(dlg.txt), MAX_MAIL_MSG_LENGTH - 1);
-		PutLabel(dlg.GetButton(3), G_cTxt, POS_LEFT);
+		//PutLabel(dlg.GetButton(3), G_cTxt, POS_LEFT);
 
-		if(m_gldBoard[dlg.sV1]->msg)
-			PutStringLeft(dlg.GetButton(3).left, dlg.GetButton(3).right, dlg.GetButton(3).top + 15, m_gldBoard[dlg.sV1]->msg->c_str(), false, true);
+		//if(m_gldBoard[dlg.sV1]->msg)
+		//	PutAlignedString(dlg.GetButton(3).left, dlg.GetButton(3).right, dlg.GetButton(3).top + 15, m_gldBoard[dlg.sV1]->msg->c_str(), false, true);
 
-		if(m_iGuildRank == GUILDRANK_MASTER || m_iGuildRank == GUILDRANK_CAPTAIN)
-			ButtonString(dlg, 4, DRAW_DIALOGBOX_MAILBOX15);
+//uncomment		if(m_iGuildRank == GUILDRANK_MASTER || m_iGuildRank == GUILDRANK_CAPTAIN)
+//uncomment			ButtonString(dlg, 4, DRAW_DIALOGBOX_MAILBOX15);
 
-		ButtonString(dlg, 5, DRAW_DIALOGBOX_MAILBOX16);
+//uncomment		ButtonString(dlg, 5, DRAW_DIALOGBOX_MAILBOX16);
 		break;
 		
 	case 10:
-		ButtonString(dlg, 1, DRAW_DIALOGBOX_MAILBOX6, POS_LEFT);
-		PutStringLeft(dlg.GetButton(1).left + 30, dlg.GetButton(1).right, dlg.GetButton(1).top-1, dlg.cStr2, false);
+//uncomment		ButtonString(dlg, 1, DRAW_DIALOGBOX_MAILBOX6, POS_LEFT);
+		PutAlignedString(dlg.GetButton(1).left + 30, dlg.GetButton(1).right, dlg.GetButton(1).top-1, dlg.cStr2, false);
 
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX7, strlen(dlg.txt), MAX_MAIL_MSG_LENGTH - 1);
-		ButtonString(dlg, 2, G_cTxt, POS_LEFT);
-		PutStringLeft(dlg.GetButton(2).left, dlg.GetButton(2).right, dlg.GetButton(2).top + 15, dlg.txt, false, true);
+//uncomment		ButtonString(dlg, 2, G_cTxt, POS_LEFT);
+		//PutAlignedString(dlg.GetButton(2).left, dlg.GetButton(2).right, dlg.GetButton(2).top + 15, dlg.txt, false, true);
 
-		if(!dlg.bFlag)
-			ButtonString(dlg, 3, DRAW_DIALOGBOX_MAILBOX22);
-		else
-			ButtonString(dlg, 3, DRAW_DIALOGBOX_MAILBOX23);
+//uncomment		if(!dlg.bFlag)
+//uncomment			ButtonString(dlg, 3, DRAW_DIALOGBOX_MAILBOX22);
+//uncomment		else
+//uncomment			ButtonString(dlg, 3, DRAW_DIALOGBOX_MAILBOX23);
 
-		ButtonString(dlg, 4, DRAW_DIALOGBOX_MAILBOX11);
+//uncomment		ButtonString(dlg, 4, DRAW_DIALOGBOX_MAILBOX11);
 		break;
 	}
 }
@@ -40902,8 +40973,8 @@ void CGame::DrawDialogBox_GuildOperation()
 
 	case 7:
 		PutAlignedString(sX + 24, sX + 248, sY + 50, DRAW_DIALOGBOX_GUILD_OPERATION24);
-		//PutString(sX + 60, sY + 65, m_stGuildOpList[0].cName, RGB(35,35,35));
-		//PutString(sX + 60, sY + 69, "____________________", RGB(0,0,0));
+		//PutString(sX + 60, sY + 65, m_stGuildOpList[0].cName,video::SColor(255,35,35,35));
+		//PutString(sX + 60, sY + 69, "____________________",video::SColor(255,0,0,0));
 		PutAlignedString(sX + 24, sX + 248, sY + 90, DRAW_DIALOGBOX_GUILD_OPERATION25);
 		PutAlignedString(sX + 24, sX + 248, sY + 105, DRAW_DIALOGBOX_GUILD_OPERATION26);
 
@@ -40971,7 +41042,7 @@ void CGame::DrawDialogBox_Magic()
 			{
 				if( m_Misc.bCheckIMEString( cTxt ) == FALSE )
 				{
-					PutString3(sX + 30, sY + 73 + iYloc, cTxt, RGB(41, 16, 41));
+					PutString3(sX + 30, sY + 73 + iYloc, cTxt,video::SColor(255,41, 16, 41));
 				}
 				else PutString_SprFont(sX + 30, sY + 70 + iYloc, cTxt, 5, 5, 5);
 				wsprintfA(cMana, "%3d", iManaCost);
@@ -40982,7 +41053,7 @@ void CGame::DrawDialogBox_Magic()
 				{
 					if( m_Misc.bCheckIMEString( cTxt ) == FALSE )
 					{
-						PutString3(sX + 30, sY + 73 + iYloc, cTxt, RGB(255,255,255));
+						PutString3(sX + 30, sY + 73 + iYloc, cTxt,video::SColor(255,255,255,255));
 					}
 					else PutString_SprFont(sX + 30, sY + 70 + iYloc, cTxt, 250, 250, 250);
 					wsprintfA(cMana, "%3d", iManaCost);
@@ -40992,7 +41063,7 @@ void CGame::DrawDialogBox_Magic()
 				{
 					if( m_Misc.bCheckIMEString( cTxt ) == FALSE )
 					{
-						PutString3(sX + 30, sY + 73 + iYloc, cTxt, RGB(8,0,66));
+						PutString3(sX + 30, sY + 73 + iYloc, cTxt,video::SColor(255,8,0,66));
 					}
 					else PutString_SprFont(sX + 30, sY + 70 + iYloc, cTxt, 1, 1, 8);
 					wsprintfA(cMana, "%3d", iManaCost);
@@ -41107,33 +41178,33 @@ void CGame::DrawDialogBox_MagicShop()
 
 		PutString_SprFont(sX + 45, sY + 40, DRAW_MANASAVEINFO, 5, 5, 5);
 
-		PutString3(sX + 50, sY + 55, DRAW_MANASAVEINFO1, RGB(45,25,25));
-		PutString(sX + 50, sY + 70, DRAW_MANASAVEINFO2, RGB(255, 255, 255));
-		PutString(sX + 50, sY + 80, DRAW_MANASAVEINFO3, RGB(255, 255, 255));
-		//PutString(sX + 50, sY + 90, DRAW_MANASAVEINFO4, RGB(255, 255, 255));
+		PutString3(sX + 50, sY + 55, DRAW_MANASAVEINFO1,video::SColor(255,45,25,25));
+		PutString(sX + 50, sY + 70, DRAW_MANASAVEINFO2,video::SColor(255,255, 255, 255));
+		PutString(sX + 50, sY + 80, DRAW_MANASAVEINFO3,video::SColor(255,255, 255, 255));
+		//PutString(sX + 50, sY + 90, DRAW_MANASAVEINFO4,video::SColor(255,255, 255, 255));
 
-		PutString3(sX + 50, sY + 105, DRAW_MANASAVEINFO5, RGB(45,25,25));
-		PutString(sX + 50, sY + 120, DRAW_MANASAVEINFO6, RGB(255, 255, 255));
-		PutString(sX + 50, sY + 130, DRAW_MANASAVEINFO7, RGB(255, 255, 255));
-		//PutString(sX + 50, sY + 140, DRAW_MANASAVEINFO8, RGB(255, 255, 255));
+		PutString3(sX + 50, sY + 105, DRAW_MANASAVEINFO5,video::SColor(255,45,25,25));
+		PutString(sX + 50, sY + 120, DRAW_MANASAVEINFO6,video::SColor(255,255, 255, 255));
+		PutString(sX + 50, sY + 130, DRAW_MANASAVEINFO7,video::SColor(255,255, 255, 255));
+		//PutString(sX + 50, sY + 140, DRAW_MANASAVEINFO8,video::SColor(255,255, 255, 255));
 
-		PutString3(sX + 50, sY + 155, DRAW_MANASAVEINFO9, RGB(45,25,25));
-		PutString(sX + 50, sY + 170, DRAW_MANASAVEINFO10, RGB(255, 255, 255));
+		PutString3(sX + 50, sY + 155, DRAW_MANASAVEINFO9,video::SColor(255,45,25,25));
+		PutString(sX + 50, sY + 170, DRAW_MANASAVEINFO10,video::SColor(255,255, 255, 255));
 
-		PutString3(sX + 50, sY + 185, DRAW_MANASAVEINFO11, RGB(45,25,25));
-		PutString(sX + 50, sY + 200, DRAW_MANASAVEINFO12, RGB(255, 255, 255));
-		PutString(sX + 50, sY + 210, DRAW_MANASAVEINFO13, RGB(255, 255, 255));
-		PutString(sX + 50, sY + 220, DRAW_MANASAVEINFO14, RGB(255, 255, 255));
-		PutString(sX + 50, sY + 230, DRAW_MANASAVEINFO15, RGB(255, 255, 255));
-		PutString(sX + 50, sY + 240, DRAW_MANASAVEINFO16, RGB(255, 255, 255));
-		PutString(sX + 50, sY + 250, DRAW_MANASAVEINFO17, RGB(255, 255, 255));
+		PutString3(sX + 50, sY + 185, DRAW_MANASAVEINFO11,video::SColor(255,45,25,25));
+		PutString(sX + 50, sY + 200, DRAW_MANASAVEINFO12,video::SColor(255,255, 255, 255));
+		PutString(sX + 50, sY + 210, DRAW_MANASAVEINFO13,video::SColor(255,255, 255, 255));
+		PutString(sX + 50, sY + 220, DRAW_MANASAVEINFO14,video::SColor(255,255, 255, 255));
+		PutString(sX + 50, sY + 230, DRAW_MANASAVEINFO15,video::SColor(255,255, 255, 255));
+		PutString(sX + 50, sY + 240, DRAW_MANASAVEINFO16,video::SColor(255,255, 255, 255));
+		PutString(sX + 50, sY + 250, DRAW_MANASAVEINFO17,video::SColor(255,255, 255, 255));
 
-		PutString3(sX + 50, sY + 265, DRAW_MANASAVEINFO18, RGB(45,25,25));
-		PutString(sX + 50, sY + 280, DRAW_MANASAVEINFO19, RGB(255, 255, 255));
-		//PutString3(sX + 50, sY + 245, DRAW_MANASAVEINFO16, RGB(45,25,25));
-		//PutString(sX + 50, sY + 260, DRAW_MANASAVEINFO17, RGB(255, 255, 255));
-		//PutString(sX + 50, sY + 270, DRAW_MANASAVEINFO18, RGB(255, 255, 255));
-		//PutString(sX + 50, sY + 280, DRAW_MANASAVEINFO19, RGB(255, 255, 255));
+		PutString3(sX + 50, sY + 265, DRAW_MANASAVEINFO18,video::SColor(255,45,25,25));
+		PutString(sX + 50, sY + 280, DRAW_MANASAVEINFO19,video::SColor(255,255, 255, 255));
+		//PutString3(sX + 50, sY + 245, DRAW_MANASAVEINFO16,video::SColor(255,45,25,25));
+		//PutString(sX + 50, sY + 260, DRAW_MANASAVEINFO17,video::SColor(255,255, 255, 255));
+		//PutString(sX + 50, sY + 270, DRAW_MANASAVEINFO18,video::SColor(255,255, 255, 255));
+		//PutString(sX + 50, sY + 280, DRAW_MANASAVEINFO19,video::SColor(255,255, 255, 255));
 
 		break;
 
@@ -41150,13 +41221,13 @@ void CGame::DrawDialogBox_MagicShop()
 		if( m_dialogBoxes[16].sView < 0 ) m_dialogBoxes[16].sView = 9;
 		if( m_dialogBoxes[16].sView > 9 ) m_dialogBoxes[16].sView = 0;
 
-		PutString3(sX + 20, sY - 35 + 90, DRAW_DIALOGBOX_MAGICSHOP11, RGB(45,25,25));
+		PutString3(sX + 20, sY - 35 + 90, DRAW_DIALOGBOX_MAGICSHOP11,video::SColor(255,45,25,25));
 
-		PutString3(sX + 155, sY - 35 + 90, DRAW_DIALOGBOX_MAGICSHOP16, RGB(45,25,25));
+		PutString3(sX + 155, sY - 35 + 90, DRAW_DIALOGBOX_MAGICSHOP16,video::SColor(255,45,25,25));
 
-		PutString3(sX + 225, sY - 35 + 90, DRAW_DIALOGBOX_MAGICSHOP12, RGB(45,25,25));
+		PutString3(sX + 225, sY - 35 + 90, DRAW_DIALOGBOX_MAGICSHOP12,video::SColor(255,45,25,25));
 
-		PutString3(sX + 255, sY - 35 + 90, DRAW_DIALOGBOX_MAGICSHOP13, RGB(45,25,25));
+		PutString3(sX + 255, sY - 35 + 90, DRAW_DIALOGBOX_MAGICSHOP13,video::SColor(255,45,25,25));
 
 		iCPivot = m_dialogBoxes[16].sView*10;
 
@@ -41172,7 +41243,7 @@ void CGame::DrawDialogBox_MagicShop()
 				{
 					if( m_Misc.bCheckIMEString( cTxt ) == FALSE )
 					{
-						PutString3(sX + 20, sY + 73 + iYloc, cTxt, RGB(41,16,41));
+						PutString3(sX + 20, sY + 73 + iYloc, cTxt,video::SColor(255,41,16,41));
 				}
 				else PutString_SprFont(sX + 20, sY + 70 + iYloc, cTxt, 5, 5, 5);
 				wsprintfA(cMana, "%3d", m_pMagicCfgList[iCPivot + i]->m_sValue1);
@@ -41187,7 +41258,7 @@ void CGame::DrawDialogBox_MagicShop()
 					{
 						if( m_Misc.bCheckIMEString( cTxt ) == FALSE )
 						{
-							PutString3(sX + 20, sY + 73 + iYloc, cTxt, RGB(255,255,255));
+							PutString3(sX + 20, sY + 73 + iYloc, cTxt,video::SColor(255,255,255,255));
 						}
 						else PutString_SprFont(sX + 20, sY + 70 + iYloc, cTxt, 250, 250, 250);
 						wsprintfA(cMana, "%3d", m_pMagicCfgList[iCPivot + i]->m_sValue1);
@@ -41199,7 +41270,7 @@ void CGame::DrawDialogBox_MagicShop()
 					} else {
 						if( m_Misc.bCheckIMEString( cTxt ) == FALSE )
 						{
-							PutString3(sX + 20, sY + 73 + iYloc, cTxt, RGB(8,0,66));
+							PutString3(sX + 20, sY + 73 + iYloc, cTxt,video::SColor(255,8,0,66));
 						}
 						else PutString_SprFont(sX + 20, sY + 70 + iYloc, cTxt, 1, 1, 8);
 					wsprintfA(cMana, "%3d", m_pMagicCfgList[iCPivot + i]->m_sValue1);
@@ -41227,7 +41298,7 @@ void CGame::DrawDialogBox_MagicShop()
 	case 8: m_pSprite[SPRID_INTERFACE_SPRFONTS]->PutSpriteFast(sX -20 + 216 +31, sY + 250, 28, dwTime); break;
 	case 9: m_pSprite[SPRID_INTERFACE_SPRFONTS]->PutSpriteFast(sX -20 + 236 +31, sY + 250, 29, dwTime); break;
 	}
-	PutString3(sX + 90, sY + 260, DRAW_DIALOGBOX_MAGICSHOP17, RGB(45,25,25));
+	PutString3(sX + 90, sY + 260, DRAW_DIALOGBOX_MAGICSHOP17,video::SColor(255,45,25,25));
 	PutAlignedString(sX, sX+m_dialogBoxes[16].sSizeX, sY + 275, DRAW_DIALOGBOX_MAGICSHOP14, 45,25,25);
 	PutAlignedString(sX, sX+m_dialogBoxes[16].sSizeX+1, sY + 275, DRAW_DIALOGBOX_MAGICSHOP14, 45,25,25);
 	break;
@@ -41295,76 +41366,76 @@ void CGame::DrawDialogBox_NpcActionQuery()
 		DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX, sY, 5);
 		switch (m_dialogBoxes[20].sV3) {
 		case 15:
-			PutString(sX +33, sY +23, NPC_NAME_SHOP_KEEPER, RGB(45,25,25));
-			PutString(sX +33 -1, sY +23 -1, NPC_NAME_SHOP_KEEPER, RGB(255,255,255));
+			PutString(sX +33, sY +23, NPC_NAME_SHOP_KEEPER,video::SColor(255,45,25,25));
+			PutString(sX +33 -1, sY +23 -1, NPC_NAME_SHOP_KEEPER,video::SColor(255,255,255,255));
 			break;
 		case 19:
-			PutString(sX +33, sY +23, NPC_NAME_MAGICIAN, RGB(45,25,25));
-			PutString(sX +33 -1, sY +23 -1, NPC_NAME_MAGICIAN, RGB(255,255,255));
+			PutString(sX +33, sY +23, NPC_NAME_MAGICIAN,video::SColor(255,45,25,25));
+			PutString(sX +33 -1, sY +23 -1, NPC_NAME_MAGICIAN,video::SColor(255,255,255,255));
 			break;
 		case 20:
-			PutString(sX +33, sY +23, NPC_NAME_WAREHOUSE_KEEPER, RGB(45,25,25));
-			PutString(sX +33 -1, sY +23 -1, NPC_NAME_WAREHOUSE_KEEPER, RGB(255,255,255));
+			PutString(sX +33, sY +23, NPC_NAME_WAREHOUSE_KEEPER,video::SColor(255,45,25,25));
+			PutString(sX +33 -1, sY +23 -1, NPC_NAME_WAREHOUSE_KEEPER,video::SColor(255,255,255,255));
 			break;
 		case 24:
-			PutString(sX +33, sY +23, NPC_NAME_BLACKSMITH_KEEPER, RGB(45,25,25));
-			PutString(sX +33 -1, sY +23 -1, NPC_NAME_BLACKSMITH_KEEPER, RGB(255,255,255));
+			PutString(sX +33, sY +23, NPC_NAME_BLACKSMITH_KEEPER,video::SColor(255,45,25,25));
+			PutString(sX +33 -1, sY +23 -1, NPC_NAME_BLACKSMITH_KEEPER,video::SColor(255,255,255,255));
 			break;
 		case 25:
-			PutString(sX +33, sY +23, NPC_NAME_CITYHALL_OFFICER, RGB(45,25,25));
-			PutString(sX +33 -1, sY +23 -1, NPC_NAME_CITYHALL_OFFICER, RGB(255,255,255));
+			PutString(sX +33, sY +23, NPC_NAME_CITYHALL_OFFICER,video::SColor(255,45,25,25));
+			PutString(sX +33 -1, sY +23 -1, NPC_NAME_CITYHALL_OFFICER,video::SColor(255,255,255,255));
 			break;
 		case 26: // "Guildhall Officer"
-			PutString(sX +33, sY +23, NPC_NAME_GUILDHALL_OFFICER, RGB(45,25,25));
-			PutString(sX +33 -1, sY +23 -1, NPC_NAME_GUILDHALL_OFFICER, RGB(255,255,255));
+			PutString(sX +33, sY +23, NPC_NAME_GUILDHALL_OFFICER,video::SColor(255,45,25,25));
+			PutString(sX +33 -1, sY +23 -1, NPC_NAME_GUILDHALL_OFFICER,video::SColor(255,255,255,255));
 			break;
 		case 90: //Gail
-			PutString(sX +33, sY +23, NPC_NAME_CMDHALL_OFFICER, RGB(45,25,25));
-			PutString(sX +33 -1, sY +23 -1, NPC_NAME_CMDHALL_OFFICER, RGB(255,255,255));
+			PutString(sX +33, sY +23, NPC_NAME_CMDHALL_OFFICER,video::SColor(255,45,25,25));
+			PutString(sX +33 -1, sY +23 -1, NPC_NAME_CMDHALL_OFFICER,video::SColor(255,255,255,255));
 			break;
 		}
 
 		if ( m_dialogBoxes[20].sV3 == 25 )
 		{   // OFFER
 			if (onButton == 1) {
-				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY13, RGB(255,255,255)); // "Offer"
+				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY13,video::SColor(255,255,255,255)); // "Offer"
 			}
 			else {
-				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY13, RGB(4,0,50));
+				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY13,video::SColor(255,4,0,50));
 			}
 		}else if ( m_dialogBoxes[20].sV3 == 20 )
 		{   // WITHDRAW
 			if (onButton == 1) {
-				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY17, RGB(255,255,255)); // "Withdraw"
+				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY17,video::SColor(255,255,255,255)); // "Withdraw"
 			}
 			else {
-				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY17, RGB(4,0,50));
+				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY17,video::SColor(255,4,0,50));
 			}
 		}else if ( m_dialogBoxes[20].sV3 == 19 ) // CLEROTH: MAGICIAN
 		{   // LEARN
 			if (onButton == 1) {
-				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY19, RGB(255,255,255)); // "Learn"
+				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY19,video::SColor(255,255,255,255)); // "Learn"
 			}
 			else {
-				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY19, RGB(4,0,50));
+				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY19,video::SColor(255,4,0,50));
 			}
 		}else
 		{   // TRADE
 			if (onButton == 1) {
-				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21, RGB(255,255,255)); // "Trade"
+				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21,video::SColor(255,255,255,255)); // "Trade"
 			}
 			else {
-				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21, RGB(4,0,50));
+				PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21,video::SColor(255,4,0,50));
 			}	
 		}
 
 		if (m_bIsDialogEnabled[21] == FALSE)
 		{	
 			if (onButton == 2) {
-				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25, RGB(255,255,255)); // "Talk"
+				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25,video::SColor(255,255,255,255)); // "Talk"
 			}
 			else {
-				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25, RGB(4,0,50));
+				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25,video::SColor(255,4,0,50));
 			}
 		}
 		break;
@@ -41376,21 +41447,21 @@ void CGame::DrawDialogBox_NpcActionQuery()
 		//wsprintfA(cTxt, DRAW_DIALOGBOX_NPCACTION_QUERY29_2, m_dialogBoxes[20].sV3, cStr1, m_dialogBoxes[20].cStr); //"%d %s to %s" // Added other player name on give! xRisenx
 		wsprintfA(cTxt2, DRAW_DIALOGBOX_NPCACTION_QUERY29_1, m_dialogBoxes[20].cStr); // "%s"
 
-		PutString(sX+24, sY+25, cTxt, RGB(45,25,25));
-		PutString(sX+24, sY+40, cTxt2, RGB(45,25,25));
+		PutString(sX+24, sY+25, cTxt,video::SColor(255,45,25,25));
+		PutString(sX+24, sY+40, cTxt2,video::SColor(255,45,25,25));
 
 		if (onButton == 1) {
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY30, RGB(255,255,255));//"Give"
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY30,video::SColor(255,255,255,255));//"Give"
 		}
 		else {
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY30, RGB(4,0,50));
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY30,video::SColor(255,4,0,50));
 		}
 
 		if (onButton == 2) {
-			PutString3(sX + 155, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY34, RGB(255,255,255));//"Exchange"
+			PutString3(sX + 155, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY34,video::SColor(255,255,255,255));//"Exchange"
 		}
 		else {
-			PutString3(sX + 155, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY34, RGB(4,0,50));
+			PutString3(sX + 155, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY34,video::SColor(255,4,0,50));
 		}
 		break;
 
@@ -41401,22 +41472,22 @@ void CGame::DrawDialogBox_NpcActionQuery()
 		wsprintfA(cTxt, DRAW_DIALOGBOX_NPCACTION_QUERY29, m_dialogBoxes[20].sV3, cStr1);//"%d %s to"
 		wsprintfA(cTxt2, DRAW_DIALOGBOX_NPCACTION_QUERY29_1, m_dialogBoxes[20].cStr);//"%s"
 
-		PutString(sX+24, sY+20, cTxt, RGB(45,25,25));
-		PutString(sX+24, sY+35, cTxt2, RGB(45,25,25));
+		PutString(sX+24, sY+20, cTxt,video::SColor(255,45,25,25));
+		PutString(sX+24, sY+35, cTxt2,video::SColor(255,45,25,25));
 
 		if (onButton == 1){	
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY39, RGB(255,255,255));//"Sell"
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY39,video::SColor(255,255,255,255));//"Sell"
 		}else{	
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY39, RGB(4,0,50));
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY39,video::SColor(255,4,0,50));
 		}
 
 		if ((m_pItemList[m_dialogBoxes[20].sV1]->m_cItemType != ITEMTYPE_CONSUME) &&
 			(m_pItemList[m_dialogBoxes[20].sV1]->m_cItemType != ITEMTYPE_ARROW))
 		{	
 			if (onButton == 2){	
-				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY43, RGB(255,255,255));//"Repair"
+				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY43,video::SColor(255,255,255,255));//"Repair"
 			}else{
-				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY43, RGB(4,0,50));
+				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY43,video::SColor(255,4,0,50));
 			}	
 		}
 		break;
@@ -41432,9 +41503,9 @@ void CGame::DrawDialogBox_NpcActionQuery()
 		PutAlignedString(sX, sX+240, sY+35, cTxt2, 45,25,25);
 
 		if (onButton == 1) {
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY48, RGB(255,255,255));//"Deposit"
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY48,video::SColor(255,255,255,255));//"Deposit"
 		}else{
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY48, RGB(4,0,50));
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY48,video::SColor(255,4,0,50));
 		}
 		break;
 
@@ -41442,33 +41513,33 @@ void CGame::DrawDialogBox_NpcActionQuery()
 		//DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX, sY, 5);
 		switch (m_dialogBoxes[20].sV3) {
 		case 21:
-			PutString(sX +35, sY + 25, NPC_NAME_GUARD, RGB(45,25,25));//
-			PutString(sX +35 -1, sY + 25 -1, NPC_NAME_GUARD, RGB(255,255,255));
+			PutString(sX +35, sY + 25, NPC_NAME_GUARD,video::SColor(255,45,25,25));//
+			PutString(sX +35 -1, sY + 25 -1, NPC_NAME_GUARD,video::SColor(255,255,255,255));
 			break;
 		case 32:
-			PutString(sX +35, sY + 25, NPC_NAME_UNICORN, RGB(45,25,25));//"
-			PutString(sX +35 -1, sY + 25 -1, NPC_NAME_UNICORN, RGB(255,255,255));//"
+			PutString(sX +35, sY + 25, NPC_NAME_UNICORN,video::SColor(255,45,25,25));//"
+			PutString(sX +35 -1, sY + 25 -1, NPC_NAME_UNICORN,video::SColor(255,255,255,255));//"
 			break;
 		case 67:
-			PutString(sX +35, sY + 25, NPC_NAME_MCGAFFIN, RGB(45,25,25));
-			PutString(sX +35 -1, sY + 25 -1, NPC_NAME_MCGAFFIN, RGB(255,255,255));
+			PutString(sX +35, sY + 25, NPC_NAME_MCGAFFIN,video::SColor(255,45,25,25));
+			PutString(sX +35 -1, sY + 25 -1, NPC_NAME_MCGAFFIN,video::SColor(255,255,255,255));
 			break;
 		case 68:
-			PutString(sX +35, sY + 25, NPC_NAME_PERRY, RGB(45,25,25));
-			PutString(sX +35 -1, sY + 25 -1, NPC_NAME_PERRY, RGB(255,255,255));
+			PutString(sX +35, sY + 25, NPC_NAME_PERRY,video::SColor(255,45,25,25));
+			PutString(sX +35 -1, sY + 25 -1, NPC_NAME_PERRY,video::SColor(255,255,255,255));
 			break;
 		case 69:
-			PutString(sX +35, sY + 25, NPC_NAME_DEVLIN, RGB(45,25,25));
-			PutString(sX +35 -1, sY + 25 -1, NPC_NAME_DEVLIN, RGB(255,255,255));
+			PutString(sX +35, sY + 25, NPC_NAME_DEVLIN,video::SColor(255,45,25,25));
+			PutString(sX +35 -1, sY + 25 -1, NPC_NAME_DEVLIN,video::SColor(255,255,255,255));
 			break;
 
 		}
 
 		if (m_bIsDialogEnabled[21] == FALSE) {
 			if (onButton == 1) {
-				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25, RGB(255,255,255));
+				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25,video::SColor(255,255,255,255));
 			}else{
-				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25, RGB(4,0,50));
+				PutString3(sX + 125, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25,video::SColor(255,4,0,50));
 			}
 			}
 		break;
@@ -41477,31 +41548,31 @@ void CGame::DrawDialogBox_NpcActionQuery()
 		DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX, sY, 6);
 		switch (m_dialogBoxes[20].sV3) {
 		case 15:
-			PutString(sX +33, sY +23, NPC_NAME_SHOP_KEEPER, RGB(45,25,25));//Shop Keeper"
-			PutString(sX +33 -1, sY +23 -1, NPC_NAME_SHOP_KEEPER, RGB(255,255,255));
+			PutString(sX +33, sY +23, NPC_NAME_SHOP_KEEPER,video::SColor(255,45,25,25));//Shop Keeper"
+			PutString(sX +33 -1, sY +23 -1, NPC_NAME_SHOP_KEEPER,video::SColor(255,255,255,255));
 			break;
 		case 24:
-			PutString(sX +33, sY +23, NPC_NAME_BLACKSMITH_KEEPER, RGB(45,25,25));//"BlackSmith Keeper"
-			PutString(sX +33 -1, sY +23 -1, NPC_NAME_BLACKSMITH_KEEPER, RGB(255,255,255));//"
+			PutString(sX +33, sY +23, NPC_NAME_BLACKSMITH_KEEPER,video::SColor(255,45,25,25));//"BlackSmith Keeper"
+			PutString(sX +33 -1, sY +23 -1, NPC_NAME_BLACKSMITH_KEEPER,video::SColor(255,255,255,255));//"
 			break;
 		}
 
 		if (onButton == 1){	
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21, RGB(255,255,255));//"Trade"
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21,video::SColor(255,255,255,255));//"Trade"
 		}else{	
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21, RGB(4,0,50));
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21,video::SColor(255,4,0,50));
 		}
 
 		if (onButton == 2){	
-			PutString3(sX + 28 +75, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY39, RGB(255,255,255));//"Sell"
+			PutString3(sX + 28 +75, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY39,video::SColor(255,255,255,255));//"Sell"
 		}else{	
-			PutString3(sX + 28 +75, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY39, RGB(4,0,50));
+			PutString3(sX + 28 +75, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY39,video::SColor(255,4,0,50));
 		}
 		if (m_bIsDialogEnabled[21] == FALSE) {	
 			if (onButton == 3){	
-				PutString3(sX + 155, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25, RGB(255,255,255));//"Talk"
+				PutString3(sX + 155, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25,video::SColor(255,255,255,255));//"Talk"
 			}else{	
-				PutString3(sX + 155, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25, RGB(4,0,50));
+				PutString3(sX + 155, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY25,video::SColor(255,4,0,50));
 			}	
 		}
 		break;
@@ -41509,112 +41580,112 @@ void CGame::DrawDialogBox_NpcActionQuery()
 	case 6: //Gail
 		//DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX, sY, 5);
 		if (onButton == 1){
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21, RGB(255,255,255)); // "Trade"
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21,video::SColor(255,255,255,255)); // "Trade"
 		}else{
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21, RGB(4,0,50));
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY21,video::SColor(255,4,0,50));
 		}
-		PutString(sX +33, sY +23, DRAW_DIALOGBOX_NPCACTION_QUERY49, RGB(45,25,25));
-		PutString(sX +33 -1, sY +23 -1, DRAW_DIALOGBOX_NPCACTION_QUERY49, RGB(255,255,255));
+		PutString(sX +33, sY +23, DRAW_DIALOGBOX_NPCACTION_QUERY49,video::SColor(255,45,25,25));
+		PutString(sX +33 -1, sY +23 -1, DRAW_DIALOGBOX_NPCACTION_QUERY49,video::SColor(255,255,255,255));
 		break;
 
 	case 7: // Jehovah - New Blacksmith Function
 		//DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX, sY, 5);
 		if (onButton == 1){	
-			PutString3(sX + 25, sY + 29, DRAW_BLACKSMITH1, RGB(255,255,255)); // "Buy Weapons"
+			PutString3(sX + 25, sY + 29, DRAW_BLACKSMITH1,video::SColor(255,255,255,255)); // "Buy Weapons"
 		}else{	
-			PutString3(sX + 25, sY + 29, DRAW_BLACKSMITH1, RGB(4,0,50));
+			PutString3(sX + 25, sY + 29, DRAW_BLACKSMITH1,video::SColor(255,4,0,50));
 		}
 
 		if (onButton == 2){	
-			PutString3(sX + 125, sY + 29, DRAW_BLACKSMITH2, RGB(255,255,255)); // "Buy (M) Armor"
+			PutString3(sX + 125, sY + 29, DRAW_BLACKSMITH2,video::SColor(255,255,255,255)); // "Buy (M) Armor"
 		}else{
-			PutString3(sX + 125, sY + 29, DRAW_BLACKSMITH2, RGB(4,0,50));
+			PutString3(sX + 125, sY + 29, DRAW_BLACKSMITH2,video::SColor(255,4,0,50));
 		}
 
 		if (onButton == 3){	
-			PutString3(sX + 125, sY + 46, DRAW_BLACKSMITH3, RGB(255,255,255)); // "Buy (W) Armor"
+			PutString3(sX + 125, sY + 46, DRAW_BLACKSMITH3,video::SColor(255,255,255,255)); // "Buy (W) Armor"
 		}else{
-			PutString3(sX + 125, sY + 46, DRAW_BLACKSMITH3, RGB(4,0,50));
+			PutString3(sX + 125, sY + 46, DRAW_BLACKSMITH3,video::SColor(255,4,0,50));
 		}
 
 		if (onButton == 4){
-			PutString3(sX + 25, sY + 46, DRAW_BLACKSMITH4, RGB(255,255,255)); // "Sell"
+			PutString3(sX + 25, sY + 46, DRAW_BLACKSMITH4,video::SColor(255,255,255,255)); // "Sell"
 		}else{
-			PutString3(sX + 25, sY + 46, DRAW_BLACKSMITH4, RGB(4,0,50));
+			PutString3(sX + 25, sY + 46, DRAW_BLACKSMITH4,video::SColor(255,4,0,50));
 		}
 
 		if (onButton == 5) {
-			PutString3(sX + 25, sY + 63, DRAW_BLACKSMITH5, RGB(255,255,255)); // "Repair All"
+			PutString3(sX + 25, sY + 63, DRAW_BLACKSMITH5,video::SColor(255,255,255,255)); // "Repair All"
 		} else {	
-			PutString3(sX + 25, sY + 63, DRAW_BLACKSMITH5, RGB(4,0,50));
+			PutString3(sX + 25, sY + 63, DRAW_BLACKSMITH5,video::SColor(255,4,0,50));
 		}
 
-		PutString(sX +65, sY +5, DRAW_BLACKSMITH, RGB(0,0,0));
-		PutString(sX +65 -1, sY +5 -1, DRAW_BLACKSMITH, RGB(255,255,255));
-		PutString(sX +61, sY +5, "________________", RGB(0,0,0));
+		PutString(sX +65, sY +5, DRAW_BLACKSMITH,video::SColor(255,0,0,0));
+		PutString(sX +65 -1, sY +5 -1, DRAW_BLACKSMITH,video::SColor(255,255,255,255));
+		PutString(sX +61, sY +5, "________________",video::SColor(255,0,0,0));
 		break;
 
 	case 8: // Jehovah - New Shopkeeper Function
 		//DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX, sY, 5);
 		if (onButton == 1){	
-			PutString3(sX + 25, sY + 30, DRAW_SHOP1, RGB(255,255,255)); // "Buy Potions"
+			PutString3(sX + 25, sY + 30, DRAW_SHOP1,video::SColor(255,255,255,255)); // "Buy Potions"
 		}else{	
-			PutString3(sX + 25, sY + 30, DRAW_SHOP1, RGB(4,0,50));
+			PutString3(sX + 25, sY + 30, DRAW_SHOP1,video::SColor(255,4,0,50));
 		}
 
 		if (onButton == 2){	
-			PutString3(sX + 125, sY + 30, DRAW_SHOP2, RGB(255,255,255)); // "Buy Misc."
+			PutString3(sX + 125, sY + 30, DRAW_SHOP2,video::SColor(255,255,255,255)); // "Buy Misc."
 		}else{	
-			PutString3(sX + 125, sY + 30, DRAW_SHOP2, RGB(4,0,50));
+			PutString3(sX + 125, sY + 30, DRAW_SHOP2,video::SColor(255,4,0,50));
 		}
 
 		if (onButton == 3){	
-			PutString3(sX + 125, sY + 50, DRAW_SHOP3, RGB(255,255,255)); // "Buy Outfits"
+			PutString3(sX + 125, sY + 50, DRAW_SHOP3,video::SColor(255,255,255,255)); // "Buy Outfits"
 		}else{
-			PutString3(sX + 125, sY + 50, DRAW_SHOP3, RGB(4,0,50));
+			PutString3(sX + 125, sY + 50, DRAW_SHOP3,video::SColor(255,4,0,50));
 		}
 
 		if (onButton == 4){
-			PutString3(sX + 25, sY + 50, DRAW_SHOP4, RGB(255,255,255)); // "Sell Items"
+			PutString3(sX + 25, sY + 50, DRAW_SHOP4,video::SColor(255,255,255,255)); // "Sell Items"
 		}else{
-			PutString3(sX + 25, sY + 50, DRAW_SHOP4, RGB(4,0,50));
+			PutString3(sX + 25, sY + 50, DRAW_SHOP4,video::SColor(255,4,0,50));
 		}
 
-		PutString(sX +70, sY +5, DRAW_SHOP, RGB(0,0,0));
-		PutString(sX +70 -1, sY +5 -1, DRAW_SHOP, RGB(255,255,255));
-		PutString(sX +66, sY +5, "____________", RGB(0,0,0));
+		PutString(sX +70, sY +5, DRAW_SHOP,video::SColor(255,0,0,0));
+		PutString(sX +70 -1, sY +5 -1, DRAW_SHOP,video::SColor(255,255,255,255));
+		PutString(sX +66, sY +5, "____________",video::SColor(255,0,0,0));
 		break;
 
 	case 9: // Jehovah - New Cityhall Officer Function
 		if (onButton == 1){
-			PutString3(sX + 25, sY + 30, DRAW_CITYHALL1, RGB(255,255,255)); // "Offer"
+			PutString3(sX + 25, sY + 30, DRAW_CITYHALL1,video::SColor(255,255,255,255)); // "Offer"
 		}else{
-			PutString3(sX + 25, sY + 30, DRAW_CITYHALL1, RGB(4,0,50));
+			PutString3(sX + 25, sY + 30, DRAW_CITYHALL1,video::SColor(255,4,0,50));
 		}
 
 		if (onButton == 2)
 		{ 
-			PutString3(sX + 125, sY + 30, DRAW_CITYHALL4, RGB(255,255,255)); // "Mailbox"
+			PutString3(sX + 125, sY + 30, DRAW_CITYHALL4,video::SColor(255,255,255,255)); // "Mailbox"
 		}else
 		{ 
-			PutString3(sX + 125, sY + 30, DRAW_CITYHALL4, RGB(4,0,50));
+			PutString3(sX + 125, sY + 30, DRAW_CITYHALL4,video::SColor(255,4,0,50));
 		}
 
 		//if (onButton == 3){
-		//	PutString3(sX + 125, sY + 50, DRAW_CITYHALL2, RGB(255,255,255)); // "Buy Weapons"
+		//	PutString3(sX + 125, sY + 50, DRAW_CITYHALL2,video::SColor(255,255,255,255)); // "Buy Weapons"
 		//}else{
-		//	PutString3(sX + 125, sY + 50, DRAW_CITYHALL2, RGB(4,0,50));
+		//	PutString3(sX + 125, sY + 50, DRAW_CITYHALL2,video::SColor(255,4,0,50));
 		//}
 
 		if (onButton == 4){
-			PutString3(sX + 25, sY + 50, DRAW_CITYHALL3, RGB(255,255,255)); // "Talk"
+			PutString3(sX + 25, sY + 50, DRAW_CITYHALL3,video::SColor(255,255,255,255)); // "Talk"
 		}else{
-			PutString3(sX + 25, sY + 50, DRAW_CITYHALL3, RGB(4,0,50));
+			PutString3(sX + 25, sY + 50, DRAW_CITYHALL3,video::SColor(255,4,0,50));
 		}
 
-		PutString(sX +70, sY +5, DRAW_CITYHALL, RGB(0,0,0));
-		PutString(sX +70 -1, sY +5 -1, DRAW_CITYHALL, RGB(255,255,255));
-		PutString(sX +66, sY +5, "____________", RGB(0,0,0));
+		PutString(sX +70, sY +5, DRAW_CITYHALL,video::SColor(255,0,0,0));
+		PutString(sX +70 -1, sY +5 -1, DRAW_CITYHALL,video::SColor(255,255,255,255));
+		PutString(sX +66, sY +5, "____________",video::SColor(255,0,0,0));
 		break;
 
 	case 10: //GuildBank
@@ -41628,9 +41699,9 @@ void CGame::DrawDialogBox_NpcActionQuery()
 		PutAlignedString(sX, sX+240, sY+35, cTxt2, 45,25,25);
 
 		if (onButton == 1) {
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY48, RGB(255,255,255));//"Deposit"
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY48,video::SColor(255,255,255,255));//"Deposit"
 		}else{
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY48, RGB(4,0,50));
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY48,video::SColor(255,4,0,50));
 		}
 		break;
 
@@ -41643,9 +41714,9 @@ void CGame::DrawDialogBox_NpcActionQuery()
 		PutAlignedString(sX, sX+243, sY+35, cTxt, 45,25,25); 
 
 		if (onButton == 1) {
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY43, RGB(255,255,255));//"Repair"
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY43,video::SColor(255,255,255,255));//"Repair"
 		} else {	
-			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY43, RGB(4,0,50));
+			PutString3(sX + 28, sY + 55, DRAW_DIALOGBOX_NPCACTION_QUERY43,video::SColor(255,4,0,50));
 	}
 		break;
 }
@@ -41877,13 +41948,13 @@ void CGame::DrawDialogBox_QueryDropItemAmount()
 		else wsprintfA(cTxt, DRAW_DIALOGBOX_QUERY_DROP_ITEM_AMOUNT2, cStr1, m_dialogBoxes[17].cStr);//"%s:
 
 		if (m_dialogBoxes[17].sV3 < 1000)
-			PutString(sX + 30, sY + 20, cTxt, RGB(55,25,25));
+			PutString(sX + 30, sY + 20, cTxt,video::SColor(255,55,25,25));
 
-		PutString(sX + 30, sY + 35, DRAW_DIALOGBOX_QUERY_DROP_ITEM_AMOUNT3, RGB(55,25,25));//"
+		PutString(sX + 30, sY + 35, DRAW_DIALOGBOX_QUERY_DROP_ITEM_AMOUNT3,video::SColor(255,55,25,25));//"
 		if (iGetTopDialogBoxIndex() != 17)
-			PutString(sX + 40, sY + 57, m_cAmountString, RGB(255,255,255), FALSE, 2);
+			PutString(sX + 40, sY + 57, m_cAmountString,video::SColor(255,255,255,255), FALSE, 2);
 		wsprintfA(cTxt, "__________ (0 ~ %d)", m_pItemList[m_dialogBoxes[17].sView]->m_dwCount);
-		PutString(sX + 38, sY + 62, cTxt, RGB(25,35,25));
+		PutString(sX + 38, sY + 62, cTxt,video::SColor(255,25,35,25));
 		break;
 
 	case 20:
@@ -41893,12 +41964,12 @@ void CGame::DrawDialogBox_QueryDropItemAmount()
 		else wsprintfA(cTxt, DRAW_DIALOGBOX_QUERY_DROP_ITEM_AMOUNT2, cStr1, m_dialogBoxes[17].cStr);//"%s:
 
 		if (m_dialogBoxes[17].sV3 < 1000) 
-			PutString(sX + 30, sY + 20, cTxt, RGB(55,25,25));
+			PutString(sX + 30, sY + 20, cTxt,video::SColor(255,55,25,25));
 
-		PutString(sX + 30, sY + 35, DRAW_DIALOGBOX_QUERY_DROP_ITEM_AMOUNT3, RGB(55,25,25));//"
-		PutString(sX + 40, sY + 57, m_cAmountString, RGB(255,255,255), FALSE, 2);
+		PutString(sX + 30, sY + 35, DRAW_DIALOGBOX_QUERY_DROP_ITEM_AMOUNT3,video::SColor(255,55,25,25));//"
+		PutString(sX + 40, sY + 57, m_cAmountString,video::SColor(255,255,255,255), FALSE, 2);
 		wsprintfA(cTxt, "__________ (0 ~ %d)", m_pItemList[m_dialogBoxes[17].sView]->m_dwCount);
-		PutString(sX + 38, sY + 62, cTxt, RGB(25,35,25));
+		PutString(sX + 38, sY + 62, cTxt,video::SColor(255,25,35,25));
 		break;
 
 	case NPC_PRINCESS:
@@ -41908,12 +41979,12 @@ void CGame::DrawDialogBox_QueryDropItemAmount()
 		else wsprintfA(cTxt, DRAW_DIALOGBOX_QUERY_DROP_ITEM_AMOUNT2, cStr1, m_dialogBoxes[17].cStr);//"%s:
 
 		if (m_dialogBoxes[17].sV3 < 1000) 
-			PutString(sX + 30, sY + 20, cTxt, RGB(55,25,25));
+			PutString(sX + 30, sY + 20, cTxt,video::SColor(255,55,25,25));
 
-		PutString(sX + 30, sY + 35, DRAW_DIALOGBOX_QUERY_DROP_ITEM_AMOUNT3, RGB(55,25,25));//"
-		PutString(sX + 40, sY + 57, m_cAmountString, RGB(255,255,255), FALSE, 2);
+		PutString(sX + 30, sY + 35, DRAW_DIALOGBOX_QUERY_DROP_ITEM_AMOUNT3,video::SColor(255,55,25,25));//"
+		PutString(sX + 40, sY + 57, m_cAmountString,video::SColor(255,255,255,255), FALSE, 2);
 		wsprintfA(cTxt, "__________ (0 ~ %d)", m_pItemList[m_dialogBoxes[17].sView]->m_dwCount);
-		PutString(sX + 38, sY + 62, cTxt, RGB(25,35,25));
+		PutString(sX + 38, sY + 62, cTxt,video::SColor(255,25,35,25));
 		break;
 	}
 }
@@ -42210,10 +42281,10 @@ void CGame::DrawDialogBox_SellorRepairItem()
 		}
 
 		wsprintfA(cTxt,  DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM2, m_dialogBoxes[23].sV2);
-		PutString(sX + 95 + 15, sY + 53 + 60, cTxt, RGB(45,25,25));
+		PutString(sX + 95 + 15, sY + 53 + 60, cTxt,video::SColor(255,45,25,25));
 		wsprintfA(cTxt,  DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM3, m_dialogBoxes[23].sV3);
-		PutString(sX + 95 + 15, sY + 53 + 75, cTxt, RGB(45,25,25));
-		PutString(sX + 55, sY + 190, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM4, RGB(45,25,25));
+		PutString(sX + 95 + 15, sY + 53 + 75, cTxt,video::SColor(255,45,25,25));
+		PutString(sX + 55, sY + 190, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM4,video::SColor(255,45,25,25));
 
 		if (onButton == 1)
 			 DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX +LBTNPOSX, sY + BTNPOSY, 39);
@@ -42262,10 +42333,10 @@ void CGame::DrawDialogBox_SellorRepairItem()
 			PutAlignedString(sX + 25 +1, sX + 240 +1, sY + 60, cTxt, 45,25,25);
 		}
 		wsprintfA(cTxt,  DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM2, m_dialogBoxes[23].sV2);
-		PutString(sX + 95 + 15, sY + 53 + 60, cTxt, RGB(45,25,25));
+		PutString(sX + 95 + 15, sY + 53 + 60, cTxt,video::SColor(255,45,25,25));
 		wsprintfA(cTxt,  DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM6, m_dialogBoxes[23].sV3);
-		PutString(sX + 95 + 15, sY + 53 + 75, cTxt, RGB(45,25,25));
-		PutString(sX + 55, sY + 190, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM7, RGB(45,25,25));
+		PutString(sX + 95 + 15, sY + 53 + 75, cTxt,video::SColor(255,45,25,25));
+		PutString(sX + 55, sY + 190, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM7,video::SColor(255,45,25,25));
 
 		if (onButton == 1)
 			 DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + LBTNPOSX, sY + BTNPOSY, 43);
@@ -42280,18 +42351,18 @@ void CGame::DrawDialogBox_SellorRepairItem()
 		//DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX, sY, 2);
 		DrawNewDialogBox(SPRID_INTERFACE_ND_TEXT, sX, sY, 11);
 
-		PutString(sX + 55, sY + 100, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM8, RGB(45,25,25));//"
-		PutString(sX + 55, sY + 120, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM9, RGB(45,25,25));//"
-		PutString(sX + 55, sY + 135, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM10, RGB(45,25,25));//"
+		PutString(sX + 55, sY + 100, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM8,video::SColor(255,45,25,25));//"
+		PutString(sX + 55, sY + 120, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM9,video::SColor(255,45,25,25));//"
+		PutString(sX + 55, sY + 135, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM10,video::SColor(255,45,25,25));//"
 		break;
 
 	case 4:
 		//DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX, sY, 2);
 		DrawNewDialogBox(SPRID_INTERFACE_ND_TEXT, sX, sY, 10);
 
-		PutString(sX + 55, sY + 100, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM11, RGB(45,25,25));//"
-		PutString(sX + 55, sY + 120, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM9, RGB(45,25,25));//"
-		PutString(sX + 55, sY + 135, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM10, RGB(45,25,25));//"
+		PutString(sX + 55, sY + 100, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM11,video::SColor(255,45,25,25));//"
+		PutString(sX + 55, sY + 120, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM9,video::SColor(255,45,25,25));//"
+		PutString(sX + 55, sY + 135, DRAW_DIALOGBOX_SELLOR_REPAIR_ITEM10,video::SColor(255,45,25,25));//"
 		break;
 	}
 }
@@ -42323,17 +42394,17 @@ void CGame::DrawDialogBox_Skill()
 			ZeroMemory(cTemp2, sizeof(cTemp2));
 			wsprintfA(cTemp2, "%3d%%", m_pSkillCfgList[skillIndex + m_dialogBoxes[15].sView]->m_iLevel);
 
-			COLORREF colour = RGB(5,5,5);
+			video::SColor colour =video::SColor(255,5,5,5);
 			if(m_pSkillCfgList[ skillIndex+m_dialogBoxes[15].sView ]->m_bIsUseable
 				&& m_pSkillCfgList[ skillIndex+m_dialogBoxes[15].sView ]->m_iLevel != 0)
 				{
 				if (onButton == line + 1)
 				{
-					colour = RGB(255,255,255);
+					colour =video::SColor(255,255,255,255);
 				}
 			else
 				{
-					colour = RGB(34,30,120);
+					colour =video::SColor(255,34,30,120);
 				}
 			}
 
@@ -42482,8 +42553,8 @@ void CGame::DrawDialogBox_SkillDlg()
 		szX = m_dialogBoxes[26].sSizeX;
 		DrawNewDialogBox(SPRID_INTERFACE_ND_GAME3, sX, sY, 0);
 		DrawNewDialogBox(SPRID_INTERFACE_ND_TEXT, sX, sY, 8);
-		PutString(sX + iAdjX + 49, sY + iAdjY + 33, "Name", RGB(0,0,0));
-		PutString(sX + iAdjX +171, sY + iAdjY + 33, "Max.Title", RGB(0,0,0));
+		PutString(sX + iAdjX + 49, sY + iAdjY + 33, "Name",video::SColor(255,0,0,0));
+		PutString(sX + iAdjX +171, sY + iAdjY + 33, "Max.Title",video::SColor(255,0,0,0));
 
 		iLoc = 0;
 		for (i = 0; i < 13; i++)
@@ -42497,15 +42568,15 @@ void CGame::DrawDialogBox_SkillDlg()
 
 			if (onButton == i + 1)
 			{	
-				PutString(m_dialogBoxes[26].ButtonX(i+1), m_dialogBoxes[26].ButtonY(i+1), cTemp, RGB(255,255,255));
-				PutString(m_dialogBoxes[26].ButtonX(i+1) +155, m_dialogBoxes[26].ButtonY(i+1), cTemp2, RGB(255,255,255));
+				PutString(m_dialogBoxes[26].ButtonX(i+1), m_dialogBoxes[26].ButtonY(i+1), cTemp,video::SColor(255,255,255,255));
+				PutString(m_dialogBoxes[26].ButtonX(i+1) +155, m_dialogBoxes[26].ButtonY(i+1), cTemp2,video::SColor(255,255,255,255));
 			}else {	
 				if (m_pDispBuildItemList[i + m_dialogBoxes[26].sView]->m_bBuildEnabled == TRUE) {	
-					PutString(m_dialogBoxes[26].ButtonX(i+1), m_dialogBoxes[26].ButtonY(i+1), cTemp, RGB(34,30,120));
-					PutString(m_dialogBoxes[26].ButtonX(i+1) +155, m_dialogBoxes[26].ButtonY(i+1), cTemp2, RGB(34,30,120));
+					PutString(m_dialogBoxes[26].ButtonX(i+1), m_dialogBoxes[26].ButtonY(i+1), cTemp,video::SColor(255,34,30,120));
+					PutString(m_dialogBoxes[26].ButtonX(i+1) +155, m_dialogBoxes[26].ButtonY(i+1), cTemp2,video::SColor(255,34,30,120));
 				}else	{
-					PutString(m_dialogBoxes[26].ButtonX(i+1), m_dialogBoxes[26].ButtonY(i+1), cTemp, RGB(45,25,25));
-					PutString(m_dialogBoxes[26].ButtonX(i+1) +155, m_dialogBoxes[26].ButtonY(i+1), cTemp2, RGB(45,25,25));
+					PutString(m_dialogBoxes[26].ButtonX(i+1), m_dialogBoxes[26].ButtonY(i+1), cTemp,video::SColor(255,45,25,25));
+					PutString(m_dialogBoxes[26].ButtonX(i+1) +155, m_dialogBoxes[26].ButtonY(i+1), cTemp2,video::SColor(255,45,25,25));
 				}
 			}
 
@@ -42552,7 +42623,7 @@ void CGame::DrawDialogBox_SkillDlg()
 		
 		strcpy(cTemp, DRAW_DIALOGBOX_SKILLDLG35);
 		strcat(cTemp, m_manuAutoFill ? DRAW_ENABLED : DRAW_DISABLED);
-		PutAlignedString(&m_dialogBoxes[26].GetButton(16), cTemp, onButton == 16 ? RGB(255,255,255) : RGB(34,30,120));
+		//PutAlignedString(&m_dialogBoxes[26].GetButton(16), cTemp, onButton == 16 ?video::SColor(255,255,255,255) :video::SColor(255,34,30,120));//uncomment
 
 		break;
 
@@ -42570,13 +42641,13 @@ void CGame::DrawDialogBox_SkillDlg()
 		ZeroMemory(cTemp, sizeof(cTemp));
 		GetItemName( m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_cName, 0, cStr1, cStr2, cStr3 );
 		wsprintfA(cTemp, "%s", cStr1);
-		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55, cTemp, RGB(255,255,255));
+		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55, cTemp,video::SColor(255,255,255,255));
 
 		wsprintfA(cTemp,  DRAW_DIALOGBOX_SKILLDLG7 // "Skill level: %d/%d"
 			, m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iSkillLimit
 			, m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iMaxSkill);
-		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55 +2*15, cTemp, RGB(45,25,25));
-		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55 +3*15 +5, DRAW_DIALOGBOX_SKILLDLG8, RGB(45,25,25));//"Ingredients Needed:"
+		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55 +2*15, cTemp,video::SColor(255,45,25,25));
+		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55 +3*15 +5, DRAW_DIALOGBOX_SKILLDLG8,video::SColor(255,45,25,25));//"Ingredients Needed:"
 
 		iLoc = 4;
 		if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[1] != 0) {
@@ -42584,8 +42655,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[1];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[1] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(150,150,150));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,150,150,150));
 			iLoc++;
 		}
 
@@ -42594,8 +42665,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[2];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[2] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(150,150,150));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,150,150,150));
 			iLoc++;
 		}
 
@@ -42604,8 +42675,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[3];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[3] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(150,150,150));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,150,150,150));
 			iLoc++;
 		}
 
@@ -42614,8 +42685,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[4];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[4] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(150,150,150));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,150,150,150));
 			iLoc++;
 		}
 
@@ -42624,8 +42695,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[5];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[5] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(150,150,150));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,150,150,150));
 			iLoc++;
 		}
 
@@ -42634,8 +42705,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[6];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[6] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(150,150,150));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,150,150,150));
 			iLoc++;
 		}
 
@@ -42721,12 +42792,12 @@ void CGame::DrawDialogBox_SkillDlg()
 		ZeroMemory(cTemp, sizeof(cTemp));
 		GetItemName( m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_cName, 0, cStr1, cStr2, cStr3 );
 		wsprintfA(cTemp, "%s", cStr1);
-		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55, cTemp, RGB(255,255,255));
+		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55, cTemp,video::SColor(255,255,255,255));
 
 		wsprintfA(cTemp,  DRAW_DIALOGBOX_SKILLDLG7 // "Skill level: %d/%d"
 			, m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iSkillLimit, m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iMaxSkill);
-		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55 +2*15, cTemp, RGB(45,25,25));
-		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55 +3*15 +5, DRAW_DIALOGBOX_SKILLDLG8, RGB(45,25,25));//"Ingredients Needed:"
+		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55 +2*15, cTemp,video::SColor(255,45,25,25));
+		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55 +3*15 +5, DRAW_DIALOGBOX_SKILLDLG8,video::SColor(255,45,25,25));//"Ingredients Needed:"
 
 		iLoc = 4;
 		if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[1] != 0) 
@@ -42734,8 +42805,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[1];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[1] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(120,120,120));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,120,120,120));
 			iLoc++;
 		}
 
@@ -42744,8 +42815,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[2];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[2] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(120,120,120));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,120,120,120));
 			iLoc++;
 		}
 
@@ -42754,8 +42825,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[3];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[3] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(120,120,120));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,120,120,120));
 			iLoc++;
 		}
 
@@ -42764,8 +42835,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[4];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[4] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(120,120,120));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,120,120,120));
 			iLoc++;
 		}
 
@@ -42774,8 +42845,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[5];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[5] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(120,120,120));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,120,120,120));
 			iLoc++;
 		}
 
@@ -42784,8 +42855,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			iAmount = m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_iElementCount[6];
 			wsprintfA(cTemp, "%d %s", iAmount, cStr1);
 			if (m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_bElementFlag[6] == TRUE)
-				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(45,25,25));
-			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp, RGB(120,120,120));
+				 PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,45,25,25));
+			else PutString(sX + iAdjX + 44 +20 +60, sY + iAdjY + 55 +iLoc*15 +5, cTemp,video::SColor(255,120,120,120));
 			iLoc++;
 		}
 
@@ -42826,8 +42897,8 @@ void CGame::DrawDialogBox_SkillDlg()
 			          m_pItemList[m_dialogBoxes[26].sV6]->m_sSprite]->PutSpriteFast(sX + iAdjX + 55+45*2 +30 +13, sY + iAdjY + 100 +180,
 					  m_pItemList[m_dialogBoxes[26].sV6]->m_sSpriteFrame, dwTime);
 
-		PutString(sX + iAdjX + 33, sY + iAdjY + 230 +75, DRAW_DIALOGBOX_SKILLDLG29, RGB(55,25,25));//" Manufacturing the items...."
-		PutString(sX + iAdjX + 33, sY + iAdjY + 245 +75, DRAW_DIALOGBOX_SKILLDLG30, RGB(55,25,25));//"Please wait until manufacture finishes."
+		PutString(sX + iAdjX + 33, sY + iAdjY + 230 +75, DRAW_DIALOGBOX_SKILLDLG29,video::SColor(255,55,25,25));//" Manufacturing the items...."
+		PutString(sX + iAdjX + 33, sY + iAdjY + 245 +75, DRAW_DIALOGBOX_SKILLDLG30,video::SColor(255,55,25,25));//"Please wait until manufacture finishes."
 
 		if ((dwTime - m_dialogBoxes[26].dwT1) > 400) //if ((dwTime - m_stDialogBoxInfo[26].dwT1) > 1000) 
 		{	m_dialogBoxes[26].dwT1 = dwTime;
@@ -42856,22 +42927,22 @@ void CGame::DrawDialogBox_SkillDlg()
 		GetItemName( m_pDispBuildItemList[m_dialogBoxes[26].cStr[0]]->m_cName, 0, cStr1, cStr2, cStr3 );
 
 		wsprintfA(cTemp, "%s", cStr1);
-		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55, cTemp, RGB(255,255,255));
+		PutString(sX + iAdjX + 44 +10 +60, sY + iAdjY + 55, cTemp,video::SColor(255,255,255,255));
 
 		if (m_dialogBoxes[26].cStr[2] == 1) {
-			PutString(sX + iAdjX + 33 +11, sY + iAdjY + 200 -45, DRAW_DIALOGBOX_SKILLDLG31, RGB(55,25,25));//" Success in manufacture!"
+			PutString(sX + iAdjX + 33 +11, sY + iAdjY + 200 -45, DRAW_DIALOGBOX_SKILLDLG31,video::SColor(255,55,25,25));//" Success in manufacture!"
 
 			if (m_dialogBoxes[26].sV1 == ITEMTYPE_MATERIAL) {
 				wsprintfA(G_cTxt, DRAW_DIALOGBOX_SKILLDLG32, m_dialogBoxes[26].cStr[3]);//"The purity of product is %d%%."
-				PutString(sX + iAdjX + 33 +11, sY + iAdjY + 215 -45, G_cTxt, RGB(55,25,25));
+				PutString(sX + iAdjX + 33 +11, sY + iAdjY + 215 -45, G_cTxt,video::SColor(255,55,25,25));
 			}
 			else {
 				wsprintfA(G_cTxt, DRAW_DIALOGBOX_SKILLDLG33, (int)m_dialogBoxes[26].cStr[3] +100);//"The completion of product is %d%%."
-				PutString(sX + iAdjX + 33, sY + iAdjY + 215 -45, G_cTxt, RGB(55,25,25));
+				PutString(sX + iAdjX + 33, sY + iAdjY + 215 -45, G_cTxt,video::SColor(255,55,25,25));
 			}
 		}
 		else {
-			PutString(sX + iAdjX + 33+11, sY + iAdjY + 200, DRAW_DIALOGBOX_SKILLDLG34, RGB(55,25,25));//"Failed on manufacture."
+			PutString(sX + iAdjX + 33+11, sY + iAdjY + 200, DRAW_DIALOGBOX_SKILLDLG34,video::SColor(255,55,25,25));//"Failed on manufacture."
 		}
 
 		if (onButton == 1)
@@ -43007,52 +43078,52 @@ void CGame::DrawDialogBox_SysMenu()
 
 	//DrawNewDialogBox(SPRID_INTERFACE_ND_GAME1, sX, sY, 0);
 	//DrawNewDialogBox(SPRID_INTERFACE_ND_TEXT, sX, sY, 6);
-	PutString(sX + 23, sY + 63, DRAW_DIALOGBOX_SYSMENU_DETAILLEVEL, RGB(255,255,255));
+	PutString(sX + 23, sY + 63, DRAW_DIALOGBOX_SYSMENU_DETAILLEVEL,video::SColor(255,255,255,255));
 	if (m_cDetailLevel == 0)
-		 PutString(sX + 121, sY + 63, DRAW_DIALOGBOX_SYSMENU_LOW, RGB(255,255,255));
-	else PutString(sX + 121, sY + 63, DRAW_DIALOGBOX_SYSMENU_LOW, RGB(45,25,25));
+		 PutString(sX + 121, sY + 63, DRAW_DIALOGBOX_SYSMENU_LOW,video::SColor(255,255,255,255));
+	else PutString(sX + 121, sY + 63, DRAW_DIALOGBOX_SYSMENU_LOW,video::SColor(255,45,25,25));
 	if (m_cDetailLevel == 1)
-		 PutString(sX + 153, sY + 63, DRAW_DIALOGBOX_SYSMENU_NORMAL, RGB(255,255,255));
-	else PutString(sX + 153, sY + 63, DRAW_DIALOGBOX_SYSMENU_NORMAL, RGB(45,25,25));
+		 PutString(sX + 153, sY + 63, DRAW_DIALOGBOX_SYSMENU_NORMAL,video::SColor(255,255,255,255));
+	else PutString(sX + 153, sY + 63, DRAW_DIALOGBOX_SYSMENU_NORMAL,video::SColor(255,45,25,25));
 	if (m_cDetailLevel == 2)
-		 PutString(sX + 205, sY + 63, DRAW_DIALOGBOX_SYSMENU_HIGH, RGB(255,255,255));
-	else PutString(sX + 205, sY + 63, DRAW_DIALOGBOX_SYSMENU_HIGH, RGB(45,25,25));
+		 PutString(sX + 205, sY + 63, DRAW_DIALOGBOX_SYSMENU_HIGH,video::SColor(255,255,255,255));
+	else PutString(sX + 205, sY + 63, DRAW_DIALOGBOX_SYSMENU_HIGH,video::SColor(255,45,25,25));
 
-	PutString(sX + 23, sY + 84, DRAW_DIALOGBOX_SYSMENU_SOUND, RGB(255,255,255));
+	PutString(sX + 23, sY + 84, DRAW_DIALOGBOX_SYSMENU_SOUND,video::SColor(255,255,255,255));
 	if (m_bSoundFlag) {
-		if (m_bSoundStat) PutString(sX + 85, sY + 85, DRAW_DIALOGBOX_SYSMENU_ON, RGB(255,255,255));
-		else PutString(sX + 83, sY + 85, DRAW_DIALOGBOX_SYSMENU_OFF, RGB(200,200,200));
+		if (m_bSoundStat) PutString(sX + 85, sY + 85, DRAW_DIALOGBOX_SYSMENU_ON,video::SColor(255,255,255,255));
+		else PutString(sX + 83, sY + 85, DRAW_DIALOGBOX_SYSMENU_OFF,video::SColor(255,200,200,200));
   	}
-	else PutString(sX + 68, sY + 85, DRAW_DIALOGBOX_SYSMENU_DISABLED, RGB(100,100,100));
+	else PutString(sX + 68, sY + 85, DRAW_DIALOGBOX_SYSMENU_DISABLED,video::SColor(255,100,100,100));
 
-	PutString(sX + 123, sY + 84, DRAW_DIALOGBOX_SYSMENU_MUSIC, RGB(255,255,255));
+	PutString(sX + 123, sY + 84, DRAW_DIALOGBOX_SYSMENU_MUSIC,video::SColor(255,255,255,255));
 	if (m_bSoundFlag) {
-		if (m_bMusicStat) PutString(sX + 180, sY + 85, DRAW_DIALOGBOX_SYSMENU_ON, RGB(255,255,255));
-		else PutString(sX + 178, sY + 85, DRAW_DIALOGBOX_SYSMENU_OFF, RGB(200,200,200));
+		if (m_bMusicStat) PutString(sX + 180, sY + 85, DRAW_DIALOGBOX_SYSMENU_ON,video::SColor(255,255,255,255));
+		else PutString(sX + 178, sY + 85, DRAW_DIALOGBOX_SYSMENU_OFF,video::SColor(255,200,200,200));
   	}
-	else PutString(sX + 163, sY + 85, DRAW_DIALOGBOX_SYSMENU_DISABLED, RGB(100,100,100));
+	else PutString(sX + 163, sY + 85, DRAW_DIALOGBOX_SYSMENU_DISABLED,video::SColor(255,100,100,100));
 
-	PutString(sX + 23,  sY + 106, DRAW_DIALOGBOX_SYSMENU_WHISPER, RGB(255,255,255));
-	if (m_bWhisper) PutString(sX + 85, sY + 106, DRAW_DIALOGBOX_SYSMENU_ON, RGB(255,255,255));
-	else PutString(sX + 82, sY + 106, DRAW_DIALOGBOX_SYSMENU_OFF, RGB(200,200,200));
+	PutString(sX + 23,  sY + 106, DRAW_DIALOGBOX_SYSMENU_WHISPER,video::SColor(255,255,255,255));
+	if (m_bWhisper) PutString(sX + 85, sY + 106, DRAW_DIALOGBOX_SYSMENU_ON,video::SColor(255,255,255,255));
+	else PutString(sX + 82, sY + 106, DRAW_DIALOGBOX_SYSMENU_OFF,video::SColor(255,200,200,200));
 
-	PutString(sX + 123, sY + 106, DRAW_DIALOGBOX_SYSMENU_SHOUT, RGB(255,255,255));
-	if (m_bShout) PutString(sX + 180, sY + 106, DRAW_DIALOGBOX_SYSMENU_ON, RGB(255,255,255));
-	else PutString(sX + 177, sY + 106, DRAW_DIALOGBOX_SYSMENU_OFF, RGB(200,200,200));
+	PutString(sX + 123, sY + 106, DRAW_DIALOGBOX_SYSMENU_SHOUT,video::SColor(255,255,255,255));
+	if (m_bShout) PutString(sX + 180, sY + 106, DRAW_DIALOGBOX_SYSMENU_ON,video::SColor(255,255,255,255));
+	else PutString(sX + 177, sY + 106, DRAW_DIALOGBOX_SYSMENU_OFF,video::SColor(255,200,200,200));
 
-	PutString(sX + 23, sY + 124, DRAW_DIALOGBOX_SYSMENU_SOUNDVOLUME, RGB(255,255,255));
+	PutString(sX + 23, sY + 124, DRAW_DIALOGBOX_SYSMENU_SOUNDVOLUME,video::SColor(255,255,255,255));
 	DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX + 130 + m_cSoundVolume, sY + 129, 8);
 
-	PutString(sX + 23, sY + 141, DRAW_DIALOGBOX_SYSMENU_MUSICVOLUME, RGB(255,255,255));
+	PutString(sX + 23, sY + 141, DRAW_DIALOGBOX_SYSMENU_MUSICVOLUME,video::SColor(255,255,255,255));
 	DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX + 130 + m_cMusicVolume, sY + 145, 8);
 
-	PutString(sX + 23, sY + 158, DRAW_DIALOGBOX_SYSMENU_TRANSPARENCY, RGB(255,255,255));
-	if (m_bDialogTrans) PutString(sX + 208, sY + 158, DRAW_DIALOGBOX_SYSMENU_ON, RGB(255,255,255));
-	else PutString(sX + 207, sY + 158, DRAW_DIALOGBOX_SYSMENU_OFF, RGB(200,200,200));
+	PutString(sX + 23, sY + 158, DRAW_DIALOGBOX_SYSMENU_TRANSPARENCY,video::SColor(255,255,255,255));
+	if (m_bDialogTrans) PutString(sX + 208, sY + 158, DRAW_DIALOGBOX_SYSMENU_ON,video::SColor(255,255,255,255));
+	else PutString(sX + 207, sY + 158, DRAW_DIALOGBOX_SYSMENU_OFF,video::SColor(255,200,200,200));
 
-	PutString(sX + 23, sY + 180, DRAW_DIALOGBOX_SYSMENU_GUIDEMAP, RGB(255,255,255));
-	if (m_bIsDialogEnabled[9]) PutString(sX + 99, sY + 180, DRAW_DIALOGBOX_SYSMENU_ON, RGB(255,255,255));
-	else PutString(sX + 98, sY + 180, DRAW_DIALOGBOX_SYSMENU_OFF, RGB(200,200,200));
+	PutString(sX + 23, sY + 180, DRAW_DIALOGBOX_SYSMENU_GUIDEMAP,video::SColor(255,255,255,255));
+	if (m_bIsDialogEnabled[9]) PutString(sX + 99, sY + 180, DRAW_DIALOGBOX_SYSMENU_ON,video::SColor(255,255,255,255));
+	else PutString(sX + 98, sY + 180, DRAW_DIALOGBOX_SYSMENU_OFF,video::SColor(255,200,200,200));
 
 	if (onButton == 14) // Extended Menu Fixed xRisenx
 		(DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + 163, sY +177, 51));
@@ -43062,18 +43133,18 @@ void CGame::DrawDialogBox_SysMenu()
 	GetLocalTime(&SysTime);
 	ZeroMemory(G_cTxt, sizeof(G_cTxt));
 	wsprintfA(G_cTxt, "M:%d - D:%d - H:%d - Min:%d - S:%d", SysTime.wMonth, SysTime.wDay, SysTime.wHour, SysTime.wMinute, SysTime.wSecond);
-	PutString(sX + 23, sY + 204, G_cTxt, RGB(255,255,255));
+	PutString(sX + 23, sY + 204, G_cTxt,video::SColor(255,255,255,255));
 
 //v2.172
 #ifdef _DEBUG
-	PutString3(sX + 23, sY + 41, UPDATE_SCREEN_ON_SELECT_CHARACTER36, RGB(45,25,25)); // "Test server"
+	PutString3(sX + 23, sY + 41, UPDATE_SCREEN_ON_SELECT_CHARACTER36,video::SColor(255,45,25,25)); // "Test server"
 #else
 
 	if (strcmp(m_cWorldServerName, NAME_WORLDNAME1) == 0) 
-		PutString3(sX + 23, sY + 41, MSG_WORLDNAME1, RGB(45,25,25));
+		PutString3(sX + 23, sY + 41, MSG_WORLDNAME1,video::SColor(255,45,25,25));
 	
 	else if (strcmp(m_cWorldServerName, NAME_WORLDNAME2) == 0) 
-		PutString3(sX + 23, sY + 41, MSG_WORLDNAME2, RGB(45,25,25));
+		PutString3(sX + 23, sY + 41, MSG_WORLDNAME2,video::SColor(255,45,25,25));
 #endif
 
 	if ( (G_pGame->m_stMCursor.LB != 0) && m_dialogBoxes[19].IsTop() )
@@ -46701,14 +46772,14 @@ void CGame::DrawDialogBox_CrusadeJob()
 		{
 			if(m_iGuildRank != GUILDRANK_NONE && gldRankPerm[ m_iGuildRank ].crusadeCommander)
 			{
-				ButtonString(dlg, 1, DRAWDIALOGBOX_CRUSADEJOB5);
+//uncomment				ButtonString(dlg, 1, DRAWDIALOGBOX_CRUSADEJOB5);
 			}
 			
-			ButtonString(dlg, 2, DRAWDIALOGBOX_CRUSADEJOB7);
+//uncomment			ButtonString(dlg, 2, DRAWDIALOGBOX_CRUSADEJOB7);
 
 			if (m_iGuildRank != GUILDRANK_NONE)
 			{
-				ButtonString(dlg, 3, DRAWDIALOGBOX_CRUSADEJOB9);
+//uncomment				ButtonString(dlg, 3, DRAWDIALOGBOX_CRUSADEJOB9);
 			}
 		}
 
@@ -46765,8 +46836,8 @@ void CGame::_Draw_OnLogin(char *pAccount, char *pPassword, int msX, int msY, int
 
 	if (m_cCurFocus != 2) {
 		if ((m_Misc.bCheckValidString(pPassword) != FALSE))
-			 PutString(330, 309, pPassword, RGB(200,200,200), TRUE, 1);
-		else PutString(330, 309, pPassword, RGB(200,100,100), TRUE, 1);
+			 PutString(330, 309, pPassword,video::SColor(255,200,200,200), TRUE, 1);
+		else PutString(330, 309, pPassword,video::SColor(255,200,100,100), TRUE, 1);
 	}
 	if ((m_Misc.bCheckValidString(pPassword) == FALSE) || (strlen(pPassword) == 0)) bFlag = FALSE;
 
@@ -46821,82 +46892,86 @@ void CGame::_Draw_OnLogin(char *pAccount, char *pPassword, int msX, int msY, int
 }
 
 void CGame::ShowEventList(DWORD dwTime)
-{ int i;
+{
+	int i;
 
 	//DIRECTX m_DDraw._GetBackBufferDC();
 	for (i = 0; i < 6; i++)
 	if ((dwTime - m_stEventHistory[i].dwTime) < 5000)
-	{	switch (m_stEventHistory[i].cColor) {
+	{
+		switch (m_stEventHistory[i].cColor) {
 		case 0:
-			PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, RGB(225,225,225), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255, 225,225,225), FALSE, 1, TRUE);
 			break;
 		case 1:
-			PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, RGB(130,255,130), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,130,255,130), FALSE, 1, TRUE);
 			break;
 		case 2:
-			PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, RGB(255,130,130), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,255,130,130), FALSE, 1, TRUE);
 			break;
 		case 3:
-			PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, RGB(130,130,255), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,130,130,255), FALSE, 1, TRUE);
 			break;
 		case 4:
-			PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, RGB(230, 230, 130), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,230, 230, 130), FALSE, 1, TRUE);
 			break;
 		case 10:
-			PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, RGB(180,255,180), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,180,255,180), FALSE, 1, TRUE);
 			break;
 		case 20:
-			PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, RGB(150,150,170), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,150,150,170), FALSE, 1, TRUE);
 			break;
 		//case 36: // GM Helper chat (Helper chatting in global)
-		//	PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, RGB(255,153,0), FALSE, 1, TRUE);
+		//	PutString(10, 10 + i*15, m_stEventHistory[i].cTxt,video::SColor(255,255,153,0), FALSE, 1, TRUE);
 		//	break;
 		//case 37: // Vip Player chat (Helper chatting in global)
-		//	PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, RGB(255,153,0), FALSE, 1, TRUE);
+		//	PutString(10, 10 + i*15, m_stEventHistory[i].cTxt,video::SColor(255,255,153,0), FALSE, 1, TRUE);
 		//	break;
 		//case 38: // Alpha Tester chat (Helper chatting in global)
-		//	PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, RGB(255,153,0), FALSE, 1, TRUE);
+		//	PutString(10, 10 + i*15, m_stEventHistory[i].cTxt,video::SColor(255,255,153,0), FALSE, 1, TRUE);
 		//	break;
 		}
 	}
 
 	for (i = 0; i < 6; i++)
 	if ((dwTime - m_stEventHistory2[i].dwTime) < 5000)
-	{	switch (m_stEventHistory2[i].cColor) {
+	{
+		switch (m_stEventHistory2[i].cColor) {
 		case 0:
-			PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, RGB(225,225,225), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,225,225,225), FALSE, 1, TRUE);
 			break;
 		case 1:
-			PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, RGB(130,255,130), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,130,255,130), FALSE, 1, TRUE);
 			break;
 		case 2:
-			PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, RGB(255,130,130), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,255,130,130), FALSE, 1, TRUE);
 			break;
 		case 3:
-			PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, RGB(130,130,255), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,130,130,255), FALSE, 1, TRUE);
 			break;
 		case 4:
-			PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, RGB(230, 230, 130), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,230, 230, 130), FALSE, 1, TRUE);
 			break;
 		case 10:
-			PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, RGB(180,255,180), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,180,255,180), FALSE, 1, TRUE);
 			break;
 		case 20:
-			PutString(10, /*322*/435 + i*15, m_stEventHistory2[i].cTxt, RGB(150,150,170), FALSE, 1, TRUE);
+			PutFontString(font[1], 10, /*322*/435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,150,150,170), FALSE, 1, TRUE);
 			break;
 		//case 36: //besk: GM Helper chat (helper chatting in global)
-		//	PutString(10, 435 + i*15, m_stEventHistory[i].cTxt, RGB(255,153,0), FALSE, 1, TRUE);
+		//	PutString(10, 435 + i*15, m_stEventHistory[i].cTxt,video::SColor(255,255,153,0), FALSE, 1, TRUE);
 		//	break;
 		//case 37: // Vip Player chat (helper chatting in global)
-		//	PutString(10, 435 + i*15, m_stEventHistory[i].cTxt, RGB(255,153,0), FALSE, 1, TRUE);
+		//	PutString(10, 435 + i*15, m_stEventHistory[i].cTxt,video::SColor(255,255,153,0), FALSE, 1, TRUE);
 		//	break;
 		//case 38: //Alpha Tester chat (helper chatting in global)
-		//	PutString(10, 435 + i*15, m_stEventHistory[i].cTxt, RGB(255,153,0), FALSE, 1, TRUE);
+		//	PutString(10, 435 + i*15, m_stEventHistory[i].cTxt,video::SColor(255,255,153,0), FALSE, 1, TRUE);
 		//	break;
-	}	}
+		}
+	}
 	if (m_bSkillUsingStatus	== TRUE)
-	{	//PutString(280 -29, 280 -52, SHOW_EVENT_LIST1, RGB(235,235,235), FALSE, 1, TRUE);
-		PutString(350, 330, SHOW_EVENT_LIST1, RGB(235,235,235), FALSE, 1, TRUE);//besk 800x600
+	{	//PutString(280 -29, 280 -52, SHOW_EVENT_LIST1,video::SColor(255,235,235,235), FALSE, 1, TRUE);
+		PutFontString(font[1], 350, 330, SHOW_EVENT_LIST1, video::SColor(255,235,235,235), FALSE, 1, TRUE);//besk 800x600
 	}
 	//DIRECTX m_DDraw._ReleaseBackBufferDC();
 }
@@ -47095,7 +47170,7 @@ void CGame::InitDataResponseHandler(char * pData)
 
 
 	ZeroMemory(cMapFileName, sizeof(cMapFileName));
-	strcat(cMapFileName, "mapdata\\");
+	strcat(cMapFileName, "data\\mapdata\\");
 	strcat(cMapFileName, m_cMapName);
 	strcat(cMapFileName, ".amd");
 	m_pMapData->OpenMapDataFile(cMapFileName);
@@ -48491,48 +48566,49 @@ void CGame::DrawDialogBox_Help()
 	sX = m_dialogBoxes[35].m_X;
 	sY = m_dialogBoxes[35].m_Y;
 
-	if (onButton == 1)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(1), DRAW_DIALOGBOX_HELP2, RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(1), DRAW_DIALOGBOX_HELP2, RGB(4,0,50));
-	if (onButton == 2)
-		 PutAlignedString(&m_dialogBoxes[35].GetButton(2), DRAW_DIALOGBOX_HELP1, RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(2), DRAW_DIALOGBOX_HELP1, RGB(4,0,50));
-	if (onButton == 3)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(3), DRAW_DIALOGBOX_HELP3, RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(3), DRAW_DIALOGBOX_HELP3, RGB(4,0,50));
-	if (onButton == 4)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(4), DRAW_DIALOGBOX_HELP4,RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(4), DRAW_DIALOGBOX_HELP4, RGB(4,0,50));
-	if (onButton == 5)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(5), DRAW_DIALOGBOX_HELP5,RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(5), DRAW_DIALOGBOX_HELP5, RGB(4,0,50));
-	if (onButton == 6)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(6), DRAW_DIALOGBOX_HELP6, RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(6), DRAW_DIALOGBOX_HELP6, RGB(4,0,50));
-	if (onButton == 7)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(7), DRAW_DIALOGBOX_HELP7, RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(7), DRAW_DIALOGBOX_HELP7, RGB(4,0,50));
-	if (onButton == 8)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(8), DRAW_DIALOGBOX_HELP8, RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(8), DRAW_DIALOGBOX_HELP8, RGB(4,0,50));
-	if (onButton == 9)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(9), DRAW_DIALOGBOX_HELP9, RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(9), DRAW_DIALOGBOX_HELP9, RGB(4,0,50));
-	if (onButton == 10)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(10), DRAW_DIALOGBOX_HELP10, RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(10), DRAW_DIALOGBOX_HELP10, RGB(4,0,50));
-	if (onButton == 11)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(11), DRAW_DIALOGBOX_HELP11, RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(11), DRAW_DIALOGBOX_HELP11, RGB(4,0,50));
-	if (onButton == 12)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(12), DRAW_DIALOGBOX_HELP12, RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(12), DRAW_DIALOGBOX_HELP12, RGB(4,0,50));
-	if (onButton == 13)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(13), "F.A.Q.", RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(13), "F.A.Q.", RGB(4,0,50));
-	if (onButton == 14)
-		PutAlignedString(&m_dialogBoxes[35].GetButton(14), DRAW_DIALOGBOX_HELP13, RGB(255,255,255));
-	else PutAlignedString(&m_dialogBoxes[35].GetButton(14),DRAW_DIALOGBOX_HELP13,RGB(4,0,50));
+	//uncomment
+// 	if (onButton == 1)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(1), DRAW_DIALOGBOX_HELP2,video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(1), DRAW_DIALOGBOX_HELP2,video::SColor(255,4,0,50));
+// 	if (onButton == 2)
+// 		 PutAlignedString(&m_dialogBoxes[35].GetButton(2), DRAW_DIALOGBOX_HELP1,video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(2), DRAW_DIALOGBOX_HELP1,video::SColor(255,4,0,50));
+// 	if (onButton == 3)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(3), DRAW_DIALOGBOX_HELP3,video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(3), DRAW_DIALOGBOX_HELP3,video::SColor(255,4,0,50));
+// 	if (onButton == 4)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(4), DRAW_DIALOGBOX_HELP4,RGB(255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(4), DRAW_DIALOGBOX_HELP4,video::SColor(255,4,0,50));
+// 	if (onButton == 5)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(5), DRAW_DIALOGBOX_HELP5,RGB(255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(5), DRAW_DIALOGBOX_HELP5,video::SColor(255,4,0,50));
+// 	if (onButton == 6)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(6), DRAW_DIALOGBOX_HELP6,video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(6), DRAW_DIALOGBOX_HELP6,video::SColor(255,4,0,50));
+// 	if (onButton == 7)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(7), DRAW_DIALOGBOX_HELP7,video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(7), DRAW_DIALOGBOX_HELP7,video::SColor(255,4,0,50));
+// 	if (onButton == 8)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(8), DRAW_DIALOGBOX_HELP8,video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(8), DRAW_DIALOGBOX_HELP8,video::SColor(255,4,0,50));
+// 	if (onButton == 9)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(9), DRAW_DIALOGBOX_HELP9,video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(9), DRAW_DIALOGBOX_HELP9,video::SColor(255,4,0,50));
+// 	if (onButton == 10)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(10), DRAW_DIALOGBOX_HELP10,video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(10), DRAW_DIALOGBOX_HELP10,video::SColor(255,4,0,50));
+// 	if (onButton == 11)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(11), DRAW_DIALOGBOX_HELP11,video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(11), DRAW_DIALOGBOX_HELP11,video::SColor(255,4,0,50));
+// 	if (onButton == 12)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(12), DRAW_DIALOGBOX_HELP12,video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(12), DRAW_DIALOGBOX_HELP12,video::SColor(255,4,0,50));
+// 	if (onButton == 13)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(13), "F.A.Q.",video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(13), "F.A.Q.",video::SColor(255,4,0,50));
+// 	if (onButton == 14)
+// 		PutAlignedString(&m_dialogBoxes[35].GetButton(14), DRAW_DIALOGBOX_HELP13,video::SColor(255,255,255,255));
+// 	else PutAlignedString(&m_dialogBoxes[35].GetButton(14),DRAW_DIALOGBOX_HELP13,RGB(4,0,50));
 
 	if (onButton == 15)
 		 DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + RBTNPOSX, sY + BTNPOSY, 1);
@@ -48571,14 +48647,14 @@ void CGame::DrawDialogBox_Mailbox()
 		}
 	
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX1, SEND_MAIL_COST);
-		ButtonString(dlg, 1, G_cTxt);
+//uncomment		ButtonString(dlg, 1, G_cTxt);
 
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX18, m_mails.size());
-		PutAlignedLabel(sX + 161, sX + szX, sY + 35, G_cTxt);
+		PutAlignedString(sX + 161, sX + szX, sY + 35, G_cTxt);
 
-		PutAlignedLabel(sX - 20, sX + szX/2, sY + 55, DRAW_DIALOGBOX_MAILBOX2);
-		PutAlignedLabel(sX + 56, sX + szX, sY + 55, DRAW_DIALOGBOX_MAILBOX3);
-		PutAlignedLabel(sX + 158, sX + szX, sY + 55, DRAW_DIALOGBOX_MAILBOX4);
+		PutAlignedString(sX - 20, sX + szX/2, sY + 55, DRAW_DIALOGBOX_MAILBOX2);
+		PutAlignedString(sX + 56, sX + szX, sY + 55, DRAW_DIALOGBOX_MAILBOX3);
+		PutAlignedString(sX + 158, sX + szX, sY + 55, DRAW_DIALOGBOX_MAILBOX4);
 
 		for(int i = 0; i < 16; i++)
 		{
@@ -48586,7 +48662,7 @@ void CGame::DrawDialogBox_Mailbox()
 			if(idx < m_mails.size())
 			{
 				idx = m_mails.size()-1 - idx;
-				PutStringLeft(sX + 25, sX + szX/3 * 2, sY + 75 + 15*i, m_mails[idx]->title.c_str(), (onButton == i + 3));
+				PutAlignedString(sX + 25, sX + szX/3 * 2, sY + 75 + 15*i, m_mails[idx]->title.c_str(), (onButton == i + 3));
 				PutAlignedString(sX + 56, sX + szX, sY + 75 + 15*i, m_mails[idx]->sender.c_str(), (onButton == i + 3));
 				wsprintfA(G_cTxt, "%.2u/%.2u", m_mails[idx]->date.day, m_mails[idx]->date.month);
 				PutAlignedString(sX + 158, sX + szX, sY + 75 + 15*i, G_cTxt, (onButton == i + 3));
@@ -48596,50 +48672,50 @@ void CGame::DrawDialogBox_Mailbox()
 
 	case 1:
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX29, SEND_MAIL_COST + dlg.vvec.size() * SEND_MAIL_ITEM_COST);
-		PutAlignedLabel(sX + 150, sX + szX, sY + 35, G_cTxt);
+		PutAlignedString(sX + 150, sX + szX, sY + 35, G_cTxt);
 
-		ButtonString(dlg, 1, DRAW_DIALOGBOX_MAILBOX5, POS_LEFT);
-		PutStringLeft(dlg.GetButton(1).left + 20, dlg.GetButton(1).right, dlg.GetButton(1).top-1, dlg.cStr, false);
+//uncomment		ButtonString(dlg, 1, DRAW_DIALOGBOX_MAILBOX5, POS_LEFT);
+		PutAlignedString(dlg.GetButton(1).left + 20, dlg.GetButton(1).right, dlg.GetButton(1).top-1, dlg.cStr, false);
 
-		ButtonString(dlg, 2, DRAW_DIALOGBOX_MAILBOX6, POS_LEFT);
-		PutStringLeft(dlg.GetButton(2).left + 30, dlg.GetButton(2).right, dlg.GetButton(2).top-1, dlg.cStr2, false);
+//uncomment		ButtonString(dlg, 2, DRAW_DIALOGBOX_MAILBOX6, POS_LEFT);
+		PutAlignedString(dlg.GetButton(2).left + 30, dlg.GetButton(2).right, dlg.GetButton(2).top-1, dlg.cStr2, false);
 
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX7, strlen(dlg.txt), MAX_MAIL_MSG_LENGTH - 1);
-		ButtonString(dlg, 3, G_cTxt, POS_LEFT);
-		PutStringLeft(dlg.GetButton(3).left, dlg.GetButton(3).right, dlg.GetButton(3).top + 15, dlg.txt, false, true);
+//uncomment		ButtonString(dlg, 3, G_cTxt, POS_LEFT);
+		//uncomment PutAlignedString(dlg.GetButton(3).left, dlg.GetButton(3).right, dlg.GetButton(3).top + 15, dlg.txt, false, true);
 
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX8, dlg.vvec.size());
-		ButtonString(dlg, 4, G_cTxt);
+//uncomment		ButtonString(dlg, 4, G_cTxt);
 
-		if(!dlg.bFlag)
-			ButtonString(dlg, 5, DRAW_DIALOGBOX_MAILBOX9);
-		else
-			ButtonString(dlg, 5, DRAW_DIALOGBOX_MAILBOX10);
+//uncomment		if(!dlg.bFlag)
+//uncomment			ButtonString(dlg, 5, DRAW_DIALOGBOX_MAILBOX9);
+//uncomment		else
+//uncomment			ButtonString(dlg, 5, DRAW_DIALOGBOX_MAILBOX10);
 
-		ButtonString(dlg, 6, DRAW_DIALOGBOX_MAILBOX11);
+//uncomment		ButtonString(dlg, 6, DRAW_DIALOGBOX_MAILBOX11);
 		break;
 
 	case 2:
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX12, m_mails[dlg.sV1]->sender.c_str());
-		PutLabel(dlg.GetButton(1), G_cTxt, POS_LEFT);
+		//uncomment PutLabel(dlg.GetButton(1), G_cTxt, POS_LEFT);
 
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX17, m_mails[dlg.sV1]->title.c_str());
-		PutLabel(dlg.GetButton(2), G_cTxt, POS_LEFT);
+		//uncomment PutLabel(dlg.GetButton(2), G_cTxt, POS_LEFT);
 
 		sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX13, strlen(dlg.txt), MAX_MAIL_MSG_LENGTH - 1);
-		PutLabel(dlg.GetButton(3), G_cTxt, POS_LEFT);
+		//uncomment PutLabel(dlg.GetButton(3), G_cTxt, POS_LEFT);
 
 		if(m_mails[dlg.sV1]->msg)
-			PutStringLeft(dlg.GetButton(3).left, dlg.GetButton(3).right, dlg.GetButton(3).top + 15, m_mails[dlg.sV1]->msg->c_str(), false, true);
+			//uncomment PutAlignedString(dlg.GetButton(3).left, dlg.GetButton(3).right, dlg.GetButton(3).top + 15, m_mails[dlg.sV1]->msg->c_str(), false, true);
 
 		if(m_mails[dlg.sV1]->items.size() > 0)
 		{
 			sprintf(G_cTxt, DRAW_DIALOGBOX_MAILBOX14, m_mails[dlg.sV1]->items.size());
-			ButtonString(dlg, 4, G_cTxt);
+//uncomment			ButtonString(dlg, 4, G_cTxt);
 		}
 
-		ButtonString(dlg, 5, DRAW_DIALOGBOX_MAILBOX15);
-		ButtonString(dlg, 6, DRAW_DIALOGBOX_MAILBOX16);
+//uncomment		ButtonString(dlg, 5, DRAW_DIALOGBOX_MAILBOX15);
+//uncomment		ButtonString(dlg, 6, DRAW_DIALOGBOX_MAILBOX16);
 		break;
 
 	case 3:
@@ -48654,21 +48730,21 @@ void CGame::DrawDialogBox_Mailbox()
 			if(i < dlg.vvec.size())
 			{
 				const char * itemname = GetItemName(m_pItemList[ dlg.vvec[i].index ], true) ->begin()->c_str();
-				if(dlg.vvec[i].count == 1)
-					ButtonString(dlg, i+1, itemname);
-				else {
-					wsprintfA(G_cTxt, "%u %s", dlg.vvec[i].count, itemname);
-					ButtonString(dlg, i+1, G_cTxt);
-				}
+//uncomment				if(dlg.vvec[i].count == 1)
+//uncomment					ButtonString(dlg, i+1, itemname);
+//uncomment				else {
+//uncomment					wsprintfA(G_cTxt, "%u %s", dlg.vvec[i].count, itemname);
+//uncomment					ButtonString(dlg, i+1, G_cTxt);
+//uncomment				}
 			}
 		}
 
-		ButtonString(dlg, 11, DRAW_DIALOGBOX_MAILBOX28);
-		ButtonString(dlg, 12, DRAW_DIALOGBOX_MAILBOX11);
+//uncomment		ButtonString(dlg, 11, DRAW_DIALOGBOX_MAILBOX28);
+//uncomment		ButtonString(dlg, 12, DRAW_DIALOGBOX_MAILBOX11);
 		break;
 
 	case 4:
-		ButtonString(dlg, 15, DRAW_DIALOGBOX_MAILBOX16);
+//uncomment		ButtonString(dlg, 15, DRAW_DIALOGBOX_MAILBOX16);
 
 		if(isItemLoaded == false)
 		{
@@ -48720,7 +48796,7 @@ void CGame::DrawDialogBox_Mailbox()
 
 				while(iter != end)
 				{
-					PutString(sX + 70, sY +25 +iLoc, iter->c_str(), RGB(150,150,150), FALSE, 1);
+					PutString(sX + 70, sY +25 +iLoc, iter->c_str(),video::SColor(255,150,150,150), FALSE, 1);
 					iLoc += 13;
 					++iter;
 				}
@@ -48744,10 +48820,10 @@ void CGame::DrawDialogBox_Mailbox()
 			}
 			else if(iter != end)
 			{
-				if (m_itemColor != RGB(255,255,255))
-					PutAlignedString(sX, sX+szX, sY + 110 + i*15, iter->c_str(), m_itemColor);
+				if (video::SColor(m_itemColor) !=video::SColor(255,255,255,255))
+					PutAlignedString(sX, sX+szX, sY + 110 + i*15, iter->c_str(), video::SColor(m_itemColor));
 				else
-					PutAlignedString(sX, sX+szX, sY + 110 + i*15, iter->c_str(), 0, 0, 0);
+					PutAlignedString(sX, sX+szX, sY + 110 + i*15, iter->c_str(), video::SColor(255, 0, 0, 0));
 			}
 		}
 
@@ -49621,24 +49697,24 @@ void CGame::DrawDialogBox_ChangeStatsMajestic()
 	for(int i = 0; i < 6; i++) statsChanged -= m_luStat[i];
 	majPointsUsed = (statsChanged + 2) / 3;
 
-	PutString(sX + 20,  sY + 85, DRAW_DIALOGBOX_LEVELUP_SETTING16, RGB(0,0,0));
+	PutString(sX + 20,  sY + 85, DRAW_DIALOGBOX_LEVELUP_SETTING16,video::SColor(255,0,0,0));
 	wsprintfA(cTxt, "%d", m_iGizonItemUpgradeLeft - majPointsUsed);
 	if (majPointsUsed > 0){	
-		PutString(sX + 75,  sY + 102, cTxt, RGB(0,255,0));
+		PutString(sX + 75,  sY + 102, cTxt,video::SColor(255,0,255,0));
 	}else{	
-		PutString(sX + 75,  sY + 102, cTxt, RGB(0,0,0));
+		PutString(sX + 75,  sY + 102, cTxt,video::SColor(255,0,0,0));
 	}
 
 	// Strength
-	PutString(sX + 24, sY + 125, DRAW_DIALOGBOX_LEVELUP_SETTING4, RGB(5,5,5));
+	PutString(sX + 24, sY + 125, DRAW_DIALOGBOX_LEVELUP_SETTING4,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_STR] - m_angelStat[STAT_STR]);
-	PutString(sX + 109, sY + 125, cTxt, RGB(25,35,25));
+	PutString(sX + 109, sY + 125, cTxt,video::SColor(255,25,35,25));
 	iStats = m_stat[STAT_STR] + m_luStat[STAT_STR] - m_angelStat[STAT_STR];
 	wsprintfA(cTxt, "%d", iStats);
 	if (m_luStat[STAT_STR] != 0){	
-		PutString(sX + 162, sY + 125, cTxt, RGB(255,0,0));
+		PutString(sX + 162, sY + 125, cTxt,video::SColor(255,255,0,0));
 	}else{	
-		PutString(sX + 162, sY + 125, cTxt, RGB(25,35,25));
+		PutString(sX + 162, sY + 125, cTxt,video::SColor(255,25,35,25));
 	}
 	if (onButton == 1 && m_luStat[STAT_STR] != 0)
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 195, sY + 127, 5, dwTime);
@@ -49646,15 +49722,15 @@ void CGame::DrawDialogBox_ChangeStatsMajestic()
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 127, 6, dwTime);
 
 
-	PutString(sX + 24, sY + 144, DRAW_DIALOGBOX_LEVELUP_SETTING5, RGB(5,5,5));
+	PutString(sX + 24, sY + 144, DRAW_DIALOGBOX_LEVELUP_SETTING5,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_VIT]);
-	PutString(sX + 109, sY + 144, cTxt, RGB(25,35,25));
+	PutString(sX + 109, sY + 144, cTxt,video::SColor(255,25,35,25));
 	iStats = m_stat[STAT_VIT] + m_luStat[STAT_VIT];
 	wsprintfA(cTxt, "%d", iStats);
 	if (m_luStat[STAT_VIT] != 0){	
-		PutString(sX + 162, sY + 144, cTxt, RGB(255,0,0));
+		PutString(sX + 162, sY + 144, cTxt,video::SColor(255,255,0,0));
 	}else{	
-		PutString(sX + 162, sY + 144, cTxt, RGB(25,35,25));
+		PutString(sX + 162, sY + 144, cTxt,video::SColor(255,25,35,25));
 	}
 	if (onButton == 2 && m_luStat[STAT_VIT] != 0)
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 195, sY + 146, 5, dwTime);
@@ -49662,15 +49738,15 @@ void CGame::DrawDialogBox_ChangeStatsMajestic()
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 146, 6, dwTime);
 
 	// Dexterity
-	PutString(sX + 24, sY + 163, DRAW_DIALOGBOX_LEVELUP_SETTING6, RGB(5,5,5));
+	PutString(sX + 24, sY + 163, DRAW_DIALOGBOX_LEVELUP_SETTING6,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_DEX] - m_angelStat[STAT_DEX]);
-	PutString(sX + 109, sY + 163, cTxt, RGB(25,35,25));
+	PutString(sX + 109, sY + 163, cTxt,video::SColor(255,25,35,25));
 	iStats = m_stat[STAT_DEX] + m_luStat[STAT_DEX] - m_angelStat[STAT_DEX];
 	wsprintfA(cTxt, "%d", iStats);
 	if (m_luStat[STAT_DEX] != 0){	
-		PutString(sX + 162, sY + 163, cTxt, RGB(255,0,0));
+		PutString(sX + 162, sY + 163, cTxt,video::SColor(255,255,0,0));
 	}else{	
-		PutString(sX + 162, sY + 163, cTxt, RGB(25,35,25));
+		PutString(sX + 162, sY + 163, cTxt,video::SColor(255,25,35,25));
 	}
 	if (onButton == 3 && m_luStat[STAT_DEX] != 0)
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 195, sY + 165, 5, dwTime);
@@ -49678,15 +49754,15 @@ void CGame::DrawDialogBox_ChangeStatsMajestic()
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 165, 6, dwTime);
 
 	// Intelligence
-	PutString(sX + 24, sY + 182, DRAW_DIALOGBOX_LEVELUP_SETTING7, RGB(5,5,5));
+	PutString(sX + 24, sY + 182, DRAW_DIALOGBOX_LEVELUP_SETTING7,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_INT] - m_angelStat[STAT_INT]);
-	PutString(sX + 109, sY + 182, cTxt, RGB(25,35,25));
+	PutString(sX + 109, sY + 182, cTxt,video::SColor(255,25,35,25));
 	iStats = m_stat[STAT_INT] + m_luStat[STAT_INT] - m_angelStat[STAT_INT];
 	wsprintfA(cTxt, "%d", iStats);
 	if (m_luStat[STAT_INT] != 0){	
-		PutString(sX + 162, sY + 182, cTxt, RGB(255,0,0));
+		PutString(sX + 162, sY + 182, cTxt,video::SColor(255,255,0,0));
 	}else{	
-		PutString(sX + 162, sY + 182, cTxt, RGB(25,35,25));
+		PutString(sX + 162, sY + 182, cTxt,video::SColor(255,25,35,25));
 	}
 	if (onButton == 4 && m_luStat[STAT_INT] != 0)
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 195, sY + 184, 5, dwTime);
@@ -49694,15 +49770,15 @@ void CGame::DrawDialogBox_ChangeStatsMajestic()
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 184, 6, dwTime);
 
 	// Magic
-	PutString(sX + 24, sY + 201, DRAW_DIALOGBOX_LEVELUP_SETTING8, RGB(5,5,5));
+	PutString(sX + 24, sY + 201, DRAW_DIALOGBOX_LEVELUP_SETTING8,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_MAG] - m_angelStat[STAT_MAG]);
-	PutString(sX + 109, sY + 201, cTxt, RGB(25,35,25));
+	PutString(sX + 109, sY + 201, cTxt,video::SColor(255,25,35,25));
 	iStats = m_stat[STAT_MAG] + m_luStat[STAT_MAG] - m_angelStat[STAT_MAG];
 	wsprintfA(cTxt, "%d", iStats);
 	if (m_luStat[STAT_MAG] != 0){	
-		PutString(sX + 162, sY + 201, cTxt, RGB(255,0,0));
+		PutString(sX + 162, sY + 201, cTxt,video::SColor(255,255,0,0));
 	}else{	
-		PutString(sX + 162, sY + 201, cTxt, RGB(25,35,25));
+		PutString(sX + 162, sY + 201, cTxt,video::SColor(255,25,35,25));
 	}
 	if (onButton == 5 && m_luStat[STAT_MAG] != 0)
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 195, sY + 203, 5, dwTime);
@@ -49710,15 +49786,15 @@ void CGame::DrawDialogBox_ChangeStatsMajestic()
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 203, 6, dwTime);
 
 	// Charisma
-	PutString(sX + 24, sY + 220, DRAW_DIALOGBOX_LEVELUP_SETTING9, RGB(5,5,5));
+	PutString(sX + 24, sY + 220, DRAW_DIALOGBOX_LEVELUP_SETTING9,video::SColor(255,5,5,5));
 	wsprintfA(cTxt, "%d", m_stat[STAT_CHR]);
-	PutString(sX + 109, sY + 220, cTxt, RGB(25,35,25));
+	PutString(sX + 109, sY + 220, cTxt,video::SColor(255,25,35,25));
 	iStats = m_stat[STAT_CHR] + m_luStat[STAT_CHR];
 	wsprintfA(cTxt, "%d", iStats);
 	if (m_luStat[STAT_CHR] != 0){	
-		PutString(sX + 162, sY + 220, cTxt, RGB(255,0,0));
+		PutString(sX + 162, sY + 220, cTxt,video::SColor(255,255,0,0));
 	}else{	
-		PutString(sX + 162, sY + 220, cTxt, RGB(25,35,25));
+		PutString(sX + 162, sY + 220, cTxt,video::SColor(255,25,35,25));
 	}
 	if (onButton == 6 && m_luStat[STAT_CHR] !=0 )
 		m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 195, sY + 222, 5, dwTime);
@@ -50409,40 +50485,40 @@ void CGame::DrawDialogBox_FriendList()
 			for (i=0;i<m_iTotalFriends;i++) {
 				if (strcmp(friendsList[i].friendName,"") != 0) {
 					y=sY+45+((i+1)*nickheight);
-					PutString(sX+25,y,friendsList[i].friendName,RGB(0,0,0));
+					PutString(sX+25,y,friendsList[i].friendName,video::SColor(255,0,0,0));
 					if (friendsList[i].online) {
-						PutString(sX+90,y,MSG_FRIENDSLIST4,RGB(0,200,0));
+						PutString(sX+90,y,MSG_FRIENDSLIST4,video::SColor(255,0,200,0));
 					}
 					else{
-						PutString(sX+90,y,MSG_FRIENDSLIST4B,RGB(200,0,0));
+						PutString(sX+90,y,MSG_FRIENDSLIST4B,video::SColor(255,200,0,0));
 					}
 				}
 			}
 			if(m_iFriendIndex != -1){
-				PutString(sX+25,sY+45+((m_iFriendIndex+1)*nickheight),friendsList[m_iFriendIndex].friendName,RGB(255,255,255));
+				PutString(sX+25,sY+45+((m_iFriendIndex+1)*nickheight),friendsList[m_iFriendIndex].friendName,video::SColor(255,255,255,255));
 				wsprintfA(cTxt,MSG_FRIENDSLIST5,friendsList[m_iFriendIndex].friendName);
 			}else{
 				wsprintfA(cTxt,MSG_FRIENDSLIST6);
 			}
 			m_dialogBoxes[43].sV1 = m_iFriendIndex;  
-			PutString(sX+25,sY+45+(13*nickheight),cTxt,RGB(0,0,0));
+			PutString(sX+25,sY+45+(13*nickheight),cTxt,video::SColor(255,0,0,0));
 			if (onButton == 2) {
-				PutString(sX+25,sY+45+(14*nickheight),MSG_FRIENDSLIST7,RGB(255,255,255));
+				PutString(sX+25,sY+45+(14*nickheight),MSG_FRIENDSLIST7,video::SColor(255,255,255,255));
 			}
 			else {
-				PutString(sX+25,sY+45+(14*nickheight),MSG_FRIENDSLIST7,RGB(0,0,0));
+				PutString(sX+25,sY+45+(14*nickheight),MSG_FRIENDSLIST7,video::SColor(255,0,0,0));
 			}
 			if (onButton == 3) {
-				PutString(sX+80,sY+45+(14*nickheight),MSG_FRIENDSLIST8,RGB(255,255,255));
+				PutString(sX+80,sY+45+(14*nickheight),MSG_FRIENDSLIST8,video::SColor(255,255,255,255));
 			}
 			else {
-				PutString(sX+80,sY+45+(14*nickheight),MSG_FRIENDSLIST8,RGB(0,0,0));
+				PutString(sX+80,sY+45+(14*nickheight),MSG_FRIENDSLIST8,video::SColor(255,0,0,0));
 			}
 			if (onButton == 4) {
-				PutString(sX+140,sY+45+(14*nickheight),MSG_FRIENDSLIST9,RGB(255,255,255));
+				PutString(sX+140,sY+45+(14*nickheight),MSG_FRIENDSLIST9,video::SColor(255,255,255,255));
 			}
 			else {
-				PutString(sX+140,sY+45+(14*nickheight),MSG_FRIENDSLIST9,RGB(0,0,0));
+				PutString(sX+140,sY+45+(14*nickheight),MSG_FRIENDSLIST9,video::SColor(255,0,0,0));
 			}
 			break;
 	}
@@ -50652,9 +50728,9 @@ void CGame::DrawDialogBox_Shop()
 		PutAlignedString(sX +26, sX+241, sY+50, cTemp, 255,255,255);
 
 		strcpy(cTemp, DRAW_DIALOGBOX_SHOP3); //"PRICE"
-		PutString3(sX + 90, sY + 78 + 30 -10, cTemp, RGB(40,10,10));
+		PutString3(sX + 90, sY + 78 + 30 -10, cTemp,video::SColor(255,40,10,10));
 		strcpy(cTemp, DRAW_DIALOGBOX_SHOP6); // "Weight"
-		PutString3(sX + 90, sY + 93 + 30 -10, cTemp, RGB(40,10,10));
+		PutString3(sX + 90, sY + 93 + 30 -10, cTemp,video::SColor(255,40,10,10));
 
 		/*iDiscountRatio = ((m_stat[STAT_CHR] -10) / 4) ;
 		dTmp1 = (double)iDiscountRatio;
@@ -50672,20 +50748,20 @@ void CGame::DrawDialogBox_Shop()
 
 		wsprintfA(cTemp, DRAW_DIALOGBOX_SHOP7, iCost );
 		                //": %d Gold"
-		PutString(sX + 140, sY + 98, cTemp, RGB(45,25,25));
+		PutString(sX + 140, sY + 98, cTemp,video::SColor(255,45,25,25));
 
 		iTemp = m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_wWeight/100;
 		wsprintfA(cTemp, DRAW_DIALOGBOX_SHOP8, iTemp);
 		               //": %d Stone"
-		PutString(sX + 140, sY + 113, cTemp, RGB(45,25,25));
+		PutString(sX + 140, sY + 113, cTemp,video::SColor(255,45,25,25));
 
 		switch (m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_cEquipPos) {
 		case EQUIPPOS_RHAND:
 		case EQUIPPOS_TWOHAND:
 			strcpy(cTemp, DRAW_DIALOGBOX_SHOP9);  // Damage
-			PutString3(sX + 90, sY + 145, cTemp, RGB(40,10,10));
+			PutString3(sX + 90, sY + 145, cTemp,video::SColor(255,40,10,10));
 			strcpy(cTemp, DRAW_DIALOGBOX_SHOP10); //"Speed(Min.~Max.)"
-			PutString3(sX + 40, sY + 175, cTemp, RGB(40,10,10));
+			PutString3(sX + 40, sY + 175, cTemp,video::SColor(255,40,10,10));
 
 			if (m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue3 != 0)
 			{	wsprintfA(cTemp, ": %dD%d+%d (S-M)", m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue1,
@@ -50695,7 +50771,7 @@ void CGame::DrawDialogBox_Shop()
 			{	wsprintfA(cTemp, ": %dD%d (S-M)", m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue1,
 					                             m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue2);
 			}
-			PutString(sX + 140, sY + 145, cTemp, RGB(45,25,25));
+			PutString(sX + 140, sY + 145, cTemp,video::SColor(255,45,25,25));
 			if (m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue6 != 0)
 			{	wsprintfA(cTemp, ": %dD%d+%d (L)", m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue4,
 					                              m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue5,
@@ -50704,10 +50780,10 @@ void CGame::DrawDialogBox_Shop()
 			{	wsprintfA(cTemp, ": %dD%d (L)", m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue4,
 					                           m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue5);
 			}
-			PutString(sX + 140, sY + 160, cTemp, RGB(45,25,25));
+			PutString(sX + 140, sY + 160, cTemp,video::SColor(255,45,25,25));
 			if (m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_cSpeed == 0)   wsprintfA(cTemp, ": 0(10~10)");
 			else wsprintfA(cTemp, ": %d(%d ~ %d)",m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_cSpeed, iTemp,m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_cSpeed*13);
-			PutString(sX + 140, sY + 175, cTemp, RGB(45,25,25));
+			PutString(sX + 140, sY + 175, cTemp,video::SColor(255,45,25,25));
 
 			if ((m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_wWeight/100) > m_stat[STAT_STR])
 			{	wsprintfA(cTemp,DRAW_DIALOGBOX_SHOP11, (m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_wWeight/100)) ;
@@ -50719,9 +50795,9 @@ void CGame::DrawDialogBox_Shop()
 
 		case EQUIPPOS_LHAND:
 			strcpy(cTemp, DRAW_DIALOGBOX_SHOP12); // "Defence"
-			PutString3(sX + 90, sY + 145, cTemp, RGB(40,10,10));
+			PutString3(sX + 90, sY + 145, cTemp,video::SColor(255,40,10,10));
 			wsprintfA(cTemp, ": +%d%", m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue1);
-			PutString(sX + 140, sY + 145, cTemp, RGB(45,25,25));
+			PutString(sX + 140, sY + 145, cTemp,video::SColor(255,45,25,25));
 			if ((m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_wWeight/100) > m_stat[STAT_STR])
 			{	wsprintfA(cTemp,DRAW_DIALOGBOX_SHOP11, (m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_wWeight/100)) ;
 				PutAlignedString(sX +25, sX+240, sY + 258, cTemp, 195,25,25); // "*Your STR should be at least %d to use this item."
@@ -50736,13 +50812,13 @@ void CGame::DrawDialogBox_Shop()
 		case EQUIPPOS_ARMS:
 		case EQUIPPOS_PANTS:
 			strcpy(cTemp, DRAW_DIALOGBOX_SHOP12); // "Defence"
-			PutString3(sX + 90, sY + 145, cTemp, RGB(40,10,10));
+			PutString3(sX + 90, sY + 145, cTemp,video::SColor(255,40,10,10));
 			wsprintfA(cTemp, ": +%d%", m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue1);
-			PutString(sX + 140, sY + 145, cTemp, RGB(45,25,25));
+			PutString(sX + 140, sY + 145, cTemp,video::SColor(255,45,25,25));
 			strcpy(cTemp, DRAW_DIALOGBOX_SHOP28); // "Defence"
-			PutString3(sX + 90, sY + 170, cTemp, RGB(40,10,10));
+			PutString3(sX + 90, sY + 170, cTemp,video::SColor(255,40,10,10));
 			wsprintfA(cTemp, ": +%d%", m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue2);
-			PutString(sX + 140, sY + 170, cTemp, RGB(45,25,25));
+			PutString(sX + 140, sY + 170, cTemp,video::SColor(255,45,25,25));
 			bFlagStatLow = FALSE;
 			switch(m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sItemEffectValue4) {
 			case 10://"Available for above Str %d"
@@ -50847,15 +50923,15 @@ void CGame::DrawDialogBox_Shop()
 		if (m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sLevelLimit != 0)
 		{	strcpy(cTemp, DRAW_DIALOGBOX_SHOP24); // "Level"
 			if (m_iLevel >= m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sLevelLimit)
-			{	PutString(sX + 90, sY + 190, cTemp, RGB(40,10,10));
-				PutString(sX + 91, sY + 190, cTemp, RGB(40,10,10));
+			{	PutString(sX + 90, sY + 190, cTemp,video::SColor(255,40,10,10));
+				PutString(sX + 91, sY + 190, cTemp,video::SColor(255,40,10,10));
 				wsprintfA(cTemp, DRAW_DIALOGBOX_SHOP25, m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sLevelLimit);
-				PutString(sX + 140, sY + 190, cTemp, RGB(45,25,25));// ": above %d"
+				PutString(sX + 140, sY + 190, cTemp,video::SColor(255,45,25,25));// ": above %d"
 			}else
-			{	PutString(sX + 90, sY + 190, cTemp, RGB(40,10,10));
-				PutString(sX + 91, sY + 190, cTemp, RGB(40,10,10));
+			{	PutString(sX + 90, sY + 190, cTemp,video::SColor(255,40,10,10));
+				PutString(sX + 91, sY + 190, cTemp,video::SColor(255,40,10,10));
 				wsprintfA(cTemp, DRAW_DIALOGBOX_SHOP25, m_pItemForSaleList[m_dialogBoxes[11].GetMode() - 1]->m_sLevelLimit);
-				PutString(sX + 140, sY + 190, cTemp, RGB(125,25,25));// ": above %d"
+				PutString(sX + 140, sY + 190, cTemp,video::SColor(255,125,25,25));// ": above %d"
 				if (bFlagRedShown == FALSE)
 				{	strcpy(cTemp, DRAW_DIALOGBOX_SHOP26); // "(Warning!) Your level is too low for this item."
 					PutAlignedString(sX +25	  , sX+240   , sY + 258, cTemp, 195,25,25);
@@ -50865,8 +50941,8 @@ void CGame::DrawDialogBox_Shop()
 
 		m_pSprite[SPRID_INTERFACE_ND_GAME2]->PutSpriteFast(sX + 156, sY + 219, 19, dwTime);
 		m_pSprite[SPRID_INTERFACE_ND_GAME2]->PutSpriteFast(sX + 170, sY + 219, 19, dwTime);
-		PutString(sX + 123 -35, sY + 237 -10, DRAW_DIALOGBOX_SHOP27, RGB(40,10,10)); // "Quantity:"
-		PutString(sX + 124 -35, sY + 237 -10, DRAW_DIALOGBOX_SHOP27, RGB(40,10,10));
+		PutString(sX + 123 -35, sY + 237 -10, DRAW_DIALOGBOX_SHOP27,video::SColor(255,40,10,10)); // "Quantity:"
+		PutString(sX + 124 -35, sY + 237 -10, DRAW_DIALOGBOX_SHOP27,video::SColor(255,40,10,10));
 		if( iGetTopDialogBoxIndex() == 11 && G_pGame->m_stMCursor.sZ != 0 )
 		{	m_dialogBoxes[11].sV3 = m_dialogBoxes[11].sV3 + G_pGame->m_stMCursor.sZ/60;
 			//DIRECTX m_dInput.m_sZ = 0;
@@ -50894,19 +50970,19 @@ void CGame::DrawDialogBox_Shop()
 		{	ZeroMemory(cTemp, sizeof(cTemp));
 			_itoa(m_dialogBoxes[11].sV3, cTemp, 10);
 			cTemp[1] = NULL;
-			PutString(sX -35 + 186, sY -10 + 237, cTemp, RGB(40,10,10));
-			PutString(sX -35 + 187, sY -10 + 237, cTemp, RGB(40,10,10));
+			PutString(sX -35 + 186, sY -10 + 237, cTemp,video::SColor(255,40,10,10));
+			PutString(sX -35 + 187, sY -10 + 237, cTemp,video::SColor(255,40,10,10));
 			ZeroMemory(cTemp, sizeof(cTemp));
 			_itoa(m_dialogBoxes[11].sV3, cTemp, 10);
-			PutString(sX -35 + 200, sY -10 + 237, (cTemp+1), RGB(40,10,10));
-			PutString(sX -35 + 201, sY -10 + 237, (cTemp+1), RGB(40,10,10));
+			PutString(sX -35 + 200, sY -10 + 237, (cTemp+1),video::SColor(255,40,10,10));
+			PutString(sX -35 + 201, sY -10 + 237, (cTemp+1),video::SColor(255,40,10,10));
 		}else
-		{	PutString(sX -35 + 186, sY -10 + 237, "0", RGB(40,10,10));
-			PutString(sX -35 + 187, sY -10 + 237, "0", RGB(40,10,10));
+		{	PutString(sX -35 + 186, sY -10 + 237, "0",video::SColor(255,40,10,10));
+			PutString(sX -35 + 187, sY -10 + 237, "0",video::SColor(255,40,10,10));
 			ZeroMemory(cTemp, sizeof(cTemp));
 			_itoa(m_dialogBoxes[11].sV3, cTemp, 10);
-			PutString(sX -35 + 200, sY -10 + 237, (cTemp), RGB(40,10,10));
-			PutString(sX -35 + 201, sY -10 + 237, (cTemp), RGB(40,10,10));
+			PutString(sX -35 + 200, sY -10 + 237, (cTemp),video::SColor(255,40,10,10));
+			PutString(sX -35 + 201, sY -10 + 237, (cTemp),video::SColor(255,40,10,10));
 		}
 		m_pSprite[SPRID_INTERFACE_ND_GAME2]->PutSpriteFast(sX +156, sY + 244, 20, dwTime);
 		m_pSprite[SPRID_INTERFACE_ND_GAME2]->PutSpriteFast(sX +170, sY + 244, 20, dwTime);
@@ -51141,8 +51217,8 @@ void CGame::DrawDialogBox_GuildBank()
 	switch (m_dialogBoxes[56].GetMode()) 
 	{
 	case -1:
-		PutString(sX + 30 + 15, sY + 70, DRAW_DIALOGBOX_BANK1, RGB(0,0,0));
-		PutString(sX + 30 + 15, sY + 85, DRAW_DIALOGBOX_BANK2, RGB(0,0,0));
+		PutString(sX + 30 + 15, sY + 70, DRAW_DIALOGBOX_BANK1,video::SColor(255,0,0,0));
+		PutString(sX + 30 + 15, sY + 85, DRAW_DIALOGBOX_BANK2,video::SColor(255,0,0,0));
 		break;
 
 	case 0:
@@ -51196,14 +51272,14 @@ void CGame::DrawDialogBox_GuildBank()
 				int iLoc = 0;
 				if(iter != end)
 				{
-					PutString(sX + 70, sY +25, iter->c_str(), m_itemColor, FALSE, 1);
+					PutString(sX + 70, sY +25, iter->c_str(), video::SColor(m_itemColor), FALSE, 1);
 					iLoc += 13;
 					++iter;
 				}
 
 				while(iter != end)
 				{
-					PutString(sX + 70, sY +25 +iLoc, iter->c_str(), RGB(150,150,150), FALSE, 1);
+					PutString(sX + 70, sY +25 +iLoc, iter->c_str(),video::SColor(255,150,150,150), FALSE, 1);
 					iLoc += 13;
 					++iter;
 				}
@@ -51226,10 +51302,10 @@ void CGame::DrawDialogBox_GuildBank()
 				}
 			}else
 			{
-				if (m_itemColor != RGB(255,255,255))
-					PutAlignedString(sX, sX+szX, sY + 110 + i*15, iter->c_str(), m_itemColor);
+				if (video::SColor(m_itemColor) !=video::SColor(255,255,255,255))
+					PutAlignedString(sX, sX+szX, sY + 110 + i*15, iter->c_str(), video::SColor(m_itemColor));
 				else
-					PutAlignedString(sX, sX+szX, sY + 110 + i*15, iter->c_str(), 0, 0, 0);
+					PutAlignedString(sX, sX+szX, sY + 110 + i*15, iter->c_str(), video::SColor(255, 0, 0, 0));
 			}
 		}
 
@@ -51767,47 +51843,47 @@ void CGame::DrawDialogBox_ExtendedSysMenu()
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU1);
 	strcat(menuTxt, m_showGrid ? DRAW_ENABLED : DRAW_DISABLED);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(1), menuTxt, onButton == 1 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(1), menuTxt, onButton == 1 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU2);
 	strcat(menuTxt, m_tabbedNotification ? DRAW_ENABLED : DRAW_DISABLED);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(2), menuTxt, onButton == 2 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(2), menuTxt, onButton == 2 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU3);
 	strcat(menuTxt, m_ekScreenshot ? DRAW_ENABLED : DRAW_DISABLED);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(3), menuTxt, onButton == 3 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(3), menuTxt, onButton == 3 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU4);
 	strcat(menuTxt, m_showAllDmg ? DRAW_ENABLED : DRAW_DISABLED);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(4), menuTxt, onButton == 4 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(4), menuTxt, onButton == 4 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU5);
 	strcat(menuTxt, m_showTimeStamp ? DRAW_ENABLED : DRAW_DISABLED);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(5), menuTxt, onButton == 5 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(5), menuTxt, onButton == 5 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU6);
 	strcat(menuTxt, m_bigItems ? DRAW_ENABLED : DRAW_DISABLED);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(6), menuTxt, onButton == 6 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(6), menuTxt, onButton == 6 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU7);
 	strcat(menuTxt, m_windowsKey ? DRAW_ENABLED : DRAW_DISABLED);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(7), menuTxt, onButton == 7 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(7), menuTxt, onButton == 7 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU8);
 	strcat(menuTxt, m_showTime ? DRAW_ENABLED : DRAW_DISABLED);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(8), menuTxt, onButton == 8 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(8), menuTxt, onButton == 8 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU9);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(9), menuTxt, onButton == 9 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(9), menuTxt, onButton == 9 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU10);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(10), menuTxt, onButton == 10 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(10), menuTxt, onButton == 10 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU11);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(11), menuTxt, onButton == 11 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(11), menuTxt, onButton == 11 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU12);
-	PutAlignedString(&m_dialogBoxes[59].GetButton(12), menuTxt, onButton == 12 ? RGB(255,255,255) : RGB(4, 0, 50));
+//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(12), menuTxt, onButton == 12 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
 	
 }
 
@@ -51912,14 +51988,14 @@ void CGame::DrawDialogBox_MuteList()
 			mutes < m_dialogBoxes[60].sView + maxShown)
 		{
 			overButton = mutes + 3 - m_dialogBoxes[60].sView;
-			PutStringLeft(&m_dialogBoxes[60].GetButton(overButton), it->c_str(), (onButton == overButton) ? RGB(255,255,255) : RGB(0,0,0));
+//uncomment 			PutAlignedString(&m_dialogBoxes[60].GetButton(overButton), it->c_str(), (onButton == overButton) ?video::SColor(255,255,255,255) :video::SColor(255,0,0,0));
 		}
 	}
 
 	wsprintfA(playerTxt, MSG_FRIENDSLIST5, m_dialogBoxes[60].cStr);
-	PutString(sX+ 30, m_dialogBoxes[60].ButtonY(2) - 15, playerTxt, RGB(0,0,0));
+	PutString(sX+ 30, m_dialogBoxes[60].ButtonY(2) - 15, playerTxt,video::SColor(255,0,0,0));
 
-	PutAlignedString(&m_dialogBoxes[60].GetButton(2), DRAW_MUTELIST1, onButton == 2 ? RGB(255,255,255) : RGB(0,0,0));
+//uncomment 	PutAlignedString(&m_dialogBoxes[60].GetButton(2), DRAW_MUTELIST1, onButton == 2 ?video::SColor(255,255,255,255) :video::SColor(255,0,0,0));
 
 	Point pointerLoc = m_dialogBoxes[60].HandleScroll(maxShown, mutes);
 	if (mutes > maxShown) {
@@ -52130,8 +52206,8 @@ void CGame::DrawDialogBox_QuestList()
 						}
 
 						if (onButton == i + 1)
-							colour = RGB(255,255,255);
-						else colour = RGB(4,0,50);
+							colour =video::SColor(255,255,255,255).color;
+						else colour =video::SColor(255,4,0,50).color;
 
 						PutString(sX + 20, sY + 45 + i*15, cTemp, colour);
 						PutString(sX + 123, sY + 45 + i*15, cTemp2, colour);
@@ -52317,17 +52393,17 @@ void CGame::DrawDialogBox_Skill()
 			ZeroMemory(cTemp2, sizeof(cTemp2));
 			wsprintfA(cTemp2, "%3d%%", m_pSkillCfgList[skillIndex + m_dialogBoxes[15].sView]->m_iLevel);
 
-			COLORREF colour = RGB(5,5,5);
+			COLORREF colour =video::SColor(255,5,5,5);
 			if(m_pSkillCfgList[ skillIndex+m_dialogBoxes[15].sView ]->m_bIsUseable
 				&& m_pSkillCfgList[ skillIndex+m_dialogBoxes[15].sView ]->m_iLevel != 0)
 				{
 				if (onButton == line + 1)
 				{
-					colour = RGB(255,255,255);
+					colour =video::SColor(255,255,255,255);
 				}
 			else
 				{
-					colour = RGB(34,30,120);
+					colour =video::SColor(255,34,30,120);
 				}
 			}
 
@@ -53734,23 +53810,23 @@ void CGame::isValue(uint32 value)
 {
 	if(value < 30) {
 		isCommon = true;
-		m_itemColor = RGB(255,255,255);
+		m_itemColor =video::SColor(255,255,255,255);
 		isUncommon = isRare = isEpic = isLegendary = false;
 	} else if((value >= 30) && (value < 60)) {
 		isUncommon = true;
-		m_itemColor = RGB(0,200,0);
+		m_itemColor =video::SColor(255,0,200,0);
 		isCommon = isRare = isEpic = isLegendary = false;
 	} else if((value >= 60) && (value < 80)) {
 		isRare = true;
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 		isCommon = isUncommon = isEpic = isLegendary = false;
 	} else if((value >= 80) && (value < 100)) {
 		isEpic = true;
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 		isCommon = isUncommon = isRare = isLegendary = false;
 	} else if((value >= 100)) {
 		isLegendary = true;
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 		isCommon = isUncommon = isRare = isEpic = false;
 	}
 }
@@ -53763,119 +53839,119 @@ void CGame::HandleItemDescription(CItem * item)
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MELEEDAMAGE, 50);
 	}else if (strcmp(item->m_cName,"RingofDragonpower") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MELEEDAMAGE, 60);
-		m_itemColor = RGB(0,200,0);
+		m_itemColor =video::SColor(255,0,200,0);
 	}else if (strcmp(item->m_cName,"RingoftheXelima") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MELEEDAMAGE, 70);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if (strcmp(item->m_cName,"RingoftheAbaddon") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MELEEDAMAGE, 100);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if (strcmp(item->m_cName,"RingofWizard") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MAGICDAMAGE, 5);
 	}else if (strcmp(item->m_cName,"RingofMage") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MAGICDAMAGE, 10);
-		m_itemColor = RGB(0,200,0);
+		m_itemColor =video::SColor(255,0,200,0);
 	}else if (strcmp(item->m_cName,"RingofGrandMage") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MAGICDAMAGE, 15);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if (strcmp(item->m_cName,"RingofArchmage") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MAGICDAMAGE, 20);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfMerien") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_DEFENSE, 500);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "MerienShield") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MERIENSHIELD, 60);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "MerienPlateMailM") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MERIENARMOR, 60);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "MerienPlateMailW") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MERIENARMOR, 60);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "MagicWand(M.Shield)") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MSHIELDWAND, 14);
 	}else if(strcmp(item->m_cName, "NecklaceOfKloness") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_REPDAMAGE, 1, 100);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "KlonessWand(MS.20)") == 0 || strcmp(item->m_cName, "KlonessWand(MS.10)") == 0 || strcmp(item->m_cName, "KlonessEsterk") == 0
 			|| strcmp(item->m_cName, "KlonessBlade") == 0 || strcmp(item->m_cName, "KlonessAxe") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_REPDAMAGE, 1, 100);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfXelima") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_XELIMANECK, 160);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "XelimaBlade") == 0 || strcmp(item->m_cName, "XelimaAxe") == 0 || strcmp(item->m_cName, "XelimaRapier") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_XELIMAWEAPON, 50);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "Excaliber") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_EXCALIBER);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "DarkElfBow") == 0){
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfLightPro") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_AIRABSORBNECK, 25);
-		m_itemColor = RGB(0,200,0);
+		m_itemColor =video::SColor(255,0,200,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfAirEle") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_AIRABSORBNECK, 50);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfFirePro") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_FIREABSORBNECK, 25);
-		m_itemColor = RGB(0,200,0);
+		m_itemColor =video::SColor(255,0,200,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfEfreet") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_FIREABSORBNECK, 50);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfIcePro") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ICEABSORBNECK1, 25, 50);
-		m_itemColor = RGB(0,200,0);
+		m_itemColor =video::SColor(255,0,200,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfIceEle") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ICEABSORBNECK2, 50);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfPoisonPro") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_POISONABSORBNECK1, 50);
-		m_itemColor = RGB(0,200,0);
+		m_itemColor =video::SColor(255,0,200,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfSufferent") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_POISONABSORBNECK2, 100);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfBeholder") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_NECKOFBEHOLDER);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "NecklaceOfLiche") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MAGICSAVE, 35);
-		m_itemColor = RGB(190,119,119);
+		m_itemColor =video::SColor(255,190,119,119);
 	}else if(strcmp(item->m_cName, "NecklaceOfStoneGol") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_DEFENSE, 400);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "RingoftheXelima") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MELEEDAMAGE, 75);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "SwordofMedusa") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MEDUSASWORD, 60);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "SwordofIceElemental") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ICEELESWORD);
-		m_itemColor = RGB(0,200,0);
+		m_itemColor =video::SColor(255,0,200,0);
 	}else if(strcmp(item->m_cName, "DemonSlayer") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_DEMONSLAYER);
-		m_itemColor = RGB(150,0,0);
+		m_itemColor =video::SColor(255,150,0,0);
 	}else if(strcmp(item->m_cName, "StormBringer") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_STORMBRINGER);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "DarkExecutor") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_DARKEXECUTOR);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "LightingBlade") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_LIGHTINGBLADE);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "BerserkWand(MS.20)") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ZERKWAND, 30);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "BerserkWand(MS.10)") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ZERKWAND, 30);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "ResurWand(MS.20)") == 0 || strcmp(item->m_cName, "ResurWand(MS.10)") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_REZZWAND, 100, 100);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "LegendWand(MS25)") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_LEGENDWAND, 10);
 	}else if(strcmp(item->m_cName, "CritPot") == 0){
@@ -53975,7 +54051,7 @@ void CGame::HandleItemDescription(CItem * item)
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_POWERGREENPOTION, 30);
 	}else if(strcmp(item->m_cName, "BloodSword") == 0 || strcmp(item->m_cName, "BloodAxe") == 0 || strcmp(item->m_cName, "BloodRapier") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_BLOODWEAPON, 20);
-		m_itemColor = RGB(125,0,0);
+		m_itemColor =video::SColor(255,125,0,0);
 	}else if(strcmp(item->m_cName, "StoneOfXelima") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_XELIMASTONE);
 	}else if(strcmp(item->m_cName, "StoneOfMerien") == 0){
@@ -54024,177 +54100,177 @@ void CGame::HandleItemDescription(CItem * item)
 
 	if(strcmp(item->m_cName, "RingOfWis") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_WISDOM, 50);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "NeckOfWis") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_WISDOM, 50);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "RingOfGWis") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_GREATERWISDOM, 100);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "NeckOfGWis") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_GREATERWISDOM, 100);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "RingOfAncWis") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ANCIENTWISDOM, 150);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "NeckOfAncWis") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ANCIENTWISDOM, 150);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "RingOfReg") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_REGENRATION, 20);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "NeckOfReg") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_REGENRATION, 25);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "RingOfGReg") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_GREATERREGENRATION, 45);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "NeckOfGReg") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_GREATERREGENRATION, 55);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "RingOfAncReg") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ANCIENTREGENRATION, 105);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "NeckOfAncReg") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ANCIENTREGENRATION, 125);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "WandOfWitch") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_WANDOFWITCH, 12);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "WandOfGWitch") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_WANDOFGWITCH, 14);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "WandOfAncWitch") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_WANDOFANCWITCH, 18);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "HamOfWrathran") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_HAMOFWRATHRAN);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "HamOfGWrathran") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_HAMOFWRATHRAN);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "HamOfAncWrathran") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_HAMOFWRATHRAN);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "G.Zerk.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_GZERKMANUAL);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "A.Zerk.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_AZERKMANUAL);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "Scan.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_SCANMANUAL);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "I.S.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ISMANUAL);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "B.S.W.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_BSWMANUAL);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "M.H.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MHMANUAL);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "M.S.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MSMANUAL);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "C.O.T.G.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_COTGMANUAL);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "S.O.T.G.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_SOTGMANUAL);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "M.B.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MBMANUAL);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "F.S.W.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_FSWMANUAL);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "L.C.Manual") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_LCMANUAL);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "Greater(M.Shield)") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_GREATERMSHIELD, 22);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "MagicMissleBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ENERGYSTRIKEBS, 22);
-		m_itemColor = RGB(255,255,255);
+		m_itemColor =video::SColor(255,255,255,255);
 	}else if(strcmp(item->m_cName, "EnergyBoltBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ENERGYBOLTBS, 22);
-		m_itemColor = RGB(255,255,255);
+		m_itemColor =video::SColor(255,255,255,255);
 	}else if(strcmp(item->m_cName, "FireBallBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_FIREBALLBS, 22);
-		m_itemColor = RGB(255,255,255);
+		m_itemColor =video::SColor(255,255,255,255);
 	}else if(strcmp(item->m_cName, "GreatHealBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_GREATHEALBS, 22);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "FireStrikeBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_FIRESTRIKEBS, 22);
-		m_itemColor = RGB(255,255,255);
+		m_itemColor =video::SColor(255,255,255,255);
 	}else if(strcmp(item->m_cName, "TriEnergyBoltBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_TRIPLEENERGYBOLTBS, 22);
-		m_itemColor = RGB(0,200,0);
+		m_itemColor =video::SColor(255,0,200,0);
 	}else if(strcmp(item->m_cName, "ChillWindBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_CHILLWINDBS, 22);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "BerserkBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_BERSERKBS, 22);
-		m_itemColor = RGB(0,0,200);
+		m_itemColor =video::SColor(255,0,0,200);
 	}else if(strcmp(item->m_cName, "IceStrikeBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ICESTRIKEBS, 22);
-		m_itemColor = RGB(0,200,0);
+		m_itemColor =video::SColor(255,0,200,0);
 	}else if(strcmp(item->m_cName, "EnergyStrikeBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ENERGYSTRIKEBS, 22);
-		m_itemColor = RGB(0,200,0);
+		m_itemColor =video::SColor(255,0,200,0);
 	}else if(strcmp(item->m_cName, "M.ChillWindBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MASSCHILLWINDBS, 22);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "ArmorBreakBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ARMORBREAKBS, 22);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "G.BerserkBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_GREATBERSERKBS, 22);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "M.IceStrikeBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MASSICESTRIKEBS, 22);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "A.BerserkBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_ANCIENTBERSERKBS, 22);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "LightStrikeBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_LIGHTNINGSTRIKEBS, 22);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "MeteorStrikeBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_METEORSTRIKEBS, 22);
-		m_itemColor = RGB(225,191,0);
+		m_itemColor =video::SColor(255,225,191,0);
 	}else if(strcmp(item->m_cName, "MassHealBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_MASSHEALBS, 22);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "BlizzardBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_BLIZZARDBS, 22);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "E.S.WBS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_EARTHSHOCKWAVEBS, 22);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}/*else if(strcmp(item->m_cName, "BS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_BS, 22);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}else if(strcmp(item->m_cName, "BS") == 0){
 		wsprintfA(G_cTxt, ITEM_DESCRIPTION_BS, 22);
-		m_itemColor = RGB(225,132,0);
+		m_itemColor =video::SColor(255,225,132,0);
 	}*/
 
 	// String search classification
 	if(strstr(item->m_cName, "Manual") != NULL)
 	{
-		m_itemColor = RGB(150,241,255);
+		m_itemColor =video::SColor(255,150,241,255);
 	} else if(strstr(item->m_cName, "Potion") != NULL) {
-		m_itemColor = RGB(0,186,255);
+		m_itemColor =video::SColor(255,0,186,255);
 	} else if(strstr(item->m_cName, "Rune") != NULL) {
 		if(strstr(item->m_cName, "Master") != NULL)
 		{
-			m_itemColor = RGB(225,132,0);
+			m_itemColor =video::SColor(255,225,132,0);
 		} else {
-			m_itemColor = RGB(225,191,0);
+			m_itemColor =video::SColor(255,225,191,0);
 		}
 	}
 

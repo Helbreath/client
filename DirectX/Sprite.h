@@ -63,6 +63,8 @@ public:
 	virtual ~CSprite();
 	static CSprite * CreateSprite(wchar_t * cPakFileName, short sNthFile, bool bAlphaEffect = TRUE);
 	void DrawSubSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
+	void DrawSpriteNCK(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
+	void DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
 	void DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
 	void DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
 	void DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
@@ -108,7 +110,7 @@ public:
 // 	void _iCloseSprite();
 // 	bool _iOpenSprite();
 	bool _iOpenSprite() { return _pMakeSpriteSurface() != 0; }
-	void _iCloseSprite() { _localimage->drop(); m_bIsSurfaceEmpty = TRUE; }
+	void _iCloseSprite() { /*OutputDebugStringW((L"Unloaded image: " + m_cPakFileName + L"\n").c_str()); if (_localimage) _localimage->drop(); m_bIsSurfaceEmpty = TRUE;*/ }
 	void iRestore();
 	//IDirectDrawSurface7 *  _pMakeSpriteSurface();
 

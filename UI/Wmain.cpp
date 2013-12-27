@@ -55,71 +55,73 @@ DWORD G_dwCalcSocketTime = NULL, G_dwCalcSocketSendTime = NULL;
 char G_cCmdLine[256], G_cCmdLineTokenA[120], G_cCmdLineTokenA_Lowercase[120], G_cCmdLineTokenB[120], G_cCmdLineTokenC[120], G_cCmdLineTokenD[120], G_cCmdLineTokenE[120];
 
 video::E_DRIVER_TYPE driverType = video::EDT_OPENGL;
+//video::E_DRIVER_TYPE driverType = video::EDT_SOFTWARE;
+//video::E_DRIVER_TYPE driverType = video::EDT_DIRECT3D9;
 
 // --------------------------------------------------------------
 
-// LRESULT CALLBACK WndProc(HWND hWnd,UINT message,WPARAM wParam, LPARAM lParam)
-// { 
-// 	if(G_pGame->GetText( hWnd, message, wParam, lParam)) return 0;
-// 	//disables alt-f4 if ((message == 0x104) && (((int)lParam) == 0x203e0001)) return 0;
-// 
-// 	switch (message) {
-// 	case WM_USER_CALCSOCKETEVENT:
-// 		G_pGame->_CalcSocketClosed();
-// 		break;
-// 
-// 	case WM_CLOSE:
-// 		if ( (G_pGame->m_cGameMode == GAMEMODE_ONMAINGAME) && ( G_pGame->m_bForceDisconn == FALSE ) )
-// 		{
-// 			if (!G_pGame->m_bSkillUsingStatus)
-// 			{
-// 				if( G_pGame->m_cLogOutCount == -1 )
-// 
-// #ifdef _DEBUG
-// 					G_pGame->m_cLogOutCount = 1;
-// #else
-// 					G_pGame->m_cLogOutCount = 11; // Instant Log out xRisenx 1 / 11 Logout
-// #endif
-// 				else {
-// 					G_pGame->m_cLogOutCount = -1;
-// 				}
-// 				G_pGame->PlaySound('E', 14, 5);
-// 			} else {
-// 				G_pGame->AddEventList("Logout was canceled because your using a skill!", 10);
-// 			}
-// 		}
-// 		else if (G_pGame->m_cGameMode == GAMEMODE_ONLOADING) return (DefWindowProc(hWnd, message, wParam, lParam));
-// 		else if (G_pGame->m_cGameMode == GAMEMODE_ONMAINMENU) G_pGame->ChangeGameMode(GAMEMODE_ONQUIT);
-// 		break;
-// 	
-// 	case WM_SYSCOMMAND:
-// 		if((wParam&0xFFF0)==SC_SCREENSAVE || (wParam&0xFFF0)==SC_MONITORPOWER) 
-// 			return 0; 
-// 		return DefWindowProc(hWnd, message, wParam, lParam);
-// 			
-// 	case WM_USER_TIMERSIGNAL:
-// 		G_pGame->OnTimer();
-// 		break;
-// 
-// 	case WM_KEYDOWN:
-// 		G_pGame->OnKeyDown(wParam);
-// 		return (DefWindowProc(hWnd, message, wParam, lParam));
-// 		
-// 	case WM_KEYUP:
-// 		G_pGame->OnKeyUp(wParam);
-// 		return (DefWindowProc(hWnd, message, wParam, lParam));
-// 
-// 	case WM_SYSKEYDOWN:
-// 		G_pGame->OnSysKeyDown(wParam);
-// 		return (DefWindowProc(hWnd, message, wParam, lParam));
-// 		break;
-// 
-// 	case WM_SYSKEYUP:
-// 		G_pGame->OnSysKeyUp(wParam);
-// 		return (DefWindowProc(hWnd, message, wParam, lParam));
-// 		break;
-// 
-// 	case WM_ACTIVATEAPP:
+LRESULT CALLBACK WndProc(HWND hWnd,UINT message,WPARAM wParam, LPARAM lParam)
+{ 
+	if(G_pGame->GetText( hWnd, message, wParam, lParam)) return 0;
+	//disables alt-f4 if ((message == 0x104) && (((int)lParam) == 0x203e0001)) return 0;
+
+	switch (message) {
+	case WM_USER_CALCSOCKETEVENT:
+		G_pGame->_CalcSocketClosed();
+		break;
+
+	case WM_CLOSE:
+		if ( (G_pGame->m_cGameMode == GAMEMODE_ONMAINGAME) && ( G_pGame->m_bForceDisconn == FALSE ) )
+		{
+			if (!G_pGame->m_bSkillUsingStatus)
+			{
+				if( G_pGame->m_cLogOutCount == -1 )
+
+#ifdef _DEBUG
+					G_pGame->m_cLogOutCount = 1;
+#else
+					G_pGame->m_cLogOutCount = 11; // Instant Log out xRisenx 1 / 11 Logout
+#endif
+				else {
+					G_pGame->m_cLogOutCount = -1;
+				}
+				G_pGame->PlaySound('E', 14, 5);
+			} else {
+				G_pGame->AddEventList("Logout was canceled because your using a skill!", 10);
+			}
+		}
+		else if (G_pGame->m_cGameMode == GAMEMODE_ONLOADING) return (DefWindowProc(hWnd, message, wParam, lParam));
+		else if (G_pGame->m_cGameMode == GAMEMODE_ONMAINMENU) G_pGame->ChangeGameMode(GAMEMODE_ONQUIT);
+		break;
+	
+	case WM_SYSCOMMAND:
+		if((wParam&0xFFF0)==SC_SCREENSAVE || (wParam&0xFFF0)==SC_MONITORPOWER) 
+			return 0; 
+		return DefWindowProc(hWnd, message, wParam, lParam);
+			
+	case WM_USER_TIMERSIGNAL:
+		G_pGame->OnTimer();
+		break;
+
+	case WM_KEYDOWN:
+		G_pGame->OnKeyDown(wParam);
+		return (DefWindowProc(hWnd, message, wParam, lParam));
+		
+	case WM_KEYUP:
+		G_pGame->OnKeyUp(wParam);
+		return (DefWindowProc(hWnd, message, wParam, lParam));
+
+	case WM_SYSKEYDOWN:
+		G_pGame->OnSysKeyDown(wParam);
+		return (DefWindowProc(hWnd, message, wParam, lParam));
+		break;
+
+	case WM_SYSKEYUP:
+		G_pGame->OnSysKeyUp(wParam);
+		return (DefWindowProc(hWnd, message, wParam, lParam));
+		break;
+
+	case WM_ACTIVATEAPP:
 // 		if( wParam == 0 ) 
 // 		{	G_pGame->m_bIsProgramActive = FALSE;
 // 			G_pGame->m_DInput.SetAcquire(FALSE);
@@ -137,34 +139,34 @@ video::E_DRIVER_TYPE driverType = video::EDT_OPENGL;
 // 			{	G_pGame->ChangeGameMode(GAMEMODE_ONQUIT);
 // 				return NULL;
 // 		}	}
-// 		return DefWindowProc(hWnd, message, wParam, lParam);
-// 
-// 	case WM_SETCURSOR:
-// 		SetCursor(NULL);
-// 		return TRUE;
-// 
-// 	case WM_DESTROY:
-// 		OnDestroy();
-// 		return DefWindowProc(hWnd, message, wParam, lParam);
-// 		break;
-// 		
-// 	case WM_USER_GAMESOCKETEVENT:
-// 		G_pGame->OnGameSocketEvent(wParam, lParam);
-// 		break;
-// 
-// 	case WM_USER_LOGSOCKETEVENT:
-// 		G_pGame->OnLogSocketEvent(wParam, lParam);
-// 		break;
-// 
-// 	case WM_USER_VOTESOCKETEVENT:
-// 		G_pGame->OnVoteSocketEvent(wParam, lParam);
-// 		break;
-// 		
-// 	default: 
-// 		return (DefWindowProc(hWnd, message, wParam, lParam));
-// 	}	
-// 	return NULL;
-// }
+		return DefWindowProc(hWnd, message, wParam, lParam);
+
+	case WM_SETCURSOR:
+		//SetCursor(NULL);
+		return TRUE;
+
+	case WM_DESTROY:
+		//OnDestroy();
+		return DefWindowProc(hWnd, message, wParam, lParam);
+		break;
+		
+	case WM_USER_GAMESOCKETEVENT:
+		G_pGame->OnGameSocketEvent(wParam, lParam);
+		break;
+
+	case WM_USER_LOGSOCKETEVENT:
+		G_pGame->OnLogSocketEvent(wParam, lParam);
+		break;
+
+	case WM_USER_VOTESOCKETEVENT:
+		G_pGame->OnVoteSocketEvent(wParam, lParam);
+		break;
+		
+	//default: 
+		//return (DefWindowProc(hWnd, message, wParam, lParam));
+	}	
+	return NULL;
+}
 
 int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
                LPSTR lpCmdLine, int nCmdShow )
@@ -223,9 +225,28 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	G_pGame->device->getFileSystem()->changeWorkingDirectoryTo(L"../");
 
 
-	irr::gui::IGUISkin * guiskin = G_pGame->device->getGUIEnvironment()->getSkin();
-	G_pGame->font[0]  = G_pGame->device->getGUIEnvironment()->getBuiltInFont();
+	irr::gui::IGUISkin * guiskin = G_pGame->env->getSkin();
+	G_pGame->font[FONT_BUILTIN]  = G_pGame->env->getBuiltInFont();
+	G_pGame->font[FONT_TREBMS10PX]  = G_pGame->env->getFont(L"fonts/treb10px.xml");
+	G_pGame->font[FONT_TREBMS8PX]  = G_pGame->env->getFont(L"fonts/treb8px.xml");
+	//font[TESTFONT3] = device->getGUIEnvironment()->getFont(L"fonts/myfont.xml");
+	//font[DEFAULT] = device->getGUIEnvironment()->getFont(L"fonts/dfont.xml");
+	//font[TESTFONT2] = device->getGUIEnvironment()->getFont(L"fonts/fonthaettenschweiler.bmp");
 
+	//set skin defaults
+#define setskincolor(x) guiskin->setColor(x, guiskin->getColor(x) + SColor(255,0,0,0))
+	setskincolor(irr::gui::EGDC_3D_FACE);
+	setskincolor(irr::gui::EGDC_3D_SHADOW);
+	setskincolor(irr::gui::EGDC_ACTIVE_CAPTION);
+	setskincolor(irr::gui::EGDC_ACTIVE_BORDER);
+	setskincolor(irr::gui::EGDC_3D_DARK_SHADOW);
+	setskincolor(irr::gui::EGDC_3D_HIGH_LIGHT);
+	setskincolor(irr::gui::EGDC_BUTTON_TEXT);
+	setskincolor(irr::gui::EGDC_HIGH_LIGHT_TEXT);
+	setskincolor(irr::gui::EGDC_HIGH_LIGHT);
+	setskincolor(irr::gui::EGDC_WINDOW);
+	setskincolor(irr::gui::EGDC_WINDOW_SYMBOL);
+	setskincolor(irr::gui::EGDC_SCROLLBAR);
 
 	Initialize((char *)lpCmdLine);
 
@@ -240,69 +261,148 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	// Restrict the cursor
 	ClipCursor( &WindowRect );
 
-	while(G_pGame->device->run() && G_pGame->driver)
+
+
+	MSG msg;
+	while (true)
 	{
-		//if (device->isWindowActive())
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
-			u32 time = G_pGame->device->getTimer()->getTime();
-			//Cursor clipping stuff
-			{
-				if (!G_pGame->device->isWindowActive() && G_pGame->isactive)
-				{
-					ClipCursor( NULL );
-					G_pGame->isactive = false;
-				}
-				//core::position2d<s32> m = cursor->getPosition();
-				core::position2d<s32> m = cursor->getPosition();
-				G_pGame->m_stMCursor.sX = m.X;
-				G_pGame->m_stMCursor.sY = m.Y;
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 
-				//stick in a window move event
-				GetWindowRect(G_hWnd, &trect);
-				if (((WindowRect.top != trect.top) || (WindowRect.bottom != trect.bottom) || (WindowRect.left != trect.left) || (WindowRect.right != trect.right)) || (G_pGame->device->isWindowActive() && !G_pGame->isactive))
-				{
- 					if (G_pGame->clipmousewindow)
- 						ClipCursor( &trect );
-					WindowRect = trect;
-				}
- 				if (G_pGame->device->isWindowActive())
- 				{
-// 					game->m.X -= game->GetWidth()/2 - m.X;
-// 					game->m.Y -= game->GetHeight()/2 - m.Y;
-// 					cursor->setPosition(game->GetWidth()/2, game->GetHeight()/2);
- 					if (G_pGame->clipmousegame && G_pGame->clipmousewindow)
-					{
-						if (G_pGame->m_stMCursor.sX < 1) G_pGame->m_stMCursor.sX = 1;
-						if (G_pGame->m_stMCursor.sY < 1) G_pGame->m_stMCursor.sY = 1;
-						if (G_pGame->m_stMCursor.sX > G_pGame->GetWidth()-1) G_pGame->m_stMCursor.sX = G_pGame->GetWidth()-1;
-						if (G_pGame->m_stMCursor.sY > G_pGame->GetHeight()-1) G_pGame->m_stMCursor.sY = G_pGame->GetHeight()-1;
-					}
-					cursor->setPosition(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
-				}
-			}
+			WndProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
 
-			//check incoming packets first
-			//game->ProcessPacket();
-			//Draw game mode scene
-			if (G_pGame->device->isWindowMinimized())
+			if (msg.message == WM_QUIT)
+				break;
+		}
+
+		// increase virtual timer time
+		G_pGame->device->getTimer()->tick();
+
+
+		u32 time = G_pGame->device->getTimer()->getTime();
+		//Cursor clipping stuff
+		{
+			if (!G_pGame->device->isWindowActive() && G_pGame->isactive)
 			{
+				ClipCursor( NULL );
+				G_pGame->isactive = false;
 			}
- 			else if (!G_pGame->device->isWindowActive())
+			//core::position2d<s32> m = cursor->getPosition();
+			core::position2d<s32> m = cursor->getPosition();
+			G_pGame->m_stMCursor.sX = m.X;
+			G_pGame->m_stMCursor.sY = m.Y;
+
+			//stick in a window move event
+			GetWindowRect(G_hWnd, &trect);
+			if (((WindowRect.top != trect.top) || (WindowRect.bottom != trect.bottom) || (WindowRect.left != trect.left) || (WindowRect.right != trect.right)) || (G_pGame->device->isWindowActive() && !G_pGame->isactive))
+			{
+ 				if (G_pGame->clipmousewindow)
+ 					ClipCursor( &trect );
+				WindowRect = trect;
+			}
+ 			if (G_pGame->device->isWindowActive())
  			{
-				if (rand()%10 == 2)
+// 				game->m.X -= game->GetWidth()/2 - m.X;
+// 				game->m.Y -= game->GetHeight()/2 - m.Y;
+// 				cursor->setPosition(game->GetWidth()/2, game->GetHeight()/2);
+ 				if (G_pGame->clipmousegame && G_pGame->clipmousewindow)
 				{
-					/*if (G_pGame->m_cGameMode == GAMEMODE_ONLOADING) G_pGame->UpdateScreen_OnLoading( FALSE );
-					else*/ G_pGame->UpdateScreen();
+					if (G_pGame->m_stMCursor.sX < 1) G_pGame->m_stMCursor.sX = 0;
+					if (G_pGame->m_stMCursor.sY < 1) G_pGame->m_stMCursor.sY = 0;
+					if (G_pGame->m_stMCursor.sX > G_pGame->GetWidth()) G_pGame->m_stMCursor.sX = G_pGame->GetWidth();
+					if (G_pGame->m_stMCursor.sY > G_pGame->GetHeight()) G_pGame->m_stMCursor.sY = G_pGame->GetHeight();
 				}
- 			}
-			else
-			{
-				/*if (G_pGame->m_cGameMode == GAMEMODE_ONLOADING) G_pGame->UpdateScreen_OnLoading( FALSE );
-				else*/ G_pGame->UpdateScreen();
-				//G_pGame->DrawScene(time);
+				cursor->setPosition(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
 			}
 		}
+
+		//check incoming packets first
+		//game->ProcessPacket();
+		//Draw game mode scene
+
+// 		if (G_pGame->device->isWindowMinimized())
+// 		{
+// 		}
+//  		else if (!G_pGame->device->isWindowActive())
+//  		{
+// // 			if (rand()%10 == 2)
+// // 			{
+// // 				G_pGame->UpdateScreen();
+// // 			}
+//  		}
+// 		else
+		{
+			G_pGame->UpdateScreen();
+		}
 	}
+
+
+
+// 	while(G_pGame->device->run() && G_pGame->driver)
+// 	{
+// 		//if (device->isWindowActive())
+// 		{
+// 			u32 time = G_pGame->device->getTimer()->getTime();
+// 			//Cursor clipping stuff
+// 			{
+// 				if (!G_pGame->device->isWindowActive() && G_pGame->isactive)
+// 				{
+// 					ClipCursor( NULL );
+// 					G_pGame->isactive = false;
+// 				}
+// 				//core::position2d<s32> m = cursor->getPosition();
+// 				core::position2d<s32> m = cursor->getPosition();
+// 				G_pGame->m_stMCursor.sX = m.X;
+// 				G_pGame->m_stMCursor.sY = m.Y;
+// 
+// 				//stick in a window move event
+// 				GetWindowRect(G_hWnd, &trect);
+// 				if (((WindowRect.top != trect.top) || (WindowRect.bottom != trect.bottom) || (WindowRect.left != trect.left) || (WindowRect.right != trect.right)) || (G_pGame->device->isWindowActive() && !G_pGame->isactive))
+// 				{
+//  					if (G_pGame->clipmousewindow)
+//  						ClipCursor( &trect );
+// 					WindowRect = trect;
+// 				}
+//  				if (G_pGame->device->isWindowActive())
+//  				{
+// // 					game->m.X -= game->GetWidth()/2 - m.X;
+// // 					game->m.Y -= game->GetHeight()/2 - m.Y;
+// // 					cursor->setPosition(game->GetWidth()/2, game->GetHeight()/2);
+//  					if (G_pGame->clipmousegame && G_pGame->clipmousewindow)
+// 					{
+// 						if (G_pGame->m_stMCursor.sX < 1) G_pGame->m_stMCursor.sX = 1;
+// 						if (G_pGame->m_stMCursor.sY < 1) G_pGame->m_stMCursor.sY = 1;
+// 						if (G_pGame->m_stMCursor.sX > G_pGame->GetWidth()-1) G_pGame->m_stMCursor.sX = G_pGame->GetWidth()-1;
+// 						if (G_pGame->m_stMCursor.sY > G_pGame->GetHeight()-1) G_pGame->m_stMCursor.sY = G_pGame->GetHeight()-1;
+// 					}
+// 					cursor->setPosition(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+// 				}
+// 			}
+// 
+// 			//check incoming packets first
+// 			//game->ProcessPacket();
+// 			//Draw game mode scene
+// 			if (G_pGame->device->isWindowMinimized())
+// 			{
+// 			}
+//  			else if (!G_pGame->device->isWindowActive())
+//  			{
+// 				if (rand()%10 == 2)
+// 				{
+// 					/*if (G_pGame->m_cGameMode == GAMEMODE_ONLOADING) G_pGame->UpdateScreen_OnLoading( FALSE );
+// 					else*/ G_pGame->UpdateScreen();
+// 				}
+//  			}
+// 			else
+// 			{
+// 				/*if (G_pGame->m_cGameMode == GAMEMODE_ONLOADING) G_pGame->UpdateScreen_OnLoading( FALSE );
+// 				else*/ G_pGame->UpdateScreen();
+// 				//G_pGame->DrawScene(time);
+// 			}
+// 		}
+// 	}
 // 	if (G_pGame->gamemode != ONQUIT)
 // 		G_pGame->ChangeMode(ONQUIT);
 // 	while (G_pGame->sockets->threadcount > 0)

@@ -158,6 +158,22 @@ void CSprite::DrawSubSprite(int sX, int sY, int sFrame, uint64_t dwTime, video::
 		core::rect<s32>(0,0,m_stBrush[sFrame].szx,m_stBrush[sFrame].szy), 0,
 		video::SColor(255,255,255,255), true);
 }
+void CSprite::DrawSpriteNCK(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
+{
+	DrawRGBNCK(sX, sY, sFrame, dwTime, color);
+}
+// void CSprite::DrawHBColor(int sX, int sY, int sFrame, uint64_t dwTime, short sR, short sG, short sB)
+// {
+// 	//hb format 1 (default) R5G6B5toA8R8G8B8();
+// 	//hb format 2 A1R5G5B5toA8R8G8B8();
+// }
+void CSprite::DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
+{
+	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
+		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
+		color, false);
+}
 void CSprite::DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
 {
 	DrawRGB(sX, sY, sFrame, dwTime, color);
@@ -168,6 +184,23 @@ void CSprite::DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor
 	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
 		color, true);
+
+	short dX,dY,sx,sy,szx,szy,pvx,pvy;
+
+	sx  = m_stBrush[sFrame].sx;
+	sy  = m_stBrush[sFrame].sy;
+	szx = m_stBrush[sFrame].szx;
+	szy = m_stBrush[sFrame].szy;
+	pvx = m_stBrush[sFrame].pvx;
+	pvy = m_stBrush[sFrame].pvy;
+
+	dX = sX + pvx;
+	dY = sY + pvy;
+
+	m_rcBound.left = dX;
+	m_rcBound.top  = dY;
+	m_rcBound.right  = dX + szx;
+	m_rcBound.bottom = dY + szy;
 }
 void CSprite::DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, video::SColor color)
 {
@@ -443,7 +476,7 @@ void CSprite::PutSpriteFastNoColorKey(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutSpriteFastNoColorKeyDst(LPDIRECTDRAWSURFACE7 lpDstS, int sX, int sY, int sFrame, DWORD dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSpriteNCK(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  RECT rcRect;
@@ -2841,38 +2874,38 @@ void CSprite::_GetSpriteRect(int sX, int sY, int sFrame)
 	m_rcBound.left   = -1;
 	m_rcBound.right  = -1;
 
-	if (dX < m_pDDraw->m_rcClipArea.left) 								  
+	if (dX < 0) 								  
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left - dX);							
-		szx = szx - (m_pDDraw->m_rcClipArea.left - dX);
+		sx = sx	+ (0 - dX);							
+		szx = szx - (0 - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
-		dX = (short)m_pDDraw->m_rcClipArea.left;
+		dX = (short)0;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right)
+	else if (dX+szx > G_pGame->GetWidth())
 	{
-		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right);
+		szx = szx - ((dX+szx) - (short)G_pGame->GetWidth());
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top) 								  
+	if (dY < 0) 								  
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top - dY);
+		sy = sy	+ (0 - dY);
+		szy = szy - (0 - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
 		}
-		dY = (short)m_pDDraw->m_rcClipArea.top;
+		dY = (short)0;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom)
+	else if (dY+szy > G_pGame->GetHeight())
 	{
-		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom);
+		szy = szy - ((dY+szy) - (short)G_pGame->GetHeight());
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return;
@@ -2980,10 +3013,10 @@ BOOL CSprite::_bCheckCollison(int sX, int sY, short sFrame, int msX, int msY)
 	if( m_stBrush == NULL ) return FALSE;
 	if ((m_iTotalFrame-1 < sFrame) || (sFrame < 0)) return FALSE;
 	if( m_bIsSurfaceEmpty == TRUE ) return FALSE;
-	if( msX < m_pDDraw->m_rcClipArea.left+3 ) return FALSE;
-	if( msX > m_pDDraw->m_rcClipArea.right-3 ) return FALSE;
-	if( msY < m_pDDraw->m_rcClipArea.top+3 ) return FALSE;
-	if( msY > m_pDDraw->m_rcClipArea.bottom-3 ) return FALSE;
+	if( msX < 0+3 ) return FALSE;
+	if( msX > G_pGame->GetWidth()-3 ) return FALSE;
+	if( msY < 0+3 ) return FALSE;
+	if( msY > G_pGame->GetHeight()-3 ) return FALSE;
 
 	sx  = m_stBrush[sFrame].sx;
 	sy  = m_stBrush[sFrame].sy;
@@ -3005,38 +3038,38 @@ BOOL CSprite::_bCheckCollison(int sX, int sY, short sFrame, int msX, int msY)
 //	if (dY < m_pDDraw->m_rcClipArea.top+3) return FALSE;
 //	if (dY+szy > m_pDDraw->m_rcClipArea.bottom-3) return FALSE;
 
-	if (dX < m_pDDraw->m_rcClipArea.left+3)
+	if (dX < 0+3)
 	{
-		sx = sx	+ (m_pDDraw->m_rcClipArea.left+3 - dX);
-		szx = szx - (m_pDDraw->m_rcClipArea.left+3 - dX);
+		sx = sx	+ (0+3 - dX);
+		szx = szx - (0+3 - dX);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return FALSE;
 		}
-		dX = (short)m_pDDraw->m_rcClipArea.left+3;
+		dX = (short)0+3;
 	}
-	else if (dX+szx > m_pDDraw->m_rcClipArea.right-3)
+	else if (dX+szx > G_pGame->GetWidth()-3)
 	{
-		szx = szx - ((dX+szx) - (short)m_pDDraw->m_rcClipArea.right-3);
+		szx = szx - ((dX+szx) - (short)G_pGame->GetWidth()-3);
 		if (szx < 0) {
 			m_rcBound.top = -1;
 			return FALSE;
 		}
 	}
 
-	if (dY < m_pDDraw->m_rcClipArea.top+3)
+	if (dY < 0+3)
 	{
-		sy = sy	+ (m_pDDraw->m_rcClipArea.top+3 - dY);
-		szy = szy - (m_pDDraw->m_rcClipArea.top+3 - dY);
+		sy = sy	+ (0+3 - dY);
+		szy = szy - (0+3 - dY);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return FALSE;
 		}
-		dY = (short)m_pDDraw->m_rcClipArea.top+3;
+		dY = (short)0+3;
 	}
-	else if (dY+szy > m_pDDraw->m_rcClipArea.bottom-3)
+	else if (dY+szy > G_pGame->GetHeight()-3)
 	{
-		szy = szy - ((dY+szy) - (short)m_pDDraw->m_rcClipArea.bottom-3);
+		szy = szy - ((dY+szy) - (short)G_pGame->GetHeight()-3);
 		if (szy < 0) {
 			m_rcBound.top = -1;
 			return FALSE;
@@ -3056,12 +3089,28 @@ BOOL CSprite::_bCheckCollison(int sX, int sY, short sFrame, int msX, int msY)
 
 	if( msY < tY + 3 ) return FALSE;
 	if( msX < tX + 3 ) return FALSE;
+	ECOLOR_FORMAT fmt = _localimage->getColorFormat();
+	return TRUE;
+	// 
+	if (fmt == ECF_A8R8G8B8)
+	{
+		//else fails
+		void * data = _localimage->lock();
+		uint32_t * pixel = (uint32_t*)data;
+		
+		_localimage->unlock();
+	}
+	return FALSE;
+	//pSrc = (WORD*)data;
 	pSrc += m_sPitch * ( msY - tY - 3 );
 	for( iy=0 ; iy<=6 ; iy++ )
 	{
 		for( ix=msX-tX-3 ; ix<=msX-tX+3 ; ix++ )
 		{
-			if( pSrc[ix] != m_wColorKey ) return TRUE;
+			if( pSrc[ix] != m_wColorKey )
+			{
+				return TRUE;
+			}
 		}
 		pSrc += m_sPitch;
 	}
