@@ -172,9 +172,12 @@ extern HWND G_hWnd;
 extern video::E_DRIVER_TYPE driverType;
 
 #define FONT_BUILTIN 0
-#define FONT_TREBMS10PX 1
+#define FONT_TREBMS6PX 1
 #define FONT_TREBMS8PX 2
-#define FONT_TREBMS6PX 3
+#define FONT_TREBMS10PX 3
+#define FONT_TREBMS12PX 4
+#define FONT_TREBMS14PX 5
+#define FONT_TREBMS16PX 6
 
 
 class CGame : public irr::IEventReceiver
@@ -194,7 +197,7 @@ public:
 	bool capslock;
 	bool CreateRenderer()
 	{
-		device = createDevice(driverType,irr::core::dimension2d<u32>(GetWidth(), GetHeight()), 16, false, false, false, this);
+		device = createDevice(driverType,irr::core::dimension2d<u32>(GetWidth(), GetHeight()), 16, false, false, true, this);
 		if (device == 0)
 		{
 			MessageBox(NULL, L"Cannot create video device!", L"ERROR!", MB_OK);
@@ -222,7 +225,7 @@ public:
 
 		if (driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
 		{
-			bg = driver->addRenderTargetTexture(core::dimension2d<u32>(900,700), "RTT1");
+			bg = driver->addRenderTargetTexture(core::dimension2d<u32>(GetWidth()+100,GetHeight()+100), "RTT1");
 		}
 		else
 		{
@@ -243,8 +246,8 @@ public:
 	uint16_t screenwidth;
 	uint16_t screenheight;
 	void SetResolution(uint16_t width, uint16_t height) { screenwidth = width; screenheight = height; }
-	uint16_t GetWidth() { return screenwidth; }
-	uint16_t GetHeight() { return screenheight; }
+	__forceinline uint16_t GetWidth() { return screenwidth; }
+	__forceinline uint16_t GetHeight() { return screenheight; }
 
 	void DrawScene(u32 time);
 	//void DrawFPS2();//debug func

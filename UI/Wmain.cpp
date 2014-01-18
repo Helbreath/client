@@ -227,8 +227,12 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	irr::gui::IGUISkin * guiskin = G_pGame->env->getSkin();
 	G_pGame->font[FONT_BUILTIN]  = G_pGame->env->getBuiltInFont();
-	G_pGame->font[FONT_TREBMS10PX]  = G_pGame->env->getFont(L"fonts/treb10px.xml");
+	G_pGame->font[FONT_TREBMS6PX]  = G_pGame->env->getFont(L"fonts/treb6px.xml");
 	G_pGame->font[FONT_TREBMS8PX]  = G_pGame->env->getFont(L"fonts/treb8px.xml");
+	G_pGame->font[FONT_TREBMS10PX]  = G_pGame->env->getFont(L"fonts/treb10px.xml");
+	G_pGame->font[FONT_TREBMS12PX]  = G_pGame->env->getFont(L"fonts/treb12px.xml");
+	G_pGame->font[FONT_TREBMS14PX]  = G_pGame->env->getFont(L"fonts/treb14px.xml");
+	G_pGame->font[FONT_TREBMS16PX]  = G_pGame->env->getFont(L"fonts/treb16px.xml");
 	//font[TESTFONT3] = device->getGUIEnvironment()->getFont(L"fonts/myfont.xml");
 	//font[DEFAULT] = device->getGUIEnvironment()->getFont(L"fonts/dfont.xml");
 	//font[TESTFONT2] = device->getGUIEnvironment()->getFont(L"fonts/fonthaettenschweiler.bmp");

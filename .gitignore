@@ -30,7 +30,6 @@
 *.rar
 *.map
 *.bsc
-*.xml
 *.opt
 lib/
 include/

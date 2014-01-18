@@ -375,6 +375,8 @@ CGame::CGame()
 //	screenwidth = 800;
 //	screenheight = 600;
 	SetResolution(800,600);
+	//SetResolution(1024,768);
+	//SetResolution(1280, 1024);
 
 #ifdef _DEBUG
 	m_bToggleScreen = TRUE;
@@ -652,7 +654,7 @@ void CGame::SetupDialogBoxes()
 
 	//Icon Pannel
 	//m_dialogBoxes[30].SetupDialog(DIALOG_ICONPANEL, 0, 427, 640, 53);
-	m_dialogBoxes[30].SetupDialog(DIALOG_ICONPANEL, 0, 547, 800, 53); // 800x600 Resolution xRisenx
+	m_dialogBoxes[30].SetupDialog(DIALOG_ICONPANEL, 0, 547, GetWidth(), 53); // 800x600 Resolution xRisenx
 	m_dialogBoxes[30].SetupHandlers(GAMEFUNCT(DrawDialogBox_IconPanel), GAMEFUNCT(DlgBoxClick_IconPanel), GAMEFUNCT(emptyfunc),
 		GAMEFUNCT(bItemDrop_IconPanel));
 
@@ -2304,14 +2306,14 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 
 	indexY = sDivY + sPivotY - 7;//BESK TODO: keep this?
 	//for (iy = -sModY-224; iy <= 427+352; iy += 32)
-	for (iy = -sModY-224; iy <= 547+352; iy += 32) // 800x600 xRisenx
+	for (iy = -sModY-224; iy <= GetHeight()+100; iy += 32) // 800x600 xRisenx
 	{	indexX = sDivX + sPivotX-4;
 		//for (ix = -sModX-128 ; ix <= 640 + 128; ix += 32)
-		for (ix = -sModX-128 ; ix <= 800 + 128; ix += 32) // 800x600 Resolution xRisenx
+		for (ix = -sModX-128 ; ix <= GetWidth() + 128; ix += 32) // 800x600 Resolution xRisenx
 		{	sDynamicObject = NULL;
 			bRet = FALSE;
 			//if ((ix >= -sModX) && (ix <= 640+16) && (iy >= -sModY) && (iy <= 427+32+16))
-			if ((ix >= -sModX) && (ix <= 800+16) && (iy >= -sModY) && (iy <= 547+32+16)) // 800x600 Resolution xRisenx
+			if ((ix >= -sModX) && (ix <= GetWidth()+16) && (iy >= -sModY) && (iy <= GetHeight()+100)) // 800x600 Resolution xRisenx
 			{	_tmp_wObjectID = _tmp_sOwnerType = _tmp_sAppr1 = _tmp_sAppr2 = _tmp_sAppr3 = _tmp_sAppr4 = _tmp_sHeadApprValue = _tmp_sBodyApprValue = _tmp_sArmApprValue = _tmp_sLegApprValue = _tmp_iStatus = NULL;
 				_tmp_cDir = _tmp_cFrame = 0;
 				_tmp_iEffectType = _tmp_iEffectFrame = _tmp_iChatIndex = 0;
@@ -2471,7 +2473,7 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 				}	}
 
 				//if ((bContact == TRUE) && (msY <= 431))
-				if ((bContact == TRUE) && (msY <= 551)) // Resolution Limit, Decides how long Down(y) you can see npcs ( Fixed xRisenx )
+				if ((bContact == TRUE) && (msY <= GetHeight()-49)) // Resolution Limit, Decides how long Down(y) you can see npcs ( Fixed xRisenx )
 				{	m_sMCX = indexX;
 					m_sMCY = indexY;
 					sFocusX = ix;
@@ -2538,12 +2540,17 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 					bRet = TRUE;
 
 					if (m_iIlusionOwnerH != NULL)
-					{	if ((strcmp(_tmp_cName, m_cPlayerName) != 0) && (_tmp_sOwnerType < 10))
-					{		_tmp_sOwnerType = m_cIlusionOwnerType;
-							if(_tmp_iStatus & STATUS_INVISIBILITY){
+					{
+						if ((strcmp(_tmp_cName, m_cPlayerName) != 0) && (_tmp_sOwnerType < 10))
+						{
+							_tmp_sOwnerType = m_cIlusionOwnerType;
+							if(_tmp_iStatus & STATUS_INVISIBILITY)
+							{
 								_tmp_iStatus = m_iStatus_IE;
 								_tmp_iStatus |= STATUS_INVISIBILITY;
-							}else{
+							}
+							else
+							{
 								_tmp_iStatus    = m_iStatus_IE;
 							}
 							_tmp_sAppr1     = m_sAppr1_IE;
@@ -2555,7 +2562,9 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 							_tmp_sBodyApprValue    = m_sBodyApprValue_IE; // Re-Coding Sprite xRisenx
 							_tmp_sArmApprValue     = m_sArmApprValue_IE; // Re-Coding Sprite xRisenx
 							_tmp_sLegApprValue     = m_sLegApprValue_IE; // Re-Coding Sprite xRisenx
-			 	}	}	}
+			 			}
+					}
+				}
 
 				if ((bRet == TRUE) && (strlen(_tmp_cName) > 0))
 				{	
@@ -2606,8 +2615,9 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 					}
 
 					//if(bContact && msY <= 431)
-					if(bContact && msY <= 551) // Resolution Limit, Decides how long Down(y) you can see npcs ( Fixed xRisenx )
-					{	m_sMCX = indexX;
+					if(bContact && msY <= GetHeight()-49/*551*/) // Resolution Limit, Decides how long Down(y) you can see npcs ( Fixed xRisenx )
+					{
+						m_sMCX = indexX;
 						m_sMCY = indexY;
 						sFocusX = ix;
 						sFocusY = iy;
@@ -2636,15 +2646,19 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 					}
 
 					if (memcmp(m_cPlayerName, _tmp_cName, 10) == 0)
-					{	if (m_bIsObserverMode == FALSE)
-						{	//m_sViewDstX = (indexX*32) - 288 - 32;
+					{
+						if (m_bIsObserverMode == FALSE)
+						{
+							//m_sViewDstX = (indexX*32) - 288 - 32;
 							//m_sViewDstY = (indexY*32) - 224;
 							m_sViewDstX = (indexX*32) - 288 - 32-32-32; // 800x600 Resolution xRisenx Center Char
 							m_sViewDstY = (indexY*32) - 224-32-32; // 800x600 Resolution xRisenx Center Char
 						}
 						SetRect(&m_rcPlayerRect, m_rcBodyRect.left, m_rcBodyRect.top, m_rcBodyRect.right, m_rcBodyRect.bottom);
 						bIsPlayerDrawed = TRUE;
-		   	}	}	}
+		   			}
+				}
+			}
 
 			// CLEROTH
 			sObjSpr      = m_pMapData->m_tile[indexX][indexY].m_sObjectSprite;
@@ -3355,9 +3369,9 @@ void CGame::UpdateScreen_OnMainMenu()
 		pMI->AddRect(25,200,202,222);
 		pMI->AddRect(26,226,202,248);
 		pMI->AddRect(26,254,202,276);
-		m_stMCursor.sX = 400;
+		m_stMCursor.sX = GetWidth()/2;
 		////DIRECTX m_dInput.m_sY = 240;
-		m_stMCursor.sY = 300; // 800x600 Resolution xRisenx
+		m_stMCursor.sY = GetHeight()/2; // 800x600 Resolution xRisenx
 
 		// CLEROTH - INTERFACE
 		/*pMI->AddRect(384,177,548,198);
@@ -8072,7 +8086,7 @@ void CGame::DrawEffects()
 		case 82: // Gate (apocalypse)
 			cTempFrame = m_pEffectList[i]->m_cFrame;
 			//m_pEffectSpr[101]->PutTransSprite_NoColorKey(320, 480, cTempFrame, dwTime);
-			m_pEffectSpr[101]->PutTransSprite_NoColorKey(400, 600, cTempFrame, dwTime); // 800x600 xRisenx
+			m_pEffectSpr[101]->PutTransSprite_NoColorKey(GetWidth()/2, GetHeight(), cTempFrame, dwTime); // 800x600 xRisenx
 			break;
 
 		case 100: // Magic Missile
@@ -8217,13 +8231,13 @@ void CGame::DrawEffects()
 			break;
 
 		case 143: // Lightning
-			_DrawThunderEffect(m_pEffectList[i]->m_dX*32 - m_sViewPointX, m_pEffectList[i]->m_dY*32 - m_sViewPointY - 800,
+			_DrawThunderEffect(m_pEffectList[i]->m_dX*32 - m_sViewPointX, m_pEffectList[i]->m_dY*32 - m_sViewPointY - GetWidth(),
 				                m_pEffectList[i]->m_dX*32 - m_sViewPointX, m_pEffectList[i]->m_dY*32 - m_sViewPointY,
 								m_pEffectList[i]->m_rX, m_pEffectList[i]->m_rY, 1);
-			_DrawThunderEffect(m_pEffectList[i]->m_dX*32 - m_sViewPointX, m_pEffectList[i]->m_dY*32 - m_sViewPointY - 800,
+			_DrawThunderEffect(m_pEffectList[i]->m_dX*32 - m_sViewPointX, m_pEffectList[i]->m_dY*32 - m_sViewPointY - GetWidth(),
 				                m_pEffectList[i]->m_dX*32 - m_sViewPointX, m_pEffectList[i]->m_dY*32 - m_sViewPointY,
 								m_pEffectList[i]->m_rX+4, m_pEffectList[i]->m_rY+2, 2);
-			_DrawThunderEffect(m_pEffectList[i]->m_dX*32 - m_sViewPointX, m_pEffectList[i]->m_dY*32 - m_sViewPointY - 800,
+			_DrawThunderEffect(m_pEffectList[i]->m_dX*32 - m_sViewPointX, m_pEffectList[i]->m_dY*32 - m_sViewPointY - GetWidth(),
 				                m_pEffectList[i]->m_dX*32 - m_sViewPointX, m_pEffectList[i]->m_dY*32 - m_sViewPointY,
 								m_pEffectList[i]->m_rX-2, m_pEffectList[i]->m_rY-2, 2);
 			break;
@@ -9051,9 +9065,9 @@ void CGame::PutFontString(gui::IGUIFont * font, int iX, int iY, char const * pSt
 			PutFontString(font, iX+1, iY, (char*)pString, color);
 			break;
 		case 1:
-			PutFontString(font, iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
-			PutFontString(font, iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
-			PutFontString(font, iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
+// 			PutFontString(font, iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
+// 			PutFontString(font, iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
+// 			PutFontString(font, iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
 			break;
 		}
 		PutFontString(font, iX, iY, (char*)pString, color);
@@ -9072,9 +9086,9 @@ void CGame::PutFontString(gui::IGUIFont * font, int iX, int iY, char const * pSt
 			PutFontString(font, iX+1, iY, (char*)pString, color);
 			break;
 		case 1:
-			PutFontString(font, iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
-			PutFontString(font, iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
-			PutFontString(font, iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
+// 			PutFontString(font, iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
+// 			PutFontString(font, iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
+// 			PutFontString(font, iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
 			break;
 		}
 		PutFontString(font, iX, iY, (char*)pString, color);
@@ -9083,7 +9097,7 @@ void CGame::PutFontString(gui::IGUIFont * font, int iX, int iY, char const * pSt
 }
 void CGame::PutChatString(int iX, int iY, char * pString, video::SColor color)
 {
-	font[1]->draw(pString,core::rect<s32>(iX,iY,iX+40,iY+10),video::SColor(color));
+	font[FONT_TREBMS8PX]->draw(pString,core::rect<s32>(iX,iY,iX+40,iY+10),video::SColor(color));
 //	PutFontString(font[1], iX, iY, pString, color);
 }
 void CGame::PutFontString(gui::IGUIFont * font, int iX, int iY, char * pString, video::SColor color)
@@ -9122,7 +9136,7 @@ void CGame::PutString3(int iX, int iY, char const * pString, video::SColor color
 
 void CGame::PutAlignedString(int iX1, int iX2, int iY, char const * const pString, video::SColor color)
 {
-	font[0]->draw(pString,core::rect<s32>(iX1,iY,iX2+40,iY+10),color);
+	font[FONT_TREBMS8PX]->draw(pString,core::rect<s32>(iX1,iY,iX2+40,iY+10),color);
 // 	RECT rt;
 // 	m_DDraw._GetBackBufferDC();
 // 	SetRect(&rt, iX1, iY, iX2, iY+15);
@@ -14962,7 +14976,8 @@ BOOL   CGame::DrawObject_OnStop(int indexX, int indexY, int sX, int sY, BOOL bTr
 				else
 				{	if (iPantsColor == 0)
 						 m_pSprite[iPantsIndex]->PutSpriteFast(sX, sY, (_tmp_cDir-1) * 8 + _tmp_cFrame, dwTime);
-					else m_pSprite[iPantsIndex]->PutSpriteRGB(sX, sY, (_tmp_cDir-1) * 8 + _tmp_cFrame, m_wR[iPantsColor] -m_wR[0], m_wG[iPantsColor] -m_wG[0], m_wB[iPantsColor] -m_wB[0], dwTime);
+					//else m_pSprite[iPantsIndex]->PutSpriteRGB(sX, sY, (_tmp_cDir-1) * 8 + _tmp_cFrame, m_wR[iPantsColor] -m_wR[0], m_wG[iPantsColor] -m_wG[0], m_wB[iPantsColor] -m_wB[0], dwTime);
+					else m_pSprite[iPantsIndex]->PutSpriteRGB(sX, sY, (_tmp_cDir-1) * 8 + _tmp_cFrame, 255, 0, 0, dwTime);
 			}	}
 
 			if (iArmArmorIndex != -1)
@@ -15075,7 +15090,8 @@ BOOL   CGame::DrawObject_OnStop(int indexX, int indexY, int sX, int sY, BOOL bTr
 				else
 				{	if (iPantsColor == 0)
 						 m_pSprite[iPantsIndex]->PutSpriteFast(sX, sY, (_tmp_cDir-1) * 8 + _tmp_cFrame, dwTime);
-					else m_pSprite[iPantsIndex]->PutSpriteRGB(sX, sY, (_tmp_cDir-1) * 8 + _tmp_cFrame, m_wR[iPantsColor] -m_wR[0], m_wG[iPantsColor] -m_wG[0], m_wB[iPantsColor] -m_wB[0], dwTime);
+		//			else m_pSprite[iPantsIndex]->PutSpriteRGB(sX, sY, (_tmp_cDir-1) * 8 + _tmp_cFrame, m_wR[iPantsColor] -m_wR[0], m_wG[iPantsColor] -m_wG[0], m_wB[iPantsColor] -m_wB[0], dwTime);
+					else m_pSprite[iPantsIndex]->PutSpriteRGB(sX, sY, (_tmp_cDir-1) * 8 + _tmp_cFrame, 255, 0, 0, dwTime);
 			}	}
 
 			if (iArmArmorIndex != -1)
@@ -15248,13 +15264,15 @@ BOOL   CGame::DrawObject_OnStop(int indexX, int indexY, int sX, int sY, BOOL bTr
 }
 
 void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
-{int i;
- char  * cp, ucHeader, cDir, cName[12], cItemColor;
- short * sp, sTotal, sX, sY, sType, sAppr1, sAppr2, sAppr3, sAppr4, sSprite, sSpriteFrame, sItemSpr, sItemSprFrame, sDynamicObjectType, sHeadApprValue, sBodyApprValue, sArmApprValue, sLegApprValue; // Re-Coding Sprite xRisenx
- int iStatus;
- int   * ip, iApprColor;
- WORD    wObjectID;
- WORD  * wp, wDynamicObjectID;
+{
+	int i;
+	char  * cp, ucHeader, cDir, cName[12], cItemColor;
+	short * sp, sTotal, sX, sY, sType, sAppr1, sAppr2, sAppr3, sAppr4, sSprite, sSpriteFrame, sItemSpr, sItemSprFrame, sDynamicObjectType, sHeadApprValue, sBodyApprValue, sArmApprValue, sLegApprValue; // Re-Coding Sprite xRisenx
+	int iStatus;
+	int   * ip, iApprColor;
+	WORD    wObjectID;
+	WORD  * wp, wDynamicObjectID;
+
 	cp = pData;
 	m_sVDL_X = sPivotX;
 	m_sVDL_Y = sPivotY;
@@ -15262,7 +15280,8 @@ void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
 	sTotal = *sp;
 	cp += 2;
 	for (i = 1;	i <= sTotal; i++)
-	{	sp = (short *)cp;
+	{
+		sp = (short *)cp;
 		sX = *sp;
 		cp += 2;
 		sp = (short *)cp;
@@ -15271,7 +15290,8 @@ void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
 		ucHeader = *cp;
 		cp++;
 		if (ucHeader & 0x01) // object ID
-		{	wp  = (WORD *)cp;
+		{
+			wp  = (WORD *)cp;
 			wObjectID = *wp;
 			cp += 2;
 			sp  = (short *)cp;
@@ -15316,7 +15336,8 @@ void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
 				ZeroMemory(cName, sizeof(cName));
 				memcpy(cName, cp, 10);
 				cp    += 10;
-			}else // NPC
+			}
+			else // NPC
 			{	
 				//sAppr1 = sAppr3 = sAppr4 = 0;
 				sAppr1 = sAppr3 = sAppr4 = sHeadApprValue = sBodyApprValue = sArmApprValue = sLegApprValue = 0; // Re-Coding Sprite xRisenx
@@ -15379,7 +15400,8 @@ void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
 				ZeroMemory(cName, sizeof(cName));
 				memcpy(cName, cp, 10);
 				cp    += 10;
-			}else 	// NPC
+			}
+			else 	// NPC
 			{	
 				//sAppr1 = sAppr3 = sAppr4 = 0;
 				sAppr1 = sAppr3 = sAppr4 = sHeadApprValue = sBodyApprValue = sArmApprValue = sLegApprValue = 0; // Re-Coding Sprite xRisenx
@@ -15395,7 +15417,8 @@ void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
 			m_pMapData->bSetDeadOwner(wObjectID, sPivotX + sX, sPivotY + sY, sType, cDir, sAppr1, sAppr2, sAppr3, sAppr4, iApprColor, sHeadApprValue, sBodyApprValue, sArmApprValue, sLegApprValue, iStatus, cName);
 		}
 		if (ucHeader & 0x04)
-		{	sp  = (short *)cp;
+		{
+			sp  = (short *)cp;
 			sItemSpr = *sp;
 			cp += 2;
 			sp  = (short *)cp;
@@ -15406,14 +15429,16 @@ void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
 			m_pMapData->bSetItem(sPivotX + sX, sPivotY + sY, sItemSpr, sItemSprFrame, cItemColor, FALSE);
 		}
 		if (ucHeader & 0x08) // Dynamic object
-		{	wp = (WORD *)cp;
+		{
+			wp = (WORD *)cp;
 			wDynamicObjectID = *wp;
 			cp += 2;
 			sp  = (short *)cp;
 			sDynamicObjectType = *sp;
 			cp += 2;
 			m_pMapData->bSetDynamicObject(sPivotX + sX, sPivotY + sY, wDynamicObjectID, sDynamicObjectType, FALSE);
-	}	}
+		}
+	}
 }
 
 void CGame::OnLogSocketEvent(WPARAM wParam, LPARAM lParam)
@@ -16431,24 +16456,25 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
  	if (sDivX < 0 || sDivY < 0) return ;
 
 	//iyMax = m_bIsObserverMode ? 480+48 : 427+48;
-	iyMax = m_bIsObserverMode ? 600+48 : 547+48; // 800x600 Resolution xRisenx
+	iyMax = m_bIsObserverMode ? GetHeight()+48 : GetHeight()-3; // 800x600 Resolution xRisenx
 	if ((m_bIsRedrawPDBGS == TRUE) || (m_iPDBGSdivX != sDivX) || (m_iPDBGSdivY != sDivY)) {
 		// Pre-Draw Background Surface
 		m_bIsRedrawPDBGS = FALSE;
 		m_iPDBGSdivX = sDivX;
 		m_iPDBGSdivY = sDivY;
-		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, 640+32, 480+32);
-		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, 800+32, 600+32); // 800x600 Resolution xRisenx
+		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, GetHeight()+32, 480+32);
+		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, GetWidth()+32, 600+32); // 800x600 Resolution xRisenx
 		indexY = sDivY+m_pMapData->m_sPivotY;
 		//for (iy = -sModY; iy < 427+48 ; iy += 32)
 		driver->setRenderTarget(bg, true, true, video::SColor(0,0,0,0));
-		for (iy = -sModY; iy < 547+48 +32; iy += 32) // 800x600 xRisenx
+		for (iy = -sModY; iy < GetHeight()-3 +32; iy += 32) // 800x600 xRisenx
 		//for (iy = -sModY; iy < iyMax ; iy += 32) Resolution Need to check? Core code changed?
 		{
 			indexX = sDivX+m_pMapData->m_sPivotX;
 			//for (ix = -sModX; ix < 640+48 ; ix += 32)
-			for (ix = -sModX; ix < 800+48 +32; ix += 32) // 800x600 Resolution xRisenx
-			{	sSpr      = m_pMapData->m_tile[indexX][indexY].m_sTileSprite;
+			for (ix = -sModX; ix < GetWidth()+48 +32; ix += 32) // 800x600 Resolution xRisenx
+			{
+				sSpr      = m_pMapData->m_tile[indexX][indexY].m_sTileSprite;
 				sSprFrame = m_pMapData->m_tile[indexX][indexY].m_sTileSpriteFrame;
 				m_pTileSpr[sSpr]->PutSpriteFastNoColorKeyDst((LPDIRECTDRAWSURFACE7)0, ix - 16 +sModX, iy - 16 +sModY, sSprFrame, m_dwCurTime);
 				indexX++;
@@ -16456,12 +16482,12 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 			indexY++;
 		}
 		driver->setRenderTarget(0);
-		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, 640, 480);
-		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, 800, 600); // 800x600 Resolution xRisenx
+		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, GetHeight(), 480);
+		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, GetWidth(), 600); // 800x600 Resolution xRisenx
 	}
 	RECT rcRect;
 	//SetRect(&rcRect, sModX, sModY, 640+sModX, 480+sModY); // our fictitious sprite bitmap is
-	SetRect(&rcRect, sModX, sModY, 800+sModX, 600+sModY); // 800x600 Resolution xRisenx
+	SetRect(&rcRect, sModX, sModY, GetWidth()+sModX, GetHeight()+sModY); // 800x600 Resolution xRisenx
 	//DIRECTX m_DDraw.m_lpBackB4->BltFast( 0, 0, //DIRECTX m_DDraw.m_lpPDBGS, &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
 	
 	driver->draw2DImage(bg, core::vector2d<s32>(0-sModX,0-sModY));
@@ -16483,7 +16509,7 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 		{
 			indexX = sDivX+m_pMapData->m_sPivotX;
 			//for (ix = -sModX; ix < 640+48 ; ix += 32)
-			for (ix = -sModX; ix < 800+48 ; ix += 32) // 800x600 Resolution xRisenx
+			for (ix = -sModX; ix < GetWidth()+48 ; ix += 32) // 800x600 Resolution xRisenx
 			{
 				DrawLine(ix - 16 , iy - 16 , ix + 16 , iy - 16 , 6,13,13);
 				DrawLine(ix - 16 , iy - 16 , ix - 16 , iy + 16 , 6,13,13);
@@ -16494,7 +16520,8 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 	}
 
 	if( m_bIsCrusadeMode )
-	{	if(m_iConstructLocX != -1) DrawNewDialogBox(SPRID_INTERFACE_ND_CRUSADE, m_iConstructLocX*32 - m_sViewPointX, m_iConstructLocY*32 - m_sViewPointY, 41);
+	{
+		if(m_iConstructLocX != -1) DrawNewDialogBox(SPRID_INTERFACE_ND_CRUSADE, m_iConstructLocX*32 - m_sViewPointX, m_iConstructLocY*32 - m_sViewPointY, 41);
 		if( m_iTeleportLocX != -1) DrawNewDialogBox(SPRID_INTERFACE_ND_CRUSADE, m_iTeleportLocX*32 - m_sViewPointX, m_iTeleportLocY*32 - m_sViewPointY, 42);
 	}
 }
@@ -18605,9 +18632,9 @@ void CGame::DrawDialogBox_GuideMap()
 	if( sX < 20 ) sX = 0;
 	if( sY < 20 ) sY = 0;
 	//if( sX > 640-128-20 ) sX = 640-128;
-	if( sX > 800-128-20 ) sX = 800-128; // 800x600 Resolution xRisenx
+	if( sX > GetWidth()-128-20 ) sX = GetWidth()-128; // 800x600 Resolution xRisenx
 	//if( sY > 427-128-20 ) sY = 427-128;
-	if( sY > 587-128-20 ) sY = 587-128; // 800x600 xRisenx
+	if( sY > GetHeight()-13-128-20 ) sY = GetHeight()-13-128; // 800x600 xRisenx
 	for( shX=-2 ; shX<130 ; shX++ )
 	{
 		//DIRECTX m_DDraw.PutPixel( sX+shX, sY-2  , 50,50,50);
@@ -20789,7 +20816,7 @@ void CGame::DrawTopMsg()
 
 	if ((((G_dwGlobalTime - m_dwTopMsgTime)/250) % 2) == 0)
 		//PutAlignedString(0, 639, 10, m_cTopMsg, 255,255,255);
-		PutAlignedString(0, 799, 30, m_cTopMsg, video::SColor(255,255,255,255)); // 800x600 Resolution xRisenx
+		PutAlignedString(0, GetWidth()-1, 30, m_cTopMsg, video::SColor(255,255,255,255)); // 800x600 Resolution xRisenx
 
 	if ( G_dwGlobalTime > (m_iTopMsgLastSec*CLOCKS_PER_SEC+m_dwTopMsgTime) ) {
 		ZeroMemory(m_cTopMsg, sizeof(m_cTopMsg));
@@ -20853,9 +20880,9 @@ void CGame::DrawDialogBox_IconPanel()
 		if (m_bIsSafeAttackMode)
 			 //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(368+127, 440+120, 4, dwTime); // 800x600 Resolution xRisenx Right? +127 +120
 			 //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(506+127, 433+120, 4, dwTime); // Fixed xRisenx
-			 m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(12, 557, 47, dwTime); // Fixed xRisenx
+			 m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(12, GetHeight()-43, 47, dwTime); // Fixed xRisenx
 		//else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(368+127, 440+120, 5, dwTime); // 800x600 Resolution xRisenx Right? +127 +120
-		else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(12, 557, 46, dwTime); // Fixed xRisenx
+		else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(12, GetHeight()-43, 46, dwTime); // Fixed xRisenx
 	}
 
 	wsprintfA(G_cTxt, "Contri Pts: %d - Majs Pts: %d",m_iContribution ,m_iGizonItemUpgradeLeft);
@@ -21444,7 +21471,7 @@ void CGame::DrawDialogBox_Chat()
 			break;
 		}
 
-		PutFontString(font[1], sX + 25, sY + 130 - i*13, msg->m_pMsg, video::SColor(255, r, g, b), false, 1);
+		PutFontString(font[FONT_TREBMS8PX], sX + 25, sY + 130 - i*13, msg->m_pMsg, video::SColor(255, r, g, b), false, 1);
 	}
 
 
@@ -23855,7 +23882,8 @@ void CGame::DrawLine(int x0, int y0, int x1, int y1, int iR, int iG, int iB)
 			}
 			iResultX += x_inc;
 			//if ((iResultX >= 0) && (iResultX < 640) && (iResultY >= 0) && (iResultY < 480)) {
-			if ((iResultX >= 0) && (iResultX < 800) && (iResultY >= 0) && (iResultY < 600)) { // 800x600 Resolution xRisenx
+//			if ((iResultX >= 0) && (iResultX < GetWidth()) && (iResultY >= 0) && (iResultY < GetHeight()))
+			{ // 800x600 Resolution xRisenx
 //				pDst = (WORD *)//DIRECTX m_DDraw.m_pBackB4Addr + iResultX + ((iResultY)*//DIRECTX m_DDraw.m_sBackB4Pitch);
 // 				switch (//DIRECTX m_DDraw.m_cPixelFormat) {
 // 				case 1:
@@ -23891,7 +23919,8 @@ void CGame::DrawLine(int x0, int y0, int x1, int y1, int iR, int iG, int iB)
 			}
 			iResultY += y_inc;
 			//if ((iResultX >= 0) && (iResultX < 640) && (iResultY >= 0) && (iResultY < 480)) {
-			if ((iResultX >= 0) && (iResultX < 800) && (iResultY >= 0) && (iResultY < 600)) { // 800x600 Resolution xRisenx
+//			if ((iResultX >= 0) && (iResultX < GetWidth()) && (iResultY >= 0) && (iResultY < GetHeight()))
+			{ // 800x600 Resolution xRisenx
 //				pDst = (WORD *)//DIRECTX m_DDraw.m_pBackB4Addr + iResultX + ((iResultY)*//DIRECTX m_DDraw.m_sBackB4Pitch);
 // 				switch (//DIRECTX m_DDraw.m_cPixelFormat) {
 // 				case 1:
@@ -23961,7 +23990,7 @@ void CGame::DrawLine2(int x0, int y0, int x1, int y1, int iR, int iG, int iB)
 			}
 			iResultX += x_inc;
 			//if ((iResultX >= 0) && (iResultX < 640) && (iResultY >= 0) && (iResultY < 480)) {
-			if ((iResultX >= 0) && (iResultX < 800) && (iResultY >= 0) && (iResultY < 600)) { // 800x600 Resolution xRisenx
+			if ((iResultX >= 0) && (iResultX < GetWidth()) && (iResultY >= 0) && (iResultY < GetHeight())) { // 800x600 Resolution xRisenx
 //				pDst = (WORD *)//DIRECTX m_DDraw.m_pBackB4Addr + iResultX + ((iResultY)*//DIRECTX m_DDraw.m_sBackB4Pitch);
 // 				switch (//DIRECTX m_DDraw.m_cPixelFormat) {
 // 				case 1:
@@ -23993,7 +24022,7 @@ void CGame::DrawLine2(int x0, int y0, int x1, int y1, int iR, int iG, int iB)
 			}
 			iResultY += y_inc;
 			//if ((iResultX >= 0) && (iResultX < 640) && (iResultY >= 0) && (iResultY < 480)) {
-			if ((iResultX >= 0) && (iResultX < 800) && (iResultY >= 0) && (iResultY < 600)) { // 800x600 Resolution xRisenx
+			if ((iResultX >= 0) && (iResultX < GetWidth()) && (iResultY >= 0) && (iResultY < GetHeight())) { // 800x600 Resolution xRisenx
 //				pDst = (WORD *)//DIRECTX m_DDraw.m_pBackB4Addr + iResultX + ((iResultY)*//DIRECTX m_DDraw.m_sBackB4Pitch);
 // 				switch (//DIRECTX m_DDraw.m_cPixelFormat) {
 // 				case 1:
@@ -26138,16 +26167,16 @@ void CGame::CreateScreenShot()
 	ZeroMemory(ServerName, sizeof(ServerName));
 	ZeroMemory(SStime, sizeof(SStime));
 	wsprintfA(SStime, "Helbreath Fantasy");
-	wsprintfA(SStime2, "%02d / %02d / %02d", SysTime.wDay, SysTime.wMonth, SysTime.wYear);
+	wsprintfA(SStime2, "%02d / %02d / %02d", SysTime.wMonth, SysTime.wDay, SysTime.wYear);
 	wsprintfA(SStime3, "%02d : %02d : %02d", SysTime.wHour, SysTime.wMinute, SysTime.wSecond);
 
 	time_t t = time(0);   // get time now
 	struct tm * now = localtime( & t );
 
 	driver->beginScene(false, false);
-	PutAlignedString(620, 800, 10, SStime, video::SColor(255,255, 255, 255)); //ScreenShot time
-	PutAlignedString(620, 800, 30, SStime2, video::SColor(255,255, 255, 255)); //ScreenShot time
-	PutAlignedString(620, 800, 50, SStime3, video::SColor(255,255, 255, 255)); //ScreenShot time
+	PutAlignedString(GetWidth()-180, GetWidth(), 10, SStime, video::SColor(255,255, 255, 255)); //ScreenShot time
+	PutAlignedString(GetWidth()-180, GetWidth(), 30, SStime2, video::SColor(255,255, 255, 255)); //ScreenShot time
+	PutAlignedString(GetWidth()-180, GetWidth(), 50, SStime3, video::SColor(255,255, 255, 255)); //ScreenShot time
 	driver->endScene();
 	IImage * screenshot = driver->createScreenShot();
 
@@ -29318,7 +29347,7 @@ void CGame::UpdateScreen_OnQuit()
 		m_bEnterPressed = FALSE;
 		pMI = new class CMouseInterface;
 		//pMI->AddRect(0,0,640,480);
-		pMI->AddRect(0,0,800,600); // 800x600 Resolution xRisenx
+		pMI->AddRect(0,0,GetWidth(),GetHeight()); // 800x600 Resolution xRisenx
 		m_bEnterPressed = FALSE;
 	}
 
@@ -30853,7 +30882,7 @@ void CGame::NotifyMsgHandler(char * pData)
 		SetTopMsg(CRUSADE_MESSAGE17, 5);
 		//StartMeteorStrikeEffect
 		//for( i=0 ; i<36 ; i++ ) bAddNewEffect(60, m_sViewPointX +(rand() % 640), m_sViewPointY +(rand() % 480), NULL, NULL, -(rand() % 80));
-		for( i=0 ; i<36 ; i++ ) bAddNewEffect(60, m_sViewPointX +(rand() % 800), m_sViewPointY +(rand() % 600), NULL, NULL, -(rand() % 80)); // 800x600 Resolution xRisenx
+		for( i=0 ; i<36 ; i++ ) bAddNewEffect(60, m_sViewPointX +(rand() % GetWidth()), m_sViewPointY +(rand() % GetHeight()), NULL, NULL, -(rand() % 80)); // 800x600 Resolution xRisenx
 		break;
 
 	case NOTIFY_MAPSTATUSNEXT:
@@ -32756,9 +32785,9 @@ Point CGame::GetGuideMapPos(uint32 x, uint32 y)
 	if( sX < 20 ) sX = 0;
 	if( sY < 20 ) sY = 0;
 	//if( sX > 640-128-20 ) sX = 640-128;
-	if( sX > 800-128-20 ) sX = 800-128; // 800x600 Resolution xRisenx
+	if( sX > GetWidth()-128-20 ) sX = GetWidth()-128; // 800x600 Resolution xRisenx
 	//if( sY > 427-128-20 ) sY = 427-128;
-	if( sY > 547-128-20 ) sY = 547-128; // 800x600 Resolution xRisenx
+	if( sY > GetHeight()-53-128-20 ) sY = GetHeight()-53-128; // 800x600 Resolution xRisenx
 	if( m_bZoomMap )
 	{	
 		p.x = m_sPlayerX-64;
@@ -33831,7 +33860,7 @@ void CGame::UpdateScreen_OnVersionNotMatch()
 		}
 		pMI = new class CMouseInterface;
 		//pMI->AddRect(0,0,640,480);
-		pMI->AddRect(0,0,800,600); // 800x600 Resolution xRisenx
+		pMI->AddRect(0,0,GetWidth(),GetHeight()); // 800x600 Resolution xRisenx
 		m_bEnterPressed = FALSE;
 	}
 	m_cGameModeCount++;
@@ -33871,14 +33900,14 @@ void CGame::DrawVersion(BOOL bAuthor)
 
 //	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,140, 140, 140), &wR, &wG, &wB);
 
-	m_pSprite[SPRID_INTERFACE_ADDINTERFACE]->PutTransSpriteRGB(12, 463+63, 19, wR, wG, wB, dwTime); // Added +120 to support 800x600 Resolution xRisenx
+	m_pSprite[SPRID_INTERFACE_ADDINTERFACE]->PutTransSpriteRGB(12, GetHeight()-74, 19, wR, wG, wB, dwTime); // Added +120 to support 800x600 Resolution xRisenx
 	// Upper Version
 	/*wsprintfA(G_cTxt, "%d", UPPER_VERSION);
 	PutString_SprNum(36, 463, G_cTxt, 140, 140, 140);*/
 	wsprintfA(G_cTxt, "%d", HBF_MAJOR);				// Added new Version detail xRisenx
 	PutString_SprNum(34, 463+63, G_cTxt, 140, 140, 140);
 	// .
-	m_pSprite[SPRID_INTERFACE_ADDINTERFACE]->PutTransSpriteRGB(40, 463+63, 18, wR, wG, wB, dwTime); // Added +120 to support 800x600 Resolution xRisenx
+	m_pSprite[SPRID_INTERFACE_ADDINTERFACE]->PutTransSpriteRGB(40, GetHeight()-74, 18, wR, wG, wB, dwTime); // Added +120 to support 800x600 Resolution xRisenx
 	// Lower Version
 	/*wsprintfA(G_cTxt, "%d", LOWER_VERSION);
 	PutString_SprNum(46, 463, G_cTxt, 140, 140, 140);*/
@@ -36208,7 +36237,7 @@ void CGame::UpdateScreen_OnGame()
 	if (iUpdateRet != 0)
 	{	DrawEffects();
 		DrawWeatherEffects();
-		DrawChatMsgs(-100, 0, 800, 600);
+		DrawChatMsgs(-100, 0, GetWidth(), GetHeight());
 		WeatherObjectFrameCounter();
 	}
 
@@ -36298,13 +36327,13 @@ void CGame::UpdateScreen_OnGame()
 
 		iter = lines->begin();
 
-		PutFontString(font[2], G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY +25, iter->c_str(), m_itemColor, FALSE, 1);
+		PutFontString(font[FONT_TREBMS8PX], G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY +25, iter->c_str(), m_itemColor, FALSE, 1);
 		iLoc += 13;
 		++iter;
 
 		while(iter != end)
 		{
-			PutFontString(font[2], G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY +25 +iLoc, iter->c_str(),video::SColor(255,150,150,150), FALSE, 1);
+			PutFontString(font[FONT_TREBMS8PX], G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY +25 +iLoc, iter->c_str(),video::SColor(255,150,150,150), FALSE, 1);
 			iLoc += 13;
 			++iter;
 		}
@@ -36332,7 +36361,7 @@ void CGame::UpdateScreen_OnGame()
 	//Snoopy: Add Apocalypse map effect (druncncity bubbles)
 	if(iUpdateRet && m_cMapIndex == 25)
 	//{	bAddNewEffect(13, m_sViewPointX + rand() %640, m_sViewPointY + rand() %480, 0, 0, -1*(rand() %80), 1);
-	{	bAddNewEffect(13, m_sViewPointX + rand() %800, m_sViewPointY + rand() %600, 0, 0, -1*(rand() %80), 1); // 800x600 Resolution xRisenx
+	{	bAddNewEffect(13, m_sViewPointX + rand() %GetWidth(), m_sViewPointY + rand() %GetHeight(), 0, 0, -1*(rand() %80), 1); // 800x600 Resolution xRisenx
 		DrawDruncncity();
 	}
 
@@ -36412,7 +36441,7 @@ void CGame::UpdateScreen_OnGame()
 	}
 
 	//Snoopy: Added diag "LEVEL UP" right down
-	if(iUpdateRet && m_iLU_Point >0) PutString_SprFont(560+160, 390+120, "Level Up", 250, 250, 0); // 800x600 Resolution xRisenx added x+160 and y+120
+	if(iUpdateRet && m_iLU_Point >0) PutString_SprFont(GetWidth()-80, GetHeight()-90, "Level Up", 250, 250, 0); // 800x600 Resolution xRisenx added x+160 and y+120
 	//if (m_cGameModeCount < 6) //DIRECTX m_DDraw.DrawShadowBox(0,0,639,479);
 	if (m_cGameModeCount < 6) //DIRECTX m_DDraw.DrawShadowBox(0,0,799,599); // 800x600 Resolution xRisenx
 	//if (m_cGameModeCount < 2) //DIRECTX m_DDraw.DrawShadowBox(0,0,639,479);
@@ -36433,14 +36462,14 @@ void CGame::UpdateScreen_OnGame()
 		if(m_adminLevel > 1)
 		{
 			//PutAlignedString(0, 639, 0, "Ethereal", (m_GMFlags & GMFLAG_ETHEREAL) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50));
-			PutAlignedString(0, 799, 0, "Ethereal", (m_GMFlags & GMFLAG_ETHEREAL) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50)); // 800x600 Resolution xRisenx
+			PutAlignedString(0, GetWidth()-1, 0, "Ethereal", (m_GMFlags & GMFLAG_ETHEREAL) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50)); // 800x600 Resolution xRisenx
 
 			if(m_adminLevel >= 4)
 			{
 				//PutAlignedString(0, 639, 15, "No aggro", (m_GMFlags & GMFLAG_NOAGGRO) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50));
 				//PutAlignedString(0, 639, 30,  "Invincible", (m_GMFlags & GMFLAG_INVINCIBLE) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50));
-				PutAlignedString(0, 799, 15, "No aggro", (m_GMFlags & GMFLAG_NOAGGRO) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50)); // 800x600 Resolution xRisenx
-				PutAlignedString(0, 799, 30,  "Invincible", (m_GMFlags & GMFLAG_INVINCIBLE) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50)); // 800x600 Resolution xRisenx
+				PutAlignedString(0, GetWidth()-1, 15, "No aggro", (m_GMFlags & GMFLAG_NOAGGRO) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50)); // 800x600 Resolution xRisenx
+				PutAlignedString(0, GetWidth()-1, 30,  "Invincible", (m_GMFlags & GMFLAG_INVINCIBLE) ?video::SColor(255,50,220,50) :video::SColor(255,220,50,50)); // 800x600 Resolution xRisenx
 			}
 		}
 
@@ -36448,7 +36477,7 @@ void CGame::UpdateScreen_OnGame()
 		{
 			wsprintfA( G_cTxt, "Total pot: %d", m_eventPot);
 			//PutAlignedString(0, 639, 45,  G_cTxt,video::SColor(255,50,220,50));
-			PutAlignedString(0, 799, 45,  G_cTxt,video::SColor(255,50,220,50)); // 800x600 Resolution xRisenx
+			PutAlignedString(0, GetWidth()-1, 45,  G_cTxt,video::SColor(255,50,220,50)); // 800x600 Resolution xRisenx
 		}
 
 		if(m_showTime)
@@ -36853,23 +36882,23 @@ void CGame::CommandProcessor(short msX, short msY, short indexX, short indexY, c
 		if ((msX == 0) && (msY == 0) && (m_sViewDstX > 32*21) && (m_sViewDstY > 32*16)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 8, NULL, NULL, NULL, NULL);
 		else
 		//if ((msX == 639) && (msY == 0) && (m_sViewDstX < 32*m_pMapData->m_sMapSizeX - 32*21) && (m_sViewDstY > 32*16)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 2, NULL, NULL, NULL, NULL);
-		if ((msX == 799) && (msY == 0) && (m_sViewDstX < 32*m_pMapData->m_sMapSizeX - 32*21) && (m_sViewDstY > 32*16)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 2, NULL, NULL, NULL, NULL); // 800x600 Resolution xRisenx
+		if ((msX == GetWidth()-1) && (msY == 0) && (m_sViewDstX < 32*m_pMapData->m_sMapSizeX - 32*21) && (m_sViewDstY > 32*16)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 2, NULL, NULL, NULL, NULL); // 800x600 Resolution xRisenx
 		else
 		//if ((msX == 639) && (msY == 479) && (m_sViewDstX < 32*m_pMapData->m_sMapSizeX - 32*21) && (m_sViewDstY < 32*m_pMapData->m_sMapSizeY - 32*16)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 4, NULL, NULL, NULL, NULL);
-		if ((msX == 799) && (msY == 599) && (m_sViewDstX < 32*m_pMapData->m_sMapSizeX - 32*21) && (m_sViewDstY < 32*m_pMapData->m_sMapSizeY - 32*16)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 4, NULL, NULL, NULL, NULL); // 800x600 Resolution xRisenx
+		if ((msX == GetWidth()-1) && (msY == GetHeight()-1) && (m_sViewDstX < 32*m_pMapData->m_sMapSizeX - 32*21) && (m_sViewDstY < 32*m_pMapData->m_sMapSizeY - 32*16)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 4, NULL, NULL, NULL, NULL); // 800x600 Resolution xRisenx
 		else
 		//if ((msX == 0) && (msY == 479) && (m_sViewDstX > 32*21) && (m_sViewDstY < 32*m_pMapData->m_sMapSizeY - 32*16) ) bSendCommand(MSGID_REQUEST_PANNING, NULL, 6, NULL, NULL, NULL, NULL);
-		if ((msX == 0) && (msY == 599) && (m_sViewDstX > 32*21) && (m_sViewDstY < 32*m_pMapData->m_sMapSizeY - 32*16) ) bSendCommand(MSGID_REQUEST_PANNING, NULL, 6, NULL, NULL, NULL, NULL); // 800x600 Resolution xRisenx
+		if ((msX == 0) && (msY == GetHeight()-1) && (m_sViewDstX > 32*21) && (m_sViewDstY < 32*m_pMapData->m_sMapSizeY - 32*16) ) bSendCommand(MSGID_REQUEST_PANNING, NULL, 6, NULL, NULL, NULL, NULL); // 800x600 Resolution xRisenx
 		else
 		if ((msX == 0) && (m_sViewDstX > 32*21)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 7, NULL, NULL, NULL, NULL);
 		else
 		//if ((msX == 639) && (m_sViewDstX < 32*m_pMapData->m_sMapSizeX - 32*21)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 3, NULL, NULL, NULL, NULL);
-		if ((msX == 799) && (m_sViewDstX < 32*m_pMapData->m_sMapSizeX - 32*21)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 3, NULL, NULL, NULL, NULL); // 800x600 Resolution xRisenx
+		if ((msX == GetWidth()-1) && (m_sViewDstX < 32*m_pMapData->m_sMapSizeX - 32*21)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 3, NULL, NULL, NULL, NULL); // 800x600 Resolution xRisenx
 		else
 		if ((msY == 0) && (m_sViewDstY > 32*16)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 1, NULL, NULL, NULL, NULL);
 		else
 		//if ((msY == 479) && (m_sViewDstY < 32*m_pMapData->m_sMapSizeY - 32*16)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 5, NULL, NULL, NULL, NULL);
-		if ((msY == 599) && (m_sViewDstY < 32*m_pMapData->m_sMapSizeY - 32*16)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 5, NULL, NULL, NULL, NULL); // 800x600 Resolution xRisenx
+		if ((msY == GetHeight()-1) && (m_sViewDstY < 32*m_pMapData->m_sMapSizeY - 32*16)) bSendCommand(MSGID_REQUEST_PANNING, NULL, 5, NULL, NULL, NULL, NULL); // 800x600 Resolution xRisenx
 		else return;
 		lastPanTime = dwTime;
 		m_bIsObserverCommanded = TRUE;
@@ -36895,20 +36924,23 @@ void CGame::CommandProcessor(short msX, short msY, short indexX, short indexY, c
 				m_stMCursor.cPrevStatus = CURSORSTATUS_PRESSED;
 				// Snoopy: Added Golden LevelUp
 				//if ((msX >560) && (msX <620) && (msY>390) && (msY<405) && (m_iLU_Point >0))
-				if ((msX >= 710) && (msX <= 800) && (msY >= 510) && (msY <= 535) && (m_iLU_Point >0)) // 800x600 Resolution xRisenx new location for levelup button
+				if ((msX >= GetWidth()-90) && (msX <= GetWidth()) && (msY >= GetHeight()-1) && (msY <= GetHeight()-65) && (m_iLU_Point >0)) // 800x600 Resolution xRisenx new location for levelup button
 				{	
 					if (m_bIsDialogEnabled[12] != TRUE)
-					{	EnableDialogBox(12, NULL, NULL, NULL);
+					{
+						EnableDialogBox(12, NULL, NULL, NULL);
 						PlaySound('E', 14, 5);
 					}
 					m_stMCursor.cPrevStatus = CURSORSTATUS_NULL;
 					return;
 				}
-			}else if (iRet == -1)
+			}
+			else if (iRet == -1)
 			{	
 				return;
 			}
-		}else if (cRB != 0)
+		}
+		else if (cRB != 0)
 		{	
 			iRet = _iCheckDlgBoxFocus(2);
 			if (iRet == 1) return;
@@ -37040,13 +37072,13 @@ void CGame::CommandProcessor(short msX, short msY, short indexX, short indexY, c
 				if ( m_stMCursor.sSelectedObjectID == 9 )
 				{	
 					//if( msX < 320 ) m_dialogBoxes[9].m_X = 0;
-					if( msX < 400 ) m_dialogBoxes[9].m_X = 0; // 800x600 Resolution xRisenx
+					if( msX < GetWidth()/2 ) m_dialogBoxes[9].m_X = 0; // 800x600 Resolution xRisenx
 					//else m_dialogBoxes[9].m_X = 640 - m_dialogBoxes[9].sSizeX;
-					else m_dialogBoxes[9].m_X = 800 - m_dialogBoxes[9].sSizeX; // 800x600 Resolution xRisenx
+					else m_dialogBoxes[9].m_X = GetWidth() - m_dialogBoxes[9].sSizeX; // 800x600 Resolution xRisenx
 					//if( msY < 213 ) m_dialogBoxes[9].m_Y = 0;
 					if( msY < 273 ) m_dialogBoxes[9].m_Y = 0; // 800x600 Resolution xRisenx
 					//else m_dialogBoxes[9].m_Y = 427 - m_dialogBoxes[9].sSizeY;
-					else m_dialogBoxes[9].m_Y = 547 - m_dialogBoxes[9].sSizeY; // 800x600 Resolution xRisenx
+					else m_dialogBoxes[9].m_Y = GetHeight()-53 - m_dialogBoxes[9].sSizeY; // 800x600 Resolution xRisenx
 				}
 
 				m_stMCursor.cPrevStatus = CURSORSTATUS_NULL;
@@ -46901,25 +46933,25 @@ void CGame::ShowEventList(DWORD dwTime)
 	{
 		switch (m_stEventHistory[i].cColor) {
 		case 0:
-			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255, 225,225,225), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255, 225,225,225), FALSE, 1, TRUE);
 			break;
 		case 1:
-			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,130,255,130), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,130,255,130), FALSE, 1, TRUE);
 			break;
 		case 2:
-			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,255,130,130), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,255,130,130), FALSE, 1, TRUE);
 			break;
 		case 3:
-			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,130,130,255), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,130,130,255), FALSE, 1, TRUE);
 			break;
 		case 4:
-			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,230, 230, 130), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,230, 230, 130), FALSE, 1, TRUE);
 			break;
 		case 10:
-			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,180,255,180), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,180,255,180), FALSE, 1, TRUE);
 			break;
 		case 20:
-			PutFontString(font[1], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,150,150,170), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 10 + i*15, m_stEventHistory[i].cTxt, video::SColor(255,150,150,170), FALSE, 1, TRUE);
 			break;
 		//case 36: // GM Helper chat (Helper chatting in global)
 		//	PutString(10, 10 + i*15, m_stEventHistory[i].cTxt,video::SColor(255,255,153,0), FALSE, 1, TRUE);
@@ -46938,25 +46970,25 @@ void CGame::ShowEventList(DWORD dwTime)
 	{
 		switch (m_stEventHistory2[i].cColor) {
 		case 0:
-			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,225,225,225), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,225,225,225), FALSE, 1, TRUE);
 			break;
 		case 1:
-			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,130,255,130), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,130,255,130), FALSE, 1, TRUE);
 			break;
 		case 2:
-			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,255,130,130), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,255,130,130), FALSE, 1, TRUE);
 			break;
 		case 3:
-			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,130,130,255), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,130,130,255), FALSE, 1, TRUE);
 			break;
 		case 4:
-			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,230, 230, 130), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,230, 230, 130), FALSE, 1, TRUE);
 			break;
 		case 10:
-			PutFontString(font[1], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,180,255,180), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, 435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,180,255,180), FALSE, 1, TRUE);
 			break;
 		case 20:
-			PutFontString(font[1], 10, /*322*/435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,150,150,170), FALSE, 1, TRUE);
+			PutFontString(font[FONT_TREBMS8PX], 10, /*322*/435 + i*15, m_stEventHistory2[i].cTxt, video::SColor(255,150,150,170), FALSE, 1, TRUE);
 			break;
 		//case 36: //besk: GM Helper chat (helper chatting in global)
 		//	PutString(10, 435 + i*15, m_stEventHistory[i].cTxt,video::SColor(255,255,153,0), FALSE, 1, TRUE);
@@ -46970,8 +47002,9 @@ void CGame::ShowEventList(DWORD dwTime)
 		}
 	}
 	if (m_bSkillUsingStatus	== TRUE)
-	{	//PutString(280 -29, 280 -52, SHOW_EVENT_LIST1,video::SColor(255,235,235,235), FALSE, 1, TRUE);
-		PutFontString(font[1], 350, 330, SHOW_EVENT_LIST1, video::SColor(255,235,235,235), FALSE, 1, TRUE);//besk 800x600
+	{
+		//PutString(280 -29, 280 -52, SHOW_EVENT_LIST1,video::SColor(255,235,235,235), FALSE, 1, TRUE);
+		PutFontString(font[FONT_TREBMS8PX], 350, 330, SHOW_EVENT_LIST1, video::SColor(255,235,235,235), FALSE, 1, TRUE);//besk 800x600
 	}
 	//DIRECTX m_DDraw._ReleaseBackBufferDC();
 }
