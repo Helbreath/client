@@ -438,18 +438,18 @@ int XSocket::iSendMsg(char * cData, DWORD dwSize, char cKey)
 #ifdef _DEBUG
 	cKey = 0;
 #endif
-	m_pSndBuffer[0] = cKey;
+//	m_pSndBuffer[0] = cKey;
 
 	wp  = (WORD *)(m_pSndBuffer + 1);
 	*wp = (WORD)(dwSize + 3);
 
 	memcpy((char *)(m_pSndBuffer + 3), cData, dwSize);
-	if (cKey != NULL) {
-		for (i = 0; i < (int)(dwSize); i++) {
-			m_pSndBuffer[3+i] += (i ^ cKey);
-			m_pSndBuffer[3+i] = (char)( m_pSndBuffer[3+i] ^ (cKey ^ (dwSize - i)) );
-		}
-	}
+// 	if (cKey != NULL) {
+// 		for (i = 0; i < (int)(dwSize); i++) {
+// 			m_pSndBuffer[3+i] += (i ^ cKey);
+// 			m_pSndBuffer[3+i] = (char)( m_pSndBuffer[3+i] ^ (cKey ^ (dwSize - i)) );
+// 		}
+// 	}
 	
 	if (m_bIsWriteEnabled == FALSE) {
 		iRet = _iRegisterUnsentData(m_pSndBuffer, dwSize +3);

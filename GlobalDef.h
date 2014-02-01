@@ -1,20 +1,22 @@
 #ifndef GLOBALDEF_H
 #define GLOBALDEF_H
 
-#define NAME_WORLDNAME1			"WS1" 
-#define MSG_WORLDNAME1			"Helbreath Fantasy" 
+#define NAME_WORLDNAME1			"Xtreme" 
+#define MSG_WORLDNAME1			"Helbreath Xtreme" 
 
 #define NAME_WORLDNAME2			"WS2"
 #define MSG_WORLDNAME2			"Helbreath Fantasy Beta"
 
-#define MSG_HOMEPAGE			"http://www.hbfantasy.com"
-#define MSG_HOMEPAGE2			"http://www.helbreath.info/forum/viewforum.php?f=149"
+#define MSG_HOMEPAGE			"http://www.helbreathx.net"
+#define MSG_HOMEPAGE2			"http://forum.helbreathx.net"
 
 #define HBF_MAJOR			1
 #define HBF_MINOR			0 // Added new Version detail xRisenx
 #define HBF_LOWER			3
 
-#define SERVER_IP			"31.186.251.201" // Coders server
+//#define SERVER_IP			"31.186.251.201" // Coders server
+//#define SERVER_IP			"97.103.210.63"//"192.168.125.134"//"127.0.0.1"//"31.186.251.201" // Coders server
+#define SERVER_IP			"127.0.0.1"
 #define SERVER_PORT			2848
 
 #define ENGLISH 0
@@ -28,7 +30,7 @@
 /*** Some more compilation options ***/
 //#define USING_WIN_IME		// Used for unicode characters (unchecked)
 #define MAKE_ACCOUNT		// Enable acc creation. Missing sprites, fixed!
-//#define SELECTSERVER		// Show/Hides server selection screen.
+#define SELECTSERVER		// Show/Hides server selection screen.
 
 #define COMMA_GOLD		// Allows to show commas number (ie: 1,200,000)
 

@@ -197,7 +197,10 @@ public:
 	bool capslock;
 	bool CreateRenderer()
 	{
-		device = createDevice(driverType,irr::core::dimension2d<u32>(GetWidth(), GetHeight()), 16, false, false, true, this);
+		//when streaming, vsync on = screen capture nogo
+		//has to use "game capture" (render hook)
+		//vsync better for production though - include option for players to choose                                \/
+		device = createDevice(driverType,irr::core::dimension2d<u32>(GetWidth(), GetHeight()), 32, false, false, false, this);
 		if (device == 0)
 		{
 			MessageBox(NULL, L"Cannot create video device!", L"ERROR!", MB_OK);
@@ -208,7 +211,7 @@ public:
 
 
 		wchar_t winName[256];
-		wsprintfW(winName, L"Helbreath Fantasy %u.%u.%u", HBF_MAJOR, HBF_MINOR, HBF_LOWER);
+		wsprintfW(winName, L"Helbreath Xtreme %u.%u.%u", HBF_MAJOR, HBF_MINOR, HBF_LOWER);
 		device->setWindowCaption(winName);
 
 		driver = device->getVideoDriver();
@@ -219,8 +222,8 @@ public:
 		irr::video::SExposedVideoData vdata = driver->getExposedVideoData();
 		G_hWnd = reinterpret_cast<HWND>(vdata.D3D9.HWnd);
 
-		driver->getMaterial2D().TextureLayer[0].BilinearFilter=true;
-		driver->getMaterial2D().AntiAliasing=video::EAAM_FULL_BASIC;
+		driver->getMaterial2D().TextureLayer[0].BilinearFilter=false;
+		driver->getMaterial2D().AntiAliasing=video::EAAM_OFF;
 
 
 		if (driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
@@ -229,7 +232,7 @@ public:
 		}
 		else
 		{
-			MessageBoxA(0, "Unable to RTT", "RTT", MB_OK);
+			MessageBoxA(0, "Unable to RTT - background will not render", "RTT", MB_OK);
 		}
 
 		return true;

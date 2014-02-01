@@ -173,6 +173,24 @@ void CSprite::DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, video::SCo
 	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
 		color, false);
+
+
+	short dX,dY,sx,sy,szx,szy,pvx,pvy;
+
+	sx  = m_stBrush[sFrame].sx;
+	sy  = m_stBrush[sFrame].sy;
+	szx = m_stBrush[sFrame].szx;
+	szy = m_stBrush[sFrame].szy;
+	pvx = m_stBrush[sFrame].pvx;
+	pvy = m_stBrush[sFrame].pvy;
+
+	dX = sX + pvx;
+	dY = sY + pvy;
+
+	m_rcBound.left = dX;
+	m_rcBound.top  = dY;
+	m_rcBound.right  = dX + szx;
+	m_rcBound.bottom = dY + szy;
 }
 void CSprite::DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
 {

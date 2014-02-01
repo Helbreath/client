@@ -54,9 +54,9 @@ DWORD G_dwCalcSocketTime = NULL, G_dwCalcSocketSendTime = NULL;
 
 char G_cCmdLine[256], G_cCmdLineTokenA[120], G_cCmdLineTokenA_Lowercase[120], G_cCmdLineTokenB[120], G_cCmdLineTokenC[120], G_cCmdLineTokenD[120], G_cCmdLineTokenE[120];
 
-video::E_DRIVER_TYPE driverType = video::EDT_OPENGL;
+//video::E_DRIVER_TYPE driverType = video::EDT_OPENGL;
 //video::E_DRIVER_TYPE driverType = video::EDT_SOFTWARE;
-//video::E_DRIVER_TYPE driverType = video::EDT_DIRECT3D9;
+video::E_DRIVER_TYPE driverType = video::EDT_DIRECT3D9;
 
 // --------------------------------------------------------------
 

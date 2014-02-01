@@ -4568,7 +4568,7 @@ void CGame::UpdateScreen_OnLoading_Progress()
 	DrawVersion(TRUE);
 	int iBarWidth;
 	iBarWidth = m_cLoading * 2.72;
-	m_pSprite[SPRID_INTERFACE_ND_LOADING]->PutSpriteFastWidth(265, 539, 1, iBarWidth, G_dwGlobalTime);
+	m_pSprite[SPRID_INTERFACE_ND_LOADING]->PutSpriteFastWidth(265, 538, 1, iBarWidth, G_dwGlobalTime);
 	//DIRECTX m_DDraw.iFlip();
 	//Sleep(500);
 }
@@ -15725,10 +15725,10 @@ void CGame::LogResponseHandler(char * pData)
 		ChangeGameMode(GAMEMODE_ONSELECTCHARACTER);
 		ClearContents_OnSelectCharacter();
 
-#ifndef _DEBUG
-		if ( (wServerUpperVersion!=UPPER_VERSION) || (wServerLowerVersion!=LOWER_VERSION) )
-			ChangeGameMode(GAMEMODE_ONVERSIONNOTMATCH);
-#endif
+// #ifndef _DEBUG
+// 		if ( (wServerUpperVersion!=UPPER_VERSION) || (wServerLowerVersion!=LOWER_VERSION) )
+// 			ChangeGameMode(GAMEMODE_ONVERSIONNOTMATCH);
+// #endif
 		break;
 
 	case LOGRESMSGTYPE_REJECT:
@@ -15978,9 +15978,13 @@ void CGame::LogResponseHandler(char * pData)
 			cp += 20;
 			m_pGSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
 			if (m_iGameServerMode == 1)
-			{	m_pGSock->bConnect(m_cLogServerAddr, iGameServerPort, WM_USER_GAMESOCKETEVENT);
-			}else
-			{	m_pGSock->bConnect(cGameServerAddr, iGameServerPort, WM_USER_GAMESOCKETEVENT);
+			{
+				m_pGSock->bConnect(m_cLogServerAddr, iGameServerPort, WM_USER_GAMESOCKETEVENT);
+			}
+			else
+			{
+				//m_pGSock->bConnect(cGameServerAddr, iGameServerPort, WM_USER_GAMESOCKETEVENT);
+				m_pGSock->bConnect(cGameServerAddr, iGameServerPort, WM_USER_GAMESOCKETEVENT);
 			}
 			m_pGSock->bInitBufferSize(30000);
 		}
