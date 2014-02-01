@@ -193,6 +193,8 @@ public:
 
 	video::ITexture* bg;
 
+	bool gamemode;
+
 	int16_t lastchar;
 	bool capslock;
 	bool CreateRenderer()

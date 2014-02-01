@@ -368,6 +368,7 @@ void CGame::ReadUsername()
 
 CGame::CGame()
 {	
+	gamemode = 0;
 	int i;
 	srand( (unsigned)time( NULL ) );
 	ReadSettings();
@@ -1154,7 +1155,7 @@ void CGame::Quit()
 
 	delete m_pMapData;
 
-	if (m_pGSock != NULL) delete m_pGSock;
+	//if (m_pGSock != NULL) delete m_pGSock;
 	if (m_pLSock != NULL) delete m_pLSock;
 	if (G_pCalcSocket != NULL) delete G_pCalcSocket;
 }
@@ -1354,22 +1355,26 @@ void CGame::OnGameSocketEvent(WPARAM wParam, LPARAM lParam)
 		break;
 
 	case XSOCKEVENT_SOCKETCLOSED:
+		gamemode = 0;
 		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
 		delete m_pGSock;
-		m_pGSock = NULL;
+		m_pLSock = m_pGSock = NULL;
 		break;
 
 	case XSOCKEVENT_SOCKETERROR:
+		gamemode = 0;
 		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
 		delete m_pGSock;
-		m_pGSock = NULL;
+		m_pLSock =m_pGSock = NULL;
 		break;
 
 	case XSOCKEVENT_CRITICALERROR:
+		gamemode = 0;
 		delete m_pGSock;
-		m_pGSock = NULL;
+		m_pLSock =m_pGSock = NULL;
 		if (G_pCalcSocket != NULL)
-		{	delete G_pCalcSocket;
+		{
+			delete G_pCalcSocket;
 			G_pCalcSocket = NULL;
 		}
 		break;
@@ -1533,12 +1538,14 @@ BOOL CGame::SendLoginCommand(DWORD dwMsgID)
 	case XSOCKEVENT_QUENEFULL:
 		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
 		delete m_pLSock;
-		m_pLSock = NULL;
+		gamemode = 0;
+		m_pGSock = m_pLSock = NULL;
 		break;
 
 	case XSOCKEVENT_CRITICALERROR:
+		gamemode = 0;
 		delete m_pLSock;
-		m_pLSock = NULL;
+		m_pGSock = m_pLSock = NULL;
 		SendMessage(m_hWnd, WM_DESTROY, NULL, NULL);
 		break;
 	}
@@ -2665,15 +2672,19 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 			sObjSprFrame = m_pMapData->m_tile[indexX][indexY].m_sObjectSpriteFrame;
 
 			if (sObjSpr != 0)
-			{	if ((sObjSpr < 100) || (sObjSpr >= 200))
-				{	switch (sObjSpr) {
+			{
+				if ((sObjSpr < 100) || (sObjSpr >= 200))
+				{
+					switch (sObjSpr)
+					{
 					case 200:
 					case 223:
 						m_pTileSpr[sObjSpr]->PutShadowSprite(ix - 16, iy - 16, sObjSprFrame, dwTime);
 						break;
 
 					case 224:
-						switch (sObjSprFrame) {
+						switch (sObjSprFrame)
+						{
 						case 24:
 						case 34:
 						case 35:
@@ -2684,18 +2695,25 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 						default:
 							m_pTileSpr[sObjSpr]->PutShadowSprite(ix - 16, iy - 16, sObjSprFrame, dwTime);
 							break;
-					}	}
+						}
+					}
 					if (m_cDetailLevel == 0) // Special Grass & Flowers
-					{	if ((sObjSpr != 6) && (sObjSpr != 9))
+					{
+						if ((sObjSpr != 6) && (sObjSpr != 9))
 							m_pTileSpr[sObjSpr]->PutSpriteFast(ix - 16, iy - 16, sObjSprFrame, dwTime);
-					}else
-					{	m_pTileSpr[sObjSpr]->PutSpriteFast(ix - 16, iy - 16, sObjSprFrame, dwTime);
+					}
+					else
+					{
+						m_pTileSpr[sObjSpr]->PutSpriteFast(ix - 16, iy - 16, sObjSprFrame, dwTime);
 					}
 
-					switch (sObjSpr) {
+					switch (sObjSpr)
+					{
 					case 200:
-						if (sObjSprFrame == 32) {
-							if (G_cSpriteAlphaDegree == 2) {
+						if (sObjSprFrame == 32)
+						{
+							if (G_cSpriteAlphaDegree == 2)
+							{
 								int iDvalue1 = -1*(rand() % 5);
 								m_pEffectSpr[0]->PutTransSpriteRGB(ix-2,  iy - 75, 1, iDvalue1, iDvalue1, iDvalue1, dwTime);
 							}
@@ -2703,14 +2721,17 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 						break;
 					case 223:
 						if (sObjSprFrame == 4)
-						{	if (G_cSpriteAlphaDegree == 2) //nuit
-							{	int iDvalue1 = -1*(rand() % 5);
+						{
+							if (G_cSpriteAlphaDegree == 2) //nuit
+							{
+								int iDvalue1 = -1*(rand() % 5);
 								int iDvalue2 = -1*(rand() % 5);
 								int iDvalue3 = -1*(rand() % 5);
 								m_pEffectSpr[0]->PutTransSpriteRGB(ix-2,  iy - 150, 1, iDvalue1, iDvalue1, iDvalue1, dwTime);
 								m_pEffectSpr[0]->PutTransSpriteRGB(ix+16, iy - 96,  1, iDvalue2, iDvalue2, iDvalue2, dwTime);
 								m_pEffectSpr[0]->PutTransSpriteRGB(ix-19, iy - 126, 1, iDvalue3, iDvalue3, iDvalue3, dwTime);
-						}	}
+							}
+						}
 						break;
 
 					case 370: // nuit
@@ -2725,7 +2746,8 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 						break;
 
 					case 376: // nuit
-						if ( ((dwTime - m_dwEnvEffectTime) > 400) && (sObjSprFrame == 12) && (G_cSpriteAlphaDegree == 2)) {
+						if ( ((dwTime - m_dwEnvEffectTime) > 400) && (sObjSprFrame == 12) && (G_cSpriteAlphaDegree == 2))
+						{
 							bAddNewEffect(65, m_sViewPointX + ix -16, m_sViewPointY + iy -346, NULL, NULL, NULL, 0);
 							bAddNewEffect(65, m_sViewPointX + ix +11, m_sViewPointY + iy -308, NULL, NULL, NULL, 0);
 						}
@@ -2736,7 +2758,8 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 						break;
 
 					case 382: // nuit
-						if ( ((dwTime - m_dwEnvEffectTime) > 400) && (sObjSprFrame == 9) && (G_cSpriteAlphaDegree == 2)) {
+						if ( ((dwTime - m_dwEnvEffectTime) > 400) && (sObjSprFrame == 9) && (G_cSpriteAlphaDegree == 2))
+						{
 							bAddNewEffect(65, m_sViewPointX + ix +73, m_sViewPointY + iy -264, NULL, NULL, NULL, 0);
 							bAddNewEffect(65, m_sViewPointX + ix +23, m_sViewPointY + iy -228, NULL, NULL, NULL, 0);
 						}
@@ -2746,7 +2769,8 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 						if ( ((dwTime - m_dwEnvEffectTime) > 400) && (sObjSprFrame == 2)) bAddNewEffect(65, m_sViewPointX + ix -15, m_sViewPointY + iy -224, NULL, NULL, NULL, 0);
 						break;
 					}
-				}else // sprites 100..199: Trees and tree shadows
+				}
+				else // sprites 100..199: Trees and tree shadows
 				{	
 					m_pTileSpr[sObjSpr]->_GetSpriteRect(ix - 16, iy - 16, sObjSprFrame);
 					//if (m_cDetailLevel==0)
@@ -3288,7 +3312,7 @@ void CGame::ConnectionEstablishHandler(char cWhere)
 
 	switch (cWhere) {
 	case SERVERTYPE_GAME:
-		//bSendCommand(MSGID_REQUEST_INITPLAYER);
+		bSendCommand(MSGID_REQUEST_INITPLAYER);
 		break;
 
 	case SERVERTYPE_LOG:
@@ -3339,25 +3363,29 @@ void CGame::InitPlayerResponseHandler(char * pData)
 }
 
 void CGame::UpdateScreen_OnMainMenu()
-{ short msX, msY, msZ;
- char cLB, cRB, cMB, cMIresult;
- int  iMIbuttonNum;
- static class CMouseInterface * pMI;
- DWORD dwTime = G_dwGlobalTime;
+{
+	short msX, msY, msZ;
+	char cLB, cRB, cMB, cMIresult;
+	int  iMIbuttonNum;
+	static class CMouseInterface * pMI;
+	DWORD dwTime = G_dwGlobalTime;
 
- msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
- cLB = (m_stMCursor.LB==true)?1:0;cRB = (m_stMCursor.RB==true)?1:0;cMB = (m_stMCursor.MB==true)?1:0;
+	msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
+	cLB = (m_stMCursor.LB==true)?1:0;cRB = (m_stMCursor.RB==true)?1:0;cMB = (m_stMCursor.MB==true)?1:0;
 
- m_iItemDropCnt = 0;
- m_bItemDrop = FALSE;
+	m_iItemDropCnt = 0;
+	m_bItemDrop = FALSE;
 
 	if (m_cGameModeCount == 0)
-	{	if (G_pCalcSocket != NULL)
-		{	delete G_pCalcSocket;
+	{
+		if (G_pCalcSocket != NULL)
+		{
+			delete G_pCalcSocket;
 			G_pCalcSocket = NULL;
 		}
 		if ( m_pSprite[SPRID_INTERFACE_ND_LOADING] != NULL )
-		{	delete m_pSprite[SPRID_INTERFACE_ND_LOADING];
+		{
+			delete m_pSprite[SPRID_INTERFACE_ND_LOADING];
 			m_pSprite[SPRID_INTERFACE_ND_LOADING] = NULL;
 		}
 		EndInputString();
@@ -15461,20 +15489,23 @@ void CGame::OnLogSocketEvent(WPARAM wParam, LPARAM lParam)
 		break;
 
 	case XSOCKEVENT_SOCKETCLOSED:
+		gamemode = 0;
 		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
 		delete m_pLSock;
-		m_pLSock = NULL;
+		m_pGSock = m_pLSock = NULL;
 		break;
 
 	case XSOCKEVENT_SOCKETERROR:
+		gamemode = 0;
 		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
 		delete m_pLSock;
-		m_pLSock = NULL;
+		m_pGSock = m_pLSock = NULL;
 		break;
 
 	case XSOCKEVENT_CRITICALERROR:
+		gamemode = 0;
 		delete m_pLSock;
-		m_pLSock = NULL;
+		m_pGSock = m_pLSock = NULL;
 		break;
 	}
 }
@@ -15976,17 +16007,20 @@ void CGame::LogResponseHandler(char * pData)
 			ZeroMemory(m_cGameServerName, sizeof(m_cGameServerName));
 			memcpy(m_cGameServerName, cp, 20);
 			cp += 20;
-			m_pGSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-			if (m_iGameServerMode == 1)
-			{
-				m_pGSock->bConnect(m_cLogServerAddr, iGameServerPort, WM_USER_GAMESOCKETEVENT);
-			}
-			else
-			{
-				//m_pGSock->bConnect(cGameServerAddr, iGameServerPort, WM_USER_GAMESOCKETEVENT);
-				m_pGSock->bConnect(cGameServerAddr, iGameServerPort, WM_USER_GAMESOCKETEVENT);
-			}
-			m_pGSock->bInitBufferSize(30000);
+			//m_pGSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+			gamemode = 1;
+			m_pGSock = m_pLSock;
+			ConnectionEstablishHandler(SERVERTYPE_GAME);
+// 			if (m_iGameServerMode == 1)
+// 			{
+// 				m_pGSock->bConnect(m_cLogServerAddr, iGameServerPort, WM_USER_GAMESOCKETEVENT);
+// 			}
+// 			else
+// 			{
+// 				//m_pGSock->bConnect(cGameServerAddr, iGameServerPort, WM_USER_GAMESOCKETEVENT);
+// 				m_pGSock->bConnect(cGameServerAddr, iGameServerPort, WM_USER_GAMESOCKETEVENT);
+// 			}
+// 			m_pGSock->bInitBufferSize(30000);
 		}
 		break;
 
@@ -16050,8 +16084,9 @@ void CGame::LogResponseHandler(char * pData)
 		break;
 
 	}
-	delete m_pLSock;
-	m_pLSock = NULL;
+// 	delete m_pLSock;
+// 	gamemode = 0;
+// 	m_pGSock = m_pLSock = NULL;
 }
 
 void CGame::LogRecvMsgHandler(char * pData)
@@ -22468,16 +22503,16 @@ void CGame::UpdateScreen_OnSelectCharacter()
 		PlaySound('E', 14, 5);
 
 		if (m_pCharList[m_cCurFocus-1] != NULL)
-		{	if (m_pCharList[m_cCurFocus-1]->m_sSex != NULL)
-			{	ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
+		{
+			if (m_pCharList[m_cCurFocus-1]->m_sSex != NULL)
+			{
+				ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
 				strcpy(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
 				m_iLevel = (int)m_pCharList[m_cCurFocus-1]->m_sLevel;
 				if (m_Misc.bCheckValidString(m_cPlayerName) == TRUE)
-				{	m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
+				{
+					m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
 					m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
-					m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-					m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
-					m_pLSock->bInitBufferSize(30000);
 					ChangeGameMode(GAMEMODE_ONCONNECTING);
 					m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
 					m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
@@ -22486,10 +22521,23 @@ void CGame::UpdateScreen_OnSelectCharacter()
 					ZeroMemory(m_cMapName, sizeof(m_cMapName));
 					memcpy(m_cMapName, m_pCharList[m_cCurFocus-1]->m_cMapName, 10);
 					delete pMI;
+					if (!m_pLSock)
+					{
+						m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+						m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
+						m_pLSock->bInitBufferSize(30000);
+					}
+					else
+					{
+						ConnectionEstablishHandler(SERVERTYPE_LOG);
+					}
 					return;
-			}	}
-		}else
-		{	_InitOnCreateNewCharacter();
+				}
+			}
+		}
+		else
+		{
+			_InitOnCreateNewCharacter();
 			ChangeGameMode(GAMEMODE_ONCREATENEWCHARACTER);
 			delete pMI;
 			return;
@@ -22528,18 +22576,18 @@ void CGame::UpdateScreen_OnSelectCharacter()
 			if (m_cCurFocus != iMIbuttonNum)
 				m_cCurFocus = iMIbuttonNum;
 			else
-			{	if (m_pCharList[m_cCurFocus-1] != NULL)
-				{	if (m_pCharList[m_cCurFocus-1]->m_sSex != NULL)
-					{	ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
+			{
+				if (m_pCharList[m_cCurFocus-1] != NULL)
+				{
+					if (m_pCharList[m_cCurFocus-1]->m_sSex != NULL)
+					{
+						ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
 						strcpy(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
 						m_iLevel = (int)m_pCharList[m_cCurFocus-1]->m_sLevel;
 						if (m_Misc.bCheckValidString(m_cPlayerName) == TRUE)
 						{
 							m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
 							m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
-							m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-							m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
-							m_pLSock->bInitBufferSize(30000);
 							ChangeGameMode(GAMEMODE_ONCONNECTING);
 							m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
 							m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
@@ -22548,10 +22596,23 @@ void CGame::UpdateScreen_OnSelectCharacter()
 							ZeroMemory(m_cMapName, sizeof(m_cMapName));
 							memcpy(m_cMapName, m_pCharList[m_cCurFocus-1]->m_cMapName, 10);
 							delete pMI;
+							if (!m_pLSock)
+							{
+								m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+								m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
+								m_pLSock->bInitBufferSize(30000);
+							}
+							else
+							{
+								ConnectionEstablishHandler(SERVERTYPE_LOG);
+							}
 							return;
-					}	}
-				}else
-				{	_InitOnCreateNewCharacter();
+						}
+					}
+				}
+				else
+				{
+					_InitOnCreateNewCharacter();
 					ChangeGameMode(GAMEMODE_ONCREATENEWCHARACTER);
 					delete pMI;
 					return;
@@ -22561,17 +22622,17 @@ void CGame::UpdateScreen_OnSelectCharacter()
 
 		case 5:
 			if (m_pCharList[m_cCurFocus - 1] != NULL)
-			{	if (m_pCharList[m_cCurFocus-1]->m_sSex != NULL)
-				{	ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
+			{
+				if (m_pCharList[m_cCurFocus-1]->m_sSex != NULL)
+				{
+					ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
 					strcpy(m_cPlayerName, m_pCharList[m_cCurFocus-1]->m_cName);
 					m_iLevel = (int)m_pCharList[m_cCurFocus-1]->m_sLevel;
 
-					if (m_Misc.bCheckValidString(m_cPlayerName) == TRUE) {
+					if (m_Misc.bCheckValidString(m_cPlayerName) == TRUE)
+					{
 						m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
 						m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
-						m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-						m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
-						m_pLSock->bInitBufferSize(30000);
 						ChangeGameMode(GAMEMODE_ONCONNECTING);
 						m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
 						m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
@@ -22580,8 +22641,20 @@ void CGame::UpdateScreen_OnSelectCharacter()
 						ZeroMemory(m_cMapName, sizeof(m_cMapName));
 						memcpy(m_cMapName, m_pCharList[m_cCurFocus-1]->m_cMapName, 10);
 						delete pMI;
+						if (!m_pLSock)
+						{
+							m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+							m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
+							m_pLSock->bInitBufferSize(30000);
+						}
+						else
+						{
+							ConnectionEstablishHandler(SERVERTYPE_LOG);
+						}
 						return;
-			}	}	}
+					}	
+				}
+			}
 			break;
 
 		case 6:
@@ -26250,14 +26323,18 @@ void CGame::UpdateScreen_OnConnecting()
 		{
 			isItemLoaded = false;
 			ChangeGameMode(GAMEMODE_ONMAINMENU);
+			gamemode = 0;
 			if (m_pLSock != NULL)
-			{	delete m_pLSock;
+			{
+				delete m_pLSock;
 				m_pLSock = NULL;
 			}
 			if (m_pGSock != NULL)
-			{	delete m_pGSock;
+			{
+				//delete m_pGSock;
 				m_pGSock = NULL;
-		}	}
+			}
+		}
 		m_bEscPressed = FALSE;
 		return;
 	}
@@ -26351,14 +26428,18 @@ void CGame::UpdateScreen_OnWaitInitData()
 		{
 			isItemLoaded = false;
 			ChangeGameMode(GAMEMODE_ONMAINMENU);
+			gamemode = 0;
 			if (m_pLSock != NULL)
-			{	delete m_pLSock;
+			{
+				delete m_pLSock;
 				m_pLSock = NULL;
 			}
 			if (m_pGSock != NULL)
-			{	delete m_pGSock;
+			{
+				//delete m_pGSock;
 				m_pGSock = NULL;
-		}	}
+			}
+		}
 		m_bEscPressed = FALSE;
 		return;
 	}
@@ -27037,14 +27118,21 @@ void CGame::UpdateScreen_OnCreateNewCharacter()		// DrawCreateCharacter
 			if (m_Misc.bCheckValidName(cName) == FALSE) break;
 			ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
 			strcpy(m_cPlayerName, cName);
-			m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-			m_pLSock->bInitBufferSize(30000);
 			ChangeGameMode(GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CREATENEWCHARACTER;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg,"22");
 			delete pMI;
+			if (!m_pLSock)
+			{
+				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
+				m_pLSock->bInitBufferSize(30000);
+			}
+			else
+			{
+				ConnectionEstablishHandler(SERVERTYPE_LOG);
+			}
 			return;
 
 
@@ -28108,15 +28196,22 @@ void CGame::UpdateScreen_OnCreateNewAccount()
 				delete pMI;
 				return;
 			}
-			m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-			m_pLSock->bInitBufferSize(30000);
 
 			ChangeGameMode(GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CREATENEWACCOUNT;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "00");
 			delete pMI;
+			if (!m_pLSock)
+			{
+				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
+				m_pLSock->bInitBufferSize(30000);
+			}
+			else
+			{
+				ConnectionEstablishHandler(SERVERTYPE_LOG);
+			}
 			return;
 
 		case 8:
@@ -28178,15 +28273,21 @@ void CGame::UpdateScreen_OnCreateNewAccount()
 				delete pMI;
 				return;
 			}
-
-			m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-			m_pLSock->bInitBufferSize(30000);
 			ChangeGameMode(GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CREATENEWACCOUNT;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "00");
 			delete pMI;
+			if (!m_pLSock)
+			{
+				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
+				m_pLSock->bInitBufferSize(30000);
+			}
+			else
+			{
+				ConnectionEstablishHandler(SERVERTYPE_LOG);
+			}
 			return;
 
 		case 8:
@@ -28332,14 +28433,21 @@ void CGame::UpdateScreen_OnLogin()
 			ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
 			strcpy(m_cAccountName, cName);
 			strcpy(m_cAccountPassword, cPassword);
-			m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
-			m_pLSock->bInitBufferSize(30000);
 			ChangeGameMode(GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_LOGIN;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "11");
 			delete pMI;
+			if (!m_pLSock)
+			{
+				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
+				m_pLSock->bInitBufferSize(30000);
+			}
+			else
+			{
+				ConnectionEstablishHandler(SERVERTYPE_LOG);
+			}
 			return;
 		case 4:	// Exit
 /*#ifdef SELECTSERVER
@@ -28413,14 +28521,21 @@ void CGame::UpdateScreen_OnLogin()
 			ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
 			strcpy(m_cAccountName, cName);
 			strcpy(m_cAccountPassword, cPassword);
-			m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
-			m_pLSock->bInitBufferSize(30000);
 			ChangeGameMode(GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_LOGIN;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "11");
 			delete pMI;
+			if (!m_pLSock)
+			{
+				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
+				m_pLSock->bInitBufferSize(30000);
+			}
+			else
+			{
+				ConnectionEstablishHandler(SERVERTYPE_LOG);
+			}
 			return;
 
 		case 4: // Exit button
@@ -29480,15 +29595,22 @@ void CGame::UpdateScreen_OnQueryForceLogin()
 	{	PlaySound('E', 14, 5);
 		switch (iMIbuttonNum) {
 		case 1:
-			m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-			m_pLSock->bInitBufferSize(30000);
 			ChangeGameMode(GAMEMODE_ONCONNECTING);
 			m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
 			m_wEnterGameType = ENTERGAMEMSGTYPE_NOENTER_FORCEDISCONN;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg,"33");
 			delete pMI;
+			if (!m_pLSock)
+			{
+				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
+				m_pLSock->bInitBufferSize(30000);
+			}
+			else
+			{
+				ConnectionEstablishHandler(SERVERTYPE_LOG);
+			}
 			return;
 
 		case 2:
@@ -29725,18 +29847,23 @@ void CGame::UpdateScreen_OnWaitingResponse()
 	if (m_cGameModeCount > 100) m_cGameModeCount = 100;
 
 	if (m_bEscPressed == TRUE)
-	{	if ((dwTime - m_dwTime) > 7000)
+	{
+		if ((dwTime - m_dwTime) > 7000)
 		{
 			isItemLoaded = false;
 			ChangeGameMode(GAMEMODE_ONMAINMENU);
+			gamemode = 0;
 			if (m_pLSock != NULL)
-			{	delete m_pLSock;
+			{
+				delete m_pLSock;
 				m_pLSock = NULL;
 			}
 			if (m_pGSock != NULL)
-			{	delete m_pGSock;
+			{
+				//delete m_pGSock;
 				m_pGSock = NULL;
-		}	}
+			}
+		}
 		m_bEscPressed = FALSE;
 		return;
 	}
@@ -29885,21 +30012,29 @@ void CGame::UpdateScreen_OnQueryDeleteCharacter()
 	{	PlaySound('E', 14, 5);
 		switch (iMIbuttonNum) {
 		case 1:
-			m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-			m_pLSock->bInitBufferSize(30000);
 			ChangeGameMode(GAMEMODE_ONCONNECTING);
 			m_dwConnectMode  = MSGID_REQUEST_DELETECHARACTER;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg,"33");
 			delete pMI;
+			if (!m_pLSock)
+			{
+				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
+				m_pLSock->bInitBufferSize(30000);
+			}
+			else
+			{
+				ConnectionEstablishHandler(SERVERTYPE_LOG);
+			}
 			return;
 
 		case 2:
 			ChangeGameMode(GAMEMODE_ONSELECTCHARACTER);
 			delete pMI;
 			break;
-	}	}
+		}
+	}
 	DrawVersion();
 	m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(msX, msY, 0, dwTime);
 	//if (//DIRECTX m_DDraw.iFlip() == DDERR_SURFACELOST) RestoreSprites();
@@ -33121,14 +33256,21 @@ void CGame::UpdateScreen_OnChangePassword()
 			strcpy(m_cAccountPassword, cPassword);
 			strcpy(m_cNewPassword, cNewPassword);
 			strcpy(m_cNewPassConfirm, cNewPassConfirm);
-			m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-			m_pLSock->bInitBufferSize(30000);
 			ChangeGameMode(GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CHANGEPASSWORD;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "41");
 			delete pMI;
+			if (!m_pLSock)
+			{
+				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
+				m_pLSock->bInitBufferSize(30000);
+			}
+			else
+			{
+				ConnectionEstablishHandler(SERVERTYPE_LOG);
+			}
 			return;
 
 		case 6:	// Cancel
@@ -33257,14 +33399,21 @@ void CGame::UpdateScreen_OnChangePassword()
 			strcpy(m_cAccountPassword, cPassword);
 			strcpy(m_cNewPassword, cNewPassword);
 			strcpy(m_cNewPassConfirm, cNewPassConfirm);
-						m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-			m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-			m_pLSock->bInitBufferSize(30000);
 			ChangeGameMode(GAMEMODE_ONCONNECTING);
 			m_dwConnectMode = MSGID_REQUEST_CHANGEPASSWORD;
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "41");
 			delete pMI;
+			if (!m_pLSock)
+			{
+				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
+				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
+				m_pLSock->bInitBufferSize(30000);
+			}
+			else
+			{
+				ConnectionEstablishHandler(SERVERTYPE_LOG);
+			}
 			return;
 
 		case 6:
@@ -46393,19 +46542,25 @@ void CGame::NotifyMsg_ServerChange(char * pData)
 	ip = (int *)cp;
 	iWorldServerPort = *ip;
 	cp += 4;
+	gamemode = 0;
 	if (m_pGSock != NULL)
-	{	delete m_pGSock;
+	{
+		//delete m_pGSock;
 		m_pGSock = NULL;
 	}
 	if (m_pLSock != NULL)
-	{	delete m_pLSock;
+	{
+		delete m_pLSock;
 		m_pLSock = NULL;
 	}
 	m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
 	if (m_iGameServerMode == 1) // LAN
-	{	m_pLSock->bConnect(m_cLogServerAddr, iWorldServerPort, WM_USER_LOGSOCKETEVENT);
-	}else
-	{	m_pLSock->bConnect(cWorldServerAddr, iWorldServerPort, WM_USER_LOGSOCKETEVENT);
+	{
+		m_pLSock->bConnect(m_cLogServerAddr, iWorldServerPort, WM_USER_LOGSOCKETEVENT);
+	}
+	else
+	{
+		m_pLSock->bConnect(cWorldServerAddr, iWorldServerPort, WM_USER_LOGSOCKETEVENT);
 	}
 	m_pLSock->bInitBufferSize(30000);
 

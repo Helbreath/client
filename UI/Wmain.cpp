@@ -151,11 +151,13 @@ LRESULT CALLBACK WndProc(HWND hWnd,UINT message,WPARAM wParam, LPARAM lParam)
 		break;
 		
 	case WM_USER_GAMESOCKETEVENT:
-		G_pGame->OnGameSocketEvent(wParam, lParam);
 		break;
 
 	case WM_USER_LOGSOCKETEVENT:
-		G_pGame->OnLogSocketEvent(wParam, lParam);
+		if (G_pGame->gamemode == 1)
+			G_pGame->OnGameSocketEvent(wParam, lParam);
+		else
+			G_pGame->OnLogSocketEvent(wParam, lParam);
 		break;
 
 	case WM_USER_VOTESOCKETEVENT:
