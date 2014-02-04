@@ -2256,12 +2256,12 @@ BOOL CGame::bSendCommand(DWORD dwMsgID, WORD wCommand, char cDir, int iV1, int i
 	case XSOCKEVENT_QUENEFULL:
 		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
 		delete m_pGSock;
-		m_pGSock = NULL;
+		m_pLSock = m_pGSock = NULL;
 		break;
 
 	case XSOCKEVENT_CRITICALERROR:
 		delete m_pGSock;
-		m_pGSock = NULL;
+		m_pLSock = m_pGSock = NULL;
 		if (G_pCalcSocket != NULL) {
 			delete G_pCalcSocket;
 			G_pCalcSocket = NULL;
@@ -4635,7 +4635,7 @@ void CGame::OnTimer()
 				MessageBoxA(m_hWnd, "Error Code: 1600\n\nHBFantasy.exe has detected an illegal program or modifcation.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
 				ChangeGameMode(GAMEMODE_ONQUIT);
 				delete m_pGSock;
-				m_pGSock = NULL;
+				m_pLSock = m_pGSock = NULL;
 				m_bEscPressed = FALSE;
 				PlaySound('E', 14, 5);
 // 				if (m_bSoundFlag) m_pESound[38]->bStop();
@@ -4656,7 +4656,7 @@ void CGame::OnTimer()
 				{
 					ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
 					delete m_pGSock;
-					m_pGSock = NULL;
+					m_pLSock = m_pGSock = NULL;
 					return;
 				}
 			}else m_iNetLagCount = NULL;
@@ -4665,7 +4665,7 @@ void CGame::OnTimer()
 		if ((G_bIsCalcSocketConnected == FALSE) && ((dwTime - G_dwCalcSocketTime) > 5000))
 		{
 			delete m_pGSock;
-			m_pGSock = NULL;
+			m_pLSock = m_pGSock = NULL;
 			ChangeGameMode(GAMEMODE_ONQUIT);
 			m_bEscPressed = FALSE;
 			PlaySound('E', 14, 5);
@@ -9093,9 +9093,9 @@ void CGame::PutFontString(gui::IGUIFont * font, int iX, int iY, char const * pSt
 			PutFontString(font, iX+1, iY, (char*)pString, color);
 			break;
 		case 1:
-// 			PutFontString(font, iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
-// 			PutFontString(font, iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
-// 			PutFontString(font, iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
+			PutFontString(font, iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutFontString(font, iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutFontString(font, iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
 			break;
 		}
 		PutFontString(font, iX, iY, (char*)pString, color);
@@ -9114,9 +9114,9 @@ void CGame::PutFontString(gui::IGUIFont * font, int iX, int iY, char const * pSt
 			PutFontString(font, iX+1, iY, (char*)pString, color);
 			break;
 		case 1:
-// 			PutFontString(font, iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
-// 			PutFontString(font, iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
-// 			PutFontString(font, iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
+			PutFontString(font, iX, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutFontString(font, iX+1, iY+1, (char*)pString, video::SColor(255,5,5,5));
+			PutFontString(font, iX+1, iY, (char*)pString, video::SColor(255,5,5,5));
 			break;
 		}
 		PutFontString(font, iX, iY, (char*)pString, color);
@@ -9486,12 +9486,12 @@ void CGame::RequestFullObjectData(WORD wObjectID)
 		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
 
 		delete m_pGSock;
-		m_pGSock = NULL;
+		m_pLSock = m_pGSock = NULL;
 		break;
 
 	case XSOCKEVENT_CRITICALERROR:
 		delete m_pGSock;
-		m_pGSock = NULL;
+		m_pLSock = m_pGSock = NULL;
 
 		if (G_pCalcSocket != NULL) {
 			delete G_pCalcSocket;
@@ -29460,7 +29460,7 @@ void CGame::UpdateScreen_OnQuit()
 		}
 		if (m_pGSock != NULL)
 		{	delete m_pGSock;
-			m_pGSock = NULL;
+			m_pLSock = m_pGSock = NULL;
 		}
 		m_bEscPressed = FALSE;
 		m_bEnterPressed = FALSE;
@@ -36564,7 +36564,7 @@ void CGame::UpdateScreen_OnGame()
 	{
 		isItemLoaded = false;
 		delete m_pGSock;
-		m_pGSock = NULL;
+		m_pLSock = m_pGSock = NULL;
 		m_bEscPressed = FALSE;
 
 		PlaySound('E', 14, 5);
@@ -37272,7 +37272,7 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 	if (m_bCommandAvailable == FALSE) return;
 	if ( (dwTime - m_dwCommandTime) < 300 )
 	{	delete m_pGSock;
-		m_pGSock = NULL;
+		m_pLSock = m_pGSock = NULL;
 		m_bEscPressed = FALSE;
 		PlaySound('E', 14, 5);
 //DIRECTX		if (m_bSoundFlag) m_pESound[38]->bStop();
@@ -45085,7 +45085,7 @@ void CGame::NotifyMsg_ForceDisconn(char *pData)
 		AddEventList(NOTIFYMSG_FORCE_DISCONN1, 10);
 	}else
 	{	delete m_pGSock;
-		m_pGSock = NULL;
+		m_pLSock = m_pGSock = NULL;
 		m_bEscPressed = FALSE;
 //DIRECTX		if (m_bSoundFlag) m_pESound[38]->bStop();
 		if ((m_bSoundFlag) && (m_bMusicStat == TRUE))
@@ -47313,7 +47313,7 @@ void CGame::InitDataResponseHandler(char * pData)
 	m_sPlayerLegApprValue = *sp; // Re-Coding Sprite xRisenx
 	cp += 2;
 
-	// CLEROTH - BLACK FIX
+	// CLEROTH - BLACK FIX <- you mean my fix I made 13 years ago. tyvm
 	ip = (int *)cp;
 	m_iPlayerStatus = *ip;
 	cp += 4;
