@@ -268,6 +268,8 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	ClipCursor( &WindowRect );
 
 
+	G_pGame->clipmousegame = true;
+	G_pGame->clipmousewindow = true;
 
 	MSG msg;
 	while (true)

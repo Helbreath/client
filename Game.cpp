@@ -16515,7 +16515,8 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 			{
 				sSpr      = m_pMapData->m_tile[indexX][indexY].m_sTileSprite;
 				sSprFrame = m_pMapData->m_tile[indexX][indexY].m_sTileSpriteFrame;
-				m_pTileSpr[sSpr]->PutSpriteFastNoColorKeyDst((LPDIRECTDRAWSURFACE7)0, ix - 16 +sModX, iy - 16 +sModY, sSprFrame, m_dwCurTime);
+				if (m_pTileSpr[sSpr])
+					m_pTileSpr[sSpr]->PutSpriteFastNoColorKeyDst((LPDIRECTDRAWSURFACE7)0, ix - 16 +sModX, iy - 16 +sModY, sSprFrame, m_dwCurTime);
 				indexX++;
 			}
 			indexY++;
@@ -47076,7 +47077,7 @@ void CGame::_Draw_OnLogin(char *pAccount, char *pPassword, int msX, int msY, int
 		DrawNewDialogBox(SPRID_INTERFACE_ND_LOGIN, 353, 359, 8, TRUE); // Display Disabled button
 	}
 
-	if ((m_bIsHideLocalCursor != TRUE) && (msX != 0) && (msY != 0))
+	if ((m_bIsHideLocalCursor != TRUE)/* && (msX != 0) && (msY != 0)*/)
 	{
 		m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(msX, msY, 0, dwTime);
 	}
@@ -47499,7 +47500,7 @@ void CGame::MotionEventHandler(char * pData)
 			Pop(cp, sY);
 			Pop(cp, sType);
 			Pop(cp, cDir);
-			Pop(cp, cName);
+			Pop(cp, cName, 10);
 			Pop(cp, sAppr1);
 			Pop(cp, sAppr2);
 			Pop(cp, sAppr3);

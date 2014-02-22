@@ -17,6 +17,7 @@
 //#define SERVER_IP			"31.186.251.201" // Coders server
 //#define SERVER_IP			"97.103.210.63"//"192.168.125.134"//"127.0.0.1"//"31.186.251.201" // Coders server
 #define SERVER_IP			"127.0.0.1"
+//#define SERVER_IP			"192.168.0.13" //vm
 #define SERVER_PORT			2848
 
 #define ENGLISH 0

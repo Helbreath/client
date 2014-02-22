@@ -190,7 +190,8 @@ BOOL XSocket::bConnect(char * pAddr, int iPort, unsigned int uiMsg, bool addrIsU
 	saTemp.sin_port = htons(iPort);
 
 	WSAAsyncSelect(m_Sock, m_hWnd, uiMsg, FD_CONNECT | FD_READ | FD_WRITE | FD_CLOSE);
-	
+	m_uiMsg = uiMsg;
+
 	iRet = connect(m_Sock, (struct sockaddr *) &saTemp, sizeof(saTemp));
 	if (iRet == SOCKET_ERROR) {
 		if (WSAGetLastError() != WSAEWOULDBLOCK) {
@@ -206,7 +207,6 @@ BOOL XSocket::bConnect(char * pAddr, int iPort, unsigned int uiMsg, bool addrIsU
 	strcpy(m_pAddr, pAddr);
 	m_iPortNum = iPort;
 
-	m_uiMsg = uiMsg;
 	m_cType = XSOCK_NORMALSOCK;
 
 	return TRUE;
