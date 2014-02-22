@@ -5,7 +5,7 @@
 #define MSG_WORLDNAME1			"Helbreath Xtreme" 
 
 #define NAME_WORLDNAME2			"WS2"
-#define MSG_WORLDNAME2			"Helbreath Fantasy Beta"
+#define MSG_WORLDNAME2			"Helbreath Xtreme Beta"
 
 #define MSG_HOMEPAGE			"http://www.helbreathx.net"
 #define MSG_HOMEPAGE2			"http://forum.helbreathx.net"
@@ -15,8 +15,8 @@
 #define HBF_LOWER			3
 
 //#define SERVER_IP			"31.186.251.201" // Coders server
-//#define SERVER_IP			"97.103.210.63"//"192.168.125.134"//"127.0.0.1"//"31.186.251.201" // Coders server
-#define SERVER_IP			"127.0.0.1"
+#define SERVER_IP			"54.213.193.6"//"192.168.125.134"//"127.0.0.1"//"31.186.251.201" // Coders server
+//#define SERVER_IP			"127.0.0.1"
 //#define SERVER_IP			"192.168.0.13" //vm
 #define SERVER_PORT			2848
 

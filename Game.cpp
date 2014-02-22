@@ -4632,7 +4632,7 @@ void CGame::OnTimer()
 //#ifndef _DEBUG
 			if( CheckCheating() /*|| CheckHackProgram()*/ )
 			{
-				MessageBoxA(m_hWnd, "Error Code: 1600\n\nHBFantasy.exe has detected an illegal program or modifcation.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
+				MessageBoxA(m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modifcation.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
 				ChangeGameMode(GAMEMODE_ONQUIT);
 				delete m_pGSock;
 				m_pLSock = m_pGSock = NULL;
@@ -23140,8 +23140,8 @@ void CGame::DlgBoxClick_CityhallMenu()
 
 			if(cmd >= CMD_LGNSVC_TRADETOKEN1 && cmd <= CMD_LGNSVC_TRADETOKEN100)
 			{
-				if(GetItemCount("FantasyTokens") >= lgnPtsSvcs[i + m_dialogBoxes[13].sView].price
-					|| GetItemCount("FantasyDonateTokens") >= lgnPtsSvcs[i + m_dialogBoxes[13].sView].price)
+				if(GetItemCount("XtremeTokens") >= lgnPtsSvcs[i + m_dialogBoxes[13].sView].price
+					|| GetItemCount("XtremeDonateTokens") >= lgnPtsSvcs[i + m_dialogBoxes[13].sView].price)
 				{
 					bSendCommand(MSGID_REQUEST_LGNSVC, cmd, NULL, NULL, NULL, NULL, NULL);
 					m_cash += lgnPtsSvcs[i + m_dialogBoxes[13].sView].price;
@@ -23548,7 +23548,7 @@ int CGame::_iCalcTotalWeight()
 	{	if (   (m_pItemList[i]->m_cItemType == ITEMTYPE_CONSUME)
 			|| (m_pItemList[i]->m_cItemType == ITEMTYPE_ARROW) )
 		{	iTemp = m_pItemList[i]->m_wWeight * m_pItemList[i]->m_dwCount;
-			if ((strcmp(m_pItemList[i]->m_cName, "Gold") == 0) || (strcmp(m_pItemList[i]->m_cName, "FantasyTokens") == 0)) iTemp = iTemp / 20;
+			if ((strcmp(m_pItemList[i]->m_cName, "Gold") == 0) || (strcmp(m_pItemList[i]->m_cName, "XtremeTokens") == 0)) iTemp = iTemp / 20;
 			iWeight += iTemp;
 		}else iWeight += m_pItemList[i]->m_wWeight;
 		iCnt++;
@@ -26244,7 +26244,7 @@ void CGame::CreateScreenShot()
 	GetLocalTime(&SysTime);
 	ZeroMemory(ServerName, sizeof(ServerName));
 	ZeroMemory(SStime, sizeof(SStime));
-	wsprintfA(SStime, "Helbreath Fantasy");
+	wsprintfA(SStime, "Helbreath Xtreme");
 	wsprintfA(SStime2, "%02d / %02d / %02d", SysTime.wMonth, SysTime.wDay, SysTime.wYear);
 	wsprintfA(SStime3, "%02d : %02d : %02d", SysTime.wHour, SysTime.wMinute, SysTime.wSecond);
 
@@ -26269,7 +26269,7 @@ void CGame::CreateScreenShot()
 		wsprintfA(cFn, "screenshots\\HelShot%04d%02d%02d_%02d%02d%02d.jpg",
 			(now->tm_year + 1900), (now->tm_mon + 1), now->tm_mday,
 			now->tm_hour, now->tm_min, now->tm_sec);
-		//		   wsprintfA(cFn, "SAVE\\Helbreath Fantasy SS #%d.bmp", i);
+		//		   wsprintfA(cFn, "SAVE\\Helbreath Xtreme SS #%d.bmp", i);
 
 		if(_access(cFn, 0 ) == -1){
 
@@ -28426,7 +28426,7 @@ void CGame::UpdateScreen_OnLogin()
 		case 2:
 		case 3:
 			if(CheckCheating()) {
-				MessageBoxA(m_hWnd, "Error Code: 1600\n\nHBFantasy.exe has detected an illegal program or modifcation.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
+				MessageBoxA(m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modifcation.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
 				exit(1600);
 			}
 			if ((strlen(cName) == 0) || (strlen(cPassword) == 0)) break;
@@ -28513,7 +28513,7 @@ void CGame::UpdateScreen_OnLogin()
 
 		case 3:
 			if(CheckCheating()) {
-				MessageBoxA(m_hWnd, "Error Code: 1600\n\nHBFantasy.exe has detected an illegal program or modifcation.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
+				MessageBoxA(m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modifcation.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
 				exit(1600);
 			}
 			if ((strlen(cName) == 0) || (strlen(cPassword) == 0)) break;
@@ -39644,7 +39644,7 @@ void CGame::DrawDialogBox_CityHallMenu()
 		break;
 
 	case LEGIONPTSSERVICES:
-		wsprintfA(cTxt, "Fantasy points: %u", m_cash);
+		wsprintfA(cTxt, "Xtreme points: %u", m_cash);
 		PutAlignedString(sX, sX + szX, sY + 35,  cTxt, video::SColor(255,55,25,25));
 		if (onButton == 1)
 			PutAlignedString(sX + 160, sX + szX, sY + 35, DRAW_DIALOGBOX_CITYHALL_MENU14 , video::SColor(255,255,255,255));
@@ -52257,7 +52257,7 @@ void CGame::OnVoteSocketEvent(WPARAM wParam, LPARAM lParam)
 
 		strcat(httpRequest, "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.2.8) Gecko/20100722 Firefox/3.6.8\r\n");
 		strcat(httpRequest, "Accept: image/png,image/*;q=0.8,*/*;q=0.5\r\n");
-		strcat(httpRequest, "Referer: http://hellbreathfantasy.com/\r\n");
+		strcat(httpRequest, "Referer: http://www.helbreathx.net/\r\n");
 		strcat(httpRequest, "\r\n");
 
 		m_voteSocket->SendRawMsg(httpRequest, strlen(httpRequest));

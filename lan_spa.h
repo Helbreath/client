@@ -668,7 +668,7 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 
 
 #define	UPDATE_SCREEN_ON_VERSION_NO_MATCH1	"La version de tu cliente no coincide con la del servidor!"
-#define	UPDATE_SCREEN_ON_VERSION_NO_MATCH2	"Ejecuta el programa \"HelbreathFantasy.exe\" y vuelve a intentarlo."
+#define	UPDATE_SCREEN_ON_VERSION_NO_MATCH2	"Ejecuta el programa \"HelbreathXtreme.exe\" y vuelve a intentarlo."
 
 
 #define	DRAW_VERSION1	"Version para administradores."
@@ -962,7 +962,7 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 
 //#define	DRAW_DIALOGBOX_CITYHALL_MENU8	"Take the HERO's Items."
 #define	DRAW_DIALOGBOX_CITYHALL_MENU10	"Cancelar la Misión."
-#define	DRAW_DIALOGBOX_CITYHALL_MENU11	"Fantasy puntos servicios."
+#define	DRAW_DIALOGBOX_CITYHALL_MENU11	"Xtreme puntos servicios."
 #define	DRAW_DIALOGBOX_CITYHALL_MENU12	"Teletransporte Lista."
 #define	DRAW_DIALOGBOX_CITYHALL_MENU13	"Cambiar mi deber en la crusada."
 #define	DRAW_DIALOGBOX_CITYHALL_MENU14	"Actualizar"
@@ -2139,8 +2139,8 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 #define MSG_NOTIFY_SKILLCFG "El SKILLCFGTXT.cfg contiene información erronea."
 #define MSG_NOTIFY_DIRECTX7 "Este programa requiere DirectX7.0a!"
 
-#define MSG_NOTIFY_LEGIONPT1 "No tienes suficientes Fantasy Points!."
-#define MSG_NOTIFY_LEGIONPT2 " Dirigete a http://www.hellbreathfantasy.com/donate.php"
+#define MSG_NOTIFY_LEGIONPT1 "No tienes suficientes Xtreme Points!."
+#define MSG_NOTIFY_LEGIONPT2 " Dirigete a http://www.helbreathx.net/donate.php"
 #define MSG_NOTIFY_LEGIONPT3 " Para informarte como obtener los puntos."
 
 #define MSG_NOTIFY_HELP "Presiona F1 para ver noticias y ayuda."
@@ -2321,7 +2321,7 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 
 #define NOTIFYMSG_QUEST_STARTED "La misión ha comenzado. Puedes ver la información presionando el boton 'Quest' en el menú del personaje."
 
-#define LNG_STARTLAUNCHER "Ejecuta el programa \"HelbreathFantasy.exe\" para jugar!"
+#define LNG_STARTLAUNCHER "Ejecuta el programa \"HelbreathXtreme.exe\" para jugar!"
 
 #define	NOTIFYMSG_NOTHING_TO_REPAIR "Usted no tiene ningún artículo que requiere reparación."
 

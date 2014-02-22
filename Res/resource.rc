@@ -136,12 +136,12 @@ BEGIN
     BEGIN
         BLOCK "000004b0"
         BEGIN
-            VALUE "FileDescription", "Fantasy Client"
-            VALUE "FileVersion", "2.3.0.0"
+            VALUE "FileDescription", "Xtreme Client"
+            VALUE "FileVersion", "0.1.0.0"
             VALUE "InternalName", "client"
-            VALUE "LegalCopyright", "Copyright (C) 2012"
-            VALUE "ProductName", "Helbreath Fantasy"
-            VALUE "ProductVersion", "2.3.0.0"
+            VALUE "LegalCopyright", "Copyright (C) 2014"
+            VALUE "ProductName", "Helbreath Xtreme"
+            VALUE "ProductVersion", "0.1.0.0"
         END
     END
     BLOCK "VarFileInfo"

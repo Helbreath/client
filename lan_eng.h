@@ -794,7 +794,7 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 
 //#define	UPDATE_SCREEN_ON_VERSION_NO_MATCH1	"Client program version does not match with server!"
 //#define	UPDATE_SCREEN_ON_VERSION_NO_MATCH2	"Please run the launcher and try again."
-#define	UPDATE_SCREEN_ON_VERSION_NO_MATCH1	"Client version does not match with the Fantasy server!"
+#define	UPDATE_SCREEN_ON_VERSION_NO_MATCH1	"Client version does not match with the server!"
 #define	UPDATE_SCREEN_ON_VERSION_NO_MATCH2	"Please run the launcher and try again."
 
 
@@ -1109,7 +1109,7 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 
 #define	DRAW_DIALOGBOX_CITYHALL_MENU9	"Quest List."
 #define	DRAW_DIALOGBOX_CITYHALL_MENU10	"Cancel the Quest."
-#define	DRAW_DIALOGBOX_CITYHALL_MENU11	"Fantasy points services."
+#define	DRAW_DIALOGBOX_CITYHALL_MENU11	"Xtreme points services."
 #define	DRAW_DIALOGBOX_CITYHALL_MENU12	"Teleport List."
 #define	DRAW_DIALOGBOX_CITYHALL_MENU13	"Change the part of total war."
 #define	DRAW_DIALOGBOX_CITYHALL_MENU14	"Update"
@@ -1721,7 +1721,7 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 #define NOTIFYMSG_EVENTTPCLOSE		"Teleports to the event are now closed."
 #define NOTIFYMSG_EVENTILLUSIONON		"Illusion has been actived for the event."
 #define NOTIFYMSG_EVENTILLUSIONOFF		"The illusion effect for the event has been removed."
-#define NOTIFYMSG_DONATEEVENTTPOPEN		"A donation-only event has begun! Report to your City Hall with 5 Fantasy Tokens to enter!"
+#define NOTIFYMSG_DONATEEVENTTPOPEN		"A donation-only event has begun! Report to your City Hall with 5 Xtreme Tokens to enter!"
 #define NOTIFYMSG_DONATEEVENTTPCLOSE		"Teleports to the donation event are now closed."
 
 #define	NOTIFYMSG_CANCEL_EXCHANGEITEM1	"Item exchange has been cancelled!"
@@ -2336,7 +2336,7 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 #define DRAW_DIALOGBOX_CITYHALL_MENU76	"There are no available areas to teleport."
 
 #define DRAW_DIALOGBOX_CITYHALL_MENU77  "%s (%d Gold)"
-#define DRAW_DIALOGBOX_CITYHALL_MENU78  "Donation Event (%d Fantasy Tokens)"
+#define DRAW_DIALOGBOX_CITYHALL_MENU78  "Donation Event (%d Xtreme Tokens)"
 
 #define DRAW_DIALOGBOX_YESNO1			  "Are you sure you want to delete this mail?"
 #define DRAW_DIALOGBOX_YESNO2			  "Are you sure you want to delete this post?"
@@ -2357,7 +2357,7 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 #define RESPONSE_CHARGED_TELEPORT4 "Criminals cannot go to the area."
 #define RESPONSE_CHARGED_TELEPORT5 "You may not teleport to the same town."
 #define RESPONSE_CHARGED_TELEPORT6 "You need more gold to teleport."
-#define RESPONSE_CHARGED_TELEPORT7 "You need more Fantasy Tokens to teleport."
+#define RESPONSE_CHARGED_TELEPORT7 "You need more Xtreme Tokens to teleport."
 
 #define MSG_NOTIFY_CHECKSUM "File checksum error! Get Update again please!"
 #define MSG_NOTIFY_LOGIN "login.cfg file contains wrong infomation."
@@ -2366,10 +2366,10 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 #define MSG_NOTIFY_SKILLCFG "SKILLCFG.TXT file contains wrong infomation."
 #define MSG_NOTIFY_DIRECTX7 "This program requires DirectX7.0a!"
 
-#define MSG_NOTIFY_LEGIONPT1 "You do not have enough Fantasy points."
-#define MSG_NOTIFY_LEGIONPT2 " Go to http://www.hellbreathfantasy.com/donate.php"
+#define MSG_NOTIFY_LEGIONPT1 "You do not have enough Xtreme points."
+#define MSG_NOTIFY_LEGIONPT2 " Go to http://www.helbreathx.net/donate.php"
 #define MSG_NOTIFY_LEGIONPT3 " for information on how to get points."
-#define MSG_NOTIFY_LEGIONPT4 "You do not have enough Fantasy Tokens."
+#define MSG_NOTIFY_LEGIONPT4 "You do not have enough Xtreme Tokens."
 #define MSG_NOTIFY_LEGIONPT5 "You do not have that spell."
 
 #define MSG_NOTIFY_HELP "Press F1 for news and help."
@@ -2576,7 +2576,7 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 #define NOTIFYMSG_QUEST_STARTED "Quest has started. You can see quest info by pressing 'Quest' button in character menu."
 
 
-#define LNG_STARTLAUNCHER "Execute the launcher \"HBFantasy Updator.exe\" to play!"
+#define LNG_STARTLAUNCHER "Execute the launcher \"Client Updator.exe\" to play!"
 
 #define DRAW_ENABLED "enabled"
 #define DRAW_DISABLED	"disabled"
