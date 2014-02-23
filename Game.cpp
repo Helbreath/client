@@ -413,7 +413,7 @@ CGame::CGame()
 	m_weight = 0;
 	m_droppedOnIconbar = FALSE;
 
-	m_voteUrls.push_back("hbtop50.com/button.php?u=Legion"); // Voting ? xRisenx
+	//m_voteUrls.push_back("hbtop50.com/button.php?u=Legion"); // Voting ? xRisenx
 
 	for (i = 0; i < MAXSPRITES; i++) m_pSprite[i] = NULL;
 	for (i = 0; i < MAXTILES; i++) m_pTileSpr[i] = NULL;
@@ -4583,7 +4583,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 			}
 			isItemLoaded = false;
 			ChangeGameMode(GAMEMODE_ONMAINMENU);
-			TopsiteVote();
+			//TopsiteVote();
 		}
 		break;
 	}

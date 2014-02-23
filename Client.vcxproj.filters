@@ -39,6 +39,8 @@
     <Image Include="Res\icon1.ico">
       <Filter>res</Filter>
     </Image>
+    <Image Include="favicon.ico" />
+    <Image Include="Res\favicon.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Res\resource.h">
