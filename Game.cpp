@@ -2254,6 +2254,7 @@ BOOL CGame::bSendCommand(DWORD dwMsgID, WORD wCommand, char cDir, int iV1, int i
 	case XSOCKEVENT_SOCKETCLOSED:
 	case XSOCKEVENT_SOCKETERROR:
 	case XSOCKEVENT_QUENEFULL:
+		gamemode = 0;
 		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
 		delete m_pGSock;
 		m_pLSock = m_pGSock = NULL;
@@ -4655,6 +4656,7 @@ void CGame::OnTimer()
 				if (m_iNetLagCount >= 7)
 				{
 					ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
+					gamemode = 0;
 					delete m_pGSock;
 					m_pLSock = m_pGSock = NULL;
 					return;
@@ -4664,6 +4666,7 @@ void CGame::OnTimer()
 
 		if ((G_bIsCalcSocketConnected == FALSE) && ((dwTime - G_dwCalcSocketTime) > 5000))
 		{
+			gamemode = 0;
 			delete m_pGSock;
 			m_pLSock = m_pGSock = NULL;
 			ChangeGameMode(GAMEMODE_ONQUIT);
@@ -9485,6 +9488,7 @@ void CGame::RequestFullObjectData(WORD wObjectID)
 	case XSOCKEVENT_QUENEFULL:
 		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
 
+		gamemode = 0;
 		delete m_pGSock;
 		m_pLSock = m_pGSock = NULL;
 		break;
@@ -36563,6 +36567,7 @@ void CGame::UpdateScreen_OnGame()
 	// Logout
 	if (m_cLogOutCount == 0)
 	{
+		gamemode = 0;
 		isItemLoaded = false;
 		delete m_pGSock;
 		m_pLSock = m_pGSock = NULL;
@@ -37272,7 +37277,9 @@ void CGame::CommandProcessor(short msX, short msY, short indexX, short indexY, c
 CP_SKIPMOUSEBUTTONSTATUS:;
 	if (m_bCommandAvailable == FALSE) return;
 	if ( (dwTime - m_dwCommandTime) < 300 )
-	{	delete m_pGSock;
+	{
+		gamemode = 0;
+		delete m_pGSock;
 		m_pLSock = m_pGSock = NULL;
 		m_bEscPressed = FALSE;
 		PlaySound('E', 14, 5);
@@ -45085,7 +45092,9 @@ void CGame::NotifyMsg_ForceDisconn(char *pData)
 	{	if( m_cLogOutCount < 0 || m_cLogOutCount > 5 ) m_cLogOutCount = 5;
 		AddEventList(NOTIFYMSG_FORCE_DISCONN1, 10);
 	}else
-	{	delete m_pGSock;
+	{
+		gamemode = 0;
+		delete m_pGSock;
 		m_pLSock = m_pGSock = NULL;
 		m_bEscPressed = FALSE;
 //DIRECTX		if (m_bSoundFlag) m_pESound[38]->bStop();
