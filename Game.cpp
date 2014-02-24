@@ -16536,13 +16536,13 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 	
 	driver->draw2DImage(bg, core::vector2d<s32>(0-sModX,0-sModY));
 
-
-	char cfps[20];
-	sprintf(cfps, "sModX: %d sModY: %d", sModX, sModY);
-
-	font[0]->draw(cfps,
-		core::rect<s32>(5,100,40,110),
-		video::SColor(255,255,255,255));
+// 
+// 	char cfps[20];
+// 	sprintf(cfps, "sModX: %d sModY: %d", sModX, sModY);
+// 
+// 	font[0]->draw(cfps,
+// 		core::rect<s32>(5,100,40,110),
+// 		video::SColor(255,255,255,255));
 
 
 

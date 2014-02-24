@@ -1269,15 +1269,15 @@ void CMapData::ShiftMapData(char cDir) // 800x600 Resolution xRisenx Map Setting
 	case 1: // NORTH
 		//orig 21x, 15y
 		for (ix = 0; ix < /*26*/ 25; ix++) 
-			for (iy = 0; iy < /*19*/ 17; iy++)
+			for (iy = 0; iy < /*19*/ 18; iy++)
 				//memcpy(&m_pTmpData[4+5+ix][6+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[7+ix][9+iy], &m_pData[7+ix][8+iy], sizeof(class CTile));
 		m_sPivotY--;
 		break;
 	case 2:
 		//orig 20x, 15y
-		for (ix = 0; ix < /*25*/ 24; ix++) 
-			for (iy = 0; iy < /*19*/ 17; iy++) 
+		for (ix = 0; ix < /*25*/ 25; ix++) 
+			for (iy = 0; iy < /*19*/ 18; iy++) 
 				//memcpy(&m_pTmpData[4+5+ix][6+5+iy], &m_pData[5+5+ix][5+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[7+ix][9+iy], &m_pData[8+ix][8+iy], sizeof(class CTile));
 		m_sPivotX++;
@@ -1285,7 +1285,7 @@ void CMapData::ShiftMapData(char cDir) // 800x600 Resolution xRisenx Map Setting
 		break;
 	case 3: // EAST
 		//orig 20x, 16y
-		for (ix = 0; ix < /*25*/ 24; ix++) 
+		for (ix = 0; ix < /*25*/ 25; ix++) 
 			for (iy = 0; iy < /*20*/ 18; iy++) 
 				//memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[5+5+ix][5+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[7+ix][8+iy], &m_pData[8+ix][8+iy], sizeof(class CTile));  
@@ -1293,8 +1293,8 @@ void CMapData::ShiftMapData(char cDir) // 800x600 Resolution xRisenx Map Setting
 		break;
 	case 4:
 		//orig 20x 15y
-		for (ix = 0; ix < /*25*/ 24; ix++) 
-			for (iy = 0; iy < /*19*/ 17; iy++) 
+		for (ix = 0; ix < /*25*/ 25; ix++) 
+			for (iy = 0; iy < /*19*/ 18; iy++) 
 				//memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[5+5+ix][6+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[7+ix][8+iy], &m_pData[8+ix][9+iy], sizeof(class CTile));  
 		m_sPivotX++;
@@ -1303,15 +1303,15 @@ void CMapData::ShiftMapData(char cDir) // 800x600 Resolution xRisenx Map Setting
 	case 5: // SOUTH
 		//orig 21x 15y
 		for (ix = 0; ix < /*26*/ 25; ix++) 
-			for (iy = 0; iy < /*19*/ 17; iy++) 
+			for (iy = 0; iy < /*19*/ 18; iy++) 
 				//memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[4+5+ix][6+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[7+ix][8+iy], &m_pData[7+ix][9+iy], sizeof(class CTile));  
 		m_sPivotY++;
 		break;
 	case 6:
 		//orig 20x, 15y
-		for (ix = 0; ix < /*25*/ 24; ix++) 
-			for (iy = 0; iy < /*19*/ 17; iy++) 
+		for (ix = 0; ix < /*25*/ 25; ix++) 
+			for (iy = 0; iy < /*19*/ 18; iy++) 
 				//memcpy(&m_pTmpData[5+5+ix][5+5+iy], &m_pData[4+5+ix][6+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[8+ix][8+iy], &m_pData[7+ix][9+iy], sizeof(class CTile));  
 		m_sPivotX--;
@@ -1319,7 +1319,7 @@ void CMapData::ShiftMapData(char cDir) // 800x600 Resolution xRisenx Map Setting
 		break;
 	case 7: // WEST
 		//orig 20x 16y
-		for (ix = 0; ix < /*25*/ 24; ix++) 
+		for (ix = 0; ix < /*25*/ 25; ix++) 
 			for (iy = 0; iy < /*20*/ 18; iy++)
 				//memcpy(&m_pTmpData[5+5+ix][5+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[8+ix][8+iy], &m_pData[7+ix][8+iy], sizeof(class CTile));  
@@ -1327,8 +1327,8 @@ void CMapData::ShiftMapData(char cDir) // 800x600 Resolution xRisenx Map Setting
 		break;
 	case 8:
 		//orig 20x 15y
-		for (ix = 0; ix < /*25*/ 24; ix++) 
-			for (iy = 0; iy < /*19*/ 17; iy++) 
+		for (ix = 0; ix < /*25*/ 25; ix++) 
+			for (iy = 0; iy < /*19*/ 18; iy++) 
 				//memcpy(&m_pTmpData[5+5+ix][6+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[8+ix][9+iy], &m_pData[7+ix][8+iy], sizeof(class CTile));  
 		m_sPivotX--;
@@ -2517,7 +2517,7 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 					//	&& (m_sRectY <= dY) && ((m_sRectY + 15) >= dY)) {
 					//BESK RESOLUTION
 					if (   (m_sRectX <= dX) && ((m_sRectX + 24) >= dX)
-						&& (m_sRectY <= dY) && ((m_sRectY + 17) >= dY)) {
+						&& (m_sRectY <= dY) && ((m_sRectY + 18) >= dY)) {
 					//end resolution
 								if (m_pData[dX][dY].m_cOwnerAction == OBJECTDYING) {	
 									m_pData[dX][dY].m_wDeadObjectID        = m_pData[dX][dY].m_wObjectID;
