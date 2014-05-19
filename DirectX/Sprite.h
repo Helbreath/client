@@ -95,6 +95,9 @@ public:
 	void PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime);
 	void PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime);
 
+	void PutTransSpriteRGB(int sX, int sY, int sFrame, uint32_t color, DWORD dwTime);
+	void PutSpriteRGB(int sX, int sY, int sFrame, uint32_t color, DWORD dwTime);
+
 	void PutShadowSpriteClip(int sX, int sY, int sFrame, DWORD dwTime);
 	void PutShadowSprite(int sX, int sY, int sFrame, DWORD dwTime);
 

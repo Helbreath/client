@@ -150,7 +150,7 @@ public:
 	char  m_cName[21];
 	char  m_cItemType;
 	char  m_cEquipPos;
-	char  m_cItemColor;
+	uint32_t m_ItemColor;
 	char  m_cSpeed;
 	char  m_cGenderLimit;
 //	short m_sItemEffectType;

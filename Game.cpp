@@ -18538,8 +18538,9 @@ char    cTotalItems;
 		sp = (short *)cp;
 		m_pItemList[i]->m_sSpriteFrame = *sp;
 		cp += 2;
-		m_pItemList[i]->m_cItemColor = *cp;
-		cp++;
+		dwp = (DWORD *)cp;
+		m_pItemList[i]->m_ItemColor = *dwp;
+		cp += 4;
 		m_pItemList[i]->m_sItemSpecEffectValue2 = (short)*cp;
 		cp++;
 		dwp = (DWORD *)cp;
@@ -18623,8 +18624,9 @@ char    cTotalItems;
 		m_pBankList[i]->m_sSpriteFrame = *sp;
 		cp += 2;
 
-		m_pBankList[i]->m_cItemColor = *cp;
-		cp++;
+		dwp = (DWORD*)cp;
+		m_pBankList[i]->m_ItemColor = *dwp;
+		cp += 4;
 
 		m_pBankList[i]->m_sItemSpecEffectValue2 = (short)*cp;
 		cp++;
@@ -21922,7 +21924,7 @@ void CGame::DrawDialogBox_Inventory()
 	int i;
 	short sX, sY;
 	DWORD dwTime = m_dwCurTime;
-	char cItemColor;
+	uint32_t ItemColor;
 	int uTotalItem = 0;
 	char onButton = m_dialogBoxes[2].OnButton();
 	sX = m_dialogBoxes[2].m_X;
@@ -21938,10 +21940,10 @@ void CGame::DrawDialogBox_Inventory()
 		}
 		else
 		{
-			cItemColor = m_pItemList[m_cItemOrder[i]]->m_cItemColor;
+			ItemColor = m_pItemList[m_cItemOrder[i]]->m_ItemColor;
 			if (m_bIsItemDisabled[ m_cItemOrder[i] ] == TRUE)
 			{
-				if (cItemColor == 0)
+				if (ItemColor == 0)
 					 m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutTransSprite2(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 					 	                                                sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame, dwTime);
 				else
@@ -21952,21 +21954,21 @@ void CGame::DrawDialogBox_Inventory()
 					{
 						m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutTransSpriteRGB(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 																			sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame,
-																			m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0],
+																			ItemColor,
 																			dwTime);
 					}
 					else
 					{
 						m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutTransSpriteRGB(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 																			sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame,
-																			m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0],
+																			ItemColor,
 																			dwTime);
 					}
 				}
 			}
 			else
 			{
-				if (cItemColor == 0)
+				if (ItemColor == 0)
 					 m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutSpriteFast(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 																		sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame, dwTime);
 				else
@@ -21978,14 +21980,14 @@ void CGame::DrawDialogBox_Inventory()
 
 						m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutSpriteRGB(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 																			sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame,
-																			m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0],
+																			ItemColor,
 																			dwTime);
 					}
 					else
 					{
 						m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_cItemOrder[i]]->m_sSprite]->PutSpriteRGB(sX + 32 + m_pItemList[m_cItemOrder[i]]->m_sX,
 																			sY + 44 + m_pItemList[m_cItemOrder[i]]->m_sY, m_pItemList[m_cItemOrder[i]]->m_sSpriteFrame,
-																			m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0],
+																			ItemColor,
 																			dwTime);
 					}
 				}
@@ -26196,7 +26198,7 @@ void CGame::ReceiveMailData(char * data)
 		Pop(data, item->m_wWeight);
 		Pop(data, (uint16&)item->m_sSprite);
 		Pop(data, (uint16&)item->m_sSpriteFrame);
-		Pop(data, (uint8&)item->m_cItemColor);
+		Pop(data, (uint32&)item->m_ItemColor);
 		Pop(data, (uint16&)item->m_sItemSpecEffectValue2);
 		Pop(data, item->m_dwAttribute);
 		for(int i = 0; i < MAXITEMSOCKETS; i++)
@@ -30614,8 +30616,9 @@ void CGame::NotifyMsgHandler(char * pData)
 		sp  = (short *)cp;
 		m_pItemList[sV1]->m_sSpriteFrame = *sp;
 		cp += 2;
-		m_pItemList[sV1]->m_cItemColor = *cp ;
-		cp++ ;
+		dwp = (DWORD *) cp ;
+		m_pItemList[sV1]->m_ItemColor = *dwp ;
+		cp += 4 ;
 		m_pItemList[sV1]->m_sItemSpecEffectValue2 = *cp ;
 		cp++ ;
 		dwp = (DWORD *) cp ;
@@ -36033,7 +36036,7 @@ void CGame::UpdateScreen_OnGame()
 	static int  iUpdateRet = -1;
 	static uint32 perfVar = 0, perfCnt = 0;
 	short absX, absY, tX, tY;
-	char cItemColor;
+	uint32_t ItemColor;
 	int  i, iAmount;
 	DWORD dwTime = timeGetTime();
 	static DWORD dwPrevChatTime = 0;
@@ -36438,19 +36441,19 @@ void CGame::UpdateScreen_OnGame()
 	if ( (iUpdateRet != 0) && (m_stMCursor.cSelectedObjectType == SELECTEDOBJTYPE_ITEM) &&
 		 (m_pItemList[m_stMCursor.sSelectedObjectID] != NULL) )
 	{
-		cItemColor = m_pItemList[m_stMCursor.sSelectedObjectID]->m_cItemColor;
-		if (cItemColor != 0) {
+		ItemColor = m_pItemList[m_stMCursor.sSelectedObjectID]->m_ItemColor;
+		if (ItemColor != 0) {
 			if ((m_pItemList[m_stMCursor.sSelectedObjectID]->m_cEquipPos == EQUIPPOS_LHAND) ||
 				(m_pItemList[m_stMCursor.sSelectedObjectID]->m_cEquipPos == EQUIPPOS_RHAND) ||
 				(m_pItemList[m_stMCursor.sSelectedObjectID]->m_cEquipPos == EQUIPPOS_TWOHAND))
 			{	m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_stMCursor.sSelectedObjectID]->m_sSprite]->PutSpriteRGB(G_pGame->m_stMCursor.sX - m_stMCursor.sDistX, G_pGame->m_stMCursor.sY - m_stMCursor.sDistY,
 																	  m_pItemList[m_stMCursor.sSelectedObjectID]->m_sSpriteFrame,
-																	  m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0],
+																	  ItemColor,
 																	  dwTime);
 			}else
 			{	m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_stMCursor.sSelectedObjectID]->m_sSprite]->PutSpriteRGB(G_pGame->m_stMCursor.sX - m_stMCursor.sDistX, G_pGame->m_stMCursor.sY - m_stMCursor.sDistY,
 																	  m_pItemList[m_stMCursor.sSelectedObjectID]->m_sSpriteFrame,
-																	  m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0],
+																	  ItemColor,
 																	  dwTime);
 			}
 		}else m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[m_stMCursor.sSelectedObjectID]->m_sSprite]->PutSpriteFast(G_pGame->m_stMCursor.sX - m_stMCursor.sDistX, G_pGame->m_stMCursor.sY - m_stMCursor.sDistY,
@@ -38445,7 +38448,8 @@ void CGame::DrawDialogBox_Bank()
 	short sX, sY, szX;
 	int  i, iTotalLines, iPointerLoc;
 	double d1, d2, d3;
-	char cItemColor, cStr1[64], cStr2[64], cStr3[64];
+	uint32_t ItemColor;
+	char cStr1[64], cStr2[64], cStr3[64];
 	BOOL bFlag = FALSE;
 
 	char onButton = m_dialogBoxes[14].OnButton();
@@ -38516,8 +38520,8 @@ void CGame::DrawDialogBox_Bank()
 					++iter;
 				}
 
-				cItemColor = m_pBankList[i + m_dialogBoxes[14].sView]->m_cItemColor;
-				if( cItemColor == 0 )
+				ItemColor = m_pBankList[i + m_dialogBoxes[14].sView]->m_ItemColor;
+				if( ItemColor == 0 )
 				{
 					m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pBankList[i + m_dialogBoxes[14].sView]->m_sSprite]->PutSpriteFast(sX+40, sY+68, m_pBankList[i + m_dialogBoxes[14].sView]->m_sSpriteFrame, m_dwCurTime);
 				}else
@@ -38527,10 +38531,10 @@ void CGame::DrawDialogBox_Bank()
 						|| m_pBankList[i + m_dialogBoxes[14].sView]->m_cEquipPos == EQUIPPOS_TWOHAND)
 				{
 					m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pBankList[i + m_dialogBoxes[14].sView]->m_sSprite]->PutSpriteRGB(sX+40, sY+68, m_pBankList[i + m_dialogBoxes[14].sView]->m_sSpriteFrame,
-						m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
+						ItemColor, m_dwCurTime);
 				}else
 					m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pBankList[i + m_dialogBoxes[14].sView]->m_sSprite]->PutSpriteRGB(sX+40, sY+68, m_pBankList[i + m_dialogBoxes[14].sView]->m_sSpriteFrame,
-						m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+						ItemColor, m_dwCurTime);
 				}
 			}
 			else if(iter != end)
@@ -38571,9 +38575,10 @@ void CGame::DrawDialogBox_FeedBackCard()
 void CGame::DrawDialogBox_Character()
 {
 	short sX, sY, sSprH, sFrame;
- int i, iR, iG, iB, iSkirtDraw = 0;
- char cTxt2[120], cEquipPoiStatus[MAXITEMEQUIPPOS];
- char  cItemColor, cCollison;
+	int i, iR, iG, iB, iSkirtDraw = 0;
+	char cTxt2[120], cEquipPoiStatus[MAXITEMEQUIPPOS];
+	uint32_t ItemColor;
+	 char cCollison;
 
 	char onButton = m_dialogBoxes[1].OnButton();
 	sX = m_dialogBoxes[1].m_X;
@@ -38708,16 +38713,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_BACK] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_BACK]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_BACK]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BACK]]->m_cItemColor;
+			ItemColor  = m_pItemList[cEquipPoiStatus[EQUIPPOS_BACK]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_BACK] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 41, sY + 137, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 41, sY + 137, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 41, sY + 137, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 41, sY + 137, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{	
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 41, sY + 137, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{	
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 41, sY + 137, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison( sX + 41, sY + 137, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_BACK;
@@ -38726,16 +38730,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_PANTS] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_PANTS]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_PANTS]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_PANTS]]->m_cItemColor;
+			ItemColor  = m_pItemList[cEquipPoiStatus[EQUIPPOS_PANTS]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_PANTS] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{	
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{	
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 171, sY + 290, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_PANTS;
@@ -38744,16 +38747,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_ARMS] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_ARMS]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_ARMS]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_ARMS]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_ARMS]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_ARMS] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{	
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{	
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 171, sY + 290, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_ARMS;
@@ -38762,16 +38764,14 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_BOOTS] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_BOOTS] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{	
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{	
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 171, sY + 290, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_BOOTS;
@@ -38780,16 +38780,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_BODY] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_BODY]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_BODY]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BODY]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BODY]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_BODY] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{	
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{	
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 171, sY + 290, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_BODY;
@@ -38798,16 +38797,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_FULLBODY] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_FULLBODY]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_FULLBODY]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_FULLBODY]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_FULLBODY]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_FULLBODY] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 171, sY + 290, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_FULLBODY;
@@ -38816,16 +38814,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_LHAND] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_LHAND]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_LHAND]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_LHAND]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_LHAND]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_LHAND] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 90, sY + 170, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 90, sY + 170, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 90, sY + 170, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 90, sY + 170, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 90, sY + 170, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 90, sY + 170, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 90, sY + 170, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_LHAND;
@@ -38834,16 +38831,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_RHAND] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_RHAND]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_RHAND]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_RHAND]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_RHAND]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_RHAND] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 57, sY + 186, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 57, sY + 186, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 57, sY + 186, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 57, sY + 186, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 57, sY + 186, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 57, sY + 186, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 57, sY + 186, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_RHAND;
@@ -38852,16 +38848,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_TWOHAND] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_TWOHAND]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_TWOHAND]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_TWOHAND]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_TWOHAND]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_TWOHAND] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 57, sY + 186, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 57, sY + 186, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 57, sY + 186, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 57, sY + 186, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 57, sY + 186, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 57, sY + 186, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 57, sY + 186, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_TWOHAND;
@@ -38870,16 +38865,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_NECK] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_NECK]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_NECK]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_NECK]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_NECK]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_NECK] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 35, sY + 120, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 35, sY + 120, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 35, sY + 120, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 35, sY + 120, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 35, sY + 120, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{	
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 35, sY + 120, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 35, sY + 120, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_NECK;
@@ -38888,16 +38882,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_RFINGER] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_RFINGER]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_RFINGER]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_RFINGER]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_RFINGER]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_RFINGER] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 32, sY + 193, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 32, sY + 193, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 32, sY + 193, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 32, sY + 193, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 32, sY + 193, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 32, sY + 193, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 32, sY + 193, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_RFINGER;
@@ -38906,16 +38899,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_LFINGER] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_LFINGER]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_LFINGER]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_LFINGER]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_LFINGER]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_LFINGER] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 100, sY + 185, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 100, sY + 185, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 100, sY + 185, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 100, sY + 185, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 100, sY + 185, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 100, sY + 185, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 100, sY + 185, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_LFINGER;
@@ -38924,16 +38916,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_HEAD] != -1)
 		{	sSprH      = m_pItemList[cEquipPoiStatus[EQUIPPOS_HEAD]]->m_sSprite;
 			sFrame     = m_pItemList[cEquipPoiStatus[EQUIPPOS_HEAD]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_HEAD]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_HEAD]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_HEAD] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteFast(sX + 72, sY + 135, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 72, sY + 135, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSprite2(sX + 72, sY + 135, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 72, sY + 135, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutSpriteRGB(sX + 72, sY + 135, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->PutTransSpriteRGB(sX + 72, sY + 135, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH]->_bCheckCollison(sX + 72, sY + 135, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_HEAD;
@@ -38988,16 +38979,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_BACK] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_BACK]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_BACK]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BACK]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BACK]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_BACK] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 45, sY + 143, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 45, sY + 143, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 45, sY + 143, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 45, sY + 143, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 45, sY + 143, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 45, sY + 143, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 45, sY + 143, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_BACK;
@@ -39006,16 +38996,15 @@ void CGame::DrawDialogBox_Character()
 		if ((cEquipPoiStatus[EQUIPPOS_BOOTS] != -1) && (iSkirtDraw == 1))
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_BOOTS] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 171, sY + 290, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_BOOTS;
@@ -39024,16 +39013,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_PANTS] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_PANTS]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_PANTS]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_PANTS]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_PANTS]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_PANTS] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 171, sY + 290, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_PANTS;
@@ -39042,16 +39030,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_ARMS] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_ARMS]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_ARMS]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_ARMS]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_ARMS]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_ARMS] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 171, sY + 290, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_ARMS;
@@ -39060,16 +39047,15 @@ void CGame::DrawDialogBox_Character()
 		if ((cEquipPoiStatus[EQUIPPOS_BOOTS] != -1) && (iSkirtDraw == 0))
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BOOTS]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_BOOTS] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 171, sY + 290, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_BOOTS;
@@ -39078,16 +39064,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_BODY] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_BODY]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_BODY]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BODY]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_BODY]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_BODY] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 171, sY + 290, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_BODY;
@@ -39095,16 +39080,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_FULLBODY] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_FULLBODY]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_FULLBODY]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_FULLBODY]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_FULLBODY]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_FULLBODY] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 171, sY + 290, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 171, sY + 290, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 171, sY + 290, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_FULLBODY;
@@ -39113,16 +39097,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_LHAND] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_LHAND]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_LHAND]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_LHAND]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_LHAND]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_LHAND] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 84, sY + 175, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 84, sY + 175, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 84, sY + 175, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 84, sY + 175, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 84, sY + 175, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 84, sY + 175, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 84, sY + 175, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_LHAND;
@@ -39131,15 +39114,14 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_RHAND] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_RHAND]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_RHAND]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_RHAND]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_RHAND]]->m_ItemColor;
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_RHAND] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 60, sY + 191, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 60, sY + 191, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 60, sY + 191, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 60, sY + 191, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 60, sY + 191, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 60, sY + 191, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 60, sY + 191, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_RHAND;
@@ -39148,15 +39130,14 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_TWOHAND] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_TWOHAND]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_TWOHAND]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_TWOHAND]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_TWOHAND]]->m_ItemColor;
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_TWOHAND] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 60, sY + 191, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 60, sY + 191, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 60, sY + 191, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 60, sY + 191, sFrame, m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 60, sY + 191, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 60, sY + 191, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 60, sY + 191, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_TWOHAND;
@@ -39165,16 +39146,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_NECK] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_NECK]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_NECK]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_NECK]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_NECK]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_NECK] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 35, sY + 120, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 35, sY + 120, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 35, sY + 120, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 35, sY + 120, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 35, sY + 120, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 35, sY + 120, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 35, sY + 120, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_NECK;
@@ -39183,16 +39163,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_RFINGER] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_RFINGER]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_RFINGER]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_RFINGER]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_RFINGER]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_RFINGER] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 32, sY + 193, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 32, sY + 193, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 32, sY + 193, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 32, sY + 193, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 32, sY + 193, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 32, sY + 193, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 32, sY + 193, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_RFINGER;
@@ -39201,16 +39180,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_LFINGER] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_LFINGER]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_LFINGER]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_LFINGER]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_LFINGER]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_LFINGER] ] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 100, sY + 185, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 100, sY + 185, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 100, sY + 185, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 100, sY + 185, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 100, sY + 185, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 100, sY + 185, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 100, sY + 185, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_LFINGER;
@@ -39219,16 +39197,15 @@ void CGame::DrawDialogBox_Character()
 		if (cEquipPoiStatus[EQUIPPOS_HEAD] != -1)
 		{	sSprH  = m_pItemList[cEquipPoiStatus[EQUIPPOS_HEAD]]->m_sSprite;
 			sFrame = m_pItemList[cEquipPoiStatus[EQUIPPOS_HEAD]]->m_sSpriteFrame;
-			cItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_HEAD]]->m_cItemColor;
+			ItemColor = m_pItemList[cEquipPoiStatus[EQUIPPOS_HEAD]]->m_ItemColor;
 
 			if (m_bIsItemDisabled[ cEquipPoiStatus[EQUIPPOS_HEAD]] == FALSE)
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteFast(sX + 72, sY +139, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 72, sY +139, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
-			}else
-			{	if (cItemColor == 0)
-					 m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSprite2(sX + 72, sY +139, sFrame, m_dwCurTime);
-				else m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 72, sY +139, sFrame, m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutSpriteRGB(sX + 72, sY +139, sFrame, ItemColor, m_dwCurTime);
+			}
+			else
+			{
+				m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->PutTransSpriteRGB(sX + 72, sY +139, sFrame, ItemColor, m_dwCurTime);
 			}
 			if( m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + sSprH +40]->_bCheckCollison(sX + 72, sY + 139, sFrame, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY ) )
 				cCollison = EQUIPPOS_HEAD;
@@ -42436,7 +42413,7 @@ void CGame::DrawDialogBox_SellorRepairItem()
 
 		cItemID = m_dialogBoxes[23].sV1;
 
-		cItemColor = m_pItemList[cItemID]->m_cItemColor;
+		cItemColor = m_pItemList[cItemID]->m_ItemColor;
 		if (cItemColor == 0)
 			 m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->PutSpriteFast(sX + 62 + 15, sY + 84 + 30,
 	                                                                                                   m_pItemList[cItemID]->m_sSpriteFrame, dwTime);
@@ -42492,7 +42469,7 @@ void CGame::DrawDialogBox_SellorRepairItem()
 		//DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX, sY, 2);
 		DrawNewDialogBox(SPRID_INTERFACE_ND_TEXT, sX, sY, 10);
 		cItemID = m_dialogBoxes[23].sV1;
-		cItemColor = m_pItemList[cItemID]->m_cItemColor;
+		cItemColor = m_pItemList[cItemID]->m_ItemColor;
 		if (cItemColor == 0)
 			 m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + m_pItemList[cItemID]->m_sSprite]->PutSpriteFast(sX + 62 + 15, sY + 84 + 30,
 			                                                                                           m_pItemList[cItemID]->m_sSpriteFrame, dwTime);
@@ -45304,7 +45281,7 @@ void CGame::NotifyMsg_ItemColorChange(char *pData)
 		char cStr1[64], cStr2[64], cStr3[64];
 		GetItemName( m_pItemList[sItemIndex], cStr1, cStr2, cStr3 );
 		if (sItemColor != -1) {
-			m_pItemList[sItemIndex]->m_cItemColor = (char)sItemColor;
+			m_pItemList[sItemIndex]->m_ItemColor = (char)sItemColor;
 			wsprintfA(cTxt, NOTIFYMSG_ITEMCOLOR_CHANGE1, cStr1);
 			AddEventList(cTxt, 10);
 		}
@@ -45336,7 +45313,7 @@ void CGame::NotifyMsg_ItemSocketChange(char *pData)
 	}
 
 	if(m_pItemList[sItemIndex]->m_sockets[0] == SG_VORTEXGEM)
-		m_pItemList[sItemIndex]->m_cItemColor = 10;
+		m_pItemList[sItemIndex]->m_ItemColor = 10;
 
 	char cStr1[64], cStr2[64], cStr3[64];
 	GetItemName( m_pItemList[sItemIndex], cStr1, cStr2, cStr3 );
@@ -45454,8 +45431,9 @@ void CGame::NotifyMsg_ItemObtained(char * pData)
 	uint16 sSprite, sSpriteFrame, sLevelLimit;
 	int8 sSpecialEV2;
 	char  cTxt[120];
-	uint8 cGenderLimit, cItemColor, cItemType, cEquipPos;
+	uint8 cGenderLimit, cItemType, cEquipPos;
 	WORD  * wp, wWeight, wCurLifeSpan;
+	uint32 ItemColor;
 
 	cp = (char *)(pData + INDEX2_MSGTYPE + 2);
 
@@ -45471,7 +45449,7 @@ void CGame::NotifyMsg_ItemObtained(char * pData)
 	Pop(cp, wWeight);
 	Pop(cp, sSprite);
 	Pop(cp, sSpriteFrame);
-	Pop(cp, cItemColor);
+	Pop(cp, ItemColor);
 	Pop(cp, (uint8&)sSpecialEV2);
 	Pop(cp, dwAttribute);
 
@@ -45538,7 +45516,7 @@ void CGame::NotifyMsg_ItemObtained(char * pData)
 		m_pItemList[i]->m_wWeight      = wWeight;
 		m_pItemList[i]->m_sSprite      = sSprite;
 		m_pItemList[i]->m_sSpriteFrame = sSpriteFrame;
-		m_pItemList[i]->m_cItemColor   = cItemColor;
+		m_pItemList[i]->m_ItemColor   = ItemColor;
 		m_pItemList[i]->m_sItemSpecEffectValue2 = sSpecialEV2;
 		m_pItemList[i]->m_dwAttribute = dwAttribute;
 
@@ -45669,7 +45647,7 @@ void CGame::NotifyMsg_ItemPurchased(char * pData)
 		m_pItemList[i]->m_wWeight      = wWeight;
 		m_pItemList[i]->m_sSprite      = sSprite;
 		m_pItemList[i]->m_sSpriteFrame = sSpriteFrame;
-		m_pItemList[i]->m_cItemColor   = cItemColor;
+		m_pItemList[i]->m_ItemColor   = cItemColor;
 
 		_iCalcTotalWeight();
 		// fixed v1.11
@@ -45832,7 +45810,7 @@ void CGame::NotifyMsg_ItemToBank(char *pData)
 		m_pBankList[cIndex]->m_wWeight      = wWeight;
 		m_pBankList[cIndex]->m_sSprite      = sSprite;
 		m_pBankList[cIndex]->m_sSpriteFrame = sSpriteFrame;
-		m_pBankList[cIndex]->m_cItemColor   = cItemColor;
+		m_pBankList[cIndex]->m_ItemColor   = cItemColor;
 		m_pBankList[cIndex]->m_sItemEffectValue2  = sItemEffectValue2;
 		m_pBankList[cIndex]->m_dwAttribute        = dwAttribute;
 		m_pBankList[cIndex]->m_sItemSpecEffectValue2 = sItemSpecEffectValue2;
@@ -49003,21 +48981,18 @@ void CGame::DrawDialogBox_Mailbox()
 					++iter;
 				}
 
-				char cItemColor = (*items)[i + dlg.sView]->m_cItemColor;
-				if( cItemColor == 0 )
-				{
-					m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + (*items)[i + dlg.sView]->m_sSprite]->PutSpriteFast(sX+40, sY+68, (*items)[i + dlg.sView]->m_sSpriteFrame, m_dwCurTime);
-				}else
+				uint32_t ItemColor = (*items)[i + dlg.sView]->m_ItemColor;
 				{
 					if((*items)[i + dlg.sView]->m_cEquipPos == EQUIPPOS_LHAND
 						|| (*items)[i + dlg.sView]->m_cEquipPos == EQUIPPOS_RHAND
 						|| (*items)[i + dlg.sView]->m_cEquipPos == EQUIPPOS_TWOHAND)
-				{
-					m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + (*items)[i + dlg.sView]->m_sSprite]->PutSpriteRGB(sX+40, sY+68, (*items)[i + dlg.sView]->m_sSpriteFrame,
-						m_wWR[cItemColor] -m_wR[0], m_wWG[cItemColor] -m_wG[0], m_wWB[cItemColor] -m_wB[0], m_dwCurTime);
-				}else
-					m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + (*items)[i + dlg.sView]->m_sSprite]->PutSpriteRGB(sX+40, sY+68, (*items)[i + dlg.sView]->m_sSpriteFrame,
-						m_wR[cItemColor] -m_wR[0], m_wG[cItemColor] -m_wG[0], m_wB[cItemColor] -m_wB[0], m_dwCurTime);
+					{
+						m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + (*items)[i + dlg.sView]->m_sSprite]->PutSpriteRGB(sX+40, sY+68, (*items)[i + dlg.sView]->m_sSpriteFrame,
+							ItemColor, m_dwCurTime);
+					}
+						else
+							m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + (*items)[i + dlg.sView]->m_sSprite]->PutSpriteRGB(sX+40, sY+68, (*items)[i + dlg.sView]->m_sSpriteFrame,
+								ItemColor, m_dwCurTime);
 				}
 			}
 			else if(iter != end)
@@ -49158,7 +49133,7 @@ void CGame::DrawDialogBox_ItemUpgrade()
 				 PutAlignedString(sX + 24, sX + 248, sY + 115, G_cTxt, 195,25,25);
 			else PutAlignedString(sX + 24, sX + 248, sY + 115, G_cTxt);
 			i = m_dialogBoxes[34].sV1;
-			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_cItemColor;
+			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_ItemColor;
 			if (   (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_LHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_RHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_TWOHAND))
@@ -49194,7 +49169,7 @@ void CGame::DrawDialogBox_ItemUpgrade()
 		if (m_dialogBoxes[34].sV1 != -1)
 		{	DrawNewDialogBox(SPRID_INTERFACE_ND_GAME3, sX, sY, 3);
 			i = m_dialogBoxes[34].sV1;
-			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_cItemColor;
+			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_ItemColor;
 			if (   (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_LHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_RHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_TWOHAND))
@@ -49225,7 +49200,7 @@ void CGame::DrawDialogBox_ItemUpgrade()
 		if (m_dialogBoxes[34].sV1 != -1) 
 		{	DrawNewDialogBox(SPRID_INTERFACE_ND_GAME3, sX, sY, 3);
 			i = m_dialogBoxes[34].sV1;
-			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_cItemColor;
+			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_ItemColor;
 			if (   (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_LHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_RHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_TWOHAND))
@@ -49259,7 +49234,7 @@ void CGame::DrawDialogBox_ItemUpgrade()
 		if (m_dialogBoxes[34].sV1 != -1)
 		{	DrawNewDialogBox(SPRID_INTERFACE_ND_GAME3, sX, sY, 3);
 			i = m_dialogBoxes[34].sV1;
-			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_cItemColor;
+			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_ItemColor;
 			if (   (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_LHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_RHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_TWOHAND))
@@ -49348,7 +49323,7 @@ void CGame::DrawDialogBox_ItemUpgrade()
 		if (m_dialogBoxes[34].sV1 != -1)
 		{	DrawNewDialogBox(SPRID_INTERFACE_ND_GAME3, sX, sY, 3);
 			i = m_dialogBoxes[34].sV1;
-			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_cItemColor;
+			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_ItemColor;
 			if (   (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_LHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_RHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_TWOHAND))
@@ -49425,7 +49400,7 @@ void CGame::DrawDialogBox_ItemUpgrade()
 		
 		
 		i = m_dialogBoxes[34].sV1;
-			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_cItemColor;
+			cItemColor = m_pItemList[m_dialogBoxes[34].sV1]->m_ItemColor;
 			if (   (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_LHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_RHAND)
 				|| (m_pItemList[m_dialogBoxes[34].sV1]->m_cEquipPos == EQUIPPOS_TWOHAND))
@@ -51486,7 +51461,7 @@ void CGame::DrawDialogBox_GuildBank()
 					++iter;
 				}
 
-				cItemColor = item->m_cItemColor;
+				cItemColor = item->m_ItemColor;
 				if( cItemColor == 0 )
 				{
 					m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + item->m_sSprite]->PutSpriteFast(sX+40, sY+68, item->m_sSpriteFrame, m_dwCurTime);
@@ -51709,7 +51684,7 @@ void CGame::NotifyMsg_ItemToGuildBank(char *pData)
 	item->m_wWeight      = wWeight;
 	item->m_sSprite      = sSprite;
 	item->m_sSpriteFrame = sSpriteFrame;
-	item->m_cItemColor   = cItemColor;
+	item->m_ItemColor   = cItemColor;
 	item->m_sItemEffectValue2  = sItemEffectValue2;
 	item->m_dwAttribute        = dwAttribute;
 	item->m_sItemSpecEffectValue2 = sItemSpecEffectValue2;
@@ -51914,7 +51889,7 @@ void CGame::InitItemList_GuildBank(char * data)
 		Pop(data, item->m_wWeight);
 		Pop(data, (uint16&)item->m_sSprite);
 		Pop(data, (uint16&)item->m_sSpriteFrame);
-		Pop(data, (uint8&)item->m_cItemColor);
+		Pop(data, (uint8&)item->m_ItemColor);
 		Pop(data, (uint16&)item->m_sItemSpecEffectValue2);
 		Pop(data, item->m_dwAttribute);
 		for(int i = 0; i < MAXITEMSOCKETS; i++)

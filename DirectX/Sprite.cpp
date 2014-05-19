@@ -1223,7 +1223,7 @@ void CSprite::PutTransSprite_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime
 
 void CSprite::PutTransSprite70(int sX, int sY, int sFrame, DWORD dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/70,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,255,255,255));
 	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
@@ -1353,7 +1353,7 @@ void CSprite::PutTransSprite70(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/70,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,255,255,255));
 	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
@@ -1476,7 +1476,7 @@ void CSprite::PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
 
 void CSprite::PutTransSprite50(int sX, int sY, int sFrame, DWORD dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/50,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(125,255,255,255));
 	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
@@ -1606,7 +1606,7 @@ void CSprite::PutTransSprite50(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/50,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(125,255,255,255));
 	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
@@ -1728,7 +1728,7 @@ void CSprite::PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
 
 void CSprite::PutTransSprite25(int sX, int sY, int sFrame, DWORD dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/25,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(64,255,255,255));
 	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
@@ -1858,7 +1858,7 @@ void CSprite::PutTransSprite25(int sX, int sY, int sFrame, DWORD dwTime)
 
 void CSprite::PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255/25,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(64,255,255,255));
 	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
@@ -1981,7 +1981,7 @@ void CSprite::PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, DWORD dwTi
 
 void CSprite::PutTransSprite2(int sX, int sY, int sFrame, DWORD dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,255,255,255));
 	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  int  ix, iy;
@@ -2477,6 +2477,11 @@ void CSprite::PutFadeSpriteDst(WORD * pDstAddr, short sPitch, short sX, short sY
 // 	m_cAlphaDegree = 1;
 // }
 
+void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, uint32_t color, DWORD dwTime)
+{
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(color));
+}
+
 void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, DWORD dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,sRed,sGreen,sBlue));
@@ -2608,10 +2613,14 @@ void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int
 	m_bOnCriticalSection = FALSE;
 }
 
+void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, uint32_t color, DWORD dwTime)
+{
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(color));
+}
 
 void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, DWORD dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,sRed,sGreen,sBlue));
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,sRed,sGreen,sBlue));
 	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  short ix, iy, iRedPlus255, iGreenPlus255, iBluePlus255;
@@ -2744,7 +2753,7 @@ void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen
 
 void CSprite::PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, DWORD dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,sRed,sGreen,sBlue));
+	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,sRed,sGreen,sBlue));
 	return;
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
  short ix, iy, iRedPlus255, iGreenPlus255, iBluePlus255;
