@@ -368,7 +368,8 @@ void CGame::ReadUsername()
 
 CGame::CGame()
 {	
-	gamemode = 0;
+	fullscreenswap = false;
+	oldmode = gamemode = 0;
 	int i;
 	srand( (unsigned)time( NULL ) );
 	ReadSettings();
@@ -4583,7 +4584,8 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 				}
 			}
 			isItemLoaded = false;
-			ChangeGameMode(GAMEMODE_ONMAINMENU);
+			//ChangeGameMode(GAMEMODE_ONMAINMENU);
+			ChangeGameMode(oldmode);
 			//TopsiteVote();
 		}
 		break;
@@ -28761,6 +28763,56 @@ void CGame::OnSysKeyDown(WPARAM wParam)
 		m_bCtrlPressed = TRUE;
 		break;
 	case VK_RETURN:
+		if (m_altPressed)
+		{
+			for (int i = 0; i < MAXSPRITES; ++i)
+			{
+				delete m_pSprite[i];
+				m_pSprite[i] = 0;
+			}
+			for (int i = 0; i < MAXTILES; ++i)
+			{
+				delete m_pTileSpr[i];
+				m_pTileSpr[i] = 0;
+			}
+			
+			for (int i = 0; i < MAXEFFECTSPR; ++i)
+			{
+				delete m_pEffectSpr[i];
+				m_pEffectSpr[i] = 0;
+			}
+
+			//fullscreen swap?
+			driver->endScene();
+			device->closeDevice();
+			if (fullscreen)
+			{
+				this->screenwidth = 800;
+				this->screenheight = 600;
+			}
+			else
+			{
+				this->screenwidth = 1920;
+				this->screenheight = 1080;
+			}
+			oldmode = m_cGameMode;
+			CreateRenderer(!fullscreen);
+			m_hWnd = G_hWnd;
+			//m_cGameMode = GAMEMODE_ONLOADING;
+			ChangeGameMode(GAMEMODE_ONLOADING);
+			fullscreenswap = true;
+			driver->beginScene();
+
+			m_pSprite[SPRID_INTERFACE_ND_LOADING] = CSprite::CreateSprite(L"New-Dialog", 0, FALSE);
+			m_pSprite[SPRID_INTERFACE_ADDINTERFACE] = CSprite::CreateSprite(L"interface2", 0, FALSE);
+			m_pSprite[SPRID_INTERFACE_CRAFTING] = CSprite::CreateSprite(L"interface2", 3, FALSE);
+			m_pSprite[SPRID_INTERFACE_SPRFONTS2] = CSprite::CreateSprite(L"interface2", 1, FALSE);
+			m_pSprite[SPRID_INTERFACE_F1HELPWINDOWS] = CSprite::CreateSprite(L"interface2", 2, FALSE);
+			m_pSprite[SPRID_INTERFACE_FONT1] = CSprite::CreateSprite(L"sprfonts", 0, FALSE);
+			m_pSprite[SPRID_INTERFACE_FONT2] = CSprite::CreateSprite(L"sprfonts", 1, FALSE);
+
+			m_cLoading = 0;
+		}
 		m_bEnterPressed = TRUE;
 		break;
 	case VK_MENU:
@@ -36387,6 +36439,7 @@ void CGame::UpdateScreen_OnGame()
 	sVal = m_sViewPointY - (sPivotY*32);
 	sDivY = sVal / 32;
 	sModY = sVal % 32;
+	if (fullscreenswap) iUpdateRet = 1;
 	if (iUpdateRet != 0)
 		DrawBackground(sDivX, sModX, sDivY, sModY);
 

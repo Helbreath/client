@@ -271,18 +271,64 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	G_pGame->clipmousegame = true;
 	G_pGame->clipmousewindow = true;
 
+	int grace = 0;
+
 	MSG msg;
 	while (true)
 	{
 		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
+			if (msg.message == WM_QUIT)
+			{
+				if (grace > 0)
+					grace--;
+				else
+					break;
+			}
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 
 			WndProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
+		}
 
-			if (msg.message == WM_QUIT)
-				break;
+		if (G_pGame->fullscreenswap)
+		{
+			grace++;
+			guiskin = G_pGame->env->getSkin();
+			G_pGame->font[FONT_BUILTIN]  = G_pGame->env->getBuiltInFont();
+			G_pGame->font[FONT_TREBMS6PX]  = G_pGame->env->getFont(L"fonts/treb6px.xml");
+			G_pGame->font[FONT_TREBMS8PX]  = G_pGame->env->getFont(L"fonts/treb8px.xml");
+			G_pGame->font[FONT_TREBMS10PX]  = G_pGame->env->getFont(L"fonts/treb10px.xml");
+			G_pGame->font[FONT_TREBMS12PX]  = G_pGame->env->getFont(L"fonts/treb12px.xml");
+			G_pGame->font[FONT_TREBMS14PX]  = G_pGame->env->getFont(L"fonts/treb14px.xml");
+			G_pGame->font[FONT_TREBMS16PX]  = G_pGame->env->getFont(L"fonts/treb16px.xml");
+
+			setskincolor(irr::gui::EGDC_3D_FACE);
+			setskincolor(irr::gui::EGDC_3D_SHADOW);
+			setskincolor(irr::gui::EGDC_ACTIVE_CAPTION);
+			setskincolor(irr::gui::EGDC_ACTIVE_BORDER);
+			setskincolor(irr::gui::EGDC_3D_DARK_SHADOW);
+			setskincolor(irr::gui::EGDC_3D_HIGH_LIGHT);
+			setskincolor(irr::gui::EGDC_BUTTON_TEXT);
+			setskincolor(irr::gui::EGDC_HIGH_LIGHT_TEXT);
+			setskincolor(irr::gui::EGDC_HIGH_LIGHT);
+			setskincolor(irr::gui::EGDC_WINDOW);
+			setskincolor(irr::gui::EGDC_WINDOW_SYMBOL);
+			setskincolor(irr::gui::EGDC_SCROLLBAR);
+
+			cursor = G_pGame->device->getCursorControl();
+			cursor->setVisible(false);
+			cursor->setPosition(G_pGame->GetWidth()/2, G_pGame->GetHeight()/2);
+
+			GetWindowRect( G_hWnd, &WindowRect );
+			// Restrict the cursor
+			ClipCursor( &WindowRect );
+
+
+			G_pGame->clipmousegame = true;
+			G_pGame->clipmousewindow = true;
+
+			G_pGame->fullscreenswap = false;
 		}
 
 		// increase virtual timer time
@@ -330,17 +376,20 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		//game->ProcessPacket();
 		//Draw game mode scene
 
-// 		if (G_pGame->device->isWindowMinimized())
-// 		{
-// 		}
-//  		else if (!G_pGame->device->isWindowActive())
-//  		{
-// // 			if (rand()%10 == 2)
-// // 			{
-// // 				G_pGame->UpdateScreen();
-// // 			}
-//  		}
-// 		else
+		if (G_pGame->device->isWindowMinimized())
+		{
+			G_pGame->device->yield();
+		}
+ 		else if (!G_pGame->device->isWindowActive())
+ 		{
+			if (rand()%6 == 2)
+			{
+				G_pGame->UpdateScreen();
+			}
+			else
+				G_pGame->device->yield();
+ 		}
+		else
 		{
 			G_pGame->UpdateScreen();
 		}
@@ -419,7 +468,7 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 // 	}
 	G_pGame->Quit();
 	WSACleanup();
-	G_pGame->device->drop();
+	G_pGame->device->closeDevice();
 	delete G_pGame;
 
 	return 0;

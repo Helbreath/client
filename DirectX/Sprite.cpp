@@ -60,6 +60,11 @@ CSprite::~CSprite(void)
 {
 	if (m_stBrush != NULL) delete[] m_stBrush;
 	delete[] subtextures;
+	int test;
+	if (_localimage)
+		test = _localimage->getReferenceCount();
+	if (_localimage) _localimage->drop();
+	if (_localshadow) _localshadow->drop();
 }
 
 // IDirectDrawSurface7 * CSprite::_pMakeSpriteSurface()
