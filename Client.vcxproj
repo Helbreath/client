@@ -163,6 +163,7 @@
     <Image Include="Res\icon1.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\xtreme-server\src\streams.h" />
     <ClInclude Include="char\mail.h" />
     <ClInclude Include="Res\resource.h" />
     <ClInclude Include="char\ActionID.h" />

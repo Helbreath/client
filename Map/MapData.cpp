@@ -1268,16 +1268,16 @@ void CMapData::ShiftMapData(char cDir) // 800x600 Resolution xRisenx Map Setting
 	switch (cDir) { 
 	case 1: // NORTH
 		//orig 21x, 15y
-		for (ix = 0; ix < /*26*/ 25; ix++) 
-			for (iy = 0; iy < /*19*/ 18; iy++)
+		for (ix = 0; ix < /*26*/ 27; ix++) 
+			for (iy = 0; iy < /*19*/ 19; iy++)
 				//memcpy(&m_pTmpData[4+5+ix][6+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[7+ix][9+iy], &m_pData[7+ix][8+iy], sizeof(class CTile));
 		m_sPivotY--;
 		break;
 	case 2:
 		//orig 20x, 15y
-		for (ix = 0; ix < /*25*/ 25; ix++) 
-			for (iy = 0; iy < /*19*/ 18; iy++) 
+		for (ix = 0; ix < /*25*/ 26; ix++) 
+			for (iy = 0; iy < /*19*/ 19; iy++) 
 				//memcpy(&m_pTmpData[4+5+ix][6+5+iy], &m_pData[5+5+ix][5+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[7+ix][9+iy], &m_pData[8+ix][8+iy], sizeof(class CTile));
 		m_sPivotX++;
@@ -1285,16 +1285,16 @@ void CMapData::ShiftMapData(char cDir) // 800x600 Resolution xRisenx Map Setting
 		break;
 	case 3: // EAST
 		//orig 20x, 16y
-		for (ix = 0; ix < /*25*/ 25; ix++) 
-			for (iy = 0; iy < /*20*/ 18; iy++) 
+		for (ix = 0; ix < /*25*/ 26; ix++) 
+			for (iy = 0; iy < /*20*/ 20; iy++) 
 				//memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[5+5+ix][5+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[7+ix][8+iy], &m_pData[8+ix][8+iy], sizeof(class CTile));  
 		m_sPivotX++;
 		break;
 	case 4:
 		//orig 20x 15y
-		for (ix = 0; ix < /*25*/ 25; ix++) 
-			for (iy = 0; iy < /*19*/ 18; iy++) 
+		for (ix = 0; ix < /*25*/ 26; ix++) 
+			for (iy = 0; iy < /*19*/ 19; iy++) 
 				//memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[5+5+ix][6+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[7+ix][8+iy], &m_pData[8+ix][9+iy], sizeof(class CTile));  
 		m_sPivotX++;
@@ -1302,16 +1302,16 @@ void CMapData::ShiftMapData(char cDir) // 800x600 Resolution xRisenx Map Setting
 		break;
 	case 5: // SOUTH
 		//orig 21x 15y
-		for (ix = 0; ix < /*26*/ 25; ix++) 
-			for (iy = 0; iy < /*19*/ 18; iy++) 
+		for (ix = 0; ix < /*26*/ 27; ix++) 
+			for (iy = 0; iy < /*19*/ 19; iy++) 
 				//memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[4+5+ix][6+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[7+ix][8+iy], &m_pData[7+ix][9+iy], sizeof(class CTile));  
 		m_sPivotY++;
 		break;
 	case 6:
 		//orig 20x, 15y
-		for (ix = 0; ix < /*25*/ 25; ix++) 
-			for (iy = 0; iy < /*19*/ 18; iy++) 
+		for (ix = 0; ix < /*25*/ 26; ix++) 
+			for (iy = 0; iy < /*19*/ 19; iy++) 
 				//memcpy(&m_pTmpData[5+5+ix][5+5+iy], &m_pData[4+5+ix][6+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[8+ix][8+iy], &m_pData[7+ix][9+iy], sizeof(class CTile));  
 		m_sPivotX--;
@@ -1319,16 +1319,16 @@ void CMapData::ShiftMapData(char cDir) // 800x600 Resolution xRisenx Map Setting
 		break;
 	case 7: // WEST
 		//orig 20x 16y
-		for (ix = 0; ix < /*25*/ 25; ix++) 
-			for (iy = 0; iy < /*20*/ 18; iy++)
+		for (ix = 0; ix < /*25*/ 26; ix++) 
+			for (iy = 0; iy < /*20*/ 20; iy++)
 				//memcpy(&m_pTmpData[5+5+ix][5+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[8+ix][8+iy], &m_pData[7+ix][8+iy], sizeof(class CTile));  
 		m_sPivotX--;
 		break;
 	case 8:
 		//orig 20x 15y
-		for (ix = 0; ix < /*25*/ 25; ix++) 
-			for (iy = 0; iy < /*19*/ 18; iy++) 
+		for (ix = 0; ix < /*25*/ 26; ix++) 
+			for (iy = 0; iy < /*19*/ 19; iy++) 
 				//memcpy(&m_pTmpData[5+5+ix][6+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));//orig
 				memcpy(&m_pTmpData[8+ix][9+iy], &m_pData[7+ix][8+iy], sizeof(class CTile));  
 		m_sPivotX--;

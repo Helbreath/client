@@ -3143,6 +3143,10 @@ void CGame::GameRecvMsgHandler(DWORD dwMsgSize, char * pData)
 
 	switch (*dwpMsgID)
 	{
+	case MSGID_MODIFYTILE:
+		ReceiveModifyTile(pData);
+		break;
+
 	case MSGID_RESPONSE_CHARGED_TELEPORT:
 		ResponseChargedTeleport(pData);
 		break;
@@ -16522,7 +16526,13 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 				sSpr      = m_pMapData->m_tile[indexX][indexY].m_sTileSprite;
 				sSprFrame = m_pMapData->m_tile[indexX][indexY].m_sTileSpriteFrame;
 				if (m_pTileSpr[sSpr])
-					m_pTileSpr[sSpr]->PutSpriteFastNoColorKeyDst((LPDIRECTDRAWSURFACE7)0, ix - 16 +sModX, iy - 16 +sModY, sSprFrame, m_dwCurTime);
+					//m_pTileSpr[sSpr]->PutSpriteFastNoColorKeyDst((LPDIRECTDRAWSURFACE7)0, ix - 16 +sModX, iy - 16 +sModY, sSprFrame, m_dwCurTime);
+				{
+// 					if ((indexY % 2) + (indexX % 2) == 1)
+// 						m_pTileSpr[sSpr]->PutSpriteRGB(ix - 16 + sModX, iy - 16 + sModY, sSprFrame, (uint32_t)irr::video::SColor(255, 200, 0, 0).color, m_dwCurTime);//color ground
+// 					else
+						m_pTileSpr[sSpr]->PutSpriteFastNoColorKeyDst((LPDIRECTDRAWSURFACE7)0, ix - 16 + sModX, iy - 16 + sModY, sSprFrame, m_dwCurTime);
+				}
 				indexX++;
 			}
 			indexY++;
@@ -44652,6 +44662,13 @@ void CGame::DlgBoxClick_SkillDlg()
 		//}
 		break;
 	}
+}
+
+void CGame::ReceiveModifyTile(char * pData)
+{
+	//StreamRead sr(pData,);
+
+
 }
 
 void CGame::ResponseTeleportList(char *pData)

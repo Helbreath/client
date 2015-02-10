@@ -64,6 +64,8 @@
 
 #include <irrlicht.h>
 
+#include "../../xtreme-server/src/streams.h"
+
 
 #ifdef USING_WIN_IME
 	#include <RICHEDIT.H>
@@ -327,6 +329,7 @@ public:
 	int m_iTeleportMapCount;
 	void ResponseTeleportList(char * pData);
 	void ResponseChargedTeleport(char * pData);
+	void ReceiveModifyTile(char * pData);
 
 	int m_iQuestCount;
 	void ResponseQuestList(char * pData);
