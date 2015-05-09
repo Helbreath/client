@@ -23,6 +23,7 @@
 #include <string>
 #include <stdint.h>
 #include <irrlicht.h>
+#include <sys/timeb.h>
 
 extern "C" __declspec( dllimport) int __FindHackingDll__(char *);
 
@@ -170,6 +171,18 @@ LRESULT CALLBACK WndProc(HWND hWnd,UINT message,WPARAM wParam, LPARAM lParam)
 	return NULL;
 }
 
+uint64_t unixtime()
+{
+#ifdef WIN32
+	struct __timeb64 tstruct;
+	_ftime64_s(&tstruct);
+#else
+	struct timeb tstruct;
+	ftime(&tstruct);
+#endif
+	return tstruct.millitm + tstruct.time * 1000;
+}
+
 int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
                LPSTR lpCmdLine, int nCmdShow )
 {
@@ -179,7 +192,7 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	g_keyboardHook = NULL;
 
 	srand((unsigned)time(NULL));
-	char *pJammer = new char[(rand() % 100) +1];
+	//char *pJammer = new char[(rand() % 100) +1];
 	G_pGame = new class CGame;
 // 	ZeroMemory(cRealName, sizeof(cRealName));
 // 	strcpy(cRealName, cSearchDll);
@@ -272,6 +285,13 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	G_pGame->clipmousewindow = true;
 
 	int grace = 0;
+
+	uint32_t frametime;
+	uint32_t fps;
+	uint64_t & time1 = G_pGame->time1;
+	uint64_t & time2 = G_pGame->time2;
+
+	time1 = time2 = unixtime();
 
 	MSG msg;
 	while (true)
@@ -382,16 +402,47 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		}
  		else if (!G_pGame->device->isWindowActive())
  		{
-			if (rand()%6 == 2)
+			if ((time2 - time1) < G_pGame->backgroundframetime)
 			{
-				G_pGame->UpdateScreen();
+				G_pGame->device->yield();
+				if ((time2 - time1) > (1000 / G_pGame->backgroundfpstarget))
+				{
+					G_pGame->backgroundframetime--;
+				}
+				time2 = unixtime();
 			}
 			else
-				G_pGame->device->yield();
+			{
+				if ((time2 - time1) < (1000 / G_pGame->backgroundfpstarget))
+				{
+					G_pGame->backgroundframetime++;
+				}
+				time1 = unixtime();
+				G_pGame->UpdateScreen();
+				time2 = unixtime();
+			}
  		}
 		else
 		{
-			G_pGame->UpdateScreen();
+			if ((time2 - time1) <  G_pGame->foregroundframetime)
+			{
+				G_pGame->device->yield();
+				time2 = unixtime();
+				if ((time2 - time1) > (1000 / G_pGame->foregroundfpstarget))
+				{
+					G_pGame->foregroundframetime--;
+				}
+			}
+			else
+			{
+				if ((time2 - time1) < (1000 / G_pGame->foregroundfpstarget))
+				{
+					G_pGame->foregroundframetime++;
+				}
+				time1 = unixtime();
+				G_pGame->UpdateScreen();
+				time2 = unixtime();
+			}
 		}
 	}
 

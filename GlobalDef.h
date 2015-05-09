@@ -16,7 +16,7 @@
 
 //#define SERVER_IP			"31.186.251.201" // Coders server
 #ifndef _DEBUG
-#define SERVER_IP			"104.131.215.91"//"192.168.125.134"//"127.0.0.1"//"31.186.251.201" // Coders server
+#define SERVER_IP			"127.0.0.1"//"104.131.215.91"//"192.168.125.134"//"127.0.0.1"//"31.186.251.201" // Coders server
 #else
 #define SERVER_IP			"127.0.0.1"
 #endif

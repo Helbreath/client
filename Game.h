@@ -202,13 +202,22 @@ public:
 	bool fullscreen;
 	char oldmode;
 	bool fullscreenswap;
+	bool vsync;
+	uint32_t foregroundfpstarget;
+	uint32_t foregroundfps;
+	uint32_t foregroundframetime;
+	uint32_t backgroundfpstarget;
+	uint32_t backgroundfps;
+	uint32_t backgroundframetime;
+	uint64_t time1;
+	uint64_t time2;
 	bool CreateRenderer(bool fs = false)
 	{
 		fullscreen = fs;
 		//when streaming, vsync on = screen capture nogo
 		//has to use "game capture" (render hook)
 		//vsync better for production though - include option for players to choose                                    \/
-		device = createDevice(driverType,irr::core::dimension2d<u32>(GetWidth(), GetHeight()), 32, fullscreen, false, false, this);
+		device = createDevice(driverType,irr::core::dimension2d<u32>(GetWidth(), GetHeight()), 32, fullscreen, false, vsync, this);
 		if (device == 0)
 		{
 			MessageBox(NULL, L"Cannot create video device!", L"ERROR!", MB_OK);

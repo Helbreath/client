@@ -369,16 +369,24 @@ void CGame::ReadUsername()
 CGame::CGame()
 {	
 	fullscreenswap = false;
+	vsync = false;
 	oldmode = gamemode = 0;
 	int i;
 	srand( (unsigned)time( NULL ) );
 	ReadSettings();
+
+	foregroundfpstarget = 120;
+	backgroundfpstarget = 45;
+	foregroundframetime = 1000 / foregroundfpstarget;
+	backgroundframetime = 1000 / backgroundfpstarget;
+
 
 //	screenwidth = 800;
 //	screenheight = 600;
 	SetResolution(800,600);
 	//SetResolution(1024,768);
 	//SetResolution(1280, 1024);
+	//SetResolution(1920, 1080);
 
 #ifdef _DEBUG
 	m_bToggleScreen = TRUE;
@@ -1290,6 +1298,13 @@ void CGame::UpdateScreen()
 	font[0]->draw(cfps,
 		core::rect<s32>(5,15,40,20),
 		video::SColor(255,255,255,255));
+
+	char text[200];
+
+	sprintf(text, "fgtargetfps: %d\nbgtargetfps: %d\ntime1: %I64d\ntime2: %I64d\nfgframetime: %d\nbgframetime: %d", foregroundfpstarget, backgroundfpstarget, time1, time2, foregroundframetime, backgroundframetime);
+	font[0]->draw(text,
+		core::rect<s32>(5, 35, 40, 60),
+		video::SColor(255, 255, 255, 255));
 
 	if (device->isWindowActive())
 	{
@@ -28871,6 +28886,14 @@ void CGame::OnKeyUp(WPARAM wParam)
  static DWORD dwPrevTabTime = 0;
 
 	switch (wParam) {
+	case VK_ADD:
+		foregroundfpstarget++;
+		backgroundfpstarget++;
+		break;
+	case VK_SUBTRACT:
+		foregroundfpstarget--;
+		backgroundfpstarget--;
+		break;
 	case VK_MENU:
 		m_altPressed = FALSE;
 		break;
@@ -29085,12 +29108,12 @@ void CGame::OnKeyUp(WPARAM wParam)
 				StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
 		}	}
 		break;
-	case 107: //'+'
-		if(m_bInputStatus == FALSE) m_bZoomMap = TRUE;
-		break;
-	case 109: //'-'
-		if(m_bInputStatus == FALSE) m_bZoomMap = FALSE;
-		break;
+// 	case 107: //'+'
+// 		if(m_bInputStatus == FALSE) m_bZoomMap = TRUE;
+// 		break;
+// 	case 109: //'-'
+// 		if(m_bInputStatus == FALSE) m_bZoomMap = FALSE;
+// 		break;
 
 	case VK_F2:
 		UseShortCut( 1 );
