@@ -22370,74 +22370,77 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, BOOL bIsPreDC)
 		iFontSize = 23 - (int)m_pChatMsgList[iChatIndex]->m_cType;
 		switch (iLines) {
 		case 1:
-			PutString_SprFont3(sX - iSize, sY - 65 - iLoc, cMsgA, m_wR[13]*2, m_wG[13]*2, m_wB[13]*2, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 65 - iLoc, cMsgA, 255, 200, 0, bIsTrans, iFontSize);
 			break;
 		case 2:
-			PutString_SprFont3(sX - iSize, sY - 81 - iLoc,  cMsgA, m_wR[13]*2, m_wG[13]*2, m_wB[13]*2, bIsTrans, iFontSize);
-			PutString_SprFont3(sX - iSize, sY - 65 - iLoc,  cMsgB, m_wR[13]*2, m_wG[13]*2, m_wB[13]*2, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 81 - iLoc, cMsgA, 255, 200, 0, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 65 - iLoc, cMsgB, 255, 200, 0, bIsTrans, iFontSize);
 			break;
 		case 3:
-			PutString_SprFont3(sX - iSize, sY - 97 - iLoc, cMsgA, m_wR[13]*2, m_wG[13]*2, m_wB[13]*2, bIsTrans, iFontSize);
-			PutString_SprFont3(sX - iSize, sY - 81 - iLoc, cMsgB, m_wR[13]*2, m_wG[13]*2, m_wB[13]*2, bIsTrans, iFontSize);
-			PutString_SprFont3(sX - iSize, sY - 65 - iLoc, cMsgC, m_wR[13]*2, m_wG[13]*2, m_wB[13]*2, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 97 - iLoc, cMsgA, 255, 200, 0, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 81 - iLoc, cMsgB, 255, 200, 0, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 65 - iLoc, cMsgC, 255, 200, 0, bIsTrans, iFontSize);
 			break;
 		}
 		break;
 
 	case 20:
 	default:
-		if (bIsPreDC == FALSE)
+		//if (bIsPreDC == FALSE)
 			//DIRECTX m_DDraw._GetBackBufferDC();
 
 		//GetTextExtentPoint32(//DIRECTX m_DDraw.m_hDC, cMsg, strlen(cMsg), &Size);
 
-		switch (Size.cx / 160) {
-		case 0:
-			SetRect(&rcRect, sX-80 +1, sY-65 -iLoc, sX+80 +1, sY -iLoc);
+// 		switch (Size.cx / 160) {
+// 		case 0:
+		PutChatString(sX - 80 + 1, sY - 65 - iLoc, (char*)cMsg, video::SColor(255, 0, 0, 0));
+			//SetRect(&rcRect, sX - 80 + 1, sY - 65 - iLoc, sX + 80 + 1, sY - iLoc);
 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
 
-			SetRect(&rcRect, sX-80, sY-65 -iLoc +1, sX+80, sY -iLoc +1);
+		PutChatString(sX - 80, sY - 65 - iLoc + 1, (char*)cMsg, video::SColor(255, 0, 0, 0));
+			//SetRect(&rcRect, sX-80, sY-65 -iLoc +1, sX+80, sY -iLoc +1);
 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
 
-			SetRect(&rcRect, sX-80, sY-65 -iLoc, sX+80, sY -iLoc);
+		PutChatString(sX - 80, sY - 65 - iLoc, (char*)cMsg, rgb);
+			//SetRect(&rcRect, sX-80, sY-65 -iLoc, sX+80, sY -iLoc);
 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, rgb);
-			break;
+// 			break;
+// 
+// 		case 1:
+// 			//SetRect(&rcRect, sX-80 +1, sY-83 -iLoc, sX+80 +1, sY -iLoc);
+// 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
+// 
+// 			//SetRect(&rcRect, sX-80, sY-83 -iLoc +1, sX+80, sY -iLoc +1);
+// 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
+// 
+// 			//SetRect(&rcRect, sX-80, sY-83 -iLoc, sX+80, sY -iLoc);
+// 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, rgb);
+// 			break;
+// 
+// 		case 2:
+// 			//SetRect(&rcRect, sX-80 +1, sY-101 -iLoc, sX+80 +1, sY -iLoc);
+// 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
+// 
+// 			//SetRect(&rcRect, sX-80, sY-101 -iLoc +1, sX+80, sY -iLoc +1);
+// 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
+// 
+// 			//SetRect(&rcRect, sX-80, sY-101 -iLoc, sX+80, sY -iLoc);
+// 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, rgb);
+// 			break;
+// 
+// 		case 3:
+// 			//SetRect(&rcRect, sX-80 +1, sY-119 -iLoc, sX+80 +1, sY -iLoc);
+// 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
+// 
+// 			//SetRect(&rcRect, sX-80, sY-119 -iLoc +1, sX+80, sY -iLoc +1);
+// 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
+// 
+// 			//SetRect(&rcRect, sX-80, sY-119 -iLoc, sX+80, sY -iLoc);
+// 			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, rgb);
+// 			break;
+// 		}
 
-		case 1:
-			SetRect(&rcRect, sX-80 +1, sY-83 -iLoc, sX+80 +1, sY -iLoc);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
-
-			SetRect(&rcRect, sX-80, sY-83 -iLoc +1, sX+80, sY -iLoc +1);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
-
-			SetRect(&rcRect, sX-80, sY-83 -iLoc, sX+80, sY -iLoc);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, rgb);
-			break;
-
-		case 2:
-			SetRect(&rcRect, sX-80 +1, sY-101 -iLoc, sX+80 +1, sY -iLoc);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
-
-			SetRect(&rcRect, sX-80, sY-101 -iLoc +1, sX+80, sY -iLoc +1);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
-
-			SetRect(&rcRect, sX-80, sY-101 -iLoc, sX+80, sY -iLoc);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, rgb);
-			break;
-
-		case 3:
-			SetRect(&rcRect, sX-80 +1, sY-119 -iLoc, sX+80 +1, sY -iLoc);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
-
-			SetRect(&rcRect, sX-80, sY-119 -iLoc +1, sX+80, sY -iLoc +1);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg,video::SColor(255,0,0,0));
-
-			SetRect(&rcRect, sX-80, sY-119 -iLoc, sX+80, sY -iLoc);
-			//DIRECTX m_DDraw.DrawText(&rcRect, cMsg, rgb);
-			break;
-		}
-
-		if (bIsPreDC == FALSE)
+		//if (bIsPreDC == FALSE)
 			//DIRECTX m_DDraw._ReleaseBackBufferDC();
 		break;
 	}
@@ -47734,8 +47737,8 @@ void CGame::MotionEventHandler(char * pData)
 	{
 	case MSGID_MOTION_MAGIC: // Casting
 		_RemoveChatMsgListByObjectID(wObjectID - 30000);
-		if (abs(sX - m_sPlayerX > 12) || abs(sX + m_sPlayerX) > 12 || abs(sY - m_sPlayerY) > 9 || abs(sY + m_sPlayerY) > 9)
-		return;
+// 		if (abs(sX - m_sPlayerX > 12) || abs(sX + m_sPlayerX) > 12 || abs(sY - m_sPlayerY) > 9 || abs(sY + m_sPlayerY) > 9)
+// 		return;
 		for (i = 1; i < MAXCHATMSGS; i++)
 		if (m_pChatMsgList[i] == NULL)
 		{	ZeroMemory(cTxt, sizeof(cTxt));
@@ -47793,8 +47796,8 @@ void CGame::MotionEventHandler(char * pData)
 		//	}
 		//	return;
 		//#else
-		if (abs(sX - m_sPlayerX > 12) || abs(sX + m_sPlayerX) > 12 || abs(sY - m_sPlayerY) > 9 || abs(sY + m_sPlayerY) > 9)
-		return;
+// 		if (abs(sX - m_sPlayerX > 12) || abs(sX + m_sPlayerX) > 12 || abs(sY - m_sPlayerY) > 9 || abs(sY + m_sPlayerY) > 9)
+// 		return;
 		//do it here to save on processing
 		for (i = 1; i < MAXCHATMSGS; i++)
 		{
@@ -47881,8 +47884,8 @@ void CGame::MotionEventHandler(char * pData)
 		//	}
 		//	return;
 		//#else
-		if (abs(sX - m_sPlayerX > 12) || abs(sX + m_sPlayerX) > 12 || abs(sY - m_sPlayerY) > 9 || abs(sY + m_sPlayerY) > 9)
-		return;
+// 		if (abs(sX - m_sPlayerX) > 12 || abs(sX + m_sPlayerX) > 12 || abs(sY - m_sPlayerY) > 9 || abs(sY + m_sPlayerY) > 9)
+// 		return;
 		for (i = 1; i < MAXCHATMSGS; i++)
 		if (m_pChatMsgList[i] == NULL)
 		{

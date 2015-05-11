@@ -402,47 +402,57 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		}
  		else if (!G_pGame->device->isWindowActive())
  		{
-			if ((time2 - time1) < G_pGame->backgroundframetime)
+			if (G_pGame->backgroundfpstarget)
 			{
-				G_pGame->device->yield();
-				if ((time2 - time1) > (1000 / G_pGame->backgroundfpstarget))
+				if ((time2 - time1) < G_pGame->backgroundframetime)
 				{
-					G_pGame->backgroundframetime--;
+					G_pGame->device->yield();
+					if ((time2 - time1) > (1000 / G_pGame->backgroundfpstarget))
+					{
+						G_pGame->backgroundframetime--;
+					}
+					time2 = unixtime();
 				}
-				time2 = unixtime();
+				else
+				{
+					if ((time2 - time1) < (1000 / G_pGame->backgroundfpstarget))
+					{
+						G_pGame->backgroundframetime++;
+					}
+					time1 = unixtime();
+					G_pGame->UpdateScreen();
+					time2 = unixtime();
+				}
 			}
 			else
-			{
-				if ((time2 - time1) < (1000 / G_pGame->backgroundfpstarget))
-				{
-					G_pGame->backgroundframetime++;
-				}
-				time1 = unixtime();
 				G_pGame->UpdateScreen();
-				time2 = unixtime();
-			}
  		}
 		else
 		{
-			if ((time2 - time1) <  G_pGame->foregroundframetime)
+			if (G_pGame->foregroundfpstarget)
 			{
-				G_pGame->device->yield();
-				time2 = unixtime();
-				if ((time2 - time1) > (1000 / G_pGame->foregroundfpstarget))
+				if ((time2 - time1) < G_pGame->foregroundframetime)
 				{
-					G_pGame->foregroundframetime--;
+					G_pGame->device->yield();
+					time2 = unixtime();
+					if ((time2 - time1) > (1000 / G_pGame->foregroundfpstarget))
+					{
+						G_pGame->foregroundframetime--;
+					}
+				}
+				else
+				{
+					if ((time2 - time1) < (1000 / G_pGame->foregroundfpstarget))
+					{
+						G_pGame->foregroundframetime++;
+					}
+					time1 = unixtime();
+					G_pGame->UpdateScreen();
+					time2 = unixtime();
 				}
 			}
 			else
-			{
-				if ((time2 - time1) < (1000 / G_pGame->foregroundfpstarget))
-				{
-					G_pGame->foregroundframetime++;
-				}
-				time1 = unixtime();
 				G_pGame->UpdateScreen();
-				time2 = unixtime();
-			}
 		}
 	}
 
