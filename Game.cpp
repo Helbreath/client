@@ -8989,8 +8989,8 @@ void CGame::PutString_SprFont3(int iX, int iY, char * pStr, short sR, short sG, 
 			if ((cTmpStr[iCnt] >= 32) && (cTmpStr[iCnt] <= 126)) {
 
 				if (bTrans == FALSE) {
-					m_pSprite[SPRID_INTERFACE_SPRFONTS2]->PutSpriteFast(iXpos, iY+1, cTmpStr[iCnt] - 32 +iAdd, dwTime);
-					m_pSprite[SPRID_INTERFACE_SPRFONTS2]->PutSpriteFast(iXpos+1, iY+1, cTmpStr[iCnt] - 32 +iAdd, dwTime);
+					m_pSprite[SPRID_INTERFACE_SPRFONTS2]->PutSpriteFast(iXpos, iY + 1, cTmpStr[iCnt] - 32 + iAdd, dwTime);
+					m_pSprite[SPRID_INTERFACE_SPRFONTS2]->PutSpriteFast(iXpos + 1, iY + 1, cTmpStr[iCnt] - 32 + iAdd, dwTime);
 					if ((sR == 0) && (sG == 0) && (sB == 0))
 						 m_pSprite[SPRID_INTERFACE_SPRFONTS2]->PutSpriteFast(iXpos, iY, cTmpStr[iCnt] - 32 +iAdd, dwTime);
 					else m_pSprite[SPRID_INTERFACE_SPRFONTS2]->PutSpriteRGB(iXpos, iY, cTmpStr[iCnt] - 32 +iAdd, sR, sG, sB, dwTime);
@@ -22370,16 +22370,16 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, BOOL bIsPreDC)
 		iFontSize = 23 - (int)m_pChatMsgList[iChatIndex]->m_cType;
 		switch (iLines) {
 		case 1:
-			PutString_SprFont3(sX - iSize, sY - 65 - iLoc, cMsgA, 255, 200, 0, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 65 - iLoc, cMsgA, 255, 255, 0, bIsTrans, iFontSize);
 			break;
 		case 2:
-			PutString_SprFont3(sX - iSize, sY - 81 - iLoc, cMsgA, 255, 200, 0, bIsTrans, iFontSize);
-			PutString_SprFont3(sX - iSize, sY - 65 - iLoc, cMsgB, 255, 200, 0, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 81 - iLoc, cMsgA, 255, 255, 0, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 65 - iLoc, cMsgB, 255, 255, 0, bIsTrans, iFontSize);
 			break;
 		case 3:
-			PutString_SprFont3(sX - iSize, sY - 97 - iLoc, cMsgA, 255, 200, 0, bIsTrans, iFontSize);
-			PutString_SprFont3(sX - iSize, sY - 81 - iLoc, cMsgB, 255, 200, 0, bIsTrans, iFontSize);
-			PutString_SprFont3(sX - iSize, sY - 65 - iLoc, cMsgC, 255, 200, 0, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 97 - iLoc, cMsgA, 255, 255, 0, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 81 - iLoc, cMsgB, 255, 255, 0, bIsTrans, iFontSize);
+			PutString_SprFont3(sX - iSize, sY - 65 - iLoc, cMsgC, 255, 255, 0, bIsTrans, iFontSize);
 			break;
 		}
 		break;
@@ -47893,7 +47893,7 @@ void CGame::MotionEventHandler(char * pData)
 			if (sV1 != 0)
 			{
 				int index = m_pMapData->getChatMsgIndex(wObjectID - 30000);
-				if(m_showAllDmg && m_pChatMsgList[index] && strlen(m_pChatMsgList[index]->m_pMsg) < sizeof(cTxt)-30)
+				if(index != -1 && m_showAllDmg && m_pChatMsgList[index] && strlen(m_pChatMsgList[index]->m_pMsg) < sizeof(cTxt)-30)
 				{
 					if(index != -1 && m_dwCurTime - m_pChatMsgList[index]->m_dwTime < 150 _ms &&
 						m_pChatMsgList[index]->m_cType >= 21 && m_pChatMsgList[index]->m_cType <= 23)
@@ -52116,47 +52116,59 @@ void CGame::DrawDialogBox_ExtendedSysMenu()
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU1);
 	strcat(menuTxt, m_showGrid ? DRAW_ENABLED : DRAW_DISABLED);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(1), menuTxt, onButton == 1 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	RECT r = m_dialogBoxes[59].GetButton(1);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 1 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU2);
 	strcat(menuTxt, m_tabbedNotification ? DRAW_ENABLED : DRAW_DISABLED);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(2), menuTxt, onButton == 2 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	r = m_dialogBoxes[59].GetButton(2);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 2 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU3);
 	strcat(menuTxt, m_ekScreenshot ? DRAW_ENABLED : DRAW_DISABLED);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(3), menuTxt, onButton == 3 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	r = m_dialogBoxes[59].GetButton(3);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 3 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU4);
 	strcat(menuTxt, m_showAllDmg ? DRAW_ENABLED : DRAW_DISABLED);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(4), menuTxt, onButton == 4 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	r = m_dialogBoxes[59].GetButton(4);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 4 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU5);
 	strcat(menuTxt, m_showTimeStamp ? DRAW_ENABLED : DRAW_DISABLED);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(5), menuTxt, onButton == 5 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	r = m_dialogBoxes[59].GetButton(5);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 5 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU6);
 	strcat(menuTxt, m_bigItems ? DRAW_ENABLED : DRAW_DISABLED);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(6), menuTxt, onButton == 6 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	r = m_dialogBoxes[59].GetButton(6);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 6 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU7);
 	strcat(menuTxt, m_windowsKey ? DRAW_ENABLED : DRAW_DISABLED);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(7), menuTxt, onButton == 7 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	r = m_dialogBoxes[59].GetButton(7);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 7 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU8);
 	strcat(menuTxt, m_showTime ? DRAW_ENABLED : DRAW_DISABLED);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(8), menuTxt, onButton == 8 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	r = m_dialogBoxes[59].GetButton(8);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 8 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU9);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(9), menuTxt, onButton == 9 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	r = m_dialogBoxes[59].GetButton(9);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 9 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU10);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(10), menuTxt, onButton == 10 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	r = m_dialogBoxes[59].GetButton(10);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 10 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU11);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(11), menuTxt, onButton == 11 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	r = m_dialogBoxes[59].GetButton(11);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 11 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 
 	strcpy(menuTxt, DRAW_EXTENDEDSYSMENU12);
-//uncomment 	PutAlignedString(&m_dialogBoxes[59].GetButton(12), menuTxt, onButton == 12 ?video::SColor(255,255,255,255) :video::SColor(255,4, 0, 50));
+	r = m_dialogBoxes[59].GetButton(12);
+	PutAlignedString(r.left, r.right, r.top, menuTxt, onButton == 12 ? video::SColor(255, 255, 255, 255) : video::SColor(255, 4, 0, 50));
 	
 }
 

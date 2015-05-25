@@ -124,9 +124,6 @@
     <ClInclude Include="lan_eng.h">
       <Filter>lang</Filter>
     </ClInclude>
-    <ClInclude Include="lan_spa.h">
-      <Filter>lang</Filter>
-    </ClInclude>
     <ClInclude Include="Game.h" />
     <ClInclude Include="GlobalDef.h" />
     <ClInclude Include="GlobalVal.h" />

@@ -193,7 +193,6 @@
     <ClInclude Include="Net\Msg.h" />
     <ClInclude Include="Net\XSocket.h" />
     <ClInclude Include="lan_eng.h" />
-    <ClInclude Include="lan_spa.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GlobalDef.h" />
     <ClInclude Include="GlobalVal.h" />
