@@ -187,6 +187,22 @@ class CGame : public irr::IEventReceiver
 public:
 	void DrawStatusText(int sX, int sY);
 
+
+	struct MsgQueueEntry
+	{
+		std::shared_ptr<Client> client;
+		char * data;
+		uint32_t size;
+	};
+	typedef std::list<std::shared_ptr<MsgQueueEntry>> MsgQueue;
+	MsgQueue socketpipe;
+	std::mutex mutsocket;
+	void PutMsgQueue(std::shared_ptr<Client> client, MsgQueue & q, char * data, uint32_t size);
+	void PutMsgQueue(std::shared_ptr<MsgQueueEntry>, MsgQueue & q);
+	std::shared_ptr<MsgQueueEntry> GetMsgQueue(MsgQueue & q);
+
+
+
 	IrrlichtDevice * device;
 	video::IVideoDriver * driver;
 	scene::ISceneManager* smgr;
