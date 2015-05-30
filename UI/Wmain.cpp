@@ -398,10 +398,12 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 		if (G_pGame->device->isWindowMinimized())
 		{
+			G_pGame->wasinactive = true;
 			G_pGame->device->yield();
 		}
  		else if (!G_pGame->device->isWindowActive())
  		{
+			G_pGame->wasinactive = true;
 			if (G_pGame->backgroundfpstarget)
 			{
 				if ((time2 - time1) < G_pGame->backgroundframetime)
@@ -429,6 +431,7 @@ int APIENTRY WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
  		}
 		else
 		{
+			G_pGame->wasinactive = false;
 			if (G_pGame->foregroundfpstarget)
 			{
 				if ((time2 - time1) < G_pGame->foregroundframetime)

@@ -84,14 +84,29 @@ bool CGame::OnEvent(const irr::SEvent& event)
 	{
 		if (event.MouseInput.Event == irr::EMIE_LMOUSE_PRESSED_DOWN)
 		{
+			if (wasinactive)
+			{
+				wasinactive = false;
+				return false;
+			}
 			m_stMCursor.LB = true;
 		}
 		else if (event.MouseInput.Event == irr::EMIE_RMOUSE_PRESSED_DOWN)
 		{
+			if (wasinactive)
+			{
+				wasinactive = false;
+				return false;
+			}
 			m_stMCursor.RB = true;
 		}
 		else if (event.MouseInput.Event == irr::EMIE_MMOUSE_PRESSED_DOWN)
 		{
+			if (wasinactive)
+			{
+				wasinactive = false;
+				return false;
+			}
 			m_stMCursor.MB = true;
 		}
 		else if (event.MouseInput.Event == irr::EMIE_LMOUSE_LEFT_UP)
@@ -367,7 +382,8 @@ void CGame::ReadUsername()
 }
 
 CGame::CGame()
-{	
+{
+	wasinactive = false;
 	fullscreenswap = false;
 	vsync = false;
 	oldmode = gamemode = 0;

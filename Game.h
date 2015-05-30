@@ -211,6 +211,9 @@ public:
 	uint32_t backgroundframetime;
 	uint64_t time1;
 	uint64_t time2;
+
+	bool wasinactive;
+
 	bool CreateRenderer(bool fs = false)
 	{
 		fullscreen = fs;
