@@ -10,8 +10,8 @@
 
 CCharInfo::CCharInfo()
 {
-	ZeroMemory(m_cName, sizeof(m_cName));
-	ZeroMemory(m_cMapName, sizeof(m_cMapName));	
+	memset(m_cName, 0, sizeof(m_cName));
+	memset(m_cMapName, 0, sizeof(m_cMapName));
 	m_iApprColor = 0;
 	m_iYear   = 0;
 	m_iMonth  = 0;

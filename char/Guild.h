@@ -2,11 +2,11 @@
 #define GUILD_H
 #pragma once
 
-#include "common.h"
+#include "../Shared/common.h"
 
 struct GuildMember{
-	uint8 rank;
-	uint8 map;
+	uint8_t rank;
+	uint8_t map;
 	time_t summonTime;
 };
 
@@ -20,7 +20,7 @@ enum CanSummon{
 	CANSUMMON_NONE
 };
 
-typedef HashMap<string, GuildMember> MemberList;
+typedef std::unordered_map<string, GuildMember> MemberList;
 
 class CGuild
 {
@@ -31,14 +31,14 @@ public:
 	
 	void AddMember(GuildMember member, string name);
 	void RemoveMember(string name);
-	uint32 GetOnlineCnt()	const { return m_onlineList.size(); }
-	uint32 CanSummon(string map) const;
+	uint32_t GetOnlineCnt()	const { return m_onlineList.size(); }
+	uint32_t CanSummon(string map) const;
 		
-	uint8 m_upgrades[GU_MAX];
-	uint32 m_gold;
-	uint32 m_maj;
-	uint32 m_cont;
-	uint8 m_captains, m_raidmasters, m_huntmasters;
+	uint8_t m_upgrades[GU_MAX];
+	uint32_t m_gold;
+	uint32_t m_maj;
+	uint32_t m_cont;
+	uint8_t m_captains, m_raidmasters, m_huntmasters;
 	MemberList m_onlineList;
 };
 

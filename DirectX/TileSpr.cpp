@@ -13,8 +13,8 @@ CTileSpr::CTileSpr()
 m_sTileSpriteFrame(0),
 m_sObjectSprite(0),
 m_sObjectSpriteFrame(0),
-m_bIsMoveAllowed(TRUE),
-m_bIsTeleport(FALSE)
+m_bIsMoveAllowed(true),
+m_bIsTeleport(false)
 {}
 
 CTileSpr::~CTileSpr()

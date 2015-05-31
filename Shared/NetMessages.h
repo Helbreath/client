@@ -426,7 +426,7 @@ enum NetMessages_Notify
 #define REJECTTYPE_LOGINERROR                      	0x08
 
 
-typedef uint32 Msgid;
+typedef uint32_t Msgid;
 enum tagMOTIONID
 {
 	MSGIDTYPE_MOTION = 1 << 15

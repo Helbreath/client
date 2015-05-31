@@ -64,7 +64,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_ITERATOR_DEBUG_LEVEL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -117,7 +117,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -163,8 +163,9 @@
     <Image Include="Res\icon1.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\xtreme-server\src\streams.h" />
     <ClInclude Include="char\mail.h" />
+    <ClInclude Include="newsocket.h" />
+    <ClInclude Include="request_handler.h" />
     <ClInclude Include="Res\resource.h" />
     <ClInclude Include="char\ActionID.h" />
     <ClInclude Include="char\CharInfo.h" />
@@ -176,16 +177,14 @@
     <ClInclude Include="char\item\BuildItem.h" />
     <ClInclude Include="char\item\Item.h" />
     <ClInclude Include="char\item\ItemName.h" />
-    <ClInclude Include="DirectX\d3dtypes.h" />
     <ClInclude Include="DirectX\Effect.h" />
-    <ClInclude Include="DirectX\Mydib.h" />
-    <ClInclude Include="DirectX\SoundBuffer.h" />
     <ClInclude Include="DirectX\SoundID.h" />
     <ClInclude Include="DirectX\Sprite.h" />
     <ClInclude Include="DirectX\SpriteID.h" />
     <ClInclude Include="DirectX\TileSpr.h" />
     <ClInclude Include="Map\MapData.h" />
     <ClInclude Include="Map\Tile.h" />
+    <ClInclude Include="streams.h" />
     <ClInclude Include="titles\Title.h" />
     <ClInclude Include="UI\DialogBox.h" />
     <ClInclude Include="UI\MouseInterface.h" />
@@ -214,12 +213,12 @@
     <ClCompile Include="char\item\Item.cpp" />
     <ClCompile Include="char\item\ItemName.cpp" />
     <ClCompile Include="DirectX\Effect.cpp" />
-    <ClCompile Include="DirectX\Mydib.cpp" />
-    <ClCompile Include="DirectX\SoundBuffer.cpp" />
     <ClCompile Include="DirectX\Sprite.cpp" />
     <ClCompile Include="DirectX\TileSpr.cpp" />
     <ClCompile Include="Map\MapData.cpp" />
     <ClCompile Include="Map\Tile.cpp" />
+    <ClCompile Include="newsocket.cpp" />
+    <ClCompile Include="request_handler.cpp" />
     <ClCompile Include="titles\Title.cpp" />
     <ClCompile Include="UI\DialogBox.cpp" />
     <ClCompile Include="UI\MouseInterface.cpp" />

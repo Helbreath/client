@@ -12,20 +12,20 @@ CMouseInterface::CMouseInterface()
 {
 	m_cPrevPress = 0;
 	for (int i = 1; i < MAXRECTS; i++) 
-		m_pRect[i] = NULL;
-	m_dwTime = timeGetTime();
+		m_pRect[i] = 0;
+	m_dwTime = unixseconds();
 }
 
 CMouseInterface::~CMouseInterface()
 {
 	for (int i = 1; i < MAXRECTS; i++)
-	if (m_pRect[i] != NULL) delete m_pRect[i];
+	if (m_pRect[i] != 0) delete m_pRect[i];
 }
 
 void CMouseInterface::AddRect(long sx, long sy, long dx, long dy)
 {
 	for (int i = 1; i < MAXRECTS; i++)
-	if (m_pRect[i] == NULL) {
+	if (m_pRect[i] == 0) {
 		m_pRect[i] = (RECT *) new RECT;
 		SetRect(m_pRect[i], sx, sy, dx, dy);
 		return ;
@@ -35,7 +35,7 @@ void CMouseInterface::AddRect(long sx, long sy, long dx, long dy)
 void CMouseInterface::AddRect(RECT * rect)
 {
 	for (int i = 1; i < MAXRECTS; i++)
-	if (m_pRect[i] == NULL) {
+	if (m_pRect[i] == 0) {
 		m_pRect[i] = (RECT *) new RECT;
 		SetRect(m_pRect[i], rect->left, rect->top, rect->right, rect->bottom);
 		return ;
@@ -47,7 +47,7 @@ int CMouseInterface::iGetStatus(int msX, int msY, char cLB, char * pResult)
  int i, iRet;
 	if (cLB != 0) {
 		for (i = 1; i < MAXRECTS; i++) 
-		if (m_pRect[i] != NULL) {
+		if (m_pRect[i] != 0) {
 			if ((m_pRect[i]->left < msX) && (m_pRect[i]->right > msX) &&
 				(m_pRect[i]->top < msY)  && (m_pRect[i]->bottom > msY)) {
 				m_cPrevPress = i;

@@ -4,17 +4,17 @@
 
 #include "Msg.h"
 ChatType CMsg::predremove;
-uint32 CMsg::nmsgs = 0;
+uint32_t CMsg::nmsgs = 0;
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CMsg::CMsg(char cType, char * pMsg, DWORD dwTime)
+CMsg::CMsg(char cType, char * pMsg, uint32_t dwTime)
 {
 	m_cType = cType;
 
-	m_pMsg = NULL;
+	m_pMsg = 0;
 	m_pMsg = new char [strlen(pMsg) + 1];
 	ZeroMemory(m_pMsg, strlen(pMsg) + 1);
 	strcpy(m_pMsg, pMsg);

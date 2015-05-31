@@ -4,19 +4,19 @@
 
 #include	"typedefs.h"
 
-void Push(char * &cp, uint8 value);
-void Push(char * &cp, uint16 value);
-void Push(char * &cp, uint32 value);
-void Push(char * &cp, uint64 value);
-void Push(char * &dest, const char * src, uint32 len);
+void Push(char * &cp, uint8_t value);
+void Push(char * &cp, uint16_t value);
+void Push(char * &cp, uint32_t value);
+void Push(char * &cp, uint64_t value);
+void Push(char * &dest, const char * src, uint32_t len);
 void Push(char * &dest, const char * src);
 void Push(char * &dest, const std::string & src);
 
-void Pop(char * &cp, uint8 &v);
-void Pop(char * &cp, uint16 &v);
-void Pop(char * &cp, uint32 &v);
-void Pop(char * &cp, uint64 &v);
-void Pop(char * &src, char * dest, uint32 len);
+void Pop(char * &cp, uint8_t &v);
+void Pop(char * &cp, uint16_t &v);
+void Pop(char * &cp, uint32_t &v);
+void Pop(char * &cp, uint64_t &v);
+void Pop(char * &src, char * dest, uint32_t len);
 void Pop(char * &src, char * dest);
 void Pop(char * &src, std::string & str);
 

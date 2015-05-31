@@ -1,16 +1,6 @@
 #ifndef TYPEDEFS_H
 #define TYPEDEFS_H
 
-#define NULL 0
-
-typedef unsigned long long uint64;
-typedef signed long long int64;
-typedef unsigned long uint32;
-typedef signed long int32;
-typedef unsigned short uint16;
-typedef signed short int16;
-typedef unsigned char uint8;
-typedef signed char int8;
 
 #include <string>
  //typedef std::string string;
@@ -19,22 +9,14 @@ typedef signed char int8;
  typedef std::ostream ostream;
 
 #include <list>
-#ifdef __MINGW32__
-#include <tr1\unordered_map>
-#define HashMap std::tr1::unordered_map
-#else
 #include <unordered_map>
-#define HashMap std::unordered_map
-#endif
 #include <map>
-#define Map std::map
 #include <vector>
-#define Vector std::vector
-#define AutoPtr std::auto_ptr
+#include "common.h"
 
-typedef uint16 ItemID;
-typedef uint64 ItemUID;
-typedef uint32 NpcID;
+typedef uint16_t ItemID;
+typedef uint64_t ItemUID;
+typedef uint32_t NpcID;
 
 //-------------------------------------------MACROS----------------------------------------------------------
 #define foreach(x,y)		for(decltype(( y ).begin()) x = ( y ).begin(); x != ( y ).end(); ++x)
@@ -44,9 +26,9 @@ typedef uint32 NpcID;
 
 struct Date
 {
-	uint16 year;
-	uint8 month;
-	uint8 day;
+	uint16_t year;
+	uint8_t month;
+	uint8_t day;
 };
 
 //#define SECONDS(x)			(x * CLOCKS_PER_SEC)
@@ -55,11 +37,11 @@ struct Date
 //#define DAYS(x)				(x * HOURS(24))
 
 // Time
-#define _ms					_s / 1000
-#define _s					* CLOCKS_PER_SEC
-#define _m					_s * 60
-#define _h					_m * 60
-#define _d					_h * 24
+// #define _ms					_s / 1000
+// #define _s					* CLOCKS_PER_SEC
+// #define _m					_s * 60
+// #define _h					_m * 60
+// #define _d					_h * 24
 
 // time_t
 #define MINUTE(x)		x * 60

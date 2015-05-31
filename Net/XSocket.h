@@ -1,3 +1,4 @@
+/*
 // XSocket.h: interface for the XSocket class.
 //
 //////////////////////////////////////////////////////////////////////
@@ -75,7 +76,7 @@ public:
 	XSocket(HWND hWnd, int iBlockLimit);
 	virtual ~XSocket();
 
-	typedef struct _ASTAT_
+ 	typedef struct _ASTAT_
 	{
 		ADAPTER_STATUS adapt;
 		NAME_BUFFER    NameBuff [30];
@@ -116,3 +117,4 @@ public:
 };
 
 #endif // !defined(AFX_XSOCKET_H__F9D1BA42_7338_11D2_A8E6_00001C7030A6__INCLUDED_)
+*/

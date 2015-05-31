@@ -5,7 +5,6 @@
 #if !defined(AFX_ITEM_H__211A1360_91B9_11D2_B143_00001C7030A6__INCLUDED_)
 #define AFX_ITEM_H__211A1360_91B9_11D2_B143_00001C7030A6__INCLUDED_
 
-#include <windows.h>
 #include "common.h"
 #include "items.h"
 
@@ -82,8 +81,8 @@ enum ItemTypes
 	ITEMTYPE_RELIC
 };
 
-enum SocketGems : uint8{
-	SG_NONE = (uint8)ITEM_NONE,
+enum SocketGems : uint8_t{
+	SG_NONE = (uint8_t)ITEM_NONE,
 	SG_REJUGEM7 = 1,
 	SG_REJUGEM14,
 	SG_REJUGEM21,
@@ -136,15 +135,15 @@ public:
 	virtual ~CItem();
 
 	bool operator<(CItem * item) const {
-		return (strcmp(m_cName, item->m_cName) < 0) ? TRUE : FALSE;
+		return (strcmp(m_cName, item->m_cName) < 0) ? true : false;
 	}
 
 	bool IsManued()	const { return (m_dwAttribute & 1); }
-	uint32 GetMaxSockets() const;
-	uint32 GetNUsedSockets() const;
-	uint32 GetManuCompletion()	const { return m_sItemSpecEffectValue2 + 100; }
+	uint32_t GetMaxSockets() const;
+	uint32_t GetNUsedSockets() const;
+	uint32_t GetManuCompletion()	const { return m_sItemSpecEffectValue2 + 100; }
 	bool IsVortexed()	const { return m_sockets[0] == SG_VORTEXGEM; }
-	void GetGemAttr(char * txt, uint8 gem) const;
+	void GetGemAttr(char * txt, uint8_t gem) const;
 	void GetGemAttr(char * txt) const;
 
 	char  m_cName[21];
@@ -160,28 +159,28 @@ public:
 	short m_sX, m_sY;
 	short m_sItemSpecEffectValue1, m_sItemSpecEffectValue2, m_sItemSpecEffectValue3;
 	short m_sItemEffectValue1, m_sItemEffectValue2, m_sItemEffectValue3, m_sItemEffectValue4, m_sItemEffectValue5, m_sItemEffectValue6; 
-	WORD  m_wCurLifeSpan;
-	WORD  m_wMaxLifeSpan;
-	WORD  m_wWeight;
-	DWORD m_wPrice;
-	DWORD m_dwCount;
-	DWORD m_dwAttribute;
-	uint8 m_sockets[MAXITEMSOCKETS];
+	uint16_t  m_wCurLifeSpan;
+	uint16_t  m_wMaxLifeSpan;
+	uint16_t  m_wWeight;
+	uint32_t m_wPrice;
+	uint32_t m_dwCount;
+	uint32_t m_dwAttribute;
+	uint8_t m_sockets[MAXITEMSOCKETS];
 	ItemUID ItemUniqueID;
-	uint32 m_serverPtr;
+	uint32_t m_serverPtr;
 
 	static const struct ItemMapComp
 	{
 		bool operator()(CItem * x, CItem * y) const
 		{
-			return (strcmp(x->m_cName, y->m_cName) < 0) ? TRUE : FALSE;
+			return (strcmp(x->m_cName, y->m_cName) < 0) ? true : false;
 		}
 	};
 };
 
 
 
-typedef std::multimap<CItem*, uint32, CItem::ItemMapComp> ItemMap;
-typedef std::multimap<CItem*, uint32, CItem::ItemMapComp>::iterator ItemMapIter;
+typedef std::multimap<CItem*, uint32_t, CItem::ItemMapComp> ItemMap;
+typedef std::multimap<CItem*, uint32_t, CItem::ItemMapComp>::iterator ItemMapIter;
 
 #endif // !defined(AFX_ITEM_H__211A1360_91B9_11D2_B143_00001C7030A6__INCLUDED_)

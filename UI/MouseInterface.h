@@ -9,7 +9,7 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include <windows.h>
+#include "common.h"
 
 #define MAXRECTS	30
 #define MIRESULT_NONE		0
@@ -27,7 +27,7 @@ public:
 	virtual ~CMouseInterface();
 	RECT * m_pRect[MAXRECTS];
 	char   m_cPrevPress;
-	DWORD  m_dwTime;
+	uint32_t  m_dwTime;
 };
 
 #endif // !defined(AFX_MOUSEINTERFACE_H__8EB34B20_7FC7_11D2_A8E6_00001C7030A6__INCLUDED_)

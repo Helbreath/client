@@ -1,4 +1,3 @@
-#include <windows.h>
 #include "..\game.h"
 
 extern CGame * G_pGame;
@@ -29,7 +28,7 @@ void CGuild::RemoveMember(string name)
 	m_onlineList.erase( name );
 }
 
-uint32 CGuild::CanSummon(string map) const
+uint32_t CGuild::CanSummon(string map) const
 {
 	if(m_gold < GUILDSUMMONSGOLDCOST)
 		return CANSUMMON_GOLD;

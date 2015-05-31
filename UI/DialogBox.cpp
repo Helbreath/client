@@ -26,7 +26,7 @@ void CDialogBox::SetupDialog(char dialogID, short X, short Y, short sizeX, short
 
 	_buttonCount = 0;
 	_scrollBar = 0;
-	_isTopDialog = FALSE;
+	_isTopDialog = false;
 
 	_background = background;
 	_backgroundFrame = backFrame;
@@ -168,7 +168,7 @@ Point CDialogBox::HandleScroll(int visibleAmt, int listSize)
 			}
 			else 
 			{
-				bIsScrollSelected = FALSE;
+				bIsScrollSelected = false;
 			}
 
 			if (G_pGame->m_stMCursor.sZ != 0)
@@ -189,7 +189,7 @@ Point CDialogBox::HandleScroll(int visibleAmt, int listSize)
 	else
 	{
 		sView = 0;
-		bIsScrollSelected = FALSE;
+		bIsScrollSelected = false;
 	}
 
 	return ret;

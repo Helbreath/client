@@ -76,16 +76,7 @@
     <ClInclude Include="char\item\ItemName.h">
       <Filter>char\item</Filter>
     </ClInclude>
-    <ClInclude Include="DirectX\d3dtypes.h">
-      <Filter>directx</Filter>
-    </ClInclude>
     <ClInclude Include="DirectX\Effect.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\Mydib.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\SoundBuffer.h">
       <Filter>directx</Filter>
     </ClInclude>
     <ClInclude Include="DirectX\SoundID.h">
@@ -131,9 +122,9 @@
     <ClInclude Include="StrTok.h" />
     <ClInclude Include="titles\Title.h" />
     <ClInclude Include="char\mail.h" />
-    <ClInclude Include="..\xtreme-server\src\streams.h">
-      <Filter>shared</Filter>
-    </ClInclude>
+    <ClInclude Include="streams.h" />
+    <ClInclude Include="newsocket.h" />
+    <ClInclude Include="request_handler.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Res\resource.rc">
@@ -166,12 +157,6 @@
       <Filter>char\item</Filter>
     </ClCompile>
     <ClCompile Include="DirectX\Effect.cpp">
-      <Filter>directx</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX\Mydib.cpp">
-      <Filter>directx</Filter>
-    </ClCompile>
-    <ClCompile Include="DirectX\SoundBuffer.cpp">
       <Filter>directx</Filter>
     </ClCompile>
     <ClCompile Include="DirectX\Sprite.cpp">
@@ -209,5 +194,7 @@
     </ClCompile>
     <ClCompile Include="titles\Title.cpp" />
     <ClCompile Include="char\mail.cpp" />
+    <ClCompile Include="newsocket.cpp" />
+    <ClCompile Include="request_handler.cpp" />
   </ItemGroup>
 </Project>

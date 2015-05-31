@@ -9,7 +9,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-#include <windows.h>
+#include "../Shared/common.h"
 
 #include "skilltypes.h"
 
@@ -22,7 +22,7 @@ public:
 	char m_cName[21];
 
 	int  m_iLevel;
-	BOOL m_bIsUseable;
+	bool m_bIsUseable;
 	char m_cUseMethod;
 };
 

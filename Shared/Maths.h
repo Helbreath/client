@@ -42,9 +42,9 @@ inline double randn_notrig(double mu=0.0, double sigma=1.0) {
 	}
 }
 
-inline int32 ndice(int _throw, int range)
+inline int32_t ndice(int _throw, int range)
 {
-	int32 i, ret;
+	int32_t i, ret;
 
 	if (range <= 0 || _throw <= 0) return 0;
 
@@ -57,10 +57,10 @@ inline int32 ndice(int _throw, int range)
 	return ret;
 }
 
-inline int32 dice(int _throw, int range)
+inline int32_t dice(int _throw, int range)
 {
 	if(_throw > 10)
-		return (int32)(
+		return (int32_t)(
 		(_throw * range / 2) + (_throw * randn_notrig()/3) + (_throw / 2)
 		);
 	else
@@ -73,14 +73,14 @@ inline int32 dice(int _throw, int range)
 #define GetBit(var, index)			( (var & (1 << index)) >> index )
 #define ToBit(index)					(1 << index)
 
-inline void SetNibble(uint32 &var, uint8 index, uint8 val)
+inline void SetNibble(uint32_t &var, uint8_t index, uint8_t val)
 {
 	index *= 4;
 	var &= ~(0xF << index);
 	var |= val << index;	
 }
 
-inline void SetBit(uint32 &var, uint8 index, bool val)
+inline void SetBit(uint32_t &var, uint8_t index, bool val)
 {
 	var &= UINT_MAX - (0x1 << index);
 	var |= val << index;

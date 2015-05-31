@@ -5,9 +5,7 @@
 #if !defined(AFX_MSG_H__4A385380_AADF_11D2_B143_00001C7030A6__INCLUDED_)
 #define AFX_MSG_H__4A385380_AADF_11D2_B143_00001C7030A6__INCLUDED_
 
-#include <windows.h>
 #include <string.h>
-#include <winbase.h>
 #include "common.h"
 
 #if _MSC_VER >= 1000
@@ -24,16 +22,16 @@ public:
 	static bool RemovePred(const CMsg * msg);
 	static void SetPred(ChatType t)	{ predremove = t; }
 	static ChatType predremove;
-	static uint32 nmsgs;
+	static uint32_t nmsgs;
 
-	CMsg(char cType, char * pMsg, DWORD dwTime);
+	CMsg(char cType, char * pMsg, uint32_t dwTime);
 	virtual ~CMsg();
 
 	char   m_cType;
 	char * m_pMsg;
 	short  m_sX, m_sY;
-	DWORD  m_dwTime;
-	uint32 m_msgid;
+	uint32_t  m_dwTime;
+	uint32_t m_msgid;
 
 	int    m_iObjectID;
 

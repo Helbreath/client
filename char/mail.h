@@ -3,24 +3,25 @@
 #pragma once
 
 #include "typedefs.h"
-#include "item/Item.h"
+
+class CItem;
 
 class Mail
 {
 public:
-	Mail(uint32 __id, string __title, string __sender, Date d);
+	Mail(uint32_t __id, string __title, string __sender, Date d);
 	~Mail();
 	
-	uint32 id;
+	uint32_t id;
 	string title;
 	string sender;
 	string * msg;
 	Date date;
 
-	Vector<CItem*> items;
+	std::vector<CItem*> items;
 };
 
-typedef Vector<Mail*> MailVec;
+typedef std::vector<Mail*> MailVec;
 typedef MailVec::iterator MailVecIt;
 
 #endif

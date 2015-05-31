@@ -9,7 +9,6 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include <windows.h>
 #include <stdio.h>
 #include <io.h>
 #include <fcntl.h>
@@ -19,12 +18,13 @@
 #include <irrlicht.h>
 #include <sstream>
 #include <stdint.h>
+#include "common.h"
 
 using namespace irr;
 using namespace video;
 
-#include "DXC_ddraw.h"
-#include "Mydib.h"
+//#include "DXC_ddraw.h"
+//#include "Mydib.h"
 
 typedef struct stBrushtag
 {
@@ -36,32 +36,19 @@ typedef struct stBrushtag
 	short pvy;
 } stBrush;
 
-void ReadFramePositions(HANDLE hPakFile, std::vector<int> & framePositions, int frames);
-
 class CSprite  
 {
 public:
-	void * operator new (size_t size) 
-	{
-		return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
-	};
-	
-	void operator delete(void * mem)
-	{
-		HeapFree(GetProcessHeap(), HEAP_NO_SERIALIZE, mem);
-	};
-
-
 	video::ITexture * _pMakeSpriteSurface();
 	video::ITexture * _localimage;
 	video::ITexture * _localshadow;
 	video::ITexture ** subtextures;
 
 
-	CSprite(std::ifstream & hPakFile, std::wstring & cPakFileName, short sNthFile, bool bAlphaEffect = TRUE);
+	CSprite(std::ifstream & hPakFile, std::wstring & cPakFileName, short sNthFile, bool bAlphaEffect = true);
 	//CSprite(HANDLE hPakFile, class DXC_ddraw * pDDraw, char * cPakFileName, short sNthFile, bool bAlphaEffect = TRUE, std::vector<int> * framePositions = NULL);
 	virtual ~CSprite();
-	static CSprite * CreateSprite(wchar_t * cPakFileName, short sNthFile, bool bAlphaEffect = TRUE);
+	static CSprite * CreateSprite(wchar_t * cPakFileName, short sNthFile, bool bAlphaEffect = true);
 	void DrawSubSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
 	void DrawSpriteNCK(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
 	void DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
@@ -72,70 +59,61 @@ public:
 	void CreateShadow();
 
 
-	void PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, DWORD dwTime);
+	void PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint32_t dwTime);
 
-	void PutSpriteFast(int sX, int sY, int sFrame, DWORD dwTime);
-	void PutShiftSpriteFast(int sX, int sY, int shX, int shY, int sFrame, DWORD dwTime);
-	void PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame, DWORD dwTime);
-	void PutSpriteFastFrontBuffer(int sX, int sY, int sFrame, DWORD dwTime);
-	void PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, DWORD dwTime);
-	void PutSpriteFastNoColorKey(int sX, int sY, int sFrame, DWORD dwTime);
-	void PutSpriteFastDst(LPDIRECTDRAWSURFACE7 lpDstS, int sX, int sY, int sFrame, DWORD dwTime);
-	void PutSpriteFastNoColorKeyDst(LPDIRECTDRAWSURFACE7 lpDstS, int sX, int sY, int sFrame, DWORD dwTime);
+	void PutSpriteFast(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutShiftSpriteFast(int sX, int sY, int shX, int shY, int sFrame, uint32_t dwTime);
+	void PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame, uint32_t dwTime);
+	void PutSpriteFastFrontBuffer(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, uint32_t dwTime);
+	void PutSpriteFastNoColorKey(int sX, int sY, int sFrame, uint32_t dwTime);
 
-	void PutTransSprite(int sX, int sY, int sFrame, DWORD dwTime, int alphaDepth = 30);
-	void PutTransSprite2(int sX, int sY, int sFrame, DWORD dwTime);
-	void PutTransSprite_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime, int alphaDepth = 0);
-	void PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, DWORD dwTime);
-	void PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, DWORD dwTime);
-	void PutTransSprite70(int sX, int sY, int sFrame, DWORD dwTime);
-	void PutTransSprite50(int sX, int sY, int sFrame, DWORD dwTime);
-	void PutTransSprite25(int sX, int sY, int sFrame, DWORD dwTime);
-	void PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime);
-	void PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime);
-	void PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, DWORD dwTime);
+	void PutTransSprite(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth = 30);
+	void PutTransSprite2(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutTransSprite_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth = 0);
+	void PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint32_t dwTime);
+	void PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint32_t dwTime);
+	void PutTransSprite70(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutTransSprite50(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutTransSprite25(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime);
 
-	void PutTransSpriteRGB(int sX, int sY, int sFrame, uint32_t color, DWORD dwTime);
-	void PutSpriteRGB(int sX, int sY, int sFrame, uint32_t color, DWORD dwTime);
+	void PutTransSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint32_t dwTime);
+	void PutSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint32_t dwTime);
 
-	void PutShadowSpriteClip(int sX, int sY, int sFrame, DWORD dwTime);
-	void PutShadowSprite(int sX, int sY, int sFrame, DWORD dwTime);
+	void PutShadowSpriteClip(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutShadowSprite(int sX, int sY, int sFrame, uint32_t dwTime);
 
-	void PutRevTransSprite(int sX, int sY, int sFrame, DWORD dwTime, int alphaDepth = 0);
+	void PutRevTransSprite(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth = 0);
 
-	void PutFadeSprite(short sX, short sY, short sFrame, DWORD dwTime);
-	void PutFadeSpriteDst(WORD * pDstAddr, short sPitch, short sX, short sY, short sFrame, DWORD dwTime);
+	void PutFadeSprite(short sX, short sY, short sFrame, uint32_t dwTime);
+	void PutFadeSpriteDst(uint16_t * pDstAddr, short sPitch, short sX, short sY, short sFrame, uint32_t dwTime);
 
 
-	void _SetAlphaDegree();
-	BOOL _bCheckCollison(int sX, int sY, short sFrame, int msX, int msY);
+	bool _bCheckCollison(int sX, int sY, short sFrame, int msX, int msY);
 	void _GetSpriteRect(int sX, int sY, int sFrame);
-// 	void _iCloseSprite();
-// 	bool _iOpenSprite();
 	bool _iOpenSprite() { return _pMakeSpriteSurface() != 0; }
 	void _iCloseSprite() { /*OutputDebugStringW((L"Unloaded image: " + m_cPakFileName + L"\n").c_str()); if (_localimage) _localimage->drop(); m_bIsSurfaceEmpty = TRUE;*/ }
-	void iRestore();
-	//IDirectDrawSurface7 *  _pMakeSpriteSurface();
 
 	RECT	m_rcBound;
-	DWORD	m_dwRefTime;
+	uint32_t	m_dwRefTime;
 	bool	m_bIsSurfaceEmpty;
 	bool	m_bOnCriticalSection;
 	bool	m_bAlphaEffect;
 	short	m_sPivotX, m_sPivotY;
-	class	DXC_ddraw * m_pDDraw;
-	WORD*	m_pSurfaceAddr;
-	DWORD	m_dwBitmapFileStartLoc;
+	uint16_t * m_pSurfaceAddr;
+	uint32_t	m_dwBitmapFileStartLoc;
 	short	m_sPitch;
 	int		m_iTotalFrame;
 	char	m_cAlphaDegree;
-	WORD	m_wBitmapSizeX, m_wBitmapSizeY;
-	WORD	m_wColorKey;
+	uint16_t	m_wBitmapSizeX, m_wBitmapSizeY;
+	uint16_t	m_wColorKey;
 	std::wstring m_cPakFileName;
 //	char	m_cPakFileName[16];
 	stBrush* m_stBrush;
 	uint16_t	wPageid;
-	LPDIRECTDRAWSURFACE7 m_lpSurface;
 };
 
 #endif // !defined(AFX_SPRITE_H__0089D9E2_74E6_11D2_A8E6_00001C7030A6__INCLUDED_)

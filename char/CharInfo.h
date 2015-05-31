@@ -5,7 +5,7 @@
 #if !defined(AFX_CHARINFO_H__DD443240_AD62_11D2_B143_00001C7030A6__INCLUDED_)
 #define AFX_CHARINFO_H__DD443240_AD62_11D2_B143_00001C7030A6__INCLUDED_
 
-#include <windows.h>
+#include "../Shared/common.h"
 
 #if _MSC_VER >= 1000
 #pragma once

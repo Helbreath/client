@@ -13,14 +13,14 @@
 
 CItem::CItem()
 {
-	ZeroMemory(m_cName, sizeof(m_cName));
+	memset(m_cName, 0, sizeof(m_cName));
 	m_sSprite = 0;
 	m_sSpriteFrame = 0;
-	m_dwAttribute = NULL;
+	m_dwAttribute = 0;
 	m_sItemSpecEffectValue1 = 0;
 	m_sItemSpecEffectValue2 = 0;
 	m_sItemSpecEffectValue3 = 0;
-	m_serverPtr = NULL;
+	m_serverPtr = 0;
 	
 	for(int i = 0; i < MAXITEMSOCKETS; i++)
 		m_sockets[i] = SG_NONE;
@@ -31,7 +31,7 @@ CItem::~CItem()
 	
 }
 
-uint32 CItem::GetMaxSockets() const
+uint32_t CItem::GetMaxSockets() const
 {
 	if(m_sockets[0] == SG_VORTEXGEM)
 	{
@@ -70,9 +70,9 @@ uint32 CItem::GetMaxSockets() const
 	return 0;
 }
 
-uint32 CItem::GetNUsedSockets() const
+uint32_t CItem::GetNUsedSockets() const
 {
-	uint32 n = 0;
+	uint32_t n = 0;
 	for(int i = 0; i < GetMaxSockets(); i++)
 	{
 		if(m_sockets[i] != SG_NONE && m_sockets[i] != SG_VORTEXGEM)
@@ -84,7 +84,7 @@ uint32 CItem::GetNUsedSockets() const
 	return n;
 }
 
-void CItem::GetGemAttr(char * txt, uint8 gem) const
+void CItem::GetGemAttr(char * txt, uint8_t gem) const
 {
 	switch(gem)
 	{

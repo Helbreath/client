@@ -1,7 +1,7 @@
 #ifndef _ABOUTDLGPROC_H
 #define _ABOUTDLGPROC_H
 
-#include <windows.h>
+#include "common.h"
 
 
 int		G_iLevel;

@@ -10,11 +10,11 @@
 
 CEffect::CEffect()
 {
-	m_sType       = NULL;
+	m_sType       = 0;
 	m_cFrame      = -1;
-	m_cMaxFrame   = NULL;
-	m_dwTime      = NULL;
-	m_dwFrameTime = NULL;
+	m_cMaxFrame   = 0;
+	m_dwTime      = 0;
+	m_dwFrameTime = 0;
 }
 
 CEffect::~CEffect()

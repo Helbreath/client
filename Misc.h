@@ -9,7 +9,7 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include <windows.h>
+#include "common.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -19,22 +19,22 @@ class CMisc
 {
 public:
 	
-	int iGetTextLengthLoc(HDC hDC, char * pStr, int iLength);
+	//int iGetTextLengthLoc(HDC hDC, char * pStr, int iLength);
 	int  _iGetFileCheckSum(char * pFn);
-	BOOL _iConvertFileXor(char *pFn, char *pDestFn, char cKey);
-	BOOL bCheckValidName(char *pStr);
-	BOOL bCheckIMEString(char *str);
-	BOOL bDecode(char cKey, char * pStr);
-	BOOL bEncode(char cKey, char * pStr);
-	void ColorTransfer(char cPixelFormat, COLORREF fcolor, WORD * wR, WORD * wG, WORD * wB);
+	bool _iConvertFileXor(char *pFn, char *pDestFn, char cKey);
+	bool bCheckValidName(char *pStr);
+	bool bCheckIMEString(char *str);
+	bool bDecode(char cKey, char * pStr);
+	bool bEncode(char cKey, char * pStr);
+	void ColorTransfer(char cPixelFormat, uint32_t fcolor, uint16_t * wR, uint16_t * wG, uint16_t * wB);
 	char cCalcDirection(short sX, short sY, short dX, short dY);
 	void ReplaceString(char * pStr, char cFrom, char cTo);
-	BOOL bCheckValidString(char * str);
+	bool bCheckValidString(char * str);
 	void GetDirPoint(char cDir, int * pX, int * pY);
 	void GetPoint(int x0, int y0, int x1, int y1, int * pX, int * pY, int * pError, int iCount);
 	char cGetNextMoveDir(short sX, short sY, short dX, short dY);
-	BOOL bIsValidSSN(char * pStr);
-	BOOL bIsValidEmail(char * pStr);
+	bool bIsValidSSN(char * pStr);
+	bool bIsValidEmail(char * pStr);
 	CMisc();
 	virtual ~CMisc();
 };

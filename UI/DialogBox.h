@@ -1,9 +1,8 @@
+
 #pragma once
 
-#include <windows.h>
 #include <functional>
 #include <vector>
-#include "..\DirectX\DXC_dinput.h"
 #include "common.h"
 //#include "..\Game.h"
 
@@ -81,8 +80,8 @@ enum dialogIDs
 };
 
 struct MailItemSend{
-	uint8 index;
-	uint32 count;
+	uint8_t index;
+	uint32_t count;
 };
 
 class CDialogBox
@@ -165,16 +164,16 @@ public:
 	void GetAllButtons(std::vector<RECT> *rects) const;
 	void ValidateButtons() const;
 		
-	Vector<MailItemSend> vvec;
+	std::vector<MailItemSend> vvec;
 	int   sV1, sV2, sV3, sV4, sV5, sV6, sV7, sV8; 
-	DWORD dwV1, dwV2, dwT1;
-	BOOL  bFlag;
+	uint32_t dwV1, dwV2, dwT1;
+	bool  bFlag;
 	short m_X, m_Y;
 	short sSizeX, sSizeY;
 	short sView;
 	char  cStr[32], cStr2[32], cStr3[32], cStr4[32];
 	char txt[MAX_MAIL_MSG_LENGTH];
-	BOOL  bIsScrollSelected;
+	bool  bIsScrollSelected;
 };
 
 

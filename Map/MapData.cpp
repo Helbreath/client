@@ -3,6 +3,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "MapData.h"
+#include <fstream>
+#include "../Game.h"
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -11,9 +13,9 @@ CMapData::CMapData(class CGame * pGame)
 {
 	int i;
 	m_pGame = pGame;
-	ZeroMemory(m_iObjectIDcacheLocX, sizeof(m_iObjectIDcacheLocX));
-	ZeroMemory(m_iObjectIDcacheLocY, sizeof(m_iObjectIDcacheLocY));
-	m_dwDOframeTime = m_dwFrameTime = timeGetTime();
+	memset(m_iObjectIDcacheLocX, 0, sizeof(m_iObjectIDcacheLocX));
+	memset(m_iObjectIDcacheLocY, 0, sizeof(m_iObjectIDcacheLocY));
+	m_dwDOframeTime = m_dwFrameTime = unixseconds();
 
 	for (i = 0; i < TOTALCHARACTERS; i++ ) 
 	{	m_stFrame[i][OBJECTMOVE].m_sMaxFrame = 7;
@@ -1159,7 +1161,7 @@ CMapData::CMapData(class CGame * pGame)
 void CMapData::Init()
 {
 	int x, y;
-	m_dwFrameCheckTime = timeGetTime();
+	m_dwFrameCheckTime = unixseconds();
 	m_dwFrameAdjustTime = 0;
 	m_sPivotX = -1;
 	m_sPivotY = -1;
@@ -1180,18 +1182,21 @@ CMapData::~CMapData()
 void CMapData::OpenMapDataFile(char * cFn)
 {
 	HANDLE hFileRead;
-	DWORD  nCount;
+	uint32_t  nCount;
 	char cHeader[260];
 	char *cp, *cpMapData;
-	ZeroMemory( cHeader, sizeof(cHeader) );
-	hFileRead = CreateFileA(cFn, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-	if (hFileRead == INVALID_HANDLE_VALUE) return;
-	SetFilePointer(hFileRead, 0, NULL, FILE_BEGIN);
-	ReadFile(hFileRead, cHeader, 256, &nCount, NULL);
+	memset( cHeader, 0, sizeof(cHeader) );
+
+
+	std::ifstream szfile(cFn, std::ios::in | std::ios::binary);
+	if (!szfile.is_open()) return;
+	szfile.seekg(0, std::ios::beg);
+	szfile.read((char*)&cHeader, 256);
 	_bDecodeMapInfo(cHeader);
-	cpMapData = new char[m_sMapSizeX*m_sMapSizeY*10];
-	ReadFile(hFileRead, cpMapData, m_sMapSizeX*m_sMapSizeY*10, &nCount, NULL);
-	CloseHandle(hFileRead);
+	cpMapData = new char[m_sMapSizeX*m_sMapSizeY * 10];
+	szfile.read((char*)cpMapData, m_sMapSizeX*m_sMapSizeY * 10);
+	szfile.close();
+
 	cp = cpMapData;
 	short *sp;
 	for (int y=0 ; y<m_sMapSizeY ; y++ )
@@ -1211,11 +1216,11 @@ void CMapData::OpenMapDataFile(char * cFn)
 			m_tile[x][y].m_sObjectSpriteFrame = *sp;
 			cp += 2;
 			if (((*cp) & 0x80) != 0)
-				 m_tile[x][y].m_bIsMoveAllowed = FALSE;
-			else m_tile[x][y].m_bIsMoveAllowed = TRUE;
+				 m_tile[x][y].m_bIsMoveAllowed = false;
+			else m_tile[x][y].m_bIsMoveAllowed = true;
 			if (((*cp) & 0x40) != 0)
-				 m_tile[x][y].m_bIsTeleport = TRUE;
-			else m_tile[x][y].m_bIsTeleport = FALSE;
+				 m_tile[x][y].m_bIsTeleport = true;
+			else m_tile[x][y].m_bIsTeleport = false;
 			cp += 2;
 		}
 	}
@@ -1228,12 +1233,12 @@ void CMapData::_bDecodeMapInfo(char * pHeader)
  char * token, cReadMode;
  char seps[] = "= ,\t\n";
 	for (i = 0; i < 256; i++)
-		if (pHeader[i] == NULL) pHeader[i] = ' ';
+		if (pHeader[i] == 0) pHeader[i] = ' ';
 
 	cReadMode = 0;
 
 	token = strtok( pHeader, seps );
-	while( token != NULL )
+	while( token != 0 )
 	{
 		if (cReadMode != 0)
 		{
@@ -1254,7 +1259,7 @@ void CMapData::_bDecodeMapInfo(char * pHeader)
 			if (memcmp(token, "MAPSIZEX",8) == 0) cReadMode = 1;
 			if (memcmp(token, "MAPSIZEY",8) == 0) cReadMode = 2;
 		}
-		token = strtok( NULL, seps );
+		token = strtok( 0, seps );
 	}
 }
 
@@ -1338,364 +1343,185 @@ void CMapData::ShiftMapData(char cDir) // 800x600 Resolution xRisenx Map Setting
 	memcpy(&m_pData[0][0], &m_pTmpData[0][0], sizeof(m_pData));
 }
 
-// Cleroths 800x600 Res bugged code xRisenx
-//void CMapData::ShiftMapData(char cDir)
-//{
-//int ix, iy;
-//for (iy = 0; iy < MAPDATASIZEY; iy++) 
-//for (ix = 0; ix < MAPDATASIZEX; ix++) 
-// m_pTmpData[ix][iy].Clear();
-//
-//switch (cDir) { 
-//case 1:
-// for (iy = 0; iy < 15; iy++) 
-// for (ix = 0; ix < 21; ix++) 
-//  memcpy(&m_pTmpData[4+5+ix][6+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));
-// m_sPivotY--;
-// break;
-//case 2:
-// for (iy = 0; iy < 15; iy++) 
-// for (ix = 0; ix < 20; ix++) 
-//  memcpy(&m_pTmpData[4+5+ix][6+5+iy], &m_pData[5+5+ix][5+5+iy], sizeof(class CTile));
-// m_sPivotX++;
-// m_sPivotY--;
-// break;
-//case 3:
-// for (iy = 0; iy < 16; iy++) 
-// for (ix = 0; ix < 20; ix++) 
-//  memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[5+5+ix][5+5+iy], sizeof(class CTile));  
-// m_sPivotX++;
-// break;
-//case 4:
-// for (iy = 0; iy < 15; iy++) 
-// for (ix = 0; ix < 20; ix++) 
-//  memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[5+5+ix][6+5+iy], sizeof(class CTile));  
-// m_sPivotX++;
-// m_sPivotY++;
-// break;
-//case 5:
-// for (iy = 0; iy < 15; iy++) 
-// for (ix = 0; ix < 21; ix++) 
-//  memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[4+5+ix][6+5+iy], sizeof(class CTile));  
-// m_sPivotY++;
-// break;
-//case 6:
-// for (iy = 0; iy < 15; iy++) 
-// for (ix = 0; ix < 20; ix++) 
-//  memcpy(&m_pTmpData[5+5+ix][5+5+iy], &m_pData[4+5+ix][6+5+iy], sizeof(class CTile));  
-// m_sPivotX--;
-// m_sPivotY++;
-// break;
-//case 7:
-// for (iy = 0; iy < 16; iy++) 
-// for (ix = 0; ix < 20; ix++) 
-//  memcpy(&m_pTmpData[5+5+ix][5+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));  
-// m_sPivotX--;
-// break;
-//case 8:
-// for (iy = 0; iy < 15; iy++) 
-// for (ix = 0; ix < 20; ix++) 
-//  memcpy(&m_pTmpData[5+5+ix][6+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));  
-// m_sPivotX--;
-// m_sPivotY--;
-// break;
-//}
-//memcpy(&m_pData[0][0], &m_pTmpData[0][0], sizeof(m_pData));
-//}
-//
-//>
-//
-//void CMapData::ShiftMapData(char cDir)
-//{
-//int ix, iy;
-//for (iy = 0; iy < MAPDATASIZEY; iy++) 
-//for (ix = 0; ix < MAPDATASIZEX; ix++) 
-// m_pTmpData[ix][iy].Clear();
-//
-//switch (cDir) { 
-//case 1:
-// for (ix = 0; ix < 26; ix++) 
-// for (iy = 0; iy < 19; iy++) 
-//  memcpy(&m_pTmpData[4+5-2+ix][6+5-2+iy], &m_pData[4+5-2+ix][5+5-2+iy], sizeof(class CTile));
-// m_sPivotY--;
-// break;
-//case 2:
-// for (ix = 0; ix < 25; ix++) 
-// for (iy = 0; iy < 19; iy++) 
-//  memcpy(&m_pTmpData[4+5-2+ix][6+5-2+iy], &m_pData[5+5-2+ix][5+5-2+iy], sizeof(class CTile));
-// m_sPivotX++;
-// m_sPivotY--;
-// break;
-//case 3:
-// for (ix = 0; ix < 25; ix++) 
-// for (iy = 0; iy < 20; iy++) 
-//  memcpy(&m_pTmpData[4+5-2+ix][5+5-2+iy], &m_pData[5+5-2+ix][5+5-2+iy], sizeof(class CTile));  
-// m_sPivotX++;
-// break;
-//case 4:
-// for (ix = 0; ix < 25; ix++) 
-// for (iy = 0; iy < 19; iy++) 
-//  memcpy(&m_pTmpData[4+5-2+ix][5+5-2+iy], &m_pData[5+5-2+ix][6+5-2+iy], sizeof(class CTile));  
-// m_sPivotX++;
-// m_sPivotY++;
-// break;
-//case 5:
-// for (ix = 0; ix < 26; ix++) 
-// for (iy = 0; iy < 19; iy++) 
-//  memcpy(&m_pTmpData[4+5-2+ix][5+5-2+iy], &m_pData[4+5-2+ix][6+5-2+iy], sizeof(class CTile));  
-// m_sPivotY++;
-// break;
-//case 6:
-// for (ix = 0; ix < 25; ix++) 
-// for (iy = 0; iy < 19; iy++) 
-//  memcpy(&m_pTmpData[5+5-2+ix][5+5-2+iy], &m_pData[4+5-2+ix][6+5-2+iy], sizeof(class CTile));  
-// m_sPivotX--;
-// m_sPivotY++;
-// break;
-//case 7: 
-// for (ix = 0; ix < 25; ix++) 
-// for (iy = 0; iy < 20; iy++)
-//  memcpy(&m_pTmpData[5+5-2+ix][5+5-2+iy], &m_pData[4+5-2+ix][5+5-2+iy], sizeof(class CTile));  
-// m_sPivotX--;
-// break;
-//case 8:
-// for (ix = 0; ix < 25; ix++) 
-// for (iy = 0; iy < 19; iy++) 
-//  memcpy(&m_pTmpData[5+5-2+ix][6+5-2+iy], &m_pData[4+5-2+ix][5+5-2+iy], sizeof(class CTile));  
-// m_sPivotX--;
-// m_sPivotY--;
-// break;
-//}
-//memcpy(&m_pData[0][0], &m_pTmpData[0][0], sizeof(m_pData));
-//}
-// Cleroths 800x600 End
-
-//void CMapData::ShiftMapData(char cDir) // 640x480 Res xRisenx
-//{
-//	int ix, iy;
-//	for (iy = 0; iy < MAPDATASIZEY; iy++)
-//	for (ix = 0; ix < MAPDATASIZEX; ix++)
-//		m_pTmpData[ix][iy].Clear();
-//
-//	switch (cDir) {
-//	case 1:
-//		for (iy = 0; iy < 15; iy++)
-//		for (ix = 0; ix < 21; ix++)
-//			memcpy(&m_pTmpData[4+5+ix][6+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));
-//		m_sPivotY--;
-//		break;
-//	case 2:
-//		for (iy = 0; iy < 15; iy++)
-//		for (ix = 0; ix < 20; ix++)
-//			memcpy(&m_pTmpData[4+5+ix][6+5+iy], &m_pData[5+5+ix][5+5+iy], sizeof(class CTile));
-//		m_sPivotX++;
-//		m_sPivotY--;
-//		break;
-//	case 3:
-//		for (iy = 0; iy < 16; iy++)
-//		for (ix = 0; ix < 20; ix++)
-//			memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[5+5+ix][5+5+iy], sizeof(class CTile));
-//		m_sPivotX++;
-//		break;
-//	case 4:
-//		for (iy = 0; iy < 15; iy++)
-//		for (ix = 0; ix < 20; ix++)
-//			memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[5+5+ix][6+5+iy], sizeof(class CTile));
-//		m_sPivotX++;
-//		m_sPivotY++;
-//		break;
-//	case 5:
-//		for (iy = 0; iy < 15; iy++)
-//		for (ix = 0; ix < 21; ix++)
-//			memcpy(&m_pTmpData[4+5+ix][5+5+iy], &m_pData[4+5+ix][6+5+iy], sizeof(class CTile));
-//		m_sPivotY++;
-//		break;
-//	case 6:
-//		for (iy = 0; iy < 15; iy++)
-//		for (ix = 0; ix < 20; ix++)
-//			memcpy(&m_pTmpData[5+5+ix][5+5+iy], &m_pData[4+5+ix][6+5+iy], sizeof(class CTile));
-//		m_sPivotX--;
-//		m_sPivotY++;
-//		break;
-//	case 7:
-//		for (iy = 0; iy < 16; iy++)
-//		for (ix = 0; ix < 20; ix++)
-//			memcpy(&m_pTmpData[5+5+ix][5+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));
-//		m_sPivotX--;
-//		break;
-//	case 8:
-//		for (iy = 0; iy < 15; iy++)
-//		for (ix = 0; ix < 20; ix++)
-//			memcpy(&m_pTmpData[5+5+ix][6+5+iy], &m_pData[4+5+ix][5+5+iy], sizeof(class CTile));
-//		m_sPivotX--;
-//		m_sPivotY--;
-//		break;
-//	}
-//	memcpy(&m_pData[0][0], &m_pTmpData[0][0], sizeof(m_pData));
-//}
-
-BOOL CMapData::bGetIsLocateable(short sX, short sY)
+bool CMapData::bGetIsLocateable(short sX, short sY)
 {
 	int dX, dY;
 	if ((sX < m_sPivotX) || (sX > m_sPivotX + MAPDATASIZEX) ||
-		(sY < m_sPivotY) || (sY > m_sPivotY + MAPDATASIZEY)) return FALSE;
+		(sY < m_sPivotY) || (sY > m_sPivotY + MAPDATASIZEY)) return false;
 	dX = sX - m_sPivotX;
 	dY = sY - m_sPivotY;
-	if (m_pData[dX][dY].m_sOwnerType != NULL) return FALSE;
-	if (m_tile[sX][sY].m_bIsMoveAllowed == FALSE) return FALSE;
-	if (m_pData[dX][dY].m_sDynamicObjectType == DYNAMICOBJECT_MINERAL1) return FALSE;
-	if (m_pData[dX][dY].m_sDynamicObjectType == DYNAMICOBJECT_MINERAL2) return FALSE;
-	if (m_pData[dX][dY].m_sDynamicObjectType == DYNAMICOBJECT_ARESDENFLAG) return FALSE;
-	if (m_pData[dX][dY].m_sDynamicObjectType == DYNAMICOBJECT_ELVINEFLAG) return FALSE;
+	if (m_pData[dX][dY].m_sOwnerType != 0) return false;
+	if (m_tile[sX][sY].m_bIsMoveAllowed == false) return false;
+	if (m_pData[dX][dY].m_sDynamicObjectType == DYNAMICOBJECT_MINERAL1) return false;
+	if (m_pData[dX][dY].m_sDynamicObjectType == DYNAMICOBJECT_MINERAL2) return false;
+	if (m_pData[dX][dY].m_sDynamicObjectType == DYNAMICOBJECT_ARESDENFLAG) return false;
+	if (m_pData[dX][dY].m_sDynamicObjectType == DYNAMICOBJECT_ELVINEFLAG) return false;
 
-	if (m_pData[dX+1][dY+1].m_sOwnerType == 66) return FALSE;
-	if (m_pData[dX+1]  [dY].m_sOwnerType == 66) return FALSE;
-	if ((dY > 0) && (m_pData[dX+1][dY-1].m_sOwnerType == 66)) return FALSE;
-	if (m_pData  [dX][dY+1].m_sOwnerType == 66) return FALSE;
-	if (m_pData  [dX]  [dY].m_sOwnerType == 66) return FALSE;
-	if ((dY > 0) && (m_pData  [dX][dY-1].m_sOwnerType == 66)) return FALSE;
-	if ((dX > 0) && (m_pData[dX-1][dY+1].m_sOwnerType == 66)) return FALSE;
-	if ((dX > 0) && (m_pData[dX-1]  [dY].m_sOwnerType == 66)) return FALSE;
-	if ((dX > 0) && (dY > 0) && (m_pData[dX-1][dY-1].m_sOwnerType == 66)) return FALSE;
+	if (m_pData[dX+1][dY+1].m_sOwnerType == 66) return false;
+	if (m_pData[dX+1]  [dY].m_sOwnerType == 66) return false;
+	if ((dY > 0) && (m_pData[dX+1][dY-1].m_sOwnerType == 66)) return false;
+	if (m_pData  [dX][dY+1].m_sOwnerType == 66) return false;
+	if (m_pData  [dX]  [dY].m_sOwnerType == 66) return false;
+	if ((dY > 0) && (m_pData  [dX][dY-1].m_sOwnerType == 66)) return false;
+	if ((dX > 0) && (m_pData[dX-1][dY+1].m_sOwnerType == 66)) return false;
+	if ((dX > 0) && (m_pData[dX-1]  [dY].m_sOwnerType == 66)) return false;
+	if ((dX > 0) && (dY > 0) && (m_pData[dX-1][dY-1].m_sOwnerType == 66)) return false;
 
-	if (m_pData[dX+1][dY+1].m_sOwnerType == 73) return FALSE;
-	if (m_pData[dX+1]  [dY].m_sOwnerType == 73) return FALSE;
-	if ((dY > 0) && (m_pData[dX+1][dY-1].m_sOwnerType == 73)) return FALSE;
-	if (m_pData  [dX][dY+1].m_sOwnerType == 73) return FALSE;
-	if (m_pData  [dX]  [dY].m_sOwnerType == 73) return FALSE;
-	if ((dY > 0) && (m_pData  [dX][dY-1].m_sOwnerType == 73)) return FALSE;
-	if ((dX > 0) && (m_pData[dX-1][dY+1].m_sOwnerType == 73)) return FALSE;
-	if ((dX > 0) && (m_pData[dX-1]  [dY].m_sOwnerType == 73)) return FALSE;
-	if ((dX > 0) && (dY > 0) && (m_pData[dX-1][dY-1].m_sOwnerType == 73)) return FALSE;
+	if (m_pData[dX+1][dY+1].m_sOwnerType == 73) return false;
+	if (m_pData[dX+1]  [dY].m_sOwnerType == 73) return false;
+	if ((dY > 0) && (m_pData[dX+1][dY-1].m_sOwnerType == 73)) return false;
+	if (m_pData  [dX][dY+1].m_sOwnerType == 73) return false;
+	if (m_pData  [dX]  [dY].m_sOwnerType == 73) return false;
+	if ((dY > 0) && (m_pData  [dX][dY-1].m_sOwnerType == 73)) return false;
+	if ((dX > 0) && (m_pData[dX-1][dY+1].m_sOwnerType == 73)) return false;
+	if ((dX > 0) && (m_pData[dX-1]  [dY].m_sOwnerType == 73)) return false;
+	if ((dX > 0) && (dY > 0) && (m_pData[dX-1][dY-1].m_sOwnerType == 73)) return false;
 
-	if (m_pData[dX+1][dY+1].m_sOwnerType == 81) return FALSE;
-	if (m_pData[dX+1]  [dY].m_sOwnerType == 81) return FALSE;
-	if ((dY > 0) && (m_pData[dX+1][dY-1].m_sOwnerType == 81)) return FALSE;
-	if (m_pData  [dX][dY+1].m_sOwnerType == 81) return FALSE;
-	if (m_pData  [dX]  [dY].m_sOwnerType == 81) return FALSE;
-	if ((dY > 0) && (m_pData  [dX][dY-1].m_sOwnerType == 81)) return FALSE;
-	if ((dX > 0) && (m_pData[dX-1][dY+1].m_sOwnerType == 81)) return FALSE;
-	if ((dX > 0) && (m_pData[dX-1]  [dY].m_sOwnerType == 81)) return FALSE;
-	if ((dX > 0) && (dY > 0) && (m_pData[dX-1][dY-1].m_sOwnerType == 81)) return FALSE;
+	if (m_pData[dX+1][dY+1].m_sOwnerType == 81) return false;
+	if (m_pData[dX+1]  [dY].m_sOwnerType == 81) return false;
+	if ((dY > 0) && (m_pData[dX+1][dY-1].m_sOwnerType == 81)) return false;
+	if (m_pData  [dX][dY+1].m_sOwnerType == 81) return false;
+	if (m_pData  [dX]  [dY].m_sOwnerType == 81) return false;
+	if ((dY > 0) && (m_pData  [dX][dY-1].m_sOwnerType == 81)) return false;
+	if ((dX > 0) && (m_pData[dX-1][dY+1].m_sOwnerType == 81)) return false;
+	if ((dX > 0) && (m_pData[dX-1]  [dY].m_sOwnerType == 81)) return false;
+	if ((dX > 0) && (dY > 0) && (m_pData[dX-1][dY-1].m_sOwnerType == 81)) return false;
 
-	if (m_pData[dX+1][dY+1].m_sOwnerType == 91) return FALSE;
-	if (m_pData[dX+1]  [dY].m_sOwnerType == 91) return FALSE;
-	if ((dY > 0) && (m_pData[dX+1][dY-1].m_sOwnerType == 91)) return FALSE;
-	if (m_pData  [dX][dY+1].m_sOwnerType == 91) return FALSE;
-	if (m_pData  [dX]  [dY].m_sOwnerType == 91) return FALSE;
-	if ((dY > 0) && (m_pData  [dX][dY-1].m_sOwnerType == 91)) return FALSE;
-	if ((dX > 0) && (m_pData[dX-1][dY+1].m_sOwnerType == 91)) return FALSE;
-	if ((dX > 0) && (m_pData[dX-1]  [dY].m_sOwnerType == 91)) return FALSE;
-	if ((dX > 0) && (dY > 0) && (m_pData[dX-1][dY-1].m_sOwnerType == 91)) return FALSE;
-	return TRUE;
+	if (m_pData[dX+1][dY+1].m_sOwnerType == 91) return false;
+	if (m_pData[dX+1]  [dY].m_sOwnerType == 91) return false;
+	if ((dY > 0) && (m_pData[dX+1][dY-1].m_sOwnerType == 91)) return false;
+	if (m_pData  [dX][dY+1].m_sOwnerType == 91) return false;
+	if (m_pData  [dX]  [dY].m_sOwnerType == 91) return false;
+	if ((dY > 0) && (m_pData  [dX][dY-1].m_sOwnerType == 91)) return false;
+	if ((dX > 0) && (m_pData[dX-1][dY+1].m_sOwnerType == 91)) return false;
+	if ((dX > 0) && (m_pData[dX-1]  [dY].m_sOwnerType == 91)) return false;
+	if ((dX > 0) && (dY > 0) && (m_pData[dX-1][dY-1].m_sOwnerType == 91)) return false;
+	return true;
 }
 
-BOOL CMapData::bIsTeleportLoc(short sX, short sY)
+bool CMapData::bIsTeleportLoc(short sX, short sY)
 {
 	if ((sX < m_sPivotX) || (sX > m_sPivotX + MAPDATASIZEX) ||
-		(sY < m_sPivotY) || (sY > m_sPivotY + MAPDATASIZEY)) return FALSE;
+		(sY < m_sPivotY) || (sY > m_sPivotY + MAPDATASIZEY)) return false;
 
-	if (m_tile[sX][sY].m_bIsTeleport == FALSE) return FALSE;
+	if (m_tile[sX][sY].m_bIsTeleport == false) return false;
 
-	return TRUE;
+	return true;
 }
 #ifdef SHOWALLDAMAGE // Remove Critical xRisenx
-BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, int cDir, short sAppr1, short sAppr2, short sAppr3, short sAppr4, int iApprColor, UnitStatus iStatus, char * pName, short sAction, int sV1, short sV2, short sV3, int iPreLoc, int iFrame)
+bool __fastcall CMapData::bSetOwner(uint16_t wObjectID, int sX, int sY, int sType, int cDir, short sAppr1, short sAppr2, short sAppr3, short sAppr4, int iApprColor, UnitStatus iStatus, char * pName, short sAction, int sV1, short sV2, short sV3, int iPreLoc, int iFrame)
 #else
-BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, int cDir, short sAppr1, short sAppr2, short sAppr3, short sAppr4, int iApprColor, short sHeadApprValue, short sBodyApprValue, short sArmApprValue, short sLegApprValue, UnitStatus iStatus, char * pName, short sAction, short sV1, short sV2, short sV3, int iPreLoc, int iFrame)
+bool __fastcall CMapData::bSetOwner(uint16_t wObjectID, int sX, int sY, int sType, int cDir, short sAppr1, short sAppr2, short sAppr3, short sAppr4, int iApprColor, short sHeadApprValue, short sBodyApprValue, short sArmApprValue, short sLegApprValue, UnitStatus iStatus, char * pName, short sAction, short sV1, short sV2, short sV3, int iPreLoc, int iFrame)
 #endif
-{int   iX, iY, dX, dY;
- int   iChatIndex, iAdd;
- char  cTmpName[12];
- DWORD dwTime;
- int   iEffectType, iEffectFrame, iEffectTotalFrame;
+{
+	int   iX, iY, dX, dY;
+	int   iChatIndex, iAdd;
+	char  cTmpName[12];
+	uint32_t dwTime;
+	int   iEffectType, iEffectFrame, iEffectTotalFrame;
 
-	if ((m_sPivotX == -1) || (m_sPivotY == -1)) return FALSE;
-	ZeroMemory(cTmpName, sizeof(cTmpName));
+	if ((m_sPivotX == -1) || (m_sPivotY == -1)) return false;
+	memset(cTmpName, 0, sizeof(cTmpName));
 	strcpy(cTmpName, pName);
 	dwTime = m_dwFrameTime;
 	iEffectType = iEffectFrame = iEffectTotalFrame = 0;
 	if (   (wObjectID < 30000)
 		&& (  (sX < m_sPivotX) || (sX >= m_sPivotX + MAPDATASIZEX)
 		   || (sY < m_sPivotY) || (sY >= m_sPivotY + MAPDATASIZEY)) )
-	{	if (m_iObjectIDcacheLocX[wObjectID] > 0)
-		{	iX = m_iObjectIDcacheLocX[wObjectID] - m_sPivotX;
+	{
+		if (m_iObjectIDcacheLocX[wObjectID] > 0)
+		{
+			iX = m_iObjectIDcacheLocX[wObjectID] - m_sPivotX;
 			iY = m_iObjectIDcacheLocY[wObjectID] - m_sPivotY;
 			if ((iX < 0) || (iX >= MAPDATASIZEX) || (iY < 0) || (iY >= MAPDATASIZEY))
-			{	m_iObjectIDcacheLocX[wObjectID] = 0;
+			{
+				m_iObjectIDcacheLocX[wObjectID] = 0;
 				m_iObjectIDcacheLocY[wObjectID] = 0;
-				return FALSE;
+				return false;
 			}
 
 			if (m_pData[iX][iY].m_wObjectID == wObjectID)
-			{	m_pData[iX][iY].m_sOwnerType = NULL;
-				ZeroMemory(m_pData[iX][iY].m_cOwnerName, sizeof(m_pData[iX][iY].m_cOwnerName));
-				ZeroMemory(pName, strlen(pName));
+			{
+				m_pData[iX][iY].m_sOwnerType = 0;
+				memset(m_pData[iX][iY].m_cOwnerName, 0, sizeof(m_pData[iX][iY].m_cOwnerName));
+				memset(pName, 0, strlen(pName));
 
-				if (m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ] != NULL)
-				{	delete m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ];
-					m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ] = NULL;
+				if (m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ] != 0)
+				{
+					delete m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ];
+					m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ] = 0;
 				}
-				m_pData[iX][iY].m_iChatMsg = NULL;
-				m_pData[iX][iY].m_iEffectType = NULL;
+				m_pData[iX][iY].m_iChatMsg = 0;
+				m_pData[iX][iY].m_iEffectType = 0;
 				m_iObjectIDcacheLocX[wObjectID] = 0;
 				m_iObjectIDcacheLocY[wObjectID] = 0;
-				return FALSE;
+				return false;
 			}
-		}else if (m_iObjectIDcacheLocX[wObjectID] < 0)
-		{	iX = abs(m_iObjectIDcacheLocX[wObjectID]) - m_sPivotX;
+		}
+		else if (m_iObjectIDcacheLocX[wObjectID] < 0)
+		{
+			iX = abs(m_iObjectIDcacheLocX[wObjectID]) - m_sPivotX;
 			iY = abs(m_iObjectIDcacheLocY[wObjectID]) - m_sPivotY;
 			if ((iX < 0) || (iX >= MAPDATASIZEX) || (iY < 0) || (iY >= MAPDATASIZEY))
-			{	m_iObjectIDcacheLocX[wObjectID] = 0;
-				m_iObjectIDcacheLocY[wObjectID] = 0;
-				return FALSE;
-			}
-			if ((m_pData[iX][iY].m_cDeadOwnerFrame == -1) && (m_pData[iX][iY].m_wDeadObjectID == wObjectID))
-			{	m_pData[iX][iY].m_cDeadOwnerFrame = 0;
-				ZeroMemory(pName, strlen(pName));
-				if (m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ] != NULL)
-				{	delete m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ];
-					m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ] = NULL;
-				}
-				m_pData[iX][iY].m_iDeadChatMsg = NULL;
+			{
 				m_iObjectIDcacheLocX[wObjectID] = 0;
 				m_iObjectIDcacheLocY[wObjectID] = 0;
-				return FALSE;
-		}	}
+				return false;
+			}
+			if ((m_pData[iX][iY].m_cDeadOwnerFrame == -1) && (m_pData[iX][iY].m_wDeadObjectID == wObjectID))
+			{
+				m_pData[iX][iY].m_cDeadOwnerFrame = 0;
+				memset(pName, 0, strlen(pName));
+				if (m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ] != 0)
+				{	delete m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ];
+					m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ] = 0;
+				}
+				m_pData[iX][iY].m_iDeadChatMsg = 0;
+				m_iObjectIDcacheLocX[wObjectID] = 0;
+				m_iObjectIDcacheLocY[wObjectID] = 0;
+				return false;
+			}	
+		}
 
 		for (iX = 0; iX < MAPDATASIZEX; iX++)
 		for (iY = 0; iY < MAPDATASIZEY; iY++)
-		{	if (m_pData[iX][iY].m_wObjectID == wObjectID)
-			{	m_pData[iX][iY].m_sOwnerType = NULL;
+		{
+			if (m_pData[iX][iY].m_wObjectID == wObjectID)
+			{
+			m_pData[iX][iY].m_sOwnerType = 0;
 				ZeroMemory(m_pData[iX][iY].m_cOwnerName, sizeof(m_pData[iX][iY].m_cOwnerName));
 				ZeroMemory(pName, strlen(pName));
-				if (m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ] != NULL)
-				{	delete m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ];
-					m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ] = NULL;
+				if (m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ] != 0)
+				{
+					delete m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ];
+					m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iChatMsg ] = 0;
 				}
-				m_pData[iX][iY].m_iChatMsg = NULL;
+				m_pData[iX][iY].m_iChatMsg = 0;
 				m_iObjectIDcacheLocX[wObjectID] = 0;
 				m_iObjectIDcacheLocY[wObjectID] = 0;
-				m_pData[iX][iY].m_iEffectType = NULL;
-				return FALSE;
+				m_pData[iX][iY].m_iEffectType = 0;
+				return false;
 			}
 
 			if ((m_pData[iX][iY].m_cDeadOwnerFrame == -1) && (m_pData[iX][iY].m_wDeadObjectID == wObjectID))
-			{	m_pData[iX][iY].m_cDeadOwnerFrame = 0;
+			{
+				m_pData[iX][iY].m_cDeadOwnerFrame = 0;
 				ZeroMemory(pName, strlen(pName));
-				if (m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ] != NULL)
-				{	delete m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ];
-					m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ] = NULL;
+				if (m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ] != 0)
+				{
+					delete m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ];
+					m_pGame->m_pChatMsgList[ m_pData[iX][iY].m_iDeadChatMsg ] = 0;
 				}
-				m_pData[iX][iY].m_iDeadChatMsg = NULL;
+				m_pData[iX][iY].m_iDeadChatMsg = 0;
 				m_iObjectIDcacheLocX[wObjectID] = 0;
 				m_iObjectIDcacheLocY[wObjectID] = 0;
-				return FALSE;
-		}	}
+				return false;
+			}
+		}
 		ZeroMemory(pName, strlen(pName));
-		return FALSE;
+		return false;
 	}
-	iChatIndex = NULL;
+	iChatIndex = 0;
 
 	if ((wObjectID < 30000) && (sAction != OBJECTNULLACTION))
 	{	ZeroMemory(cTmpName, sizeof(cTmpName));
@@ -1708,7 +1534,7 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 			if ((iX < 0) || (iX >= MAPDATASIZEX) || (iY < 0) || (iY >= MAPDATASIZEY))
 			{	m_iObjectIDcacheLocX[wObjectID] = 0;
 				m_iObjectIDcacheLocY[wObjectID] = 0;
-				return FALSE;
+				return false;
 			}
 			if (m_pData[iX][iY].m_wObjectID == wObjectID) 
 			{	iChatIndex = m_pData[iX][iY].m_iChatMsg;
@@ -1716,9 +1542,9 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 				iEffectFrame = m_pData[iX][iY].m_iEffectFrame;
 				iEffectTotalFrame = m_pData[iX][iY].m_iEffectTotalFrame;
 
-				m_pData[iX][iY].m_wObjectID  = NULL; //-1; v1.41
-				m_pData[iX][iY].m_iChatMsg   = NULL; // v1.4
-				m_pData[iX][iY].m_sOwnerType = NULL;
+				m_pData[iX][iY].m_wObjectID  = 0; //-1; v1.41
+				m_pData[iX][iY].m_iChatMsg   = 0; // v1.4
+				m_pData[iX][iY].m_sOwnerType = 0;
 				ZeroMemory(m_pData[iX][iY].m_cOwnerName, sizeof(m_pData[iX][iY].m_cOwnerName));
 				m_iObjectIDcacheLocX[wObjectID] = sX;
 				m_iObjectIDcacheLocY[wObjectID] = sY;
@@ -1730,16 +1556,16 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 			if ((iX < 0) || (iX >= MAPDATASIZEX) || (iY < 0) || (iY >= MAPDATASIZEY))
 			{	m_iObjectIDcacheLocX[wObjectID] = 0;
 				m_iObjectIDcacheLocY[wObjectID] = 0;
-				return FALSE;
+				return false;
 			}
 			if ((m_pData[iX][iY].m_cDeadOwnerFrame == -1) && (m_pData[iX][iY].m_wDeadObjectID == wObjectID))
 			{	iChatIndex = m_pData[iX][iY].m_iDeadChatMsg;
 				iEffectType  = m_pData[iX][iY].m_iEffectType;
 				iEffectFrame = m_pData[iX][iY].m_iEffectFrame;
 				iEffectTotalFrame = m_pData[iX][iY].m_iEffectTotalFrame;
-				m_pData[iX][iY].m_wDeadObjectID   = NULL;
-				m_pData[iX][iY].m_iDeadChatMsg    = NULL; // v1.4
-				m_pData[iX][iY].m_sDeadOwnerType  = NULL;
+				m_pData[iX][iY].m_wDeadObjectID   = 0;
+				m_pData[iX][iY].m_iDeadChatMsg    = 0; // v1.4
+				m_pData[iX][iY].m_sDeadOwnerType  = 0;
 				m_iObjectIDcacheLocX[wObjectID] = -1*sX;
 				m_iObjectIDcacheLocY[wObjectID] = -1*sY;
 				goto EXIT_SEARCH_LOOP;
@@ -1758,10 +1584,10 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 				iEffectType  = m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iEffectType;
 				iEffectFrame = m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iEffectFrame;
 				iEffectTotalFrame = m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iEffectTotalFrame;
-				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_wObjectID  = NULL; //-1; v1.41
-				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iChatMsg   = NULL;
-				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_sOwnerType = NULL;
-				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iEffectType = NULL;
+				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_wObjectID  = 0; //-1; v1.41
+				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iChatMsg   = 0;
+				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_sOwnerType = 0;
+				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iEffectType = 0;
 				ZeroMemory(m_pData[iX - m_sPivotX][iY - m_sPivotY].m_cOwnerName, sizeof(m_pData[iX - m_sPivotX][iY - m_sPivotY].m_cOwnerName));
 				m_iObjectIDcacheLocX[wObjectID] = sX;
 				m_iObjectIDcacheLocY[wObjectID] = sY;
@@ -1774,9 +1600,9 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 				iEffectType  = m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iEffectType;
 				iEffectFrame = m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iEffectFrame;
 				iEffectTotalFrame = m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iEffectTotalFrame;
-				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_wDeadObjectID  = NULL; //-1; v1.41
-				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iDeadChatMsg   = NULL;
-				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_sDeadOwnerType = NULL;
+				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_wDeadObjectID  = 0; //-1; v1.41
+				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_iDeadChatMsg   = 0;
+				m_pData[iX - m_sPivotX][iY - m_sPivotY].m_sDeadOwnerType = 0;
 				ZeroMemory(m_pData[iX - m_sPivotX][iY - m_sPivotY].m_cDeadOwnerName, sizeof(m_pData[iX - m_sPivotX][iY - m_sPivotY].m_cDeadOwnerName));
 				m_iObjectIDcacheLocX[wObjectID] = -1*sX;
 				m_iObjectIDcacheLocY[wObjectID] = -1*sY;
@@ -1788,14 +1614,14 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 	{	if (sAction != OBJECTNULLACTION)// ObjectID
 			wObjectID -= 30000;
 		// v1.5 Crash
-		if (wObjectID >= 30000) return FALSE;
+		if (wObjectID >= 30000) return false;
 		if (m_iObjectIDcacheLocX[wObjectID] > 0)
 		{	iX = m_iObjectIDcacheLocX[wObjectID] - m_sPivotX;
 			iY = m_iObjectIDcacheLocY[wObjectID] - m_sPivotY;
 			if ((iX < 0) || (iX >= MAPDATASIZEX) || (iY < 0) || (iY >= MAPDATASIZEY))
 			{	m_iObjectIDcacheLocX[wObjectID] = 0;
 				m_iObjectIDcacheLocY[wObjectID] = 0;
-				return FALSE;
+				return false;
 			}
 			if (m_pData[iX][iY].m_wObjectID == wObjectID)
 			{	dX = iX;
@@ -1819,11 +1645,11 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 				default:
 					break;
 				}
-				if (   (wObjectID != (WORD)m_pGame->m_sPlayerObjectID)
-					&& (m_pData[dX][dY].m_sOwnerType != NULL) && (m_pData[dX][dY].m_wObjectID != wObjectID))
+				if (   (wObjectID != (uint16_t)m_pGame->m_sPlayerObjectID)
+					&& (m_pData[dX][dY].m_sOwnerType != 0) && (m_pData[dX][dY].m_wObjectID != wObjectID))
 				{	m_pGame->RequestFullObjectData(wObjectID);
 					ZeroMemory(pName, strlen(pName));
-					return FALSE;
+					return false;
 				}
 				iChatIndex = m_pData[iX][iY].m_iChatMsg;
 				if (sAction != OBJECTNULLACTION)
@@ -1846,10 +1672,10 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 				memcpy(cTmpName, m_pData[iX][iY].m_cOwnerName, 10);
 				ZeroMemory(pName, sizeof(pName));
 				memcpy(pName, m_pData[iX][iY].m_cOwnerName, 10);
-				m_pData[iX][iY].m_wObjectID  = NULL; //-1; v1.41
-				m_pData[iX][iY].m_iChatMsg   = NULL;
-				m_pData[iX][iY].m_sOwnerType = NULL;
-				m_pData[iX][iY].m_iEffectType = NULL;
+				m_pData[iX][iY].m_wObjectID  = 0; //-1; v1.41
+				m_pData[iX][iY].m_iChatMsg   = 0;
+				m_pData[iX][iY].m_sOwnerType = 0;
+				m_pData[iX][iY].m_iEffectType = 0;
 				ZeroMemory(m_pData[iX][iY].m_cOwnerName, sizeof(m_pData[iX][iY].m_cOwnerName));
 				m_iObjectIDcacheLocX[wObjectID] = dX + m_sPivotX;
 				m_iObjectIDcacheLocY[wObjectID] = dY + m_sPivotY;
@@ -1861,7 +1687,7 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 			if ((iX < 0) || (iX >= MAPDATASIZEX) || (iY < 0) || (iY >= MAPDATASIZEY))
 			{	m_iObjectIDcacheLocX[wObjectID] = 0;
 				m_iObjectIDcacheLocY[wObjectID] = 0;
-				return FALSE;
+				return false;
 			}
 			if ((m_pData[iX][iY].m_cDeadOwnerFrame == -1) && (m_pData[iX][iY].m_wDeadObjectID == wObjectID))
 			{	dX = iX;
@@ -1885,11 +1711,11 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 				default:
 					break;
 				}
-				if ((wObjectID != (WORD)m_pGame->m_sPlayerObjectID) &&
-					(m_pData[dX][dY].m_sOwnerType != NULL) && (m_pData[dX][dY].m_wObjectID != wObjectID))
+				if ((wObjectID != (uint16_t)m_pGame->m_sPlayerObjectID) &&
+					(m_pData[dX][dY].m_sOwnerType != 0) && (m_pData[dX][dY].m_wObjectID != wObjectID))
 				{	m_pGame->RequestFullObjectData(wObjectID);
 					ZeroMemory(pName, strlen(pName));
-					return FALSE;
+					return false;
 				}
 				iChatIndex = m_pData[iX][iY].m_iDeadChatMsg;
 				if (sAction != OBJECTNULLACTION) {
@@ -1909,9 +1735,9 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 				memcpy(cTmpName, m_pData[iX][iY].m_cDeadOwnerName, 10);
 				ZeroMemory(pName, sizeof(pName));
 				memcpy(pName, m_pData[iX][iY].m_cDeadOwnerName, 10);
-				m_pData[iX][iY].m_wDeadObjectID  = NULL; // -1; v1.41
-				m_pData[iX][iY].m_iDeadChatMsg   = NULL;
-				m_pData[iX][iY].m_sDeadOwnerType = NULL;
+				m_pData[iX][iY].m_wDeadObjectID  = 0; // -1; v1.41
+				m_pData[iX][iY].m_iDeadChatMsg   = 0;
+				m_pData[iX][iY].m_sDeadOwnerType = 0;
 				ZeroMemory(m_pData[iX][iY].m_cDeadOwnerName, sizeof(m_pData[iX][iY].m_cDeadOwnerName));
 				m_iObjectIDcacheLocX[wObjectID] = -1*(dX + m_sPivotX);
 				m_iObjectIDcacheLocY[wObjectID] = -1*(dY + m_sPivotY);
@@ -1942,11 +1768,11 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 				default:
 					break;
 				}
-				if (   (wObjectID != (WORD)m_pGame->m_sPlayerObjectID) 
-					&& (m_pData[dX][dY].m_sOwnerType != NULL) && (m_pData[dX][dY].m_wObjectID != wObjectID))
+				if (   (wObjectID != (uint16_t)m_pGame->m_sPlayerObjectID) 
+					&& (m_pData[dX][dY].m_sOwnerType != 0) && (m_pData[dX][dY].m_wObjectID != wObjectID))
 				{	m_pGame->RequestFullObjectData(wObjectID);
 					ZeroMemory(pName, strlen(pName));
-					return FALSE;
+					return false;
 				}
 				iChatIndex = m_pData[iX][iY].m_iChatMsg;
 				if (sAction != OBJECTNULLACTION) {
@@ -1969,10 +1795,10 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 				memcpy(cTmpName, m_pData[iX][iY].m_cOwnerName, 10);
 				ZeroMemory(pName, sizeof(pName));
 				memcpy(pName, m_pData[iX][iY].m_cOwnerName, 10);
-				m_pData[iX][iY].m_wObjectID  = NULL; //-1; v1.41
-				m_pData[iX][iY].m_iChatMsg   = NULL;
-				m_pData[iX][iY].m_sOwnerType = NULL;
-				m_pData[iX][iY].m_iEffectType = NULL;
+				m_pData[iX][iY].m_wObjectID  = 0; //-1; v1.41
+				m_pData[iX][iY].m_iChatMsg   = 0;
+				m_pData[iX][iY].m_sOwnerType = 0;
+				m_pData[iX][iY].m_iEffectType = 0;
 				ZeroMemory(m_pData[iX][iY].m_cOwnerName, sizeof(m_pData[iX][iY].m_cOwnerName));
 				m_iObjectIDcacheLocX[wObjectID] = dX + m_sPivotX;
 				m_iObjectIDcacheLocY[wObjectID] = dY + m_sPivotY;
@@ -2000,11 +1826,11 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 				default:
 					break;
 				}
-				if ((wObjectID != (WORD)m_pGame->m_sPlayerObjectID) &&
-					(m_pData[dX][dY].m_sOwnerType != NULL) && (m_pData[dX][dY].m_wObjectID != wObjectID))
+				if ((wObjectID != (uint16_t)m_pGame->m_sPlayerObjectID) &&
+					(m_pData[dX][dY].m_sOwnerType != 0) && (m_pData[dX][dY].m_wObjectID != wObjectID))
 				{	m_pGame->RequestFullObjectData(wObjectID);
 					ZeroMemory(pName, strlen(pName));
-					return FALSE;
+					return false;
 				}
 				iChatIndex = m_pData[iX][iY].m_iDeadChatMsg;
 				if (sAction != OBJECTNULLACTION) {
@@ -2024,10 +1850,10 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 				memcpy(cTmpName, m_pData[iX][iY].m_cDeadOwnerName, 10);
 				ZeroMemory(pName, sizeof(pName));
 				memcpy(pName, m_pData[iX][iY].m_cDeadOwnerName, 10);
-				m_pData[iX][iY].m_wDeadObjectID  = NULL; //-1; v1.41
-				m_pData[iX][iY].m_iDeadChatMsg   = NULL;
-				m_pData[iX][iY].m_sDeadOwnerType = NULL;
-				m_pData[iX][iY].m_iEffectType    = NULL;
+				m_pData[iX][iY].m_wDeadObjectID  = 0; //-1; v1.41
+				m_pData[iX][iY].m_iDeadChatMsg   = 0;
+				m_pData[iX][iY].m_sDeadOwnerType = 0;
+				m_pData[iX][iY].m_iEffectType    = 0;
 				ZeroMemory(m_pData[iX][iY].m_cDeadOwnerName, sizeof(m_pData[iX][iY].m_cDeadOwnerName));
 				m_iObjectIDcacheLocX[wObjectID] = -1*(dX + m_sPivotX);
 				m_iObjectIDcacheLocY[wObjectID] = -1*(dY + m_sPivotY);
@@ -2035,7 +1861,7 @@ BOOL __fastcall CMapData::bSetOwner(WORD wObjectID, int sX, int sY, int sType, i
 		}	}
 		m_pGame->RequestFullObjectData(wObjectID);
 		ZeroMemory(pName, strlen(pName));
-		return FALSE;
+		return false;
 	}
 
 EXIT_SEARCH_LOOP:;
@@ -2044,7 +1870,7 @@ EXIT_SEARCH_LOOP:;
 	{	dX = sX - m_sPivotX;
 		dY = sY - m_sPivotY;
 	}
-	if ((iPreLoc == 0) && (m_pData[dX][dY].m_sOwnerType != NULL) && (m_pData[dX][dY].m_cOwnerAction == OBJECTDYING))
+	if ((iPreLoc == 0) && (m_pData[dX][dY].m_sOwnerType != 0) && (m_pData[dX][dY].m_cOwnerAction == OBJECTDYING))
 	{	m_pData[dX][dY].m_wDeadObjectID        = m_pData[dX][dY].m_wObjectID;
 		m_pData[dX][dY].m_sDeadOwnerType       = m_pData[dX][dY].m_sOwnerType;
 		m_pData[dX][dY].m_cDeadDir             = m_pData[dX][dY].m_cDir;
@@ -2062,9 +1888,9 @@ EXIT_SEARCH_LOOP:;
 		m_pData[dX][dY].m_dwDeadOwnerTime	   = dwTime;
 		memcpy(m_pData[dX][dY].m_cDeadOwnerName, m_pData[dX][dY].m_cOwnerName, 11);
 		m_pData[dX][dY].m_iDeadChatMsg         = m_pData[dX][dY].m_iChatMsg;
-		m_pData[dX][dY].m_wObjectID  = NULL;
-		m_pData[dX][dY].m_sOwnerType = NULL;
-		m_pData[dX][dY].m_iChatMsg   = NULL;
+		m_pData[dX][dY].m_wObjectID  = 0;
+		m_pData[dX][dY].m_sOwnerType = 0;
+		m_pData[dX][dY].m_iChatMsg   = 0;
 		ZeroMemory(m_pData[dX][dY].m_cOwnerName, sizeof(m_pData[dX][dY].m_cOwnerName));
 		m_iObjectIDcacheLocX[m_pData[dX][dY].m_wDeadObjectID] = -1*m_iObjectIDcacheLocX[m_pData[dX][dY].m_wDeadObjectID];//dX; // v1.4
 		m_iObjectIDcacheLocY[m_pData[dX][dY].m_wDeadObjectID] = -1*m_iObjectIDcacheLocY[m_pData[dX][dY].m_wDeadObjectID];//dY;
@@ -2076,12 +1902,12 @@ EXIT_SEARCH_LOOP:;
 			m_pData[dX][dY].m_dwEffectTime      = 0;
 	}	}
 
-	if (m_pData[dX][dY].m_sOwnerType != NULL)
-	{	if (   (wObjectID != (WORD)m_pGame->m_sPlayerObjectID)
-			&& (m_pData[dX][dY].m_wObjectID == (WORD)m_pGame->m_sPlayerObjectID))
-		{	return FALSE;
+	if (m_pData[dX][dY].m_sOwnerType != 0)
+	{	if (   (wObjectID != (uint16_t)m_pGame->m_sPlayerObjectID)
+			&& (m_pData[dX][dY].m_wObjectID == (uint16_t)m_pGame->m_sPlayerObjectID))
+		{	return false;
 		}else
-		{	return FALSE;
+		{	return false;
 	}	}
 
 	if (iPreLoc == 0)
@@ -2156,13 +1982,13 @@ EXIT_SEARCH_LOOP:;
 		}else
 		{	m_pData[dX][dY].m_iEffectType = 0;
 	}	}
-	return TRUE;
+	return true;
 }
 
 #ifdef SHOWALLDAMAGE // Remove Critical xRisenx
-BOOL __fastcall CMapData::bGetOwner(short sX, short sY, short * pOwnerType, char * pDir, short * pAppr1, short * pAppr2, short * pAppr3, short * pAppr4, int * pApprColor, int * pStatus, char * pName, char * pAction, char * pFrame, int * pChatIndex, int * pV1, short * pV2)
+bool __fastcall CMapData::bGetOwner(short sX, short sY, short * pOwnerType, char * pDir, short * pAppr1, short * pAppr2, short * pAppr3, short * pAppr4, int * pApprColor, int * pStatus, char * pName, char * pAction, char * pFrame, int * pChatIndex, int * pV1, short * pV2)
 #else
-BOOL __fastcall CMapData::bGetOwner(short sX, short sY, short * pOwnerType, char * pDir, short * pAppr1, short * pAppr2, short * pAppr3, short * pAppr4, int * pApprColor, short * pHeadApprValue, short * pBodyApprValue, short * pArmApprValue, short * pLegApprValue, int * pStatus, char * pName, char * pAction, char * pFrame, int * pChatIndex, short * pV1, short * pV2)
+bool __fastcall CMapData::bGetOwner(short sX, short sY, short * pOwnerType, char * pDir, short * pAppr1, short * pAppr2, short * pAppr3, short * pAppr4, int * pApprColor, short * pHeadApprValue, short * pBodyApprValue, short * pArmApprValue, short * pLegApprValue, int * pStatus, char * pName, char * pAction, char * pFrame, int * pChatIndex, short * pV1, short * pV2)
 #endif
 {
  int dX, dY;
@@ -2170,7 +1996,7 @@ BOOL __fastcall CMapData::bGetOwner(short sX, short sY, short * pOwnerType, char
 	if ((sX < m_sPivotX) || (sX > m_sPivotX + MAPDATASIZEX) ||
 		(sY < m_sPivotY) || (sY > m_sPivotY + MAPDATASIZEY)) {
 		ZeroMemory(pName, sizeof(pName));
-		return FALSE;
+		return false;
 	}
 
 	dX = sX - m_sPivotX;
@@ -2196,14 +2022,14 @@ BOOL __fastcall CMapData::bGetOwner(short sX, short sY, short * pOwnerType, char
 
 	strcpy(pName, m_pData[dX][dY].m_cOwnerName);
 
-	return TRUE;
+	return true;
 }
 
-int CMapData::getChatMsgIndex(WORD wObjectID) const 
+int CMapData::getChatMsgIndex(uint16_t wObjectID) const 
 { 
-	for (uint32 dX = 0; dX < MAPDATASIZEX; dX++)
+	for (uint32_t dX = 0; dX < MAPDATASIZEX; dX++)
 	{
-		for (uint32 dY = 0; dY < MAPDATASIZEY; dY++) {
+		for (uint32_t dY = 0; dY < MAPDATASIZEY; dY++) {
 
 			if (m_pData[dX][dY].m_wObjectID == wObjectID) {
 				return m_pData[dX][dY].m_iChatMsg;
@@ -2218,7 +2044,7 @@ int CMapData::getChatMsgIndex(WORD wObjectID) const
 }
 
 
-BOOL __fastcall CMapData::bGetDeadOwner(short sX, short sY, short * pOwnerType, char * pDir, short * pAppr1, short * pAppr2, short * pAppr3, short * pAppr4, int * pApprColor, short * pHeadApprValue, short * pBodyApprValue, short * pArmApprValue, short * pLegApprValue, char * pFrame, char * pName, short * pItemSprite, short * pItemSpriteFrame, int * pChatIndex)
+bool __fastcall CMapData::bGetDeadOwner(short sX, short sY, short * pOwnerType, char * pDir, short * pAppr1, short * pAppr2, short * pAppr3, short * pAppr4, int * pApprColor, short * pHeadApprValue, short * pBodyApprValue, short * pArmApprValue, short * pLegApprValue, char * pFrame, char * pName, short * pItemSprite, short * pItemSpriteFrame, int * pChatIndex)
 {
  int dX, dY;
 
@@ -2226,8 +2052,8 @@ BOOL __fastcall CMapData::bGetDeadOwner(short sX, short sY, short * pOwnerType, 
 		(sY < m_sPivotY) || (sY > m_sPivotY + MAPDATASIZEY)) {
 
 		ZeroMemory(pName, sizeof(pName));
-		*pItemSprite = NULL;
-		return FALSE;
+		*pItemSprite = 0;
+		return false;
 	}
 
 	dX = sX - m_sPivotX;
@@ -2252,25 +2078,25 @@ BOOL __fastcall CMapData::bGetDeadOwner(short sX, short sY, short * pOwnerType, 
 	*pItemSprite      = m_pData[dX][dY].m_sItemSprite;
 	*pItemSpriteFrame = m_pData[dX][dY].m_sItemSpriteFrame;
 
-	return TRUE;
+	return true;
 }
 
 int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short sViewPointY)
 {
 	int dX,dY, sVal;
-	DWORD dwTime, dwRealTime, dwFrameTime;
+	uint32_t dwTime, dwRealTime, dwFrameTime;
 	int  iDelay;
 	int  iRet, iSoundIndex, iSkipFrame;
 	int  cDir, cTotalFrame, cFrameMoveDots;
-	static DWORD S_dwUpdateTime = timeGetTime();
+	static uint32_t S_dwUpdateTime = unixseconds();
 	int   sWeaponType, sCenterX, sCenterY, sDist;//, sAbsX, sAbsY;
 
-	BOOL  bAutoUpdate = FALSE, dynObjsNeedUpdate = false;
+	bool  bAutoUpdate = false, dynObjsNeedUpdate = false;
 	short dx, dy;
 	long  lPan;
 
 	iRet = 0;
-	dwTime = dwRealTime = timeGetTime();
+	dwTime = dwRealTime = unixseconds();
 	if ((dwTime - m_dwFrameTime) >= 70)
 		m_dwFrameTime = dwTime;
 
@@ -2280,7 +2106,7 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 	sCenterY = (sVal / 32) + 8;
 	m_sRectX = m_pGame->m_sVDL_X - m_sPivotX;
 	m_sRectY = m_pGame->m_sVDL_Y - m_sPivotY;
-	if ((dwTime - S_dwUpdateTime) > 40) bAutoUpdate = TRUE;
+	if ((dwTime - S_dwUpdateTime) > 40) bAutoUpdate = true;
 	dynObjsNeedUpdate = (dwTime - m_dwDOframeTime) > 100;
 
 	//for (dX = 0; dX < MAPDATASIZEX; dX++)
@@ -2311,7 +2137,7 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 					m_pData[dX][dY].m_iEffectFrame = 3;
 				break;
 			}
-			if (m_pData[dX][dY].m_sDynamicObjectType != NULL)
+			if (m_pData[dX][dY].m_sDynamicObjectType != 0)
 			{	
 				m_pData[dX][dY].m_cDynamicObjectFrame++;
 				switch (m_pData[dX][dY].m_sDynamicObjectType) {
@@ -2343,21 +2169,21 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 						m_pGame->PlaySound('E', 9, sDist);
 					}
 					if ((m_pData[dX][dY].m_cDynamicObjectFrame % 6) == 0) {
-						m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 +(rand()%10-5) +5, (m_sPivotY+dY)*32, NULL, NULL, NULL, 0);
-						m_pGame->bAddNewEffect(67, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, NULL, NULL, NULL, 0);
+						m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 +(rand()%10-5) +5, (m_sPivotY+dY)*32, 0, 0, 0, 0);
+						m_pGame->bAddNewEffect(67, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, 0, 0, 0, 0);
 					}
 					break;
 
 				case DYNAMICOBJECT_FISHOBJECT:
 					if ((rand() % 12) == 1)
-						m_pGame->bAddNewEffect(13, (m_sPivotX + dX)*32 + m_pData[dX][dY].m_cDynamicObjectData1, (m_sPivotY + dY)*32 + m_pData[dX][dY].m_cDynamicObjectData2, NULL, NULL, 0);
+						m_pGame->bAddNewEffect(13, (m_sPivotX + dX)*32 + m_pData[dX][dY].m_cDynamicObjectData1, (m_sPivotY + dY)*32 + m_pData[dX][dY].m_cDynamicObjectData2, 0, 0, 0);
 					break;
 
 				case DYNAMICOBJECT_FISH:
 					if ((dwTime - m_pData[dX][dY].m_dwDynamicObjectTime) < 100) break;
 					m_pData[dX][dY].m_dwDynamicObjectTime = dwTime;
 					if (m_pData[dX][dY].m_cDynamicObjectFrame >= 15) m_pData[dX][dY].m_cDynamicObjectFrame = 0;
-					if ((rand() % 15) == 1) m_pGame->bAddNewEffect(13, (m_sPivotX + dX)*32 + m_pData[dX][dY].m_cDynamicObjectData1, (m_sPivotY + dY)*32 + m_pData[dX][dY].m_cDynamicObjectData2, NULL, NULL, 0);
+					if ((rand() % 15) == 1) m_pGame->bAddNewEffect(13, (m_sPivotX + dX)*32 + m_pData[dX][dY].m_cDynamicObjectData1, (m_sPivotY + dY)*32 + m_pData[dX][dY].m_cDynamicObjectData2, 0, 0, 0);
 					cDir = m_pGame->m_Misc.cGetNextMoveDir(m_pData[dX][dY].m_cDynamicObjectData1, m_pData[dX][dY].m_cDynamicObjectData2, 0, 0);
 					switch (cDir) {
 					case 1:
@@ -2414,7 +2240,7 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 
 				case DYNAMICOBJECT_PCLOUD_END:
 					if (m_pData[dX][dY].m_cDynamicObjectFrame >= 8) {
-						m_pData[dX][dY].m_sDynamicObjectType  = NULL;
+						m_pData[dX][dY].m_sDynamicObjectType  = 0;
 					}
 					break;
 
@@ -2434,7 +2260,7 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 		}
 
 		// Dead think 00496F43
-		if (m_pData[dX][dY].m_sDeadOwnerType != NULL)
+		if (m_pData[dX][dY].m_sDeadOwnerType != 0)
 			if ((m_pData[dX][dY].m_cDeadOwnerFrame >= 0) && ((dwTime - m_pData[dX][dY].m_dwDeadOwnerTime) > 150)) {
 				m_pData[dX][dY].m_dwDeadOwnerTime = dwTime;
 				m_pData[dX][dY].m_cDeadOwnerFrame++;
@@ -2443,15 +2269,15 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 					S_dwUpdateTime = dwTime;
 				}
 				if (m_pData[dX][dY].m_cDeadOwnerFrame > 10) {	
-					m_pData[dX][dY].m_wDeadObjectID  = NULL;
-					m_pData[dX][dY].m_sDeadOwnerType = NULL;
+					m_pData[dX][dY].m_wDeadObjectID  = 0;
+					m_pData[dX][dY].m_sDeadOwnerType = 0;
 					ZeroMemory(m_pData[dX][dY].m_cDeadOwnerName, sizeof(m_pData[dX][dY].m_cDeadOwnerName));
 				}	
 			}
 
 			// Alive thing 00496FD8
-		if (m_pData[dX][dY].m_sOwnerType != NULL) {	
-				bool isClientPlayer = (memcmp(m_pData[dX][dY].m_cOwnerName, cPlayerName, 10) == 0) ? TRUE : FALSE; //(dX == sCenterX && dY == sCenterY);
+		if (m_pData[dX][dY].m_sOwnerType != 0) {	
+				bool isClientPlayer = (memcmp(m_pData[dX][dY].m_cOwnerName, cPlayerName, 10) == 0) ? true : false; //(dX == sCenterX && dY == sCenterY);
 				sDist = (abs(sCenterX - dX)+abs(sCenterY - dY))/2;
 				lPan = -(sCenterX - dX)*1000;
 				switch (m_pData[dX][dY].m_cOwnerAction) {
@@ -2536,8 +2362,8 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 									m_pData[dX][dY].m_iDeadChatMsg         = m_pData[dX][dY].m_iChatMsg;
 									m_pData[dX][dY].m_cDeadOwnerFrame	   = -1;
 									memcpy(m_pData[dX][dY].m_cDeadOwnerName, m_pData[dX][dY].m_cOwnerName, 11);
-									m_pData[dX][dY].m_wObjectID  = NULL;
-									m_pData[dX][dY].m_sOwnerType = NULL;
+									m_pData[dX][dY].m_wObjectID  = 0;
+									m_pData[dX][dY].m_sOwnerType = 0;
 									ZeroMemory(m_pData[dX][dY].m_cOwnerName, sizeof(m_pData[dX][dY].m_cOwnerName));
 									m_iObjectIDcacheLocX[m_pData[dX][dY].m_wDeadObjectID] = -1*m_iObjectIDcacheLocX[m_pData[dX][dY].m_wDeadObjectID]; //dX;
 									m_iObjectIDcacheLocY[m_pData[dX][dY].m_wDeadObjectID] = -1*m_iObjectIDcacheLocY[m_pData[dX][dY].m_wDeadObjectID]; //dY;
@@ -2554,12 +2380,12 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 								}
 						}else
 						{	
-							m_pData[dX][dY].m_wObjectID  = NULL;
-							m_pData[dX][dY].m_sOwnerType = NULL;
+							m_pData[dX][dY].m_wObjectID  = 0;
+							m_pData[dX][dY].m_sOwnerType = 0;
 							ZeroMemory(m_pData[dX][dY].m_cOwnerName, sizeof(m_pData[dX][dY].m_cOwnerName));
-							if (m_pGame->m_pChatMsgList[ m_pData[dX][dY].m_iChatMsg ] != NULL) {	
+							if (m_pGame->m_pChatMsgList[ m_pData[dX][dY].m_iChatMsg ] != 0) {	
 								delete m_pGame->m_pChatMsgList[ m_pData[dX][dY].m_iChatMsg ];
-								m_pGame->m_pChatMsgList[ m_pData[dX][dY].m_iChatMsg ] = NULL;
+								m_pGame->m_pChatMsgList[ m_pData[dX][dY].m_iChatMsg ] = 0;
 							}	
 						}	
 					}
@@ -2576,7 +2402,7 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 							{	
 								if (((m_pData[dX][dY].m_sAppr4 & 0x000F) != 0) && ((m_pData[dX][dY].m_iStatus & 0x10) == 0))
 								{	
-									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%20-10), (m_sPivotY+dY)*32 -(rand()%50) -5, NULL, NULL, -(rand()%8), 0);
+									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%20-10), (m_sPivotY+dY)*32 -(rand()%50) -5, 0, 0, -(rand()%8), 0);
 								}
 								// Snoopy: Angels
 								//if (( rand() % ((m_pData[dX][dY].m_iStatus & 0x00000F00) >> 8) > rand()%6) // Angel stars
@@ -2591,24 +2417,24 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 						case 41: // GMG
 						case 42: // ManaStone
 							if ((rand() % 40) == 25)
-							{	m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%60-30), (m_sPivotY+dY)*32 -(rand()%100) -5, NULL, NULL, -(rand()%12), 0);
-							m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%60-30), (m_sPivotY+dY)*32 -(rand()%100) -5, NULL, NULL, -(rand()%12), 0);
-							m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%60-30), (m_sPivotY+dY)*32 -(rand()%100) -5, NULL, NULL, -(rand()%12), 0);
-							m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%60-30), (m_sPivotY+dY)*32 -(rand()%100) -5, NULL, NULL, -(rand()%12), 0);
+							{	m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%60-30), (m_sPivotY+dY)*32 -(rand()%100) -5, 0, 0, -(rand()%12), 0);
+							m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%60-30), (m_sPivotY+dY)*32 -(rand()%100) -5, 0, 0, -(rand()%12), 0);
+							m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%60-30), (m_sPivotY+dY)*32 -(rand()%100) -5, 0, 0, -(rand()%12), 0);
+							m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%60-30), (m_sPivotY+dY)*32 -(rand()%100) -5, 0, 0, -(rand()%12), 0);
 							}
 							break;
 						case 65: // IceGolem
 							if( m_pData[dX][dY].m_cOwnerFrame == 3 ) {	
-								m_pGame->bAddNewEffect( 75, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), NULL, NULL, NULL);
-								m_pGame->bAddNewEffect( 75, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), NULL, NULL, NULL);
+								m_pGame->bAddNewEffect( 75, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), 0, 0, 0);
+								m_pGame->bAddNewEffect( 75, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), 0, 0, 0);
 							}
 							if( m_pData[dX][dY].m_cOwnerFrame == 2 ) {
-								m_pGame->bAddNewEffect( 76, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), NULL, NULL, NULL);
-								m_pGame->bAddNewEffect( 76, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), NULL, NULL, NULL);
+								m_pGame->bAddNewEffect( 76, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), 0, 0, 0);
+								m_pGame->bAddNewEffect( 76, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), 0, 0, 0);
 							}
 							if( m_pData[dX][dY].m_cOwnerFrame == 1 ) {
-								m_pGame->bAddNewEffect( 77, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), NULL, NULL, NULL);
-								m_pGame->bAddNewEffect( 77, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), NULL, NULL, NULL);
+								m_pGame->bAddNewEffect( 77, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), 0, 0, 0);
+								m_pGame->bAddNewEffect( 77, (m_sPivotX+dX)*32 +(rand()%40-20), (m_sPivotY+dY)*32 +(rand()%40-20), 0, 0, 0);
 							}
 							break;
 						}	
@@ -2640,14 +2466,14 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 									case 7 : dx =  cFrameMoveDots * (cTotalFrame - m_pData[dX][dY].m_cOwnerFrame); break;
 									case 8 : dx =  cFrameMoveDots * (cTotalFrame - m_pData[dX][dY].m_cOwnerFrame); dy =  cFrameMoveDots * (cTotalFrame - m_pData[dX][dY].m_cOwnerFrame); break;
 									}
-									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, NULL, NULL, -(rand()%8), 0);
-									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, NULL, NULL, -(rand()%8), 0);
+									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, 0, 0, -(rand()%8), 0);
+									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, 0, 0, -(rand()%8), 0);
 								}
 								// Snoopy: Angels
 								if (   (((m_pData[dX][dY].m_iStatus & 0x00000F00) >> 8) > rand()%6) // Angel stars
 									&& ((m_pData[dX][dY].m_iStatus & 0x0000F000) != 0) 
 									&& ((m_pData[dX][dY].m_iStatus & 0x10) == 0)) {
-										m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%15+10), (m_sPivotY+dY)*32 -(rand()%30) -50, NULL, NULL, -(rand()%8), 0);
+										m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%15+10), (m_sPivotY+dY)*32 -(rand()%30) -50, 0, 0, -(rand()%8), 0);
 								}	
 							}
 							break;
@@ -2912,17 +2738,17 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 										case 8 : dx =  cFrameMoveDots * (cTotalFrame - m_pData[dX][dY].m_cOwnerFrame); dy =  cFrameMoveDots * (cTotalFrame - m_pData[dX][dY].m_cOwnerFrame); break;
 										}
 										if (m_pGame->m_weather >= WEATHER_LIGHTRAIN && m_pGame->m_weather <= WEATHER_HEAVYRAIN)
-											m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +dx, (m_sPivotY+dY)*32 +dy, NULL, NULL, 0, 0);
-										else m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +dx, (m_sPivotY+dY)*32 +dy, NULL, NULL, 0, 0);
+											m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +dx, (m_sPivotY+dY)*32 +dy, 0, 0, 0, 0);
+										else m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +dx, (m_sPivotY+dY)*32 +dy, 0, 0, 0, 0);
 										if (((m_pData[dX][dY].m_sAppr4 & 0x000F) != 0) && ((m_pData[dX][dY].m_iStatus & 0x10) == 0)) {
-											m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, NULL, NULL, -(rand()%8), 0);
-											m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, NULL, NULL, -(rand()%8), 0);
+											m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, 0, 0, -(rand()%8), 0);
+											m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, 0, 0, -(rand()%8), 0);
 										}
 										// Snoopy: Angels
 										if (  (((m_pData[dX][dY].m_iStatus & 0x00000F00) >> 8) > rand()%6) // Angel stars
 											&& ((m_pData[dX][dY].m_iStatus & 0x0000F000) != 0) 
 											&& ((m_pData[dX][dY].m_iStatus & 0x10) == 0)) {
-												m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%15+10), (m_sPivotY+dY)*32 -(rand()%30) -50, NULL, NULL, -(rand()%8), 0);
+												m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%15+10), (m_sPivotY+dY)*32 -(rand()%30) -50, 0, 0, -(rand()%8), 0);
 										}
 										m_pGame->PlaySound('C', 10, sDist, lPan);
 									}
@@ -2953,28 +2779,28 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 								case 8 : dx =  cFrameMoveDots * (cTotalFrame - m_pData[dX][dY].m_cOwnerFrame); dy =  cFrameMoveDots * (cTotalFrame - m_pData[dX][dY].m_cOwnerFrame); break;
 								}
 								if (((m_pData[dX][dY].m_sAppr4 & 0x000F) != 0) && ((m_pData[dX][dY].m_iStatus & 0x10) == 0)) {
-									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, NULL, NULL, -(rand()%8), 0);
-									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, NULL, NULL, -(rand()%8), 0);
+									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, 0, 0, -(rand()%8), 0);
+									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +dx +(rand()%20-10), (m_sPivotY+dY)*32 +dy -(rand()%50) -5, 0, 0, -(rand()%8), 0);
 								}
 								//Snoopy: Angels						
 								if (  (((m_pData[dX][dY].m_iStatus & 0x00000F00) >> 8) > rand()%6) // Angel stars
 									&& ((m_pData[dX][dY].m_iStatus & 0x0000F000) != 0) 
 									&& ((m_pData[dX][dY].m_iStatus & 0x10) == 0)) {
-										m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%15+10), (m_sPivotY+dY)*32 -(rand()%30) -50, NULL, NULL, -(rand()%8), 0);
+										m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%15+10), (m_sPivotY+dY)*32 -(rand()%30) -50, 0, 0, -(rand()%8), 0);
 								}
 							}else if (m_pData[dX][dY].m_cOwnerFrame == 4) {
 								if(m_pGame->m_weather >= WEATHER_LIGHTRAIN && (m_pGame->m_weather <= WEATHER_HEAVYRAIN)) {
-									m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), NULL, NULL, 0, 0);
-									m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), NULL, NULL, 0, 0);
-									m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), NULL, NULL, 0, 0);
-									m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), NULL, NULL, 0, 0);
-									m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), NULL, NULL, 0, 0);
+									m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), 0, 0, 0, 0);
+									m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), 0, 0, 0, 0);
+									m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), 0, 0, 0, 0);
+									m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), 0, 0, 0, 0);
+									m_pGame->bAddNewEffect(32, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), 0, 0, 0, 0);
 								}else	{
-									m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), NULL, NULL, 0, 0);
-									m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), NULL, NULL, 0, 0);
-									m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), NULL, NULL, 0, 0);
-									m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), NULL, NULL, 0, 0);
-									m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), NULL, NULL, 0, 0);
+									m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), 0, 0, 0, 0);
+									m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), 0, 0, 0, 0);
+									m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), 0, 0, 0, 0);
+									m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), 0, 0, 0, 0);
+									m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +((rand() % 20)-10), (m_sPivotY+dY)*32 +((rand() % 20)-10), 0, 0, 0, 0);
 								}
 								m_pGame->PlaySound('C', 11, sDist, lPan);
 							}else if (m_pData[dX][dY].m_cOwnerFrame == 5) {
@@ -3060,14 +2886,14 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 								}
 								// Weapon Glare = m_sAppr4 & 0x000F
 								if (((m_pData[dX][dY].m_sAppr4 & 0x000F) != 0) && ((m_pData[dX][dY].m_iStatus & 0x10) == 0)) {
-									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%20-10), (m_sPivotY+dY)*32 -(rand()%50) -5, NULL, NULL, -(rand()%8), 0);
-									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%20-10), (m_sPivotY+dY)*32 -(rand()%50) -5, NULL, NULL, -(rand()%8), 0);
+									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%20-10), (m_sPivotY+dY)*32 -(rand()%50) -5, 0, 0, -(rand()%8), 0);
+									m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%20-10), (m_sPivotY+dY)*32 -(rand()%50) -5, 0, 0, -(rand()%8), 0);
 								}							
 								//Snoopy: Angels
 								if (  (((m_pData[dX][dY].m_iStatus & 0x00000F00) >> 8) > rand()%6) // Angel stars
 									&& ((m_pData[dX][dY].m_iStatus & 0x0000F000) != 0) 
 									&& ((m_pData[dX][dY].m_iStatus & 0x10) == 0)) {
-										m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%15+10), (m_sPivotY+dY)*32 -(rand()%30) -50, NULL, NULL, -(rand()%8), 0);
+										m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%15+10), (m_sPivotY+dY)*32 -(rand()%30) -50, 0, 0, -(rand()%8), 0);
 								}
 							}
 							break;
@@ -3905,8 +3731,8 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 						if (m_pData[dX][dY].m_cOwnerFrame == 1) {
 							m_pGame->PlaySound('C', 16, sDist, lPan);	
 							if (((m_pData[dX][dY].m_sAppr4 & 0x000F) != 0) && ((m_pData[dX][dY].m_iStatus & 0x10) == 0)) {
-								m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%20-10), (m_sPivotY+dY)*32 -(rand()%50) -5, NULL, NULL, -(rand()%8), 0);
-								m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%20-10), (m_sPivotY+dY)*32 -(rand()%50) -5, NULL, NULL, -(rand()%8), 0);
+								m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%20-10), (m_sPivotY+dY)*32 -(rand()%50) -5, 0, 0, -(rand()%8), 0);
+								m_pGame->bAddNewEffect(54, (m_sPivotX+dX)*32 +(rand()%20-10), (m_sPivotY+dY)*32 -(rand()%50) -5, 0, 0, -(rand()%8), 0);
 							}
 							//if (m_pGame->bHasHeroSet(m_pData[dX][dY].m_sAppr3, m_pData[dX][dY].m_sAppr4, m_pData[dX][dY].m_sOwnerType) == 2)
 							if (m_pGame->bHasHeroSet(m_pData[dX][dY].m_sHeadApprValue, m_pData[dX][dY].m_sBodyApprValue, m_pData[dX][dY].m_sArmApprValue, m_pData[dX][dY].m_sLegApprValue, m_pData[dX][dY].m_sOwnerType) == 2)
@@ -3914,7 +3740,7 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 								m_pGame->bAddNewEffect(242, m_sPivotX + dX, m_sPivotY + dY, m_sPivotX + dX , m_sPivotY + dY, 0, 1);
 							}
 							if (m_pData[dX][dY].m_sV1 >= 70)
-								m_pGame->bAddNewEffect(57, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, NULL, NULL, NULL, 0);
+								m_pGame->bAddNewEffect(57, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, 0, 0, 0, 0);
 						}
 						break;
 					}
@@ -4105,29 +3931,29 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 						case 41: // GMG
 						case 42: // ManaStone
 							if (m_pData[dX][dY].m_cOwnerFrame == 3)
-							{	m_pGame->bAddNewEffect(66, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, NULL, NULL, NULL, 0);
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), NULL, NULL, -1*(rand() % 2));
+							{	m_pGame->bAddNewEffect(66, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, 0, 0, 0, 0);
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), 0, 0, -1*(rand() % 2));
 							}
 							break;
 
 						case 87: // Snoopy: CrossBowTurret
 							if (m_pData[dX][dY].m_cOwnerFrame == 3)
-							{	m_pGame->bAddNewEffect(66, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, NULL, NULL, NULL, 0);
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), NULL, NULL, -1*(rand() % 2));
+							{	m_pGame->bAddNewEffect(66, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, 0, 0, 0, 0);
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), 0, 0, -1*(rand() % 2));
 							}
 							if (m_pData[dX][dY].m_cOwnerFrame == 1)
 								m_pGame->PlaySound('M', 154, sDist, lPan);
@@ -4135,15 +3961,15 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 
 						case 89: // Snoopy: CannonTurret
 							if (m_pData[dX][dY].m_cOwnerFrame == 3)
-							{	m_pGame->bAddNewEffect(66, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, NULL, NULL, NULL, 0);
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), NULL, NULL, -1*(rand() % 2));
+							{	m_pGame->bAddNewEffect(66, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, 0, 0, 0, 0);
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60), 0, 0, -1*(rand() % 2));
 							}
 							if (m_pData[dX][dY].m_cOwnerFrame == 1)
 								m_pGame->PlaySound('M', 156, sDist, lPan);
@@ -4151,15 +3977,15 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 
 						case 51: // CP
 							if (m_pData[dX][dY].m_cOwnerFrame == 1)
-							{	m_pGame->bAddNewEffect(66, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32 -30, NULL, NULL, NULL, 0);
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, NULL, NULL, -1*(rand() % 2));
+							{	m_pGame->bAddNewEffect(66, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32 -30, 0, 0, 0, 0);
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, 0, 0, -1*(rand() % 2));
 							}
 							break;
 
@@ -4168,16 +3994,16 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 							{	m_pGame->PlaySound('M', 44, sDist, lPan);
 							}
 							if (m_pData[dX][dY].m_cOwnerFrame == 11)
-							{	m_pGame->bAddNewEffect(66, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32 -30, NULL, NULL, NULL, 0);
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, NULL, NULL, -1*(rand() % 2));
+							{	m_pGame->bAddNewEffect(66, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32 -30, 0, 0, 0, 0);
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(12, (m_sPivotX+dX)*32 + 5 - (rand() % 10), (m_sPivotY+dY)*32 + 5 - (rand() % 10) -30, 0, 0, -1*(rand() % 2));
 
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, NULL, NULL, -1*(rand() % 2));
-							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, NULL, NULL, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, 0, 0, -1*(rand() % 2));
+							m_pGame->bAddNewEffect(65, (m_sPivotX+dX)*32 + 30 - (rand() % 60), (m_sPivotY+dY)*32 + 30 - (rand() % 60) -30, 0, 0, -1*(rand() % 2));
 							}
 							break;
 
@@ -4317,7 +4143,7 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 		}	
 	}
 
-	if (bAutoUpdate == TRUE)
+	if (bAutoUpdate == true)
 	{	
 		S_dwUpdateTime = dwTime;
 		if (iRet == 0)
@@ -4328,12 +4154,12 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 }
 
 
-BOOL CMapData::bSetItem(short sX, short sY, short sItemSpr, short sItemSprFrame, char cItemColor, /*DWORD dwItemAttribute,*/ BOOL bDropEffect) // 1234 Added dwItemAttribute
+bool CMapData::bSetItem(short sX, short sY, short sItemSpr, short sItemSprFrame, char cItemColor, /*DWORD dwItemAttribute,*/ bool bDropEffect) // 1234 Added dwItemAttribute
 {int dX, dY;
  int sAbsX, sAbsY, sDist;
 	if ((sX < m_sPivotX) || (sX >= m_sPivotX + MAPDATASIZEX) ||
 		(sY < m_sPivotY) || (sY >= m_sPivotY + MAPDATASIZEY))
-	{	return FALSE;
+	{	return false;
 	}
 
 	dX = sX - m_sPivotX;
@@ -4352,34 +4178,34 @@ BOOL CMapData::bSetItem(short sX, short sY, short sItemSpr, short sItemSprFrame,
 	if (sAbsX > sAbsY) sDist = sAbsX;
 	else sDist = sAbsY;
 
-	if (sItemSpr != NULL)
-	{	if (bDropEffect == TRUE) 
+	if (sItemSpr != 0)
+	{	if (bDropEffect == true) 
 		{	m_pGame->PlaySound('E', 11, sDist);
-			m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, NULL, NULL, 0, 0);
-			m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +(10-(rand()%20)), (m_sPivotY+dY)*32 +(10-(rand()%20)), NULL, NULL, (rand() % 2), 0);
-			m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +(10-(rand()%20)), (m_sPivotY+dY)*32 +(10-(rand()%20)), NULL, NULL, (rand() % 2), 0);
+			m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, 0, 0, 0, 0);
+			m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +(10-(rand()%20)), (m_sPivotY+dY)*32 +(10-(rand()%20)), 0, 0, (rand() % 2), 0);
+			m_pGame->bAddNewEffect(14, (m_sPivotX+dX)*32 +(10-(rand()%20)), (m_sPivotY+dY)*32 +(10-(rand()%20)), 0, 0, (rand() % 2), 0);
 	}	}
 
-	return TRUE;
+	return true;
 }
 
-BOOL __fastcall CMapData::bSetDeadOwner(WORD wObjectID, short sX, short sY, short sType, char cDir, short sAppr1, short sAppr2, short sAppr3, short sAppr4, int iApprColor, short sHeadApprValue, short sBodyApprValue, short sArmApprValue, short sLegApprValue, int iStatus, char * pName)
+bool __fastcall CMapData::bSetDeadOwner(uint16_t wObjectID, short sX, short sY, short sType, char cDir, short sAppr1, short sAppr2, short sAppr3, short sAppr4, int iApprColor, short sHeadApprValue, short sBodyApprValue, short sArmApprValue, short sLegApprValue, int iStatus, char * pName)
 {
  int  dX, dY;
  char pTmpName[12];
- BOOL bEraseFlag = FALSE;
+ bool bEraseFlag = false;
 
 	ZeroMemory(pTmpName, sizeof(pTmpName));
-	if (pName != NULL) strcpy(pTmpName, pName);
+	if (pName != 0) strcpy(pTmpName, pName);
 	if ((sX < m_sPivotX) || (sX >= m_sPivotX + MAPDATASIZEX) ||
 		(sY < m_sPivotY) || (sY >= m_sPivotY + MAPDATASIZEY))
 	{	for (dX = 0; dX < MAPDATASIZEX; dX++)
 		for (dY = 0; dY < MAPDATASIZEY; dY++)
 		{	if (memcmp(m_pData[dX][dY].m_cDeadOwnerName, pTmpName, 10) == 0)
-			{	m_pData[dX][dY].m_sDeadOwnerType = NULL;
+			{	m_pData[dX][dY].m_sDeadOwnerType = 0;
 				ZeroMemory(m_pData[dX][dY].m_cDeadOwnerName, sizeof(m_pData[dX][dY].m_cDeadOwnerName));
 		}	}
-		return FALSE;
+		return false;
 	}
 
 	for (dX = sX - 2; dX <= sX + 2; dX++)
@@ -4392,17 +4218,17 @@ BOOL __fastcall CMapData::bSetDeadOwner(WORD wObjectID, short sX, short sY, shor
 		if (dY > m_sPivotY + MAPDATASIZEY) break;
 
 		if (memcmp(m_pData[dX - m_sPivotX][dY - m_sPivotY].m_cDeadOwnerName, pTmpName, 10) == 0)
-		{	m_pData[dX - m_sPivotX][dY - m_sPivotY].m_sDeadOwnerType = NULL;
+		{	m_pData[dX - m_sPivotX][dY - m_sPivotY].m_sDeadOwnerType = 0;
 			ZeroMemory(m_pData[dX - m_sPivotX][dY - m_sPivotY].m_cDeadOwnerName, sizeof(m_pData[dX - m_sPivotX][dY - m_sPivotY].m_cDeadOwnerName));
-			bEraseFlag = TRUE;
+			bEraseFlag = true;
 	}	}
 
-	if (bEraseFlag != TRUE) {
+	if (bEraseFlag != true) {
 		for (dX = 0; dX < MAPDATASIZEX; dX++)
 		for (dY = 0; dY < MAPDATASIZEY; dY++) {
 
 			if (memcmp(m_pData[dX][dY].m_cDeadOwnerName, pTmpName, 10) == 0) {
-				m_pData[dX][dY].m_sDeadOwnerType = NULL;
+				m_pData[dX][dY].m_sDeadOwnerType = 0;
 				ZeroMemory(m_pData[dX][dY].m_cDeadOwnerName, sizeof(m_pData[dX][dY].m_cDeadOwnerName));
 			}
 
@@ -4431,10 +4257,10 @@ BOOL __fastcall CMapData::bSetDeadOwner(WORD wObjectID, short sX, short sY, shor
 	m_iObjectIDcacheLocX[wObjectID] = -1*sX; //dX;
 	m_iObjectIDcacheLocY[wObjectID] = -1*sY; //dY;
 
-	return TRUE;
+	return true;
 }
 
-BOOL __fastcall CMapData::bSetChatMsgOwner(WORD wObjectID, short sX, short sY, int iIndex)
+bool __fastcall CMapData::bSetChatMsgOwner(uint16_t wObjectID, short sX, short sY, int iIndex)
 {
  int dX, dY;
 
@@ -4442,7 +4268,7 @@ BOOL __fastcall CMapData::bSetChatMsgOwner(WORD wObjectID, short sX, short sY, i
 
 	if ((sX < m_sPivotX) || (sX >= m_sPivotX + MAPDATASIZEX) ||
 		(sY < m_sPivotY) || (sY >= m_sPivotY + MAPDATASIZEY))
-	{	return FALSE;
+	{	return false;
 	}
 	for (dX = sX - 4; dX <= sX + 4; dX++)
 	for (dY = sY - 4; dY <= sY + 4; dY++)
@@ -4455,11 +4281,11 @@ BOOL __fastcall CMapData::bSetChatMsgOwner(WORD wObjectID, short sX, short sY, i
 
 		if (m_pData[dX - m_sPivotX][dY - m_sPivotY].m_wObjectID == wObjectID) {
 			m_pData[dX - m_sPivotX][dY - m_sPivotY].m_iChatMsg = iIndex;
-			return TRUE;
+			return true;
 		}
 		if (m_pData[dX - m_sPivotX][dY - m_sPivotY].m_wDeadObjectID == wObjectID) {
 			m_pData[dX - m_sPivotX][dY - m_sPivotY].m_iDeadChatMsg = iIndex;
-			return TRUE;
+			return true;
 		}
 	}
 
@@ -4470,41 +4296,41 @@ SCMO_FULL_SEARCH:;
 
 		if (m_pData[dX][dY].m_wObjectID == wObjectID) {
 			m_pData[dX][dY].m_iChatMsg = iIndex;
-			return TRUE;
+			return true;
 		}
 		if (m_pData[dX][dY].m_wDeadObjectID == wObjectID) {
 			m_pData[dX][dY].m_iDeadChatMsg = iIndex;
-			return TRUE;
+			return true;
 		}
 	}
 
-	return FALSE;
+	return false;
 }
 
 void CMapData::ClearChatMsg(short sX, short sY)
 {
 	// v1.411
-	if (m_pGame->m_pChatMsgList[m_pData[sX - m_sPivotX][sY - m_sPivotY].m_iChatMsg] != NULL) {
+	if (m_pGame->m_pChatMsgList[m_pData[sX - m_sPivotX][sY - m_sPivotY].m_iChatMsg] != 0) {
 		delete m_pGame->m_pChatMsgList[m_pData[sX - m_sPivotX][sY - m_sPivotY].m_iChatMsg];
-		m_pGame->m_pChatMsgList[m_pData[sX - m_sPivotX][sY - m_sPivotY].m_iChatMsg] = NULL;
+		m_pGame->m_pChatMsgList[m_pData[sX - m_sPivotX][sY - m_sPivotY].m_iChatMsg] = 0;
 	}
 
-	m_pData[sX - m_sPivotX][sY - m_sPivotY].m_iChatMsg = NULL;
+	m_pData[sX - m_sPivotX][sY - m_sPivotY].m_iChatMsg = 0;
 }
 
 void CMapData::ClearDeadChatMsg(short sX, short sY)
 {
-	m_pData[sX - m_sPivotX][sY - m_sPivotY].m_iDeadChatMsg = NULL;
+	m_pData[sX - m_sPivotX][sY - m_sPivotY].m_iDeadChatMsg = 0;
 }
 
-BOOL __fastcall CMapData::bGetOwner(short sX, short sY, char * pName, short * pOwnerType, int * pOwnerStatus, WORD * pObjectID, short * dynObjectType)
+bool __fastcall CMapData::bGetOwner(short sX, short sY, char * pName, short * pOwnerType, int * pOwnerStatus, uint16_t * pObjectID, short * dynObjectType)
 {
  int dX, dY;
 
 	if ((sX < m_sPivotX) || (sX > m_sPivotX + MAPDATASIZEX) ||
 		(sY < m_sPivotY) || (sY > m_sPivotY + MAPDATASIZEY)) {
 		ZeroMemory(pName, sizeof(pName));
-		return FALSE;
+		return false;
 	}
 
 	dX = sX - m_sPivotX;
@@ -4517,16 +4343,16 @@ BOOL __fastcall CMapData::bGetOwner(short sX, short sY, char * pName, short * pO
 	if (dynObjectType) 
 		*dynObjectType = m_pData[dX][dY].m_sDynamicObjectType;
 
-	return TRUE;
+	return true;
 }
 
-BOOL CMapData::bSetDynamicObject(short sX, short sY, WORD wID, short sType, BOOL bIsEvent)
+bool CMapData::bSetDynamicObject(short sX, short sY, uint16_t wID, short sType, bool bIsEvent)
 {
  int dX, dY, sPrevType;
 
 	if ((sX < m_sPivotX) || (sX >= m_sPivotX + MAPDATASIZEX) ||
 		(sY < m_sPivotY) || (sY >= m_sPivotY + MAPDATASIZEY))
-	{	return FALSE;
+	{	return false;
 	}
 
 	dX = sX - m_sPivotX;
@@ -4536,7 +4362,7 @@ BOOL CMapData::bSetDynamicObject(short sX, short sY, WORD wID, short sType, BOOL
 
 	m_pData[dX][dY].m_sDynamicObjectType  = sType;
 	m_pData[dX][dY].m_cDynamicObjectFrame = rand() % 5;
-	m_pData[dX][dY].m_dwDynamicObjectTime = timeGetTime();
+	m_pData[dX][dY].m_dwDynamicObjectTime = unixseconds();
 
 	m_pData[dX][dY].m_cDynamicObjectData1 = 0;
 	m_pData[dX][dY].m_cDynamicObjectData2 = 0;
@@ -4544,16 +4370,16 @@ BOOL CMapData::bSetDynamicObject(short sX, short sY, WORD wID, short sType, BOOL
 	m_pData[dX][dY].m_cDynamicObjectData4 = 0;
 
 	switch (sType) {
-	case NULL:
+	case 0:
 		if (sPrevType == DYNAMICOBJECT_FIRE)
-		{	m_pGame->bAddNewEffect(15, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, NULL, NULL, 0, 0);
-			m_pGame->bAddNewEffect(15, (m_sPivotX+dX)*32 +(10-(rand()%20)), (m_sPivotY+dY)*32  +(20-(rand()%40)), NULL, NULL, 0, 0);
-			m_pGame->bAddNewEffect(15, (m_sPivotX+dX)*32 +(10-(rand()%20)), (m_sPivotY+dY)*32  +(20-(rand()%40)), NULL, NULL, 0, 0);
-			m_pGame->bAddNewEffect(15, (m_sPivotX+dX)*32 +(10-(rand()%20)), (m_sPivotY+dY)*32  +(20-(rand()%40)), NULL, NULL, 0, 0);
+		{	m_pGame->bAddNewEffect(15, (m_sPivotX+dX)*32, (m_sPivotY+dY)*32, 0, 0, 0, 0);
+			m_pGame->bAddNewEffect(15, (m_sPivotX+dX)*32 +(10-(rand()%20)), (m_sPivotY+dY)*32  +(20-(rand()%40)), 0, 0, 0, 0);
+			m_pGame->bAddNewEffect(15, (m_sPivotX+dX)*32 +(10-(rand()%20)), (m_sPivotY+dY)*32  +(20-(rand()%40)), 0, 0, 0, 0);
+			m_pGame->bAddNewEffect(15, (m_sPivotX+dX)*32 +(10-(rand()%20)), (m_sPivotY+dY)*32  +(20-(rand()%40)), 0, 0, 0, 0);
 		}else if ((sPrevType == DYNAMICOBJECT_PCLOUD_BEGIN) || (sPrevType == DYNAMICOBJECT_PCLOUD_LOOP)) 
 		{	m_pData[dX][dY].m_sDynamicObjectType  = DYNAMICOBJECT_PCLOUD_END;
 			m_pData[dX][dY].m_cDynamicObjectFrame = 0;
-			m_pData[dX][dY].m_dwDynamicObjectTime = timeGetTime();
+			m_pData[dX][dY].m_dwDynamicObjectTime = unixseconds();
 		}
 		break;
 
@@ -4565,7 +4391,7 @@ BOOL CMapData::bSetDynamicObject(short sX, short sY, WORD wID, short sType, BOOL
 		break;
 
 	case DYNAMICOBJECT_PCLOUD_BEGIN:
-		if (bIsEvent == FALSE)
+		if (bIsEvent == false)
 		{	m_pData[dX][dY].m_sDynamicObjectType = DYNAMICOBJECT_PCLOUD_LOOP;
 			m_pData[dX][dY].m_cDynamicObjectFrame = rand() % 8;
 		}else m_pData[dX][dY].m_cDynamicObjectFrame = -1*(rand() % 8);
@@ -4579,10 +4405,10 @@ BOOL CMapData::bSetDynamicObject(short sX, short sY, WORD wID, short sType, BOOL
 		m_pData[dX][dY].m_cDynamicObjectFrame = 4+ (rand() % 4);
 		break;
 	}
-	return TRUE;
+	return true;
 }
 
-void CMapData::GetOwnerStatusByObjectID(WORD wObjectID, char *pOwnerType, char *pDir, short *pAppr1, short *pAppr2, short *pAppr3, short *pAppr4, short *pHeadApprValue, short *pBodyApprValue, short *pArmApprValue, short *pLegApprValue, int * pStatus, int * pColor, char * pName) // Re-Coding Sprite xRisenx
+void CMapData::GetOwnerStatusByObjectID(uint16_t wObjectID, char *pOwnerType, char *pDir, short *pAppr1, short *pAppr2, short *pAppr3, short *pAppr4, short *pHeadApprValue, short *pBodyApprValue, short *pArmApprValue, short *pLegApprValue, int * pStatus, int * pColor, char * pName) // Re-Coding Sprite xRisenx
 { int iX, iY;
 	for (iX = 0; iX < MAPDATASIZEX; iX++)
 	for (iY = 0; iY < MAPDATASIZEY; iY++)

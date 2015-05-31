@@ -9,8 +9,7 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include <windows.h>
-#include <mmsystem.h>
+#include "common.h"
 #include "../GlobalDef.h" //xRisenx needed for #define SHOWALLDAMAGE
 
 class CTile  
@@ -20,10 +19,10 @@ public:
 	
 	CTile();
 	virtual ~CTile();	
-	DWORD m_dwOwnerTime;
-	DWORD m_dwEffectTime;
-	DWORD m_dwDeadOwnerTime;
-	DWORD m_dwDynamicObjectTime;
+	uint32_t m_dwOwnerTime;
+	uint32_t m_dwEffectTime;
+	uint32_t m_dwDeadOwnerTime;
+	uint32_t m_dwDynamicObjectTime;
 	
 	int   m_iChatMsg;
 	int   m_cItemColor; 
@@ -33,8 +32,8 @@ public:
 	int   m_iApprColor; 
 	int   m_iDeadChatMsg;
 
-	WORD  m_wDeadObjectID;
-	WORD  m_wObjectID;
+	uint16_t  m_wDeadObjectID;
+	uint16_t  m_wObjectID;
 
 	short m_sOwnerType;							// +B2C
 	short m_sAppr1;								// +B2E

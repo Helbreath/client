@@ -2,14 +2,62 @@
 #define COMMON_H
 #pragma once
 
-#include	<iostream>
-#include	<sstream>
+#include "../newsocket.h"
+#include <iostream>
+#include <sstream>
 #include <memory>
 #include <time.h>		   
-#include	"version.h"
-#include	"typedefs.h"
-#include	"lgnSvcs.h"
+#include <sys/timeb.h>
+#include "version.h"
+#include "typedefs.h"
+#include "lgnSvcs.h"
 #include "maps.h"
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+uint64_t unixtime()
+{
+#ifdef WIN32
+	struct __timeb64 tstruct;
+	_ftime64_s(&tstruct);
+#else
+	struct timeb tstruct;
+	ftime(&tstruct);
+#endif
+	return tstruct.millitm + tstruct.time * 1000;
+}
+
+uint32_t unixseconds()
+{
+#ifdef WIN32
+	struct __timeb64 tstruct;
+	_ftime64_s(&tstruct);
+#else
+	struct timeb tstruct;
+	ftime(&tstruct);
+#endif
+	return tstruct.time;
+}
+
+#ifndef WIN32
+#define ZeroMemory(a,b) memset(a, 0, b)
+typedef struct tagRECT
+{
+	int32_t left;
+	int32_t top;
+	int32_t right;
+	int32_t bottom;
+} RECT, *LPRECT;
+
+void SetRect(LPRECT lprc, int xLeft, int yTop, int xRight, int yBottom)
+{
+	lprc->left = xLeft;
+	lprc->top = yTop;
+	lprc->right = xRight;
+	lprc->bottom = yBottom;
+}
+#endif
 
 using namespace std;
 
@@ -73,10 +121,10 @@ enum GuildUpgrades{
 const struct GuildUpgrade{
 	string name;
 	GuildUpgrades type;
-	uint8 maxLvl;
-	uint32 costGold[5];
-	uint32 costMaj[5];
-	uint32 costCont[5];
+	uint8_t maxLvl;
+	uint32_t costGold[5];
+	uint32_t costMaj[5];
+	uint32_t costCont[5];
 } gldUps[GU_MAX] = {
 	{
 		"Warehouse", GU_WAREHOUSE, 4,
@@ -106,7 +154,7 @@ const struct GuildUpgrade{
 	}
 };
 
-const uint32 maxGWHItems[5] = { 0, 75, 75*2, 75*3, 75*4 };
+const uint32_t maxGWHItems[5] = { 0, 75, 75*2, 75*3, 75*4 };
 
 
 enum GuildRank
@@ -158,7 +206,7 @@ enum ChatType
 
 //-----------------------------------------------------------------------------------------------------------------------
 
-typedef uint32 UnitStatus;
+typedef uint32_t UnitStatus;
 
 enum StatusFlags
 {
@@ -237,8 +285,8 @@ enum EventType{
 static const char * eventName[] = { "", "Capture the Relic", "Destroy the Shield", "Crusade", "Apocalypse", "MonsterEvent"};
 
 struct Casualties{
-	uint32 deaths;
-	uint32 kills;
+	uint32_t deaths;
+	uint32_t kills;
 };
 
 //----------------------------------------------------------------------------------------------------------------------------------------
@@ -255,8 +303,8 @@ enum HeroReq{
 };
 
 static const struct HeroItemCost{
-	uint32 EK;
-	uint32 contribution;
+	uint32_t EK;
+	uint32_t contribution;
 }heroPrice[HR_MAX] =
 {
 	{300,0},		// HR_CAPE
@@ -268,7 +316,7 @@ static const struct HeroItemCost{
 	{150,15}		// HR_LEGGINGS
 };
 
-static const uint32 HeroItemID[HR_MAX][MAXSIDES-1][2] =
+static const uint32_t HeroItemID[HR_MAX][MAXSIDES-1][2] =
 {
 	{	// HR_CAPE
 		{400, 400},		// ARESDEN
@@ -330,7 +378,7 @@ enum Directions{
 #define logb(n, b)	(log(n)/log(b))
 
 struct Point{
-	int32 x,y;
+	int32_t x,y;
 	
 	bool operator == (Point p)
 	{
@@ -390,7 +438,7 @@ struct Point{
 
 //----------------------------------------------- TYPEDEFS ----------------------------------------------------------------------------------
 
-typedef map<int16, class CGuild*> GuildMap;
+typedef map<int16_t, class CGuild*> GuildMap;
 typedef GuildMap::iterator GuildMapIter;
 typedef GuildMap::const_iterator GuildMapCIter;
 typedef std::auto_ptr<class CAstoria> Astoria;
@@ -399,6 +447,6 @@ typedef std::list<class CClient*> ClientList;
 typedef ClientList::iterator ClientListIter;
 typedef ClientList::const_iterator ClientListCIter;
 
-typedef uint32 CharID;
+typedef uint32_t CharID;
 
 #endif //COMMON_H

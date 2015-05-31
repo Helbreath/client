@@ -1,3 +1,4 @@
+/*
 // XSocket.cpp: implementation of the XSocket class.
 //
 //////////////////////////////////////////////////////////////////////
@@ -659,3 +660,4 @@ void XSocket::GetMACaddress(char * buffer)
 
 }
 
+*/
