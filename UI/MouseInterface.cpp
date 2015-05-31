@@ -13,7 +13,7 @@ CMouseInterface::CMouseInterface()
 	m_cPrevPress = 0;
 	for (int i = 1; i < MAXRECTS; i++) 
 		m_pRect[i] = 0;
-	m_dwTime = unixseconds();
+	m_dwTime = unixtime();
 }
 
 CMouseInterface::~CMouseInterface()

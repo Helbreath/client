@@ -15,7 +15,7 @@ CMapData::CMapData(class CGame * pGame)
 	m_pGame = pGame;
 	memset(m_iObjectIDcacheLocX, 0, sizeof(m_iObjectIDcacheLocX));
 	memset(m_iObjectIDcacheLocY, 0, sizeof(m_iObjectIDcacheLocY));
-	m_dwDOframeTime = m_dwFrameTime = unixseconds();
+	m_dwDOframeTime = m_dwFrameTime = unixtime();
 
 	for (i = 0; i < TOTALCHARACTERS; i++ ) 
 	{	m_stFrame[i][OBJECTMOVE].m_sMaxFrame = 7;
@@ -1161,7 +1161,7 @@ CMapData::CMapData(class CGame * pGame)
 void CMapData::Init()
 {
 	int x, y;
-	m_dwFrameCheckTime = unixseconds();
+	m_dwFrameCheckTime = unixtime();
 	m_dwFrameAdjustTime = 0;
 	m_sPivotX = -1;
 	m_sPivotY = -1;
@@ -2088,7 +2088,7 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 	int  iDelay;
 	int  iRet, iSoundIndex, iSkipFrame;
 	int  cDir, cTotalFrame, cFrameMoveDots;
-	static uint32_t S_dwUpdateTime = unixseconds();
+	static uint32_t S_dwUpdateTime = unixtime();
 	int   sWeaponType, sCenterX, sCenterY, sDist;//, sAbsX, sAbsY;
 
 	bool  bAutoUpdate = false, dynObjsNeedUpdate = false;
@@ -2096,7 +2096,7 @@ int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short s
 	long  lPan;
 
 	iRet = 0;
-	dwTime = dwRealTime = unixseconds();
+	dwTime = dwRealTime = unixtime();
 	if ((dwTime - m_dwFrameTime) >= 70)
 		m_dwFrameTime = dwTime;
 
@@ -4362,7 +4362,7 @@ bool CMapData::bSetDynamicObject(short sX, short sY, uint16_t wID, short sType, 
 
 	m_pData[dX][dY].m_sDynamicObjectType  = sType;
 	m_pData[dX][dY].m_cDynamicObjectFrame = rand() % 5;
-	m_pData[dX][dY].m_dwDynamicObjectTime = unixseconds();
+	m_pData[dX][dY].m_dwDynamicObjectTime = unixtime();
 
 	m_pData[dX][dY].m_cDynamicObjectData1 = 0;
 	m_pData[dX][dY].m_cDynamicObjectData2 = 0;
@@ -4379,7 +4379,7 @@ bool CMapData::bSetDynamicObject(short sX, short sY, uint16_t wID, short sType, 
 		}else if ((sPrevType == DYNAMICOBJECT_PCLOUD_BEGIN) || (sPrevType == DYNAMICOBJECT_PCLOUD_LOOP)) 
 		{	m_pData[dX][dY].m_sDynamicObjectType  = DYNAMICOBJECT_PCLOUD_END;
 			m_pData[dX][dY].m_cDynamicObjectFrame = 0;
-			m_pData[dX][dY].m_dwDynamicObjectTime = unixseconds();
+			m_pData[dX][dY].m_dwDynamicObjectTime = unixtime();
 		}
 		break;
 

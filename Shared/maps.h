@@ -106,6 +106,6 @@ static const char * mapNames[MAXMAPNAMES] = {
 /* 91 */ "outlands"
 };
 
-#define GetMapName(i)	( ((uint32)i < MAXMAPNAMES) ? mapNames[i] : mapNames[0] )
+#define GetMapName(i)	( ((uint32_t)i < MAXMAPNAMES) ? mapNames[i] : mapNames[0] )
 
 #endif //MAPS_H

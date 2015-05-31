@@ -16,29 +16,8 @@
 #include <windows.h>
 #endif
 
-uint64_t unixtime()
-{
-#ifdef WIN32
-	struct __timeb64 tstruct;
-	_ftime64_s(&tstruct);
-#else
-	struct timeb tstruct;
-	ftime(&tstruct);
-#endif
-	return tstruct.millitm + tstruct.time * 1000;
-}
-
-uint32_t unixseconds()
-{
-#ifdef WIN32
-	struct __timeb64 tstruct;
-	_ftime64_s(&tstruct);
-#else
-	struct timeb tstruct;
-	ftime(&tstruct);
-#endif
-	return tstruct.time;
-}
+extern uint64_t unixtime();
+extern uint32_t unixseconds();
 
 #ifndef WIN32
 #define ZeroMemory(a,b) memset(a, 0, b)
@@ -271,7 +250,7 @@ enum Element
 };
 //----------------------------------Events-------------------------------------------------------------------------------------
 
-#define RELICVICTORYTIME		(10 _m)
+#define RELICVICTORYTIME		(10 * 1000)
 
 enum EventType{
 	ET_NONE,

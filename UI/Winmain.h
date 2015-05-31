@@ -9,7 +9,7 @@ void OnDestroy();
 bool Initialize(char * pCmdLine);
 // void CALLBACK _TimerFunc(UINT wID, UINT wUser, DWORD dwUSer, DWORD dw1, DWORD dw2);
 // MMRESULT _StartTimer(DWORD dwTime);
-void SetKeyboardHook(bool enable);
+//void SetKeyboardHook(bool enable);
 
 // void _StopTimer(MMRESULT timerid);
 void CPSocketConnet() ;

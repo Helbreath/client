@@ -21,17 +21,15 @@ extern IrrlichtDevice * device;
 extern video::IVideoDriver * driver;
 extern scene::ISceneManager* smgr;
 
-extern bool CheckCheating();
-extern bool CheckHackProgram();
+// extern bool CheckCheating();
+// extern bool CheckHackProgram();
 
 extern char G_cSpriteAlphaDegree;
 
 extern char G_cCmdLine[256], G_cCmdLineTokenA[120], G_cCmdLineTokenA_Lowercase[120], G_cCmdLineTokenB[120], G_cCmdLineTokenC[120], G_cCmdLineTokenD[120], G_cCmdLineTokenE[120];
-extern bool G_bIsCalcSocketConnected;
-extern uint32_t G_dwCalcSocketTime, G_dwCalcSocketSendTime;
 extern void * G_hWnd;
 extern void * G_hInstance;
-extern void SetKeyboardHook(bool enable);
+//extern void SetKeyboardHook(bool enable);
 
 char _cDrawingOrder[]            = {0, 1, 0, 0, 0, 0, 0, 1, 1};
 char _cMantleDrawingOrder[]      = {0, 1, 1, 1, 0, 0, 0, 2, 2};
@@ -62,6 +60,29 @@ bool bNpcBar = false;
 
 std::unordered_map<uint8_t, const char*> g_socketMap;
 
+uint64_t unixtime()
+{
+#ifdef WIN32
+	struct __timeb64 tstruct;
+	_ftime64_s(&tstruct);
+#else
+	struct timeb tstruct;
+	ftime(&tstruct);
+#endif
+	return tstruct.millitm + tstruct.time * 1000;
+}
+
+uint32_t unixseconds()
+{
+#ifdef WIN32
+	struct __timeb64 tstruct;
+	_ftime64_s(&tstruct);
+#else
+	struct timeb tstruct;
+	ftime(&tstruct);
+#endif
+	return tstruct.time;
+}
 
 bool CGame::OnEvent(const irr::SEvent& event)
 {
@@ -71,12 +92,14 @@ bool CGame::OnEvent(const irr::SEvent& event)
 		KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
 		if (event.KeyInput.PressedDown)
 		{
-			//OnKeyDown(event.KeyInput.Key);
+			if (GetText(0, WM_CHAR, event.KeyInput.Key, 0))
+				return true;
+			OnKeyDown(event.KeyInput.Key);
 			//lastchar = event.KeyInput.Key;
 		}
 		else
 		{
-			//OnKeyUp(event.KeyInput.Key);
+			OnKeyUp(event.KeyInput.Key);
 		}
 		return false;
 	}
@@ -297,6 +320,7 @@ uint32_t CGame::ReadSettingsVar(const char * var)
 // 
 // 	RegCloseKey(key);
 // 	return val;
+	return 0;
 }
 
 void CGame::WriteSettings()
@@ -1242,7 +1266,7 @@ void CGame::Quit()
 void CGame::UpdateScreen()
 {
 	G_pGame->driver->beginScene(true, true);
-	G_dwGlobalTime = unixseconds();
+	G_dwGlobalTime = unixtime();
 	switch (m_cGameMode) {
 #ifdef MAKE_ACCOUNT
 	case GAMEMODE_ONAGREEMENT:
@@ -1427,7 +1451,7 @@ void CGame::handle_connect(const boost::system::error_code& e)
 
 		start(new_connection_);
 		new_connection_.reset(new connection(io_service_, *this, request_handler_));
-		ConnectionEstablishHandler(SERVERTYPE_GAME);
+		ConnectionEstablishHandler(SERVERTYPE_LOG);
 	}
 }
 
@@ -1600,7 +1624,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
 	StreamWrite sw;
 
 	if (_socket == nullptr) return false;
-	dwTime = unixseconds();
+	dwTime = unixtime();
 
 	cKey = (char)(rand() % 255) +1;
 
@@ -1844,7 +1868,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
 			cp = (char *)(cMsg + INDEX2_MSGTYPE + 2);
 			dwp = (uint32_t *)cp;
 			*dwp = dwTime;
-			CheckHackProcessesMulti(); // Anti Hack xRisenx
+			//CheckHackProcessesMulti(); // Anti Hack xRisenx
 			cp += 4;
 			_socket->write(cMsg, 10);
 
@@ -4622,7 +4646,7 @@ void CGame::UpdateScreen_OnLoading_Progress()
 void CGame::OnTimer()
 {
 	if( m_cGameMode < 0 ) return;
-	uint32_t dwTime = unixseconds();
+	uint32_t dwTime = unixtime();
 
 	if (m_cGameMode != GAMEMODE_ONLOADING) {
 		if ((dwTime - m_dwCheckSprTime) > 8000 )
@@ -4649,20 +4673,20 @@ void CGame::OnTimer()
 		if ((dwTime - m_dwCheckChatTime) > 2000)
 		{
 //#ifndef _DEBUG
-			if( CheckCheating() /*|| CheckHackProgram()*/ )
-			{
-				MessageBoxA(*(HWND*)m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modification.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
-				ChangeGameMode(GAMEMODE_ONQUIT);
-				_socket->stop();
-				m_bEscPressed = false;
-				PlaySound('E', 14, 5);
-// 				if (m_bSoundFlag) m_pESound[38]->bStop();
-// 				if ((m_bSoundFlag) && (m_bMusicStat == TRUE))
-// 				{
-// 					if (m_pBGM != NULL) m_pBGM->bStop();
-// 				}//DIRECTX
-				exit(1600);
-			}
+// 			if( CheckCheating() /*|| CheckHackProgram()*/ )
+// 			{
+// 				MessageBoxA(*(HWND*)m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modification.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
+// 				ChangeGameMode(GAMEMODE_ONQUIT);
+// 				_socket->stop();
+// 				m_bEscPressed = false;
+// 				PlaySound('E', 14, 5);
+// // 				if (m_bSoundFlag) m_pESound[38]->bStop();
+// // 				if ((m_bSoundFlag) && (m_bMusicStat == TRUE))
+// // 				{
+// // 					if (m_pBGM != NULL) m_pBGM->bStop();
+// // 				}//DIRECTX
+// 				exit(1600);
+// 			}
 //#endif
 
 			m_dwCheckChatTime = m_dwTime;
@@ -4678,21 +4702,6 @@ void CGame::OnTimer()
 					return;
 				}
 			}else m_iNetLagCount = 0;
-		}
-
-		if ((G_bIsCalcSocketConnected == false) && ((dwTime - G_dwCalcSocketTime) > 5000))
-		{
-			gamemode = 0;
-			_socket->stop();
-			ChangeGameMode(GAMEMODE_ONQUIT);
-			m_bEscPressed = false;
-			PlaySound('E', 14, 5);
-// 			if (m_bSoundFlag) m_pESound[38]->bStop();
-// 			if ((m_bSoundFlag) && (m_bMusicStat == TRUE))
-// 			{
-// 				if (m_pBGM != NULL) m_pBGM->bStop();
-// 			}//DIRECTX
-			return;
 		}
 	}
 }
@@ -5049,7 +5058,7 @@ void CGame::InitGameSettings()
 
 	m_iNetLagCount = 0;
 
-	m_dwEnvEffectTime = unixseconds();
+	m_dwEnvEffectTime = unixtime();
 
 	for (i = 0; i < MAXGUILDNAMES; i++) {
 		m_stGuildName[i].dwRefTime = 0;
@@ -5657,7 +5666,7 @@ void CGame::DlgBoxClick_Guild()
 						return;
 					}
 
-					if(unixseconds() - m_dwDamagedTime < 10 _s)
+					if(unixtime() - m_dwDamagedTime < 10 * 1000)
 					{
 						AddEventList(DLGBOXCLICK_GUILDSUMMONS1, CHAT_GM);
 						return;
@@ -9480,30 +9489,7 @@ void CGame::RequestFullObjectData(uint16_t wObjectID)
 	wp  = (uint16_t *)(cMsg + INDEX2_MSGTYPE);
 	*wp = wObjectID;
 
-	iRet = m_pGSock->iSendMsg((char *)cMsg, 6);
-
-	switch (iRet) {
-	case XSOCKEVENT_SOCKETCLOSED:
-	case XSOCKEVENT_SOCKETERROR:
-	case XSOCKEVENT_QUENEFULL:
-		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
-
-		gamemode = 0;
-		delete m_pGSock;
-		m_pLSock = m_pGSock = 0;
-		break;
-
-	case XSOCKEVENT_CRITICALERROR:
-		delete m_pGSock;
-		m_pLSock = m_pGSock = 0;
-
-		if (G_pCalcSocket != 0) {
-			delete G_pCalcSocket;
-			G_pCalcSocket = 0;
-		}
-		SendMessage(m_hWnd, WM_DESTROY, 0, 0);
-		break;
-	}
+	_socket->write(cMsg, 6);
 }
 
 bool   CGame::DrawObject_OnAttack(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY)
@@ -15473,47 +15459,6 @@ void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
 	}
 }
 
-void CGame::OnLogSocketEvent(WPARAM wParam, LPARAM lParam)
-{
-	int iRet;
-	char * pData;
-	uint32_t  dwMsgSize;
-	if (m_pLSock == 0) return;
-
-	iRet = m_pLSock->iOnSocketEvent(wParam, lParam);
-	switch (iRet) {
-	case XSOCKEVENT_CONNECTIONESTABLISH:
-		ConnectionEstablishHandler(SERVERTYPE_LOG);
-		break;
-
-	case XSOCKEVENT_READCOMPLETE:
-		pData = m_pLSock->pGetRcvDataPointer(&dwMsgSize);
-		LogRecvMsgHandler(pData);
-		m_dwTime = G_dwGlobalTime;
-		break;
-
-	case XSOCKEVENT_SOCKETCLOSED:
-		gamemode = 0;
-		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
-		delete m_pLSock;
-		m_pGSock = m_pLSock = 0;
-		break;
-
-	case XSOCKEVENT_SOCKETERROR:
-		gamemode = 0;
-		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
-		delete m_pLSock;
-		m_pGSock = m_pLSock = 0;
-		break;
-
-	case XSOCKEVENT_CRITICALERROR:
-		gamemode = 0;
-		delete m_pLSock;
-		m_pGSock = m_pLSock = 0;
-		break;
-	}
-}
-
 void CGame::LogResponseHandler(char * pData)
 {
  uint16_t  * wp, wResponse;
@@ -16013,7 +15958,6 @@ void CGame::LogResponseHandler(char * pData)
 			cp += 20;
 			//m_pGSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
 			gamemode = 1;
-			m_pGSock = m_pLSock;
 			ConnectionEstablishHandler(SERVERTYPE_GAME);
 // 			if (m_iGameServerMode == 1)
 // 			{
@@ -16289,7 +16233,7 @@ void CGame::PutChatScrollList(char * txt, char cType)
 	if(m_tabbedNotification && !m_bIsProgramActive) 
 	{
 		if(strstr(txt, m_cPlayerName))
-			FlashWindow(m_hWnd,true);
+			FlashWindow(*(HWND*)m_hWnd,true);
 	}
 }
 
@@ -16525,7 +16469,7 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 // 					if ((indexY % 2) + (indexX % 2) == 1)
 // 						m_pTileSpr[sSpr]->PutSpriteRGB(ix - 16 + sModX, iy - 16 + sModY, sSprFrame, (uint32_t)irr::video::SColor(255, 200, 0, 0).color, m_dwCurTime);//color ground
 // 					else
-						m_pTileSpr[sSpr]->PutSpriteFastNoColorKeyDst((LPDIRECTDRAWSURFACE7)0, ix - 16 + sModX, iy - 16 + sModY, sSprFrame, m_dwCurTime);
+						m_pTileSpr[sSpr]->DrawSpriteNCK(ix - 16 + sModX, iy - 16 + sModY, sSprFrame, m_dwCurTime);
 				}
 				indexX++;
 			}
@@ -20336,12 +20280,14 @@ void CGame::ShowReceivedString(bool bIsHide)
 #else
 	strcpy(G_cTxt2, m_pInputBuffer);
 	if( (m_cEdit[0] != 0) && ( strlen(m_pInputBuffer)+strlen(m_cEdit)+1 <= m_inputMaxLen ) )
-	{	strcpy(G_cTxt2 + strlen(m_pInputBuffer), m_cEdit);
+	{
+		strcpy(G_cTxt2 + strlen(m_pInputBuffer), m_cEdit);
 	}
 #endif
 	if (bIsHide == true)
-	{	for (unsigned char i = 0; i < strlen(G_cTxt2); i++)
-		if (G_cTxt2[i] != 0) G_cTxt2[i] = '*';
+	{
+		for (unsigned char i = 0; i < strlen(G_cTxt2); i++)
+			if (G_cTxt2[i] != 0) G_cTxt2[i] = '*';
 	}
 
 	if( (G_dwGlobalTime%400) < 210 ) 
@@ -20895,10 +20841,10 @@ void CGame::DrawAstoriaStats()
 
 	if(m_relicOwnedTime != 0)
 	{
-		uint32_t currTime = unixseconds();
+		uint32_t currTime = unixtime();
 		wsprintfA( G_cTxt, "Time left for %s to win: %u:%.2u", sideName[m_relicOwnedSide],
-			((m_relicOwnedTime + RELICVICTORYTIME - currTime) / CLOCKS_PER_SEC) / 60,
-			((m_relicOwnedTime + RELICVICTORYTIME - currTime) / CLOCKS_PER_SEC) % 60
+			((m_relicOwnedTime + RELICVICTORYTIME - currTime) / 1000) / 60,
+			((m_relicOwnedTime + RELICVICTORYTIME - currTime) / 1000) % 60
 			);
 		PutString_SprFont3(190, 25, G_cTxt, m_wR[3]*4, m_wG[3]*4, m_wB[3]*4, true, 2);
 	}
@@ -21488,7 +21434,7 @@ void CGame::DrawDialogBox_Chat()
 	iPointerLoc = 105 - iPointerLoc;
 	DrawNewDialogBox(SPRID_INTERFACE_ND_GAME2, sX +346, sY + 33 + iPointerLoc, 7);
 
-	MsgVec::reverse_iterator it = m_chatDisplay->rbegin() + dlg.sView;
+	std::vector<CMsg*>::reverse_iterator it = m_chatDisplay->rbegin() + dlg.sView;
 
 	for(int i = 0;	i < 8; i++, ++it)
 	{
@@ -21497,7 +21443,7 @@ void CGame::DrawDialogBox_Chat()
 
 		CMsg * msg = (*it);
 
-		int32 r = 0, g = 0, b = 0;
+		int32_t r = 0, g = 0, b = 0;
 		switch( msg->m_dwTime )
 		{
 		case CHAT_NORMAL:  
@@ -21646,7 +21592,7 @@ void CGame::EnableChat(ChatType t, bool enable)
 
 	if(enable)
 	{
-		MsgVec * result = new MsgVec(m_chatDisplay->size() + m_chatMsgs[t].size());
+		std::vector<CMsg*> * result = new std::vector<CMsg*>(m_chatDisplay->size() + m_chatMsgs[t].size());
 		merge(m_chatDisplay->begin(), m_chatDisplay->end(), 
 			m_chatMsgs[t].begin(), m_chatMsgs[t].end(), result->begin(), &CMsg::OrderPred);
 
@@ -21656,7 +21602,7 @@ void CGame::EnableChat(ChatType t, bool enable)
 	else
 	{
 		CMsg::SetPred(t);
-		MsgVec::iterator remIt = remove_if(m_chatDisplay->begin(), m_chatDisplay->end(), CMsg::RemovePred);
+		std::vector<CMsg*>::iterator remIt = remove_if(m_chatDisplay->begin(), m_chatDisplay->end(), CMsg::RemovePred);
 		m_chatDisplay->erase(remIt, m_chatDisplay->end());
 	}
 }
@@ -21676,7 +21622,7 @@ void CGame::DlgBoxClick_ItemUpgrade()
 			
 			PlaySound('E', 44, 0);
 			m_dialogBoxes[34].SetMode(2);
-			m_dialogBoxes[34].dwV1 = unixseconds();
+			m_dialogBoxes[34].dwV1 = unixtime();
 		}
 		else if (onButton == 2)
 		{	// Cancel
@@ -21730,7 +21676,7 @@ void CGame::DlgBoxClick_ItemUpgrade()
 		{	// Upgrade
 			PlaySound('E', 44, 0);
 			m_dialogBoxes[34].SetMode(2);
-			m_dialogBoxes[34].dwV1 = unixseconds();
+			m_dialogBoxes[34].dwV1 = unixtime();
 		}
 		if (onButton == 2)
 		{	// Cancel
@@ -21743,7 +21689,7 @@ void CGame::DlgBoxClick_ItemUpgrade()
 		{	// Upgrade
 			PlaySound('E', 44, 0);
 			m_dialogBoxes[34].SetMode(2);
-			m_dialogBoxes[34].dwV1 = unixseconds();
+			m_dialogBoxes[34].dwV1 = unixtime();
 		}
 		if (onButton == 2)
 		{	// Cancel
@@ -22447,7 +22393,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
  cLB = (m_stMCursor.LB==true)?1:0;cRB = (m_stMCursor.RB==true)?1:0;cMB = (m_stMCursor.MB==true)?1:0;
 
 
-	dwTime = unixseconds();
+	dwTime = unixtime();
 	sX = 0;
 	sY = 0;
 	cTotalChar = 0;
@@ -22485,7 +22431,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
 		m_cArrowPressed = 0;
 		m_bEnterPressed = false;
 
-		dwCTime = unixseconds();
+		dwCTime = unixtime();
 	}
 
 	m_cGameModeCount++;
@@ -22613,11 +22559,12 @@ void CGame::UpdateScreen_OnSelectCharacter()
 							ZeroMemory(m_cMapName, sizeof(m_cMapName));
 							memcpy(m_cMapName, m_pCharList[m_cCurFocus-1]->m_cMapName, 10);
 							delete pMI;
-							if (!m_pLSock)
+							if (_socket == nullptr)
 							{
-								m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-								m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
-								m_pLSock->bInitBufferSize(30000);
+								boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+								new_connection_->socket().async_connect(endpoint,
+									boost::bind(&CGame::handle_connect, this,
+									boost::asio::placeholders::error));
 							}
 							else
 							{
@@ -22658,11 +22605,12 @@ void CGame::UpdateScreen_OnSelectCharacter()
 						ZeroMemory(m_cMapName, sizeof(m_cMapName));
 						memcpy(m_cMapName, m_pCharList[m_cCurFocus-1]->m_cMapName, 10);
 						delete pMI;
-						if (!m_pLSock)
+						if (_socket == nullptr)
 						{
-							m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-							m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
-							m_pLSock->bInitBufferSize(30000);
+							boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+							new_connection_->socket().async_connect(endpoint,
+								boost::bind(&CGame::handle_connect, this,
+								boost::asio::placeholders::error));
 						}
 						else
 						{
@@ -23167,7 +23115,7 @@ void CGame::DlgBoxClick_CityhallMenu()
 			} 
 			else if(cmd >= CMD_LGNSVC_TRADESCAN && cmd <= CMD_LGNSVC_TRADEBSW)
 			{
-				int32 spellid = -1;
+				int32_t spellid = -1;
 
 				switch(cmd)
 				{
@@ -23461,7 +23409,7 @@ void CGame::_DrawBlackRect(int iSize)
  int ix, iy, sx, sy, dcx, dcy;
  uint32_t dwTime;
 
-	dwTime = unixseconds();
+	dwTime = unixtime();
 
 	dcx = 40 - iSize*2;
 	dcy = 30 - iSize*2;
@@ -26318,7 +26266,7 @@ void CGame::UpdateScreen_OnConnecting()
 {
  short sX, sY, msX, msY, msZ;
  char cLB, cRB, cMB;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
  static class CMouseInterface * pMI;
  static uint32_t dwMTime, dwCTime;
 
@@ -26329,7 +26277,7 @@ void CGame::UpdateScreen_OnConnecting()
 	if (m_cGameModeCount == 0) {
 		m_bEnterPressed = false;
 		m_bEscPressed   = false;
-		dwCTime = dwMTime = unixseconds();
+		dwCTime = dwMTime = unixtime();
 	}
 	m_cGameModeCount++;
 	if (m_cGameModeCount > 100) m_cGameModeCount = 100;
@@ -26341,15 +26289,9 @@ void CGame::UpdateScreen_OnConnecting()
 			isItemLoaded = false;
 			ChangeGameMode(GAMEMODE_ONMAINMENU);
 			gamemode = 0;
-			if (m_pLSock != 0)
+			if (_socket)
 			{
-				delete m_pLSock;
-				m_pLSock = 0;
-			}
-			if (m_pGSock != 0)
-			{
-				//delete m_pGSock;
-				m_pGSock = 0;
+				_socket->stop();
 			}
 		}
 		m_bEscPressed = false;
@@ -26427,7 +26369,7 @@ void CGame::UpdateScreen_OnWaitInitData()
 {
  short msX, msY, msZ;
  char cLB, cRB, cMB;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
 
  msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
  cLB = (m_stMCursor.LB==true)?1:0;cRB = (m_stMCursor.RB==true)?1:0;cMB = (m_stMCursor.MB==true)?1:0;
@@ -26446,15 +26388,9 @@ void CGame::UpdateScreen_OnWaitInitData()
 			isItemLoaded = false;
 			ChangeGameMode(GAMEMODE_ONMAINMENU);
 			gamemode = 0;
-			if (m_pLSock != 0)
+			if (_socket)
 			{
-				delete m_pLSock;
-				m_pLSock = 0;
-			}
-			if (m_pGSock != 0)
-			{
-				//delete m_pGSock;
-				m_pGSock = 0;
+				_socket->stop();
 			}
 		}
 		m_bEscPressed = false;
@@ -26509,7 +26445,7 @@ void CGame::UpdateScreen_OnConnectionLost()
 
 	//if (//DIRECTX m_DDraw.iFlip() == DDERR_SURFACELOST) RestoreSprites();//DIRECTX
 
-	if ((unixseconds() - m_dwTime) > 5000)
+	if ((unixtime() - m_dwTime) > 5000)
 	{
 		isItemLoaded = false;
 		// ShadowEvil - Party close on DC fix
@@ -26523,7 +26459,7 @@ void CGame::UpdateScreen_OnConnectionLost()
 bool CGame::_bDraw_OnCreateNewCharacter(char * pName, short msX, short msY, int iPoint)		// DrawCreateCharacter
 {
  bool bFlag = true;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
  int i=0;
 
 	////DIRECTX m_DDraw.ClearBackB4();//DIRECTX
@@ -26828,7 +26764,7 @@ void CGame::UpdateScreen_OnCreateNewCharacter()		// DrawCreateCharacter
  short msX, msY, msZ;
  bool bFlag;
  static uint32_t dwMTime;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
 
  msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
  cLB = (m_stMCursor.LB==true)?1:0;cRB = (m_stMCursor.RB==true)?1:0;cMB = (m_stMCursor.MB==true)?1:0;
@@ -26936,7 +26872,7 @@ void CGame::UpdateScreen_OnCreateNewCharacter()		// DrawCreateCharacter
 		m_cMaxFocus = 6;
 		m_bEnterPressed = false;
 		m_cArrowPressed = 0;
-		dwMTime = unixseconds();
+		dwMTime = unixtime();
 		StartInputString(239+3, 153+3, 11, cName);
 		ClearInputString();
 	}
@@ -27140,11 +27076,12 @@ void CGame::UpdateScreen_OnCreateNewCharacter()		// DrawCreateCharacter
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg,"22");
 			delete pMI;
-			if (!m_pLSock)
+			if (_socket == nullptr)
 			{
-				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-				m_pLSock->bInitBufferSize(30000);
+				boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+				new_connection_->socket().async_connect(endpoint,
+					boost::bind(&CGame::handle_connect, this,
+					boost::asio::placeholders::error));
 			}
 			else
 			{
@@ -27589,7 +27526,7 @@ void CGame::UpdateScreen_OnAgreement()
  char  cMIresult;
  static class CMouseInterface * pMI;
  int i, iTotalLines, iPointerLoc;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
  double d1,d2,d3;
  int iMIbuttonNum;
 
@@ -27706,7 +27643,7 @@ void CGame::UpdateScreen_OnCreateNewAccount()
  int  iMIbuttonNum;
  static class CMouseInterface * pMI;
  static char cName[12], cPassword[12], cConfirm[12], cPrevFocus, cSSN_A[8], cSSN_B[8], cQuiz[44] ,cAnswer[20], cTempQuiz[44] ;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
  int iFlag = 0;
 
  msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
@@ -28219,11 +28156,12 @@ void CGame::UpdateScreen_OnCreateNewAccount()
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "00");
 			delete pMI;
-			if (!m_pLSock)
+			if (_socket == nullptr)
 			{
-				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-				m_pLSock->bInitBufferSize(30000);
+				boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+				new_connection_->socket().async_connect(endpoint,
+					boost::bind(&CGame::handle_connect, this,
+					boost::asio::placeholders::error));
 			}
 			else
 			{
@@ -28295,11 +28233,12 @@ void CGame::UpdateScreen_OnCreateNewAccount()
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "00");
 			delete pMI;
-			if (!m_pLSock)
+			if (_socket == nullptr)
 			{
-				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-				m_pLSock->bInitBufferSize(30000);
+				boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+				new_connection_->socket().async_connect(endpoint,
+					boost::bind(&CGame::handle_connect, this,
+					boost::asio::placeholders::error));
 			}
 			else
 			{
@@ -28441,10 +28380,10 @@ void CGame::UpdateScreen_OnLogin()
 			break;
 		case 2:
 		case 3:
-			if(CheckCheating()) {
-				MessageBoxA(m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modifcation.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
-				exit(1600);
-			}
+// 			if(CheckCheating()) {
+// 				MessageBoxA(*(HWND*)m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modification.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
+// 				exit(1600);
+// 			}
 			if ((strlen(cName) == 0) || (strlen(cPassword) == 0)) break;
 			ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
 			ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
@@ -28455,11 +28394,12 @@ void CGame::UpdateScreen_OnLogin()
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "11");
 			delete pMI;
-			if (!m_pLSock)
+			if (_socket == nullptr)
 			{
-				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
-				m_pLSock->bInitBufferSize(30000);
+				boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+				new_connection_->socket().async_connect(endpoint,
+					boost::bind(&CGame::handle_connect, this,
+					boost::asio::placeholders::error));
 			}
 			else
 			{
@@ -28528,10 +28468,10 @@ void CGame::UpdateScreen_OnLogin()
 			break;
 
 		case 3:
-			if(CheckCheating()) {
-				MessageBoxA(m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modifcation.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
-				exit(1600);
-			}
+// 			if(CheckCheating()) {
+// 				MessageBoxA(*(HWND*)m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modification.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
+// 				exit(1600);
+// 			}
 			if ((strlen(cName) == 0) || (strlen(cPassword) == 0)) break;
 			EndInputString();
 			ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
@@ -28543,11 +28483,12 @@ void CGame::UpdateScreen_OnLogin()
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "11");
 			delete pMI;
-			if (!m_pLSock)
+			if (_socket == nullptr)
 			{
-				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort +(rand()%1), WM_USER_LOGSOCKETEVENT);
-				m_pLSock->bInitBufferSize(30000);
+				boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+				new_connection_->socket().async_connect(endpoint,
+					boost::bind(&CGame::handle_connect, this,
+					boost::asio::placeholders::error));
 			}
 			else
 			{
@@ -28622,7 +28563,7 @@ void CGame::UpdateScreen_OnSelectServer()
  int  iMIbuttonNum;
  static class CMouseInterface * pMI;
  static char  cPrevFocus;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
  bool bFlag = true;
 
  msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
@@ -28865,7 +28806,7 @@ void CGame::OnSysKeyUp(WPARAM wParam)
 void CGame::OnKeyUp(WPARAM wParam)
 {
  int i=0;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
  static uint32_t dwPrevTabTime = 0;
 
 	switch (wParam) {
@@ -29353,7 +29294,7 @@ void CGame::OnKeyUp(WPARAM wParam)
 		if (!clipmousewindow)
 		{
 			RECT trect;
-			GetWindowRect(G_hWnd, &trect);
+			GetWindowRect(*(HWND*)&G_hWnd, &trect);
 			ClipCursor( &trect );
 			clipmousegame = true;
 			clipmousewindow = true;
@@ -29522,20 +29463,16 @@ void CGame::UpdateScreen_OnQuit()
 
  static class CMouseInterface * pMI;
 
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
 
  msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
  cLB = (m_stMCursor.LB==true)?1:0;cRB = (m_stMCursor.RB==true)?1:0;cMB = (m_stMCursor.MB==true)?1:0;
 
 
 	if (m_cGameModeCount == 0) {
-		if (G_pCalcSocket != 0)
-		{	delete G_pCalcSocket;
-			G_pCalcSocket = 0;
-		}
-		if (m_pGSock != 0)
-		{	delete m_pGSock;
-			m_pLSock = m_pGSock = 0;
+		if (_socket)
+		{
+			_socket->stop();
 		}
 		m_bEscPressed = false;
 		m_bEnterPressed = false;
@@ -29555,7 +29492,7 @@ void CGame::UpdateScreen_OnQuit()
 		m_bEnterPressed = false;
 		delete pMI;
 		ChangeGameMode(GAMEMODE_NULL);
-		SendMessage(m_hWnd, WM_DESTROY, 0, 0);
+		SendMessage(*(HWND*)m_hWnd, WM_DESTROY, 0, 0);
 		return;
 	}
 	DrawNewDialogBox(SPRID_INTERFACE_ND_QUIT, 0,0,0, true);
@@ -29577,7 +29514,7 @@ void CGame::UpdateScreen_OnQuit()
 	iMIbuttonNum = pMI->iGetStatus(msX, msY, cLB, &cMIresult);
 	if ((cMIresult == MIRESULT_CLICK) && (iMIbuttonNum == 1)) {
 		ChangeGameMode(GAMEMODE_NULL);
-		SendMessage(m_hWnd, WM_DESTROY, 0, 0);
+		SendMessage(*(HWND*)m_hWnd, WM_DESTROY, 0, 0);
 		delete pMI;
 		return;
 	}
@@ -29594,7 +29531,7 @@ void CGame::UpdateScreen_OnQueryForceLogin()
 
  static class CMouseInterface * pMI;
  static uint32_t dwCTime;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
 
  msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
  cLB = (m_stMCursor.LB==true)?1:0;cRB = (m_stMCursor.RB==true)?1:0;cMB = (m_stMCursor.MB==true)?1:0;
@@ -29610,7 +29547,7 @@ void CGame::UpdateScreen_OnQueryForceLogin()
 		m_bEscPressed   = false;
 		m_cArrowPressed = 0;
 
-		dwCTime = unixseconds();
+		dwCTime = unixtime();
 
 		PlaySound('E', 25, 0);
 	}
@@ -29676,11 +29613,12 @@ void CGame::UpdateScreen_OnQueryForceLogin()
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg,"33");
 			delete pMI;
-			if (!m_pLSock)
+			if (_socket == nullptr)
 			{
-				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-				m_pLSock->bInitBufferSize(30000);
+				boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+				new_connection_->socket().async_connect(endpoint,
+					boost::bind(&CGame::handle_connect, this,
+					boost::asio::placeholders::error));
 			}
 			else
 			{
@@ -29703,7 +29641,7 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
  int iYear, iMonth, iDay, iHour, iMinute;
  __int64 iTemp1, iTemp2;
  char cTotalChar = 0;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
 	sY = 10;
 	//DIRECTX m_DDraw.ClearBackB4();
 	DrawNewDialogBox(SPRID_INTERFACE_ND_SELECTCHAR, 0, 0, 0);
@@ -29905,7 +29843,7 @@ void CGame::UpdateScreen_OnWaitingResponse()
  short sX, sY, msX, msY, msZ;
  char cLB, cRB, cMB;
 
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
  //static class CMouseInterface * pMI;
  static uint32_t dwCTime;
 
@@ -29916,7 +29854,7 @@ void CGame::UpdateScreen_OnWaitingResponse()
 	if (m_cGameModeCount == 0)
 	{	m_bEnterPressed = false;
 		m_bEscPressed   = false;
-		dwCTime = unixseconds();
+		dwCTime = unixtime();
 	}
 	m_cGameModeCount++;
 	if (m_cGameModeCount > 100) m_cGameModeCount = 100;
@@ -29928,15 +29866,9 @@ void CGame::UpdateScreen_OnWaitingResponse()
 			isItemLoaded = false;
 			ChangeGameMode(GAMEMODE_ONMAINMENU);
 			gamemode = 0;
-			if (m_pLSock != 0)
+			if (_socket)
 			{
-				delete m_pLSock;
-				m_pLSock = 0;
-			}
-			if (m_pGSock != 0)
-			{
-				//delete m_pGSock;
-				m_pGSock = 0;
+				_socket->stop();
 			}
 		}
 		m_bEscPressed = false;
@@ -30009,7 +29941,7 @@ void CGame::UpdateScreen_OnQueryDeleteCharacter()
 
  static class CMouseInterface * pMI;
  static uint32_t dwCTime;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
 
  msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
  cLB = (m_stMCursor.LB==true)?1:0;cRB = (m_stMCursor.RB==true)?1:0;cMB = (m_stMCursor.MB==true)?1:0;
@@ -30024,7 +29956,7 @@ void CGame::UpdateScreen_OnQueryDeleteCharacter()
 		m_bEnterPressed = false;
 		m_cArrowPressed = 0;
 
-		dwCTime = unixseconds();
+		dwCTime = unixtime();
 
 		PlaySound('E', 25, 0);
 	}
@@ -30092,11 +30024,12 @@ void CGame::UpdateScreen_OnQueryDeleteCharacter()
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg,"33");
 			delete pMI;
-			if (!m_pLSock)
+			if (_socket == nullptr)
 			{
-				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-				m_pLSock->bInitBufferSize(30000);
+				boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+				new_connection_->socket().async_connect(endpoint,
+					boost::bind(&CGame::handle_connect, this,
+					boost::asio::placeholders::error));
 			}
 			else
 			{
@@ -30124,7 +30057,7 @@ void CGame::NotifyMsgHandler(char * pData)
  int   * ip, i, iV1, iV2, iV3, iV4;
  string str;
 
-	dwTime = unixseconds();
+	dwTime = unixtime();
 
 	wp   = (uint16_t *)(pData + INDEX2_MSGTYPE);
 	wEventType = *wp;
@@ -30877,7 +30810,7 @@ void CGame::NotifyMsgHandler(char * pData)
 					wsprintfA(G_cTxt, NOTIFY_MSG_HANDLER2 , cTxt);
 					AddEventList(G_cTxt, 10);
 				}
-				for (partyIterator it = m_stPartyMember.begin(); it < m_stPartyMember.end(); ++it)
+				for (std::vector<partyMember*>::iterator it = m_stPartyMember.begin(); it < m_stPartyMember.end(); ++it)
 				{
 					if ((*it)->cName.compare(cTxt) == 0) {
 						delete *it;
@@ -31395,7 +31328,7 @@ void CGame::NotifyMsgHandler(char * pData)
 		if (*sp == 1)
 		{	AddEventList(NOTIFY_MSG_HANDLER40);//"Observer Mode On. Press 'SHIFT + ESC' to Log Out..."
 			m_bIsObserverMode = true;
-			m_dwObserverCamTime = unixseconds();
+			m_dwObserverCamTime = unixtime();
 			char cName[12];
 			ZeroMemory(cName, sizeof(cName));
 			memcpy(cName, m_cPlayerName, 10);
@@ -32317,7 +32250,7 @@ void CGame::UpdateScreen_OnLogResMsg()
 {
  short msX, msY, msZ, sX, sY;
  char  cLB, cRB, cMB;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
  static uint32_t dwCTime;
  static class CMouseInterface * pMI;
  int   iMIbuttonNum;
@@ -32334,7 +32267,7 @@ void CGame::UpdateScreen_OnLogResMsg()
 		m_bEnterPressed = false;
 		m_bEscPressed   = false;
 		m_cArrowPressed = 0;
-		dwCTime = unixseconds();
+		dwCTime = unixtime();
 //DIRECTX		if (m_bSoundFlag) m_pESound[38]->bStop();
 	}
 	m_cGameModeCount++;
@@ -33092,7 +33025,7 @@ void CGame::DlgBoxDoubleClick_Inventory()
 				|| (m_pItemList[cItemID]->m_cItemType == ITEMTYPE_ARROW)
 				|| (m_pItemList[cItemID]->m_cItemType == ITEMTYPE_EAT) )
 			{	if (bCheckItemOperationEnabled(cItemID) == false) return;
-				if ((unixseconds() - m_dwDamagedTime) < 20 _s)
+				if ((unixtime() - m_dwDamagedTime) < 20 * 1000)
 				{	if ((m_pItemList[cItemID]->m_sSprite == 6) && (m_pItemList[cItemID]->m_sSpriteFrame == 9))
 					{	wsprintfA(G_cTxt, BDLBBOX_DOUBLE_CLICK_INVENTORY3, cStr1);//"Item %s: Scrolls cannot be used until 10 seconds after taking damage."
 						AddEventList(G_cTxt, 10);
@@ -33230,7 +33163,7 @@ void CGame::UpdateScreen_OnChangePassword()
  static class CMouseInterface * pMI;
  static char  cName[12], cPassword[12], cNewPassword[12], cNewPassConfirm[12], cPrevFocus;
  static uint32_t dwCTime;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
  bool bFlag = true;
 
  msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
@@ -33337,11 +33270,12 @@ void CGame::UpdateScreen_OnChangePassword()
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "41");
 			delete pMI;
-			if (!m_pLSock)
+			if (_socket == nullptr)
 			{
-				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-				m_pLSock->bInitBufferSize(30000);
+				boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+				new_connection_->socket().async_connect(endpoint,
+					boost::bind(&CGame::handle_connect, this,
+					boost::asio::placeholders::error));
 			}
 			else
 			{
@@ -33480,11 +33414,12 @@ void CGame::UpdateScreen_OnChangePassword()
 			ZeroMemory(m_cMsg, sizeof(m_cMsg));
 			strcpy(m_cMsg, "41");
 			delete pMI;
-			if (!m_pLSock)
+			if (_socket == nullptr)
 			{
-				m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-				m_pLSock->bConnect(m_cLogServerAddr, m_iLogServerPort, WM_USER_LOGSOCKETEVENT);
-				m_pLSock->bInitBufferSize(30000);
+				boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+				new_connection_->socket().async_connect(endpoint,
+					boost::bind(&CGame::handle_connect, this,
+					boost::asio::placeholders::error));
 			}
 			else
 			{
@@ -33630,7 +33565,7 @@ void CGame::DlgBoxClick_SysMenu()
 	if ((m_iHP <= 0) && (m_cRestartCount == -1))
 		{	
 			m_cRestartCount = 5;
-			m_dwRestartCountTime = unixseconds();
+			m_dwRestartCountTime = unixtime();
 			DisableDialogBox(19);
 			wsprintfA(G_cTxt, DLGBOX_CLICK_SYSMENU1, m_cRestartCount); // "Restarting game....%d"
 			AddEventList(G_cTxt, 10);
@@ -34072,20 +34007,17 @@ void CGame::UpdateScreen_OnVersionNotMatch()
  char cMIresult;
  int  iMIbuttonNum;
  static class CMouseInterface * pMI;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
 
  msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
  cLB = (m_stMCursor.LB==true)?1:0;cRB = (m_stMCursor.RB==true)?1:0;cMB = (m_stMCursor.MB==true)?1:0;
 
 
 	if (m_cGameModeCount == 0)
-	{	if (G_pCalcSocket != 0)
-		{	delete G_pCalcSocket;
-			G_pCalcSocket = 0;
-		}
-		if (m_pGSock != 0)
-		{	delete m_pGSock;
-			m_pGSock = 0;
+	{
+		if (_socket)
+		{
+			_socket->stop();
 		}
 		pMI = new class CMouseInterface;
 		//pMI->AddRect(0,0,640,480);
@@ -34096,11 +34028,12 @@ void CGame::UpdateScreen_OnVersionNotMatch()
 	if (m_cGameModeCount > 120) m_cGameModeCount = 120;
 	//DIRECTX m_DDraw.ClearBackB4();
 	if (m_bEscPressed == true || m_bEnterPressed == true)
-	{	m_bEscPressed = false;
+	{
+		m_bEscPressed = false;
 		m_bEnterPressed = false;
 		delete pMI;
 		ChangeGameMode(GAMEMODE_NULL);
-		SendMessage(m_hWnd, WM_DESTROY, 0, 0);
+		SendMessage(*(HWND*)m_hWnd, WM_DESTROY, 0, 0);
 		return;
 	}
 	DrawNewDialogBox(SPRID_INTERFACE_ND_QUIT, 0,0,0, true);
@@ -34114,9 +34047,10 @@ void CGame::UpdateScreen_OnVersionNotMatch()
 
 	iMIbuttonNum = pMI->iGetStatus(msX, msY, cLB, &cMIresult);
 	if ((cMIresult == MIRESULT_CLICK) && (iMIbuttonNum == 1))
-	{	ChangeGameMode(GAMEMODE_NULL);
+	{
+		ChangeGameMode(GAMEMODE_NULL);
 		delete pMI;
-		SendMessage(m_hWnd, WM_DESTROY, 0, 0);
+		SendMessage(*(HWND*)m_hWnd, WM_DESTROY, 0, 0);
 		return;
 	}
 	//if (//DIRECTX m_DDraw.iFlip() == DDERR_SURFACELOST) RestoreSprites();
@@ -34124,7 +34058,7 @@ void CGame::UpdateScreen_OnVersionNotMatch()
 
 void CGame::DrawVersion(bool bAuthor)
 {
-	uint32_t dwTime = unixseconds();
+	uint32_t dwTime = unixtime();
 	uint16_t  wR, wG, wB;
 
 //	m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,140, 140, 140), &wR, &wG, &wB);
@@ -35266,7 +35200,7 @@ EQUIPPOS_FULLBODY
 		if(item->m_sockets[i] == SG_NONE || item->m_sockets[i] == SG_VORTEXGEM)
 			continue;
 
-		HashMap<uint8_t, const char*>::iterator iter = g_socketMap.find( item->m_sockets[i] );
+		std::unordered_map<uint8_t, const char*>::iterator iter = g_socketMap.find( item->m_sockets[i] );
 		if(iter == g_socketMap.end())
 			continue;
 
@@ -35655,7 +35589,7 @@ std::vector<string> * CGame::GetItemName(char * cItemName, uint32_t attr, uint8_
 		if(sockets[i] == SG_NONE || sockets[i] == SG_VORTEXGEM)
 			continue;
 
-		HashMap<uint8_t, const char*>::iterator iter = g_socketMap.find( sockets[i] );
+		std::unordered_map<uint8_t, const char*>::iterator iter = g_socketMap.find( sockets[i] );
 		if(iter == g_socketMap.end())
 			continue;
 
@@ -36028,22 +35962,6 @@ void CGame::GetItemName(char * cItemName, uint32_t dwAttribute, char *pStr1, cha
 			strcat(pStr1, cTxt);
 	}	}
 }
-
-void CGame::_CalcSocketClosed()
-{	if (m_cGameMode == GAMEMODE_ONMAINGAME)
-	{	delete m_pGSock;
-		m_pGSock = 0;
-		m_bEscPressed = false;
-		PlaySound('E', 14, 5);
-//DIRECTX		if (m_bSoundFlag) m_pESound[38]->bStop();
-		if ((m_bSoundFlag) && (m_bMusicStat == true))
-		{
-//DIRECTX			if (m_pBGM != NULL) m_pBGM->bStop();
-		}
-		ChangeGameMode(GAMEMODE_ONQUIT);
-	}
-}
-
 void CGame::PointCommandHandler(int indexX, int indexY, char cItemID)
 {
  char cTemp[31];
@@ -36106,7 +36024,7 @@ void CGame::UpdateScreen_OnGame()
 	short absX, absY, tX, tY;
 	uint32_t ItemColor;
 	int  i, iAmount;
-	uint32_t dwTime = unixseconds();
+	uint32_t dwTime = unixtime();
 	static uint32_t dwPrevChatTime = 0;
 	static int   imX = 0, imY = 0;
 	iUpdateRet = 1;
@@ -36124,7 +36042,7 @@ void CGame::UpdateScreen_OnGame()
 	// ----------------------------------------------------
 
 	//DIRECTX//DIRECTX m_dInput.UpdateMouseState();
-	m_dwCurTime = unixseconds();
+	m_dwCurTime = unixtime();
 
 	if(m_bEnterPressed)
 	{
@@ -36641,8 +36559,7 @@ void CGame::UpdateScreen_OnGame()
 	{
 		gamemode = 0;
 		isItemLoaded = false;
-		delete m_pGSock;
-		m_pLSock = m_pGSock = 0;
+		_socket->stop();
 		m_bEscPressed = false;
 
 		PlaySound('E', 14, 5);
@@ -36658,15 +36575,18 @@ void CGame::UpdateScreen_OnGame()
 
 	// Restart Process
 	if (m_cRestartCount > 0)
-	{	if ((dwTime - m_dwRestartCountTime) > 1000)
+	{
+		if ((dwTime - m_dwRestartCountTime) > 1000)
 		{	m_cRestartCount--;
 			m_dwRestartCountTime = dwTime;
 			wsprintfA(G_cTxt, UPDATE_SCREEN_ONGAME14, m_cRestartCount); // "Restarting game...%d"
 			AddEventList(G_cTxt, 10);
-	}	}
+		}
+	}
 	// Restart
 	if (m_cRestartCount == 0)
-	{	m_cRestartCount = -1;
+	{
+		m_cRestartCount = -1;
 		bSendCommand(MSGID_REQUEST_RESTART);
 		return;
 	}
@@ -36713,7 +36633,7 @@ void CGame::UpdateScreen_OnGame()
 
 		if(m_showTime)
 		{
-			wsprintfA( G_cTxt, "  %d", unixseconds()/1000 % 60 );
+			wsprintfA( G_cTxt, "  %d", unixtime()/1000 % 60 );
 			PutString( 10, 100, G_cTxt,video::SColor(255,255,255,255), false, 1 );
 		}
 
@@ -36988,7 +36908,7 @@ void CGame::MotionResponseHandler(char * pData)
 		{	if (m_iHP < iPreHP)
 			{	wsprintfA(G_cTxt, NOTIFYMSG_HP_DOWN, iPreHP - m_iHP);
 				AddEventList(G_cTxt, 10);
-				m_dwDamagedTime = unixseconds();
+				m_dwDamagedTime = unixtime();
 				if ((m_cLogOutCount>0) && (m_bForceDisconn==false))
 				{	m_cLogOutCount = -1;
 					AddEventList(MOTION_RESPONSE_HANDLER2, 10);
@@ -37091,7 +37011,7 @@ void CGame::CommandProcessor(short msX, short msY, short indexX, short indexY, c
 	short  sX, sY, sObjectType, tX, tY, dynObjectType;
 	int iObjectStatus;
 	int    iRet;
-	uint32_t  dwTime = unixseconds();
+	uint32_t  dwTime = unixtime();
 	static uint32_t lastPanTime = 0;
 	uint16_t   wType = 0;
 	int i;//, iFOE;
@@ -37351,8 +37271,7 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 	if ( (dwTime - m_dwCommandTime) < 300 )
 	{
 		gamemode = 0;
-		delete m_pGSock;
-		m_pLSock = m_pGSock = 0;
+		_socket->stop();
 		m_bEscPressed = false;
 		PlaySound('E', 14, 5);
 //DIRECTX		if (m_bSoundFlag) m_pESound[38]->bStop();
@@ -37382,7 +37301,7 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 			else PointCommandHandler(indexX, indexY);
 
 			m_bCommandAvailable  = false;
-			m_dwCommandTime = unixseconds();
+			m_dwCommandTime = unixtime();
 			m_bIsGetPointingMode = false;
 			return;
 		}
@@ -38227,7 +38146,7 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 											  m_cCommand, 0, 0, 0, 0,
 											  10);
 			m_bCommandAvailable = false;
-			m_dwCommandTime = unixseconds();
+			m_dwCommandTime = unixtime();
 			return;
 	}	}
 	else if(cMB != 0){
@@ -38368,10 +38287,10 @@ MOTION_COMMAND_PROCESS:;
 					}
 
 #ifdef _DEBUG
-					static int timez = unixseconds();
-					wsprintfA(G_cTxt, "Move: %i", unixseconds() - timez);
+					static int timez = unixtime();
+					wsprintfA(G_cTxt, "Move: %i", unixtime() - timez);
 					AddEventList(G_cTxt);
-					timez = unixseconds();
+					timez = unixtime();
 #endif
 					m_pMapData->bSetOwner(m_sPlayerObjectID, m_sPlayerX, m_sPlayerY, m_sPlayerType, m_cPlayerDir,
 						                  m_sPlayerAppr1, m_sPlayerAppr2, m_sPlayerAppr3, m_sPlayerAppr4, m_iPlayerApprColor,
@@ -38379,7 +38298,7 @@ MOTION_COMMAND_PROCESS:;
 										  m_iPlayerStatus, m_cPlayerName,
 										  m_cCommand, 0, 0, 0);
 					m_bCommandAvailable = false;
-					m_dwCommandTime = unixseconds();
+					m_dwCommandTime = unixtime();
 					m_iPrevMoveX = m_sPlayerX;
 					m_iPrevMoveY = m_sPlayerY;
 			}	}
@@ -38418,7 +38337,7 @@ MOTION_COMMAND_PROCESS:;
 									  OBJECTATTACK,
 									  m_sCommX - m_sPlayerX, m_sCommY - m_sPlayerY, wType);
 				m_bCommandAvailable = false;
-				m_dwCommandTime = unixseconds();
+				m_dwCommandTime = unixtime();
 			}
 			m_cCommand = OBJECTSTOP;
 			break;
@@ -38456,7 +38375,7 @@ MOTION_COMMAND_PROCESS:;
 										  m_iPlayerStatus, m_cPlayerName,
 										  m_cCommand, m_sCommX - m_sPlayerX, m_sCommY - m_sPlayerY, wType);
 					m_bCommandAvailable = false;
-					m_dwCommandTime = unixseconds();
+					m_dwCommandTime = unixtime();
 					m_iPrevMoveX = m_sPlayerX;
 					m_iPrevMoveY = m_sPlayerY;
 			}	}
@@ -38482,7 +38401,7 @@ MOTION_COMMAND_PROCESS:;
 								  m_iPlayerStatus, m_cPlayerName,
 								  OBJECTMAGIC, m_iCastingMagicType, 0, 0);
 			m_bCommandAvailable = false;
-			m_dwCommandTime = unixseconds();
+			m_dwCommandTime = unixtime();
 			m_bIsGetPointingMode = true;
 			m_cCommand = OBJECTSTOP;
 			_RemoveChatMsgListByObjectID(m_sPlayerObjectID);
@@ -38490,7 +38409,7 @@ MOTION_COMMAND_PROCESS:;
 			if (m_pChatMsgList[i] == 0)
 			{	ZeroMemory(cTxt, sizeof(cTxt));
 				wsprintfA(cTxt, "%s!", m_pMagicCfgList[m_iCastingMagicType]->m_cName);
-				m_pChatMsgList[i] = new class CMsg(41, cTxt, unixseconds());
+				m_pChatMsgList[i] = new class CMsg(41, cTxt, unixtime());
 				m_pChatMsgList[i]->m_iObjectID = m_sPlayerObjectID;
 				m_pMapData->bSetChatMsgOwner(m_sPlayerObjectID, -10, -10, i);
 				return;
@@ -44795,30 +44714,30 @@ void CGame::NotifyMsg_DropItemFin_CountChanged(char *pData)
 
 void CGame::GuildContributeRsp(char * data)
 {
-	char cTxt[256];
-
-	uint8_t type;
-	Pop(data, type);
-	uint32_t amount;
-	Pop(data, amount);
-
-	switch(type)
-	{
-	case 0: // gold
-		wsprintfA(cTxt, DRAW_DIALOGBOX_GUILDCONTRIBUTE5, amount);
-		SetGold( GetGold() - amount );
-		break;
-	case 1: // maj
-		wsprintfA(cTxt, DRAW_DIALOGBOX_GUILDCONTRIBUTE6, amount);
-		m_iGizonItemUpgradeLeft -= amount;
-		break;
-	case 2: // cont
-		wsprintfA(cTxt, DRAW_DIALOGBOX_GUILDCONTRIBUTE9, amount);
-		m_iContribution -= amount;
-		break;
-	}
-
-	AddEventList(cTxt, 10);
+// 	char cTxt[256];
+// 
+// 	uint8_t type;
+// 	Pop(data, type);
+// 	uint32_t amount;
+// 	Pop(data, amount);
+// 
+// 	switch(type)
+// 	{
+// 	case 0: // gold
+// 		wsprintfA(cTxt, DRAW_DIALOGBOX_GUILDCONTRIBUTE5, amount);
+// 		SetGold( GetGold() - amount );
+// 		break;
+// 	case 1: // maj
+// 		wsprintfA(cTxt, DRAW_DIALOGBOX_GUILDCONTRIBUTE6, amount);
+// 		m_iGizonItemUpgradeLeft -= amount;
+// 		break;
+// 	case 2: // cont
+// 		wsprintfA(cTxt, DRAW_DIALOGBOX_GUILDCONTRIBUTE9, amount);
+// 		m_iContribution -= amount;
+// 		break;
+// 	}
+// 
+// 	AddEventList(cTxt, 10);
 }
 
 void CGame::NotifyMsg_CannotJoinMoreGuildsMan(char * pData)
@@ -45052,7 +44971,7 @@ void CGame::NotifyMsg_EnemyKillReward(char *pData)
 		AddEventList(cTxt, 10);
 	}*/
 
-	int32 ekchange = iEnemyKillCount - m_iEnemyKillCount;
+	int32_t ekchange = iEnemyKillCount - m_iEnemyKillCount;
 
 	if (m_iEnemyKillCount != iEnemyKillCount)
 	{	
@@ -45060,7 +44979,8 @@ void CGame::NotifyMsg_EnemyKillReward(char *pData)
 		{	
 			wsprintfA(cTxt, NOTIFYMSG_ENEMYKILL_REWARD5, -ekchange);
 			AddEventList(cTxt, 10);
-		}else
+		}
+		else
 		{	
 			wsprintfA(cTxt, NOTIFYMSG_ENEMYKILL_REWARD6, ekchange);
 			AddEventList(cTxt, 10);
@@ -45076,7 +44996,7 @@ void CGame::NotifyMsg_EnemyKillReward(char *pData)
 	PlaySound('E', 23, 0);
 
 	if(m_ekScreenshot)
-		m_ekSSTime = unixseconds() + 650;
+		m_ekSSTime = unixtime() + 650;
 }
 
 void CGame::NotifyMsg_EventFishMode(char * pData)
@@ -45144,11 +45064,11 @@ void CGame::NotifyMsg_ForceDisconn(char *pData)
 	if( m_bIsProgramActive )
 	{	if( m_cLogOutCount < 0 || m_cLogOutCount > 5 ) m_cLogOutCount = 5;
 		AddEventList(NOTIFYMSG_FORCE_DISCONN1, 10);
-	}else
+	}
+	else
 	{
 		gamemode = 0;
-		delete m_pGSock;
-		m_pLSock = m_pGSock = 0;
+		_socket->stop();
 		m_bEscPressed = false;
 //DIRECTX		if (m_bSoundFlag) m_pESound[38]->bStop();
 		if ((m_bSoundFlag) && (m_bMusicStat == true))
@@ -45292,7 +45212,7 @@ void CGame::NotifyMsg_HP(char * pData)
 			m_cLogOutCount = -1;
 			AddEventList(NOTIFYMSG_HP2, 10);
 		}
-		m_dwDamagedTime = unixseconds();
+		m_dwDamagedTime = unixtime();
 		if (m_iHP < 20) AddEventList(NOTIFYMSG_HP3, 10);
 		if ((iPrevHP - m_iHP) < 10) return;
 		wsprintfA(cTxt, NOTIFYMSG_HP_DOWN, iPrevHP - m_iHP);
@@ -45505,7 +45425,7 @@ void CGame::NotifyMsg_ItemObtained(char * pData)
 	char  cName[21];
 	bool  bIsEquipped;
 	uint16_t sSprite, sSpriteFrame, sLevelLimit;
-	int8 sSpecialEV2;
+	int8_t sSpecialEV2;
 	char  cTxt[120];
 	uint8_t cGenderLimit, cItemType, cEquipPos;
 	uint16_t  * wp, wWeight, wCurLifeSpan;
@@ -46607,26 +46527,17 @@ void CGame::NotifyMsg_ServerChange(char * pData)
 	iWorldServerPort = *ip;
 	cp += 4;
 	gamemode = 0;
-	if (m_pGSock != 0)
+	if (_socket)
 	{
-		//delete m_pGSock;
-		m_pGSock = 0;
+		_socket->stop();
 	}
-	if (m_pLSock != 0)
+	if (_socket == nullptr)
 	{
-		delete m_pLSock;
-		m_pLSock = 0;
+		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+		new_connection_->socket().async_connect(endpoint,
+			boost::bind(&CGame::handle_connect, this,
+			boost::asio::placeholders::error));
 	}
-	m_pLSock = new class XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-	if (m_iGameServerMode == 1) // LAN
-	{
-		m_pLSock->bConnect(m_cLogServerAddr, iWorldServerPort, WM_USER_LOGSOCKETEVENT);
-	}
-	else
-	{
-		m_pLSock->bConnect(cWorldServerAddr, iWorldServerPort, WM_USER_LOGSOCKETEVENT);
-	}
-	m_pLSock->bInitBufferSize(30000);
 
 	m_bIsPoisoned = false;
 
@@ -46799,7 +46710,7 @@ void CGame::NotifyMsg_RelicInAltar(char * pData)
 	SetTopMsg(G_cTxt, 10);
 
 	m_relicOwnedSide = altarSide;
-	m_relicOwnedTime = unixseconds() + 1 _s;
+	m_relicOwnedTime = unixtime() + 1 * 1000;
 }
 
 void CGame::NotifyMsg_RelicGrabbed(char * pData)
@@ -47072,7 +46983,7 @@ void CGame::DrawDialogBox_CrusadeJob()
 void CGame::_Draw_OnLogin(char *pAccount, char *pPassword, int msX, int msY, int iFrame)
 {
  bool bFlag = true;
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
 
     //DIRECTX m_DDraw.ClearBackB4();
 
@@ -47786,7 +47697,7 @@ void CGame::MotionEventHandler(char * pData)
 				int index = m_pMapData->getChatMsgIndex(wObjectID - 30000);
 				if(m_showAllDmg && m_pChatMsgList[index] && strlen(m_pChatMsgList[index]->m_pMsg) < sizeof(cTxt)-30)
 				{
-					if(index != -1 && m_dwCurTime - m_pChatMsgList[index]->m_dwTime < 150 _ms &&
+					if(index != -1 && m_dwCurTime - m_pChatMsgList[index]->m_dwTime < 150 &&
 						m_pChatMsgList[index]->m_cType >= 21 && m_pChatMsgList[index]->m_cType <= 23)
 					{
 						if (sV1 > 0)
@@ -47800,7 +47711,9 @@ void CGame::MotionEventHandler(char * pData)
 							wsprintfA(cTxt, "-%d!", sV1);
 						else strcpy(cTxt, "Crit!");
 					}
-				}else{
+				}
+				else
+				{
 					if (sV1 > 0)
 						wsprintfA(cTxt, "-%d!", sV1);
 					else strcpy(cTxt, COMMAND_PROCESSOR6);
@@ -47813,8 +47726,9 @@ void CGame::MotionEventHandler(char * pData)
 				m_pChatMsgList[i] = new class CMsg(iFontType, cTxt, m_dwCurTime);
 				m_pChatMsgList[i]->m_iObjectID = wObjectID - 30000;
 				if (m_pMapData->bSetChatMsgOwner(wObjectID - 30000, -10, -10, i) == false)
-				{	delete m_pChatMsgList[i];
-				m_pChatMsgList[i] = 0;
+				{
+					delete m_pChatMsgList[i];
+					m_pChatMsgList[i] = 0;
 				}
 			
 
@@ -47827,7 +47741,8 @@ void CGame::MotionEventHandler(char * pData)
 	case MSGID_MOTION_DAMAGEMOVE:
 	case MSGID_MOTION_DAMAGE:
 		if (memcmp(cName, m_cPlayerName, 10) == 0)
-		{	m_bIsGetPointingMode = false;
+		{
+			m_bIsGetPointingMode = false;
 			m_iPointCommandType	 = -1;
 			m_stMCursor.sCursorFrame = 0;
 			ClearSkillUsingStatus();
@@ -47875,7 +47790,7 @@ void CGame::MotionEventHandler(char * pData)
 				int index = m_pMapData->getChatMsgIndex(wObjectID - 30000);
 				if(index != -1 && m_showAllDmg && m_pChatMsgList[index] && strlen(m_pChatMsgList[index]->m_pMsg) < sizeof(cTxt)-30)
 				{
-					if(index != -1 && m_dwCurTime - m_pChatMsgList[index]->m_dwTime < 150 _ms &&
+					if(index != -1 && m_dwCurTime - m_pChatMsgList[index]->m_dwTime < 150 &&
 						m_pChatMsgList[index]->m_cType >= 21 && m_pChatMsgList[index]->m_cType <= 23)
 					{
 						if (sV1 > 0)
@@ -47910,7 +47825,8 @@ void CGame::MotionEventHandler(char * pData)
 			}
 			m_pChatMsgList[i]->m_iObjectID = wObjectID - 30000;
 			if (m_pMapData->bSetChatMsgOwner(wObjectID - 30000, -10, -10, i) == false)
-			{	delete m_pChatMsgList[i];
+			{
+				delete m_pChatMsgList[i];
 				m_pChatMsgList[i] = 0;
 			}
 			return;
@@ -49158,7 +49074,7 @@ void CGame::DrawDialogBox_ItemUpgrade()
 {
 	int i, sX, sY, iValue;
  char cItemColor, cStr1[120], cStr2[120], cStr3[120];
- uint32_t dwTime = unixseconds();
+ uint32_t dwTime = unixtime();
 
 	char onButton = m_dialogBoxes[34].OnButton();
 	sX = m_dialogBoxes[34].m_X;
@@ -49507,10 +49423,12 @@ void CGame::DrawDialogBox_ItemUpgrade()
 }
 
 LONG CGame::GetRegKey(HKEY key, LPCTSTR subkey, LPTSTR retdata)
-{   HKEY hkey;
+{
+	HKEY hkey;
     LONG retval = RegOpenKeyEx(key, subkey, 0, KEY_QUERY_VALUE, &hkey);
     if (retval == ERROR_SUCCESS)
-	{  long datasize = MAX_PATH;
+	{
+		long datasize = MAX_PATH;
         TCHAR data[MAX_PATH];
         RegQueryValue(hkey, 0, data, &datasize);
         lstrcpy(retdata,data);
@@ -50299,7 +50217,7 @@ void CGame::DlgBoxClick_GuildSummons()
 	if (onButton == 1)
 	{
 		// yes
-		if(unixseconds() - m_dwDamagedTime < 10 _s)
+		if(unixtime() - m_dwDamagedTime < 10 * 1000)
 		{
 			AddEventList(DLGBOXCLICK_GUILDSUMMONS1, CHAT_GM);
 		}
@@ -51562,10 +51480,11 @@ void CGame::DrawDialogBox_GuildBank()
 			}
 		}
 
-		int32 oldView = m_dialogBoxes[56].sView;
+		int32_t oldView = m_dialogBoxes[56].sView;
 
 		if (G_pGame->m_stMCursor.LB != 0 && (iGetTopDialogBoxIndex() == 56) && iTotalLines > m_dialogBoxes[56].sV1) {
-			if ((G_pGame->m_stMCursor.sX >= sX + 230) && (G_pGame->m_stMCursor.sX <= sX + 260) && (G_pGame->m_stMCursor.sY >= sY + 40) && (G_pGame->m_stMCursor.sY <= sY + 320)) {
+			if ((G_pGame->m_stMCursor.sX >= sX + 230) && (G_pGame->m_stMCursor.sX <= sX + 260) && (G_pGame->m_stMCursor.sY >= sY + 40) && (G_pGame->m_stMCursor.sY <= sY + 320))
+			{
 				d1 = (double)(G_pGame->m_stMCursor.sY -(sY+35));
 				d2 = (double)(iTotalLines-m_dialogBoxes[56].sV1);
 				d3 = (d1 * d2)/274.0f;
@@ -51578,7 +51497,8 @@ void CGame::DrawDialogBox_GuildBank()
 		{
 			if( iTotalLines > 50 )
 				m_dialogBoxes[56].sView = m_dialogBoxes[56].sView - G_pGame->m_stMCursor.sZ/30;
-			else {
+			else
+			{
 				if(G_pGame->m_stMCursor.sZ > 0 && m_guildBankIt != m_guildBankMap.begin()) 
 				{
 					m_dialogBoxes[56].sView--;
@@ -51603,7 +51523,8 @@ void CGame::DrawDialogBox_GuildBank()
 				oldView++;
 				++m_guildBankIt;
 			}
-		}else if(oldView > m_dialogBoxes[56].sView)
+		}
+		else if(oldView > m_dialogBoxes[56].sView)
 		{
 			while(oldView != m_dialogBoxes[56].sView)
 			{
@@ -51778,7 +51699,7 @@ void CGame::NotifyMsg_ItemToGuildBank(char *pData)
 	if(*(*dstIt).first < (*it).first)
 		m_dialogBoxes[56].sView++;
 
-	int32 itPos = 0;
+	int32_t itPos = 0;
 	while(it != dstIt)
 	{
 		if(*(*dstIt).first < (*it).first)
@@ -52204,7 +52125,7 @@ void CGame::DlgBoxClick_ExtendedSysMenu()
 
 	case 7:
 		m_windowsKey = !m_windowsKey;
-		SetKeyboardHook(!m_windowsKey);
+		//SetKeyboardHook(!m_windowsKey);
 		break;
 
 	case 8:
@@ -52296,54 +52217,9 @@ void CGame::DlgBoxClick_MuteList()
 	}
 }
 
-void CGame::TopsiteVote()
-{
-	if (m_voteState >= m_voteUrls.size()) return;
-	string websiteUrl = m_voteUrls[m_voteState].substr(0, m_voteUrls[m_voteState].find("/"));
-
-	m_voteSocket = new XSocket(m_hWnd, SOCKETBLOCKLIMIT);
-	m_voteSocket->bConnect(const_cast<char*>(websiteUrl.c_str()), 80, WM_USER_VOTESOCKETEVENT, true);
-	m_voteSocket->bInitBufferSize(30000);
-}
-
-void CGame::OnVoteSocketEvent(WPARAM wParam, LPARAM lParam)
-{
-	char httpRequest[512];
-	int status;
-
-	if (m_voteSocket == 0) return;
-
-	status = m_voteSocket->iOnSocketEvent(wParam, lParam);
-	if (status == XSOCKEVENT_CONNECTIONESTABLISH){
-		int pos = m_voteUrls[m_voteState].find("/");
-
-		string imageUrl = m_voteUrls[m_voteState].substr(pos, m_voteUrls[m_voteState].length() - pos);
-		strcpy(httpRequest, "GET ");
-		strcat(httpRequest, imageUrl.c_str());
-		strcat(httpRequest, " HTTP/1.1\r\n");
-
-		string websiteUrl = m_voteUrls[m_voteState].substr(0, pos);
-		strcat(httpRequest, "Host: ");
-		strcat(httpRequest, websiteUrl.c_str());
-		strcat(httpRequest, "\r\n");
-
-		strcat(httpRequest, "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.2.8) Gecko/20100722 Firefox/3.6.8\r\n");
-		strcat(httpRequest, "Accept: image/png,image/*;q=0.8,*/*;q=0.5\r\n");
-		strcat(httpRequest, "Referer: http://www.helbreathx.net/\r\n");
-		strcat(httpRequest, "\r\n");
-
-		m_voteSocket->SendRawMsg(httpRequest, strlen(httpRequest));
-	}
-	//Ignores anything other than successful connection for now
-	delete m_voteSocket; 
-	m_voteSocket = 0;
-	m_voteState++;
-	TopsiteVote();
-}
-
 void CGame::ClearPartyMembers()
 {
-	for (partyIterator it = m_stPartyMember.begin(); it < m_stPartyMember.end();)
+	for (std::vector<partyMember *>::iterator it = m_stPartyMember.begin(); it < m_stPartyMember.end();)
 	{
 		delete *it;
 		it = m_stPartyMember.erase(it);
@@ -54580,33 +54456,35 @@ void CGame::HandleItemDescription(CItem * item)
 // Beholder Necklace Fix xRisenx
 bool CGame::bCheckItemEquiped(char itemName[])
 {
-	for (int i = 0; i < MAXITEMS; i++) 
+	for (int i = 0; i < MAXITEMS; i++)
 	{
-	if (m_pItemList[i] != 0)
+		if (m_pItemList[i] != 0)
 		{
-		if (strcmp(m_pItemList[i]->m_cName, itemName) == 0) 
+			if (strcmp(m_pItemList[i]->m_cName, itemName) == 0)
 			{
-			for (int x = 0; x < MAXITEMEQUIPPOS; x++)
-	{
-	if (m_sItemEquipmentStatus[x] == i)
-	return true;
-	}
+				for (int x = 0; x < MAXITEMEQUIPPOS; x++)
+				{
+					if (m_sItemEquipmentStatus[x] == i)
+						return true;
+				}
 			}
 		}
 	}
-return false;
+	return false;
 }
 	// Monster kill event xRisenx
 void CGame::NotifyMsg_NpcHuntingON()
-	{ SetTopMsg("Npc Hunting Game Activated!", 10);
-	}
+{
+	SetTopMsg("Npc Hunting Game Activated!", 10);
+}
 
 void CGame::NotifyMsg_NpcHuntingOFF()
-	{ SetTopMsg("Npc Hunting Game Deacticated!", 10);
-	}
+{
+	SetTopMsg("Npc Hunting Game Deacticated!", 10);
+}
 
 void CGame::NotifyMsg_NpcHuntingWinner(char * pData)
-	{
+{
 	char * cp;
 	int * ip;
 	uint32_t * dwp;
@@ -54618,151 +54496,6 @@ void CGame::NotifyMsg_NpcHuntingWinner(char * pData)
 	ip = (int *)cp;
 	m_iRating = *ip;
 	cp += 4;
-	}
+}
 	// Monster kill event xRisenx
-// Anti Hack xRisenx
-bool CGame::CheckHackProcesses()
-{
-	return false;
-// 	HANDLE hSnapShot;
-// 	PROCESSENTRY32 uProcess;
-// 	bool r;
-// 	bool bFound = false;
-// 	char *UprocessName, *Ufoundprocess;
-// 		hSnapShot = CreateToolhelp32Snapshot(TH32CS_SNAPALL, 0);
-// 		uProcess.dwSize = (DWORD)sizeof(PROCESSENTRY32);
-// 		r = Process32First(hSnapShot, &uProcess);
-// 		do
-// 		{
-// 			Ufoundprocess = _strupr( uProcess.szExeFile );
-// 			if
-// 				( strcmp(Ufoundprocess, "CHEATENGINE-x86_64.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "CHEATENGINE-i386.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "START.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "CHEATENGINE.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "CHEAT ENGINE.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "351HAX.EXE") == 0 ||
-// 				strcmp(Ufoundprocess, "MSCHED.EXE") == 0 ||
-// 				strcmp(Ufoundprocess, "010EDITOR.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "MM.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "WPE PRO.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "TEHELGAME.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "HELGAME.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "SPEED HACK.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "SPEEDHACKNT.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "ASPEEDER.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "WPEPRO.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "HELGAME.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "HELGAME.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "HELGAME.exe") == 0 ||
-// 				strcmp(Ufoundprocess, "HELGAME.exe") == 0 ||
-// 				strstr(Ufoundprocess, "HACK") != NULL ||
-// 				strstr(Ufoundprocess, "CHEAT") != NULL )
-// 			{
-// 				bFound = true;
-// 				if (m_bStuckHack == false)
-// 					bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_HACK, NULL, NULL, NULL, NULL, NULL, NULL);
-// 					m_bStuckHack = true;
-// 			}
-// 
-// 			r = Process32Next(hSnapShot, &uProcess);
-// 		}
-// 		while ( r );
-// 			CloseHandle(hSnapShot);
-// 			if (bFound == true)
-// 			{
-// 				SetTopMsg("You may not move due to an illegal program running on your PC.", 2);
-// 			}
-// 			m_bHackMoveBlocked = bFound;
-// 			return bFound;
-}
-// Anti Hack xRisenx
-// Anti DLL Hack xRisenx
-bool CGame::CheckHackDLLProcesses()
-{
-	HANDLE hModuleSnap;
-	MODULEENTRY32 me32;
-	bool r;
-	bool bFound = false;
 
-	hModuleSnap = CreateToolhelp32Snapshot( TH32CS_SNAPMODULE, 0); 
-	
-	me32.dwSize = (uint32_t)sizeof( MODULEENTRY32 ); 
-	
-	/*if( hModuleSnap == INVALID_HANDLE_VALUE ) 
-	{ 
-		return( false ); 
-	} */
-	
-	r = Module32First (hModuleSnap, &me32);
-	
-
-	/*if( !Module32First( hModuleSnap, &me32 ) ) 
-	{ 
-		CloseHandle( hModuleSnap );
-		return( FALSE ); 
-	*///} 
-
-	//bool exit = false;
-  do 
-  {
-	  if
-		  (wcscmp(me32.szModule, L"WpeSpy.dll") == 0 ||
-		  wcscmp(me32.szModule, L"JIntellitype.dll") == 0 ||
-		  wcscmp(me32.szModule, L"speedhack-i386.dll") == 0 ||
-		  wcscmp(me32.szModule, L"lua5.1-32.dll") == 0 ||
-		  wcscmp(me32.szModule, L"lua5.1-64.dll") == 0 ||
-		  wcscmp(me32.szModule, L"speedhack-x86_64.dll") == 0 ||
-		  wcscmp(me32.szModule, L"allochook-i386.dll") == 0 ||
-		  wcscmp(me32.szModule, L"d3d10hook.dll") == 0 ||
-		  wcscmp(me32.szModule, L"d3d11hook.dll") == 0 ||
-		  wcscmp(me32.szModule, L"speedhack-x86_64.dll") == 0 ||
-		  wcscmp(me32.szModule, L"ced3d9hook.dll") == 0 ||
-		  wcscmp(me32.szModule, L"TSpeech.dll") == 0 ||
-		  wcscmp(me32.szModule, L"vehdebug-i386.dll") == 0 ||
- 	 	  wcscmp(me32.szModule, L"vehdebug-x86_64.dll") == 0 ||
-		  wcscmp(me32.szModule, L"allochook-x86_64.dll") == 0 ||
-		  wcscmp(me32.szModule, L"d3dhook64.dll") == 0 ||
- 		  wcscmp(me32.szModule, L"luaclient-i386.dll") == 0 ||
-		  wcscmp(me32.szModule, L"luaclient-x86_64.dll") == 0 ||
-		  wcscmp(me32.szModule, L"d3d11hook.dll") == 0 ||
-		  wcscmp(me32.szModule, L"ced3d11hook64.dll") == 0 ||
-		  wcscmp(me32.szModule, L"ced3d10hook64.dll") == 0 ||
-		  wcscmp(me32.szModule, L"ced3d10hook.dll") == 0 ||
-		  wcscmp(me32.szModule, L"ced3d11hook.dll") == 0 /*||
-		  strstr(me32.szModule, "hook") != NULL ||
-		  strstr(me32.szModule, "HOOK") != NULL ||
-		  strstr(me32.szModule, "Hook") != NULL*/)
-			{
-				bFound = true;
-				if (m_bStuckHack == false)
-					bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_DLLHACK, 0, 0, 0, 0, 0, 0);
-					m_bStuckHack = true;
-			}
-
-	  //{
-		//exit = true;
-		//FreeLibrary(me32.hModule);
-	  //}
-	  r = Module32Next (hModuleSnap, &me32);
-  } 
-	while( r ); 
-		CloseHandle( hModuleSnap ); 
-		if (bFound == true)
-			{
-				SetTopMsg("You may not move due to an illegal DLL running on your PC.", 2);
-			}
-			m_bHackMoveBlocked = bFound;
-			return bFound;
-  //return exit;
-}
-// Anti Hack xRisenx
-// Anti Hack xRisenx
-bool CGame::CheckHackProcessesMulti()
-{
-	return(
-	CheckHackProcesses() || // Anti Hack xRisenx
-	CheckHackDLLProcesses() // Anti Hack xRisenx
-	);
-}
-// Anti Hack xRisenx

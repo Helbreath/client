@@ -8,7 +8,7 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 	"Recruit"
 };
 
-#define GetGuildRankName(i)	( ((uint32)i < GUILDRANK_MAX) ? guildRankName[i] : guildRankName[GUILDRANK_GUILDSMAN] )
+#define GetGuildRankName(i)	( ((uint32_t)i < GUILDRANK_MAX) ? guildRankName[i] : guildRankName[GUILDRANK_GUILDSMAN] )
 
 
 #define QUESTHELPER			"Quest:"

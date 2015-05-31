@@ -28,6 +28,8 @@ extern "C" __declspec( dllimport) int __FindHackingDll__(char *);
 int				G_iAddTable31[64][510], G_iAddTable63[64][510]; 
 int				G_iAddTransTable31[510][64], G_iAddTransTable63[510][64]; 
 
+char G_cCmdLine[256], G_cCmdLineTokenA[120], G_cCmdLineTokenA_Lowercase[120], G_cCmdLineTokenB[120], G_cCmdLineTokenC[120], G_cCmdLineTokenD[120], G_cCmdLineTokenE[120];
+
 long    G_lTransG100[64][64], G_lTransRB100[64][64];
 long    G_lTransG70[64][64], G_lTransRB70[64][64];
 long    G_lTransG50[64][64], G_lTransRB50[64][64];
@@ -98,7 +100,7 @@ int main(int argc, char * argv[])
 
 	RECT trect;
 	RECT WindowRect;
-	GetWindowRect(*(HWND*)G_hWnd, &WindowRect);
+	GetWindowRect(*(HWND*)&G_hWnd, &WindowRect);
 	// Restrict the cursor
 	ClipCursor(&WindowRect);
 
@@ -116,7 +118,7 @@ int main(int argc, char * argv[])
 	time1 = time2 = unixtime();
 
 	MSG msg;
-	while (true)
+	while (G_pGame->device->run() && G_pGame->driver)
 	{
 // 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 // 		{
@@ -162,7 +164,7 @@ int main(int argc, char * argv[])
 			cursor->setVisible(false);
 			cursor->setPosition(G_pGame->GetWidth() / 2, G_pGame->GetHeight() / 2);
 
-			GetWindowRect(*(HWND*)G_hWnd, &WindowRect);
+			GetWindowRect(*(HWND*)&G_hWnd, &WindowRect);
 			// Restrict the cursor
 			ClipCursor(&WindowRect);
 
@@ -191,7 +193,7 @@ int main(int argc, char * argv[])
 			G_pGame->m_stMCursor.sY = m.Y;
 
 			//stick in a window move event
-			GetWindowRect(*(HWND*)G_hWnd, &trect);
+			GetWindowRect(*(HWND*)&G_hWnd, &trect);
 			if (((WindowRect.top != trect.top) || (WindowRect.bottom != trect.bottom) || (WindowRect.left != trect.left) || (WindowRect.right != trect.right)) || (G_pGame->device->isWindowActive() && !G_pGame->isactive))
 			{
 				if (G_pGame->clipmousewindow)
@@ -225,6 +227,9 @@ int main(int argc, char * argv[])
 		}
 		else if (!G_pGame->device->isWindowActive())
 		{
+			GetClipCursor(&trect);
+			if (trect.top != 0)
+				ClipCursor(0);
 			G_pGame->wasinactive = true;
 			if (G_pGame->backgroundfpstarget)
 			{

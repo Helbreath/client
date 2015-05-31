@@ -1419,9 +1419,9 @@ m_stArenaPlayers[MAXARENAPLAYERS];*/
 	// Monster kill event xRisenx
 
 	bool m_bHackMoveBlocked; // Anti Hack xRisenx
-	bool CheckHackProcesses(); // Anti Hack xRisenx
-	bool CheckHackDLLProcesses(); // Anti Hack xRisenx
-	bool CheckHackProcessesMulti(); // Anti Hack xRisenx
+	//bool CheckHackProcesses(); // Anti Hack xRisenx
+	//bool CheckHackDLLProcesses(); // Anti Hack xRisenx
+	//bool CheckHackProcessesMulti(); // Anti Hack xRisenx
 
 };
 

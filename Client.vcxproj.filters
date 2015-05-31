@@ -125,6 +125,9 @@
     <ClInclude Include="streams.h" />
     <ClInclude Include="newsocket.h" />
     <ClInclude Include="request_handler.h" />
+    <ClInclude Include="Shared\buffer.h">
+      <Filter>shared</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Res\resource.rc">
@@ -189,12 +192,12 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Misc.cpp" />
     <ClCompile Include="StrTok.cpp" />
-    <ClCompile Include="..\fantasy-server\Shared\buffer.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
     <ClCompile Include="titles\Title.cpp" />
     <ClCompile Include="char\mail.cpp" />
     <ClCompile Include="newsocket.cpp" />
     <ClCompile Include="request_handler.cpp" />
+    <ClCompile Include="Shared\buffer.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,26 +1,26 @@
 #include "buffer.h"
 
-void Push(char * &cp, uint8 value){
-	uint8 * p = (uint8 *)cp;
-	*p = (uint8)value;
-	cp += sizeof(uint8);
+void Push(char * &cp, uint8_t value){
+	uint8_t * p = (uint8_t *)cp;
+	*p = (uint8_t)value;
+	cp += sizeof(uint8_t);
 }
-void Push(char * &cp, uint16 value){
-	uint16 * p = (uint16 *)cp;
-	*p = (uint16)value;
-	cp += sizeof(uint16);
+void Push(char * &cp, uint16_t value){
+	uint16_t * p = (uint16_t *)cp;
+	*p = (uint16_t)value;
+	cp += sizeof(uint16_t);
 }
-void Push(char * &cp, uint32 value){
-	uint32 * p = (uint32 *)cp;
-	*p = (uint32)value;
-	cp += sizeof(uint32);
+void Push(char * &cp, uint32_t value){
+	uint32_t * p = (uint32_t *)cp;
+	*p = (uint32_t)value;
+	cp += sizeof(uint32_t);
 }
-void Push(char * &cp, uint64 value){
-	uint64 * p = (uint64 *)cp;
+void Push(char * &cp, uint64_t value){
+	uint64_t * p = (uint64_t *)cp;
 	*p = value;
-	cp += sizeof(uint64);
+	cp += sizeof(uint64_t);
 }
-void Push(char * &dest, const char * src, uint32 len){
+void Push(char * &dest, const char * src, uint32_t len){
 	memcpy(dest, src, len);
 	dest += len;
 }
@@ -33,32 +33,32 @@ void Push(char * &dest, const std::string & str){
 	dest += str.length() + 1;
 }
 
-void Pop(char * &cp, uint8 &v){
-	uint8 * p = (uint8 *)cp;
+void Pop(char * &cp, uint8_t &v){
+	uint8_t * p = (uint8_t *)cp;
 	v = *p;
-	cp += sizeof(uint8);
+	cp += sizeof(uint8_t);
 }
-void Pop(char * &cp, uint16 &v){
-	uint16 * p = (uint16 *)cp;
+void Pop(char * &cp, uint16_t &v){
+	uint16_t * p = (uint16_t *)cp;
 	v = *p;
-	cp += sizeof(uint16);
+	cp += sizeof(uint16_t);
 }
-void Pop(char * &cp, uint32 &v){
-	uint32 * p = (uint32 *)cp;
+void Pop(char * &cp, uint32_t &v){
+	uint32_t * p = (uint32_t *)cp;
 	v = *p;
-	cp += sizeof(uint32);
+	cp += sizeof(uint32_t);
 }
-void Pop(char * &cp, uint64 &v){
-	uint64 * p = (uint64 *)cp;
+void Pop(char * &cp, uint64_t &v){
+	uint64_t * p = (uint64_t *)cp;
 	v = *p;
-	cp += sizeof(uint64);
+	cp += sizeof(uint64_t);
 }
-void Pop(char * &src, char * dest, uint32 len){
+void Pop(char * &src, char * dest, uint32_t len){
 	memcpy(dest, src, len);
 	src += len;
 }
 void Pop(char * &src, char * dest){
-	uint32 len = strlen(src);
+	uint32_t len = strlen(src);
 	memcpy(dest, src, len);
 	src += len + 1;
 }

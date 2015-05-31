@@ -13,6 +13,8 @@ void request_handler::handle_request(const request& req)
 	connection & c = *req.connection;
 	//client->lastpackettime = timestamp;
 
-	c.client.GameRecvMsgHandler(req.size, req.data);
-	//c.client->PutMsgQueue(c.client->socketpipe, req.data, req.size);
+	if (c.client.gamemode == 1)
+		c.client.GameRecvMsgHandler(req.size, req.data);
+	else
+		c.client.LogRecvMsgHandler(req.data);
 }
