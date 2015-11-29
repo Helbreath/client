@@ -17,6 +17,7 @@
 #include <cstring>
 #include <vector>
 #include <functional>
+#include <mutex>
 
 #include <process.h>
 #include <direct.h>
@@ -193,13 +194,18 @@ public:
 	connection_ptr _socket;
 	void start(connection_ptr c);
 	void stop(connection_ptr c);
+	void handle_stop();
 	void handle_connect(const boost::system::error_code& e);
 	boost::asio::io_service io_service_;
 	boost::asio::signal_set signals_;
-	boost::asio::ip::tcp::acceptor acceptor_;
 	connection_ptr new_connection_;
 	request_handler request_handler_;
 
+	std::mutex screenupdate;
+	std::mutex socketmut;
+	std::mutex dataqueue;
+	std::mutex chatmut;
+	boost::shared_ptr<boost::thread> socketthread;
 
 	irr::IrrlichtDevice * device;
 	irr::video::IVideoDriver * driver;
@@ -230,6 +236,7 @@ public:
 
 	bool CreateRenderer(bool fs = false)
 	{
+		m_bIsProgramActive = true;
 		fullscreen = fs;
 		//when streaming, vsync on = screen capture nogo
 		//has to use "game capture" (render hook)
@@ -693,7 +700,7 @@ public:
 	void _LoadTextDlgContents(int cType);
 	int  _iLoadTextDlgContents2(int iType);
 	void DrawChatMsgs(short sX, short sY, short dX, short dY);
-	void RequestFullObjectData(uint16_t wObjectID);
+	void RequestFullObjectData(uint64_t wObjectID);
 	bool bInitSkillCfgList();
 	bool bCheckImportantFile();
 	void DlgBoxDoubleClick_Inventory();
@@ -1116,7 +1123,8 @@ public:
 	int m_iTHAC0;					// To Hit Armour Class 0
 	int m_iDefenseRatio; // Auto updates defense ingame xRisenx
 
-	int m_iLevel, m_iExp, m_iContribution, m_iLucky;
+	int m_iLevel, m_iContribution, m_iLucky;
+	uint64_t m_iExp;
 	int m_stat[6];
 	//int m_angelStat[STAT_STR], m_angelStat[STAT_INT], m_angelStat[STAT_DEX], m_angelStat[STAT_MAG];
 	int m_angelStat[6];
@@ -1175,10 +1183,10 @@ public:
 
 	short m_sItemEquipmentStatus[MAXITEMEQUIPPOS];
 	short m_sPlayerX, m_sPlayerY;
-	short m_sPlayerObjectID;
+	uint64_t m_sPlayerObjectID;
 	short m_sPlayerType;
 	short m_sPlayerAppr1, m_sPlayerAppr2, m_sPlayerAppr3, m_sPlayerAppr4;
-	short m_sPlayerHeadApprValue, m_sPlayerBodyApprValue, m_sPlayerArmApprValue, m_sPlayerLegApprValue; // Re-Coding Sprite xRisenx
+	short m_sPlayerHeadApprValue, m_sPlayerBodyApprValue, m_sPlayerArmApprValue, m_sPlayerLegApprValue;
 	UnitStatus m_iPlayerStatus;
 	short m_sMCX, m_sMCY;
 	short m_sCommX, m_sCommY;
@@ -1190,13 +1198,13 @@ public:
 	short m_sDamageMoveAmount;
 	#endif
 	short m_sAppr1_IE, m_sAppr2_IE, m_sAppr3_IE, m_sAppr4_IE;
-	short m_sHeadApprValue_IE, m_sBodyApprValue_IE, m_sArmApprValue_IE, m_sLegApprValue_IE; // Re-Coding Sprite xRisenx
+	short m_sHeadApprValue_IE, m_sBodyApprValue_IE, m_sArmApprValue_IE, m_sLegApprValue_IE;
 	int m_iStatus_IE;
 	short m_sViewDstX, m_sViewDstY;
 	short m_sViewPointX, m_sViewPointY;
 	short m_sVDL_X, m_sVDL_Y;
 
-	uint16_t m_wCommObjectID;
+	uint64_t m_wCommObjectID;
 	uint16_t m_wEnterGameType;
 #ifdef MoreColors
 	uint16_t m_wR[16], m_wG[16], m_wB[16];

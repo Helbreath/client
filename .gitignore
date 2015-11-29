@@ -42,3 +42,4 @@ bin/screenshots/*
 *.zip
 *.brs
 bin/data/*
+bin/

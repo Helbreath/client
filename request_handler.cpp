@@ -13,8 +13,9 @@ void request_handler::handle_request(const request& req)
 	connection & c = *req.connection;
 	//client->lastpackettime = timestamp;
 
-	if (c.client.gamemode == 1)
-		c.client.GameRecvMsgHandler(req.size, req.data);
-	else
-		c.client.LogRecvMsgHandler(req.data);
+	shared_ptr<CGame::MsgQueueEntry> msg(new CGame::MsgQueueEntry);
+	msg->data = new char[req.size];
+	memcpy(msg->data, req.data, req.size);
+	msg->size = req.size;
+	c.client.PutMsgQueue(msg, c.client.socketpipe);
 }

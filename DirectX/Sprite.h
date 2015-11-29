@@ -68,7 +68,7 @@ public:
 	void PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, uint32_t dwTime);
 	void PutSpriteFastNoColorKey(int sX, int sY, int sFrame, uint32_t dwTime);
 
-	void PutTransSprite(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth = 30);
+	void PutTransSprite(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth = 153);
 	void PutTransSprite2(int sX, int sY, int sFrame, uint32_t dwTime);
 	void PutTransSprite_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth = 0);
 	void PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint32_t dwTime);

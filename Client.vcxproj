@@ -47,6 +47,7 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)_d</TargetName>
+    <LibraryPath>lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>bin\bin\</OutDir>
@@ -64,9 +65,9 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;BOOST_ALL_DYN_LINK;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader />
@@ -78,7 +79,8 @@
       <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Shared\;include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Shared\;include;Z:\Helbreath\boost_1_59_0</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -96,7 +98,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>lib/libboost_chrono-vc120-mt-gd-1_57.lib;lib/libboost_date_time-vc120-mt-gd-1_57.lib;lib/libboost_regex-vc120-mt-gd-1_57.lib;lib/libboost_thread-vc120-mt-gd-1_57.lib;lib/libboost_system-vc120-mt-gd-1_57.lib;lib/libboost_timer-vc120-mt-gd-1_57.lib;lib/Irrlicht.lib;netapi32.lib;winmm.lib;lib/search.lib;ws2_32.lib;lib/cximage.lib;lib/jpeg.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>boost_chrono-vc120-mt-gd-1_59.lib;boost_date_time-vc120-mt-gd-1_59.lib;boost_regex-vc120-mt-gd-1_59.lib;boost_thread-vc120-mt-gd-1_59.lib;boost_system-vc120-mt-gd-1_59.lib;boost_timer-vc120-mt-gd-1_59.lib;Irrlicht.lib;netapi32.lib;winmm.lib;search.lib;ws2_32.lib;cximage.lib;jpeg.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -130,7 +132,7 @@
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WarningLevel>Level1</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalIncludeDirectories>Shared\;include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Shared\;include;C:\Users\Zero\Documents\GitHub\xtreme-client\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
@@ -145,7 +147,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>lib/libboost_chrono-vc120-mt-1_57.lib;lib/libboost_date_time-vc120-mt-1_57.lib;lib/libboost_regex-vc120-mt-1_57.lib;lib/libboost_thread-vc120-mt-1_57.lib;lib/libboost_system-vc120-mt-1_57.lib;lib/libboost_timer-vc120-mt-1_57.lib;lib/Irrlicht.lib;netapi32.lib;winmm.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>boost_chrono-vc120-mt-1_59.lib;boost_date_time-vc120-mt-1_59.lib;boost_regex-vc120-mt-1_59.lib;boost_thread-vc120-mt-1_59.lib;boost_system-vc120-mt-1_59.lib;boost_timer-vc120-mt-1_59.lib;Irrlicht.lib;netapi32.lib;winmm.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EntryPointSymbol>main</EntryPointSymbol>

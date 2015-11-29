@@ -120,6 +120,7 @@ int main(int argc, char * argv[])
 	MSG msg;
 	while (G_pGame->device->run() && G_pGame->driver)
 	{
+		G_pGame->OnTimer();
 // 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 // 		{
 // 			if (msg.message == WM_QUIT)
@@ -288,6 +289,9 @@ int main(int argc, char * argv[])
 
 	G_pGame->Quit();
 	G_pGame->device->closeDevice();
+	//G_pGame->_socket->stop();
+	G_pGame->new_connection_->stop();
+	G_pGame->socketthread->join();
 	delete G_pGame;
 
 	return 0;

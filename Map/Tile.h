@@ -19,10 +19,10 @@ public:
 	
 	CTile();
 	virtual ~CTile();	
-	uint32_t m_dwOwnerTime;
-	uint32_t m_dwEffectTime;
-	uint32_t m_dwDeadOwnerTime;
-	uint32_t m_dwDynamicObjectTime;
+	uint64_t m_dwOwnerTime;
+	uint64_t m_dwEffectTime;
+	uint64_t m_dwDeadOwnerTime;
+	uint64_t m_dwDynamicObjectTime;
 	
 	int   m_iChatMsg;
 	int   m_cItemColor; 
@@ -32,8 +32,8 @@ public:
 	int   m_iApprColor; 
 	int   m_iDeadChatMsg;
 
-	uint16_t  m_wDeadObjectID;
-	uint16_t  m_wObjectID;
+	uint64_t  m_wDeadObjectID;
+	uint64_t  m_wObjectID;
 
 	short m_sOwnerType;							// +B2C
 	short m_sAppr1;								// +B2E
@@ -42,10 +42,10 @@ public:
 	short m_sAppr4;								// +B34
 	int m_iStatus;								// +B38
 
-	short m_sHeadApprValue; // Re-Coding Sprite xRisenx
-	short m_sBodyApprValue; // Re-Coding Sprite xRisenx
-	short m_sArmApprValue; // Re-Coding Sprite xRisenx
-	short m_sLegApprValue; // Re-Coding Sprite xRisenx
+	short m_sHeadApprValue;
+	short m_sBodyApprValue;
+	short m_sArmApprValue;
+	short m_sLegApprValue;
 
 	short m_sDeadOwnerType;						// +B3C
 	short m_sDeadAppr1;
@@ -54,10 +54,10 @@ public:
 	short m_sDeadAppr4;
 	int m_iDeadStatus;
 
-	short m_sDeadHeadApprValue; // Re-Coding Sprite xRisenx
-	short m_sDeadBodyApprValue; // Re-Coding Sprite xRisenx
-	short m_sDeadArmApprValue; // Re-Coding Sprite xRisenx
-	short m_sDeadLegApprValue; // Re-Coding Sprite xRisenx
+	short m_sDeadHeadApprValue;
+	short m_sDeadBodyApprValue;
+	short m_sDeadArmApprValue;
+	short m_sDeadLegApprValue;
 
 //#ifdef RemoveCriticalHG
 	//int m_sV1;		//BESK: this value is the amount of damage done to something in this tile

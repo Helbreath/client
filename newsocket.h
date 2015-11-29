@@ -10,6 +10,7 @@
 #include <boost/thread/shared_lock_guard.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/shared_ptr.hpp>
+#include <mutex>
 #include "request_handler.h"
 #include "streams.h"
 
@@ -62,6 +63,8 @@ public:
 
 	/// The incoming request.
 	request request_;
+
+	std::mutex mutsocket;
 
 	int32_t size;
 };

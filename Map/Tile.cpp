@@ -80,10 +80,10 @@ void CTile::Clear()
 	m_sAppr4 = 0;
 	m_iApprColor = 0; 
 
-	m_sHeadApprValue = 0; // Re-Coding Sprite xRisenx
-	m_sBodyApprValue = 0; // Re-Coding Sprite xRisenx
-	m_sArmApprValue = 0; // Re-Coding Sprite xRisenx
-	m_sLegApprValue = 0; // Re-Coding Sprite xRisenx
+	m_sHeadApprValue = 0;
+	m_sBodyApprValue = 0;
+	m_sArmApprValue = 0;
+	m_sLegApprValue = 0;
 
 	//m_dwItemAttribute = NULL; // 1234
 

@@ -30,11 +30,13 @@ void connection::start()
 void connection::stop()
 {
 	socket_.close();
-	client._socket.reset();
+	if (client._socket)
+		client._socket.reset();
 }
 
 void connection::write(const char * data, const uint64_t size)
 {
+	std::lock_guard<std::mutex> lock(mutsocket);
 	char ckey[1] = { 0 };
 	char csize[2];
 	try {
@@ -45,12 +47,7 @@ void connection::write(const char * data, const uint64_t size)
 			boost::asio::buffer(csize, 2),
 			boost::asio::buffer(data, size)
 		};
-		boost::asio::async_write(socket_, buffers, [this](boost::system::error_code ec, std::size_t){
-			if (ec)
-			{
-				//error
-			}
-		});
+		boost::asio::write(socket_, buffers);
 	}
 	catch (std::exception& e)
 	{
@@ -60,6 +57,7 @@ void connection::write(const char * data, const uint64_t size)
 
 void connection::write(StreamWrite & sw)
 {
+	std::lock_guard<std::mutex> lock(mutsocket);
 	char ckey[1] = { 0 };
 	char csize[2];
 	try {
@@ -70,12 +68,7 @@ void connection::write(StreamWrite & sw)
 			boost::asio::buffer(csize, 2),
 			boost::asio::buffer(sw.data, sw.size)
 		};
-		boost::asio::async_write(socket_, buffers, [this](boost::system::error_code ec, std::size_t){
-			if (ec)
-			{
-				//error
-			}
-		});
+		boost::asio::write(socket_, buffers);
 	}
 	catch (std::exception& e)
 	{
@@ -86,6 +79,8 @@ void connection::write(StreamWrite & sw)
 void connection::handle_read_header(const boost::system::error_code& e,
 	std::size_t bytes_transferred)
 {
+	std::lock_guard<std::mutex> lock(mutsocket);
+	//printf("bytes_transferred head: %d\n", bytes_transferred);
 	if (!e)
 	{
 		if (bytes_transferred == 3)
@@ -114,6 +109,8 @@ void connection::handle_read_header(const boost::system::error_code& e,
 void connection::handle_read(const boost::system::error_code& e,
 	std::size_t bytes_transferred)
 {
+	std::lock_guard<std::mutex> lock(mutsocket);
+	//printf("bytes_transferred body: %d - expected: %d\n", bytes_transferred, size);
 	if (!e)
 	{
 		if (bytes_transferred != size - 3)
@@ -157,6 +154,7 @@ void connection::handle_read(const boost::system::error_code& e,
 
 void connection::handle_write(const boost::system::error_code& e)
 {
+	std::lock_guard<std::mutex> lock(mutsocket);
 	if (!e)
 	{
 		// 		// Initiate graceful connection closure.
