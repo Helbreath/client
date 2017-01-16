@@ -12,8 +12,8 @@
 #include <time.h>
 #include <signal.h>
 #include <thread>
-#include <lua5.2/lua.hpp>
-#include <lua5.2/lauxlib.h>
+#include <lua.hpp>
+#include <lauxlib.h>
 #ifndef WIN32
 #include <pthread.h>
 #include <arpa/inet.h>
