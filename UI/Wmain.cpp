@@ -17,7 +17,7 @@
 #include "..\Game.h"
 #include "..\res\resource.h"
 #include "..\GlobalDef.h"
-#include "CEGUI/RendererModules/Irrlicht/Renderer.h"
+#include <CEGUI/RendererModules/Irrlicht/Renderer.h>
 
 extern "C" __declspec( dllimport) int __FindHackingDll__(char *);
 

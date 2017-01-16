@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -17,13 +17,13 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -47,7 +47,7 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)_d</TargetName>
-    <LibraryPath>C:\Users\Zero\Documents\GitHub\xtreme-client\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\irrlicht-1.8.4\lib\Win32-visualstudio;..\boost_1_63_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>bin\bin\</OutDir>
@@ -79,7 +79,7 @@
       <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Shared\;include;Z:\Helbreath\boost_1_59_0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\irrlicht-1.8.4\include;..\boost\include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -98,7 +98,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>winmm.lib;DbgHelp.lib;SILLY_d.lib;xerces-c_3_d.lib;zlib_d.lib;pcre_d.lib;libpng_d.lib;jpeg_d.lib;freetype_d.lib;CEGUIBase-0_d.lib;CEGUICommonDialogs-0_d.lib;CEGUICoreWindowRendererSet_d.lib;CEGUIIrrlichtRenderer-0_d.lib;CEGUISILLYImageCodec_d.lib;CEGUIXercesParser_d.lib;boost_chrono-vc120-mt-gd-1_59.lib;boost_date_time-vc120-mt-gd-1_59.lib;boost_regex-vc120-mt-gd-1_59.lib;boost_thread-vc120-mt-gd-1_59.lib;boost_filesystem-vc120-mt-gd-1_59.lib;boost_system-vc120-mt-gd-1_59.lib;boost_timer-vc120-mt-gd-1_59.lib;Irrlicht.lib;netapi32.lib;lib/search.lib;ws2_32.lib;cximage.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;DbgHelp.lib;SILLY_d.lib;xerces-c_3_d.lib;zlib_d.lib;pcre_d.lib;libpng_d.lib;jpeg_d.lib;freetype_d.lib;CEGUIBase-0_d.lib;CEGUICommonDialogs-0_d.lib;CEGUICoreWindowRendererSet_d.lib;CEGUIIrrlichtRenderer-0_d.lib;CEGUISILLYImageCodec_d.lib;CEGUIXercesParser_d.lib;boost_chrono-vc140-mt-gd-1_63.lib;boost_date_time-vc140-mt-gd-1_63.lib;boost_regex-vc140-mt-gd-1_63.lib;boost_thread-vc140-mt-gd-1_63.lib;boost_filesystem-vc140-mt-gd-1_63.lib;boost_system-vc140-mt-gd-1_63.lib;boost_timer-vc140-mt-gd-1_63.lib;Irrlicht.lib;netapi32.lib;lib/search.lib;ws2_32.lib;cximage.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <EntryPointSymbol>
       </EntryPointSymbol>
