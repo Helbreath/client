@@ -1,0 +1,851 @@
+
+void CGame::OnSysKeyDown(WPARAM wParam)
+{
+	switch (wParam)
+	{
+		case VK_SHIFT:
+			m_bShiftPressed = true;
+			break;
+		case VK_CONTROL:
+			m_bCtrlPressed = true;
+			break;
+		case VK_RETURN:
+			/*if (m_altPressed)
+			{
+				for (int i = 0; i < MAXSPRITES; ++i)
+				{
+					delete m_pSprite[i];
+					m_pSprite[i] = 0;
+				}
+				for (int i = 0; i < MAXTILES; ++i)
+				{
+					delete m_pTileSpr[i];
+					m_pTileSpr[i] = 0;
+				}
+
+				for (int i = 0; i < MAXEFFECTSPR; ++i)
+				{
+					delete m_pEffectSpr[i];
+					m_pEffectSpr[i] = 0;
+				}
+
+				//fullscreen swap?
+				driver->endScene();
+				device->closeDevice();
+				if (fullscreen)
+				{
+					this->screenwidth = 800;
+					this->screenheight = 600;
+				}
+				else
+				{
+					this->screenwidth = 1920;
+					this->screenheight = 1080;
+				}
+				oldmode = m_cGameMode;
+				CreateRenderer(!fullscreen);
+				m_hWnd = G_hWnd;
+				//m_cGameMode = GAMEMODE_ONLOADING;
+				ChangeGameMode(GAMEMODE_ONLOADING);
+				fullscreenswap = true;
+				driver->beginScene();
+
+				m_pSprite[SPRID_INTERFACE_ND_LOADING] = CSprite::CreateSprite(L"New-Dialog", 0, false);
+				m_pSprite[SPRID_INTERFACE_ADDINTERFACE] = CSprite::CreateSprite(L"interface2", 0, false);
+				m_pSprite[SPRID_INTERFACE_CRAFTING] = CSprite::CreateSprite(L"interface2", 3, false);
+				m_pSprite[SPRID_INTERFACE_SPRFONTS2] = CSprite::CreateSprite(L"interface2", 1, false);
+				m_pSprite[SPRID_INTERFACE_F1HELPWINDOWS] = CSprite::CreateSprite(L"interface2", 2, false);
+				m_pSprite[SPRID_INTERFACE_FONT1] = CSprite::CreateSprite(L"sprfonts", 0, false);
+				m_pSprite[SPRID_INTERFACE_FONT2] = CSprite::CreateSprite(L"sprfonts", 1, false);
+
+				m_cLoading = 0;
+			}*/
+			m_bEnterPressed = true;
+			break;
+		case VK_MENU:
+			m_altPressed = true;
+			break;
+		case VK_F10:
+			if (!m_bIsDialogEnabled[57] && m_iGuildRank != GUILDRANK_NONE)
+				EnableDialogBox(57, 0, 0, 0);
+			else
+				DisableDialogBox(57);
+			break;
+	}
+}
+
+void CGame::OnSysKeyUp(WPARAM wParam)
+{
+	switch (wParam)
+	{
+		case VK_SHIFT:
+			m_bShiftPressed = false;
+			break;
+		case VK_CONTROL:
+			m_bCtrlPressed = false;
+			break;
+		case VK_RETURN:
+			m_bEnterPressed = false;
+			if (m_bToggleScreen == true)
+			{
+				m_bIsRedrawPDBGS = true;
+				////DIRECTX m_DDraw.ChangeDisplayMode(G_hWnd);
+			}
+			break;
+		case VK_ESCAPE:
+			m_bEscPressed = false;
+		case VK_MENU:
+			m_altPressed = false;
+			break;
+
+	}
+}
+
+void CGame::OnKeyUp(WPARAM wParam)
+{
+	int i = 0;
+	uint32_t dwTime = unixtime();
+	static uint32_t dwPrevTabTime = 0;
+
+	switch (wParam) {
+		case VK_ADD:
+			foregroundfpstarget++;
+			backgroundfpstarget++;
+			break;
+		case VK_SUBTRACT:
+			foregroundfpstarget--;
+			backgroundfpstarget--;
+			break;
+		case VK_MENU:
+			m_altPressed = false;
+			break;
+		case VK_SHIFT:
+		case 160://temporary (irrlicht shift code)
+			m_bShiftPressed = false;
+			break;
+		case VK_CONTROL:
+		case 162://temporary
+			m_bCtrlPressed = false;
+			break;
+
+		case 65://'A'
+			if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus))
+			{
+				if (m_bForceAttack)
+				{
+					m_bForceAttack = false;
+					AddEventList(MSG_FORCEATTACK_OFF, 10);
+				}
+				else
+				{
+					m_bForceAttack = true;
+					AddEventList(MSG_FORCEATTACK_ON, 10);
+				}
+			}
+			break;
+
+		case 67://'C' // Crit Command / CTRL + C xRisenx
+			if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus))
+			{
+				bSendCommand(MSGID_REQUEST_CRITICALS, 0, 0, 0, 0, 0, 0, 0);
+			}
+			break;
+
+		case 68://'D'
+			if (m_bCtrlPressed == true && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus))
+			{
+				m_cDetailLevel++;
+				if (m_cDetailLevel > 2) m_cDetailLevel = 0;
+				switch (m_cDetailLevel) {
+					case 0:
+						AddEventList(NOTIFY_MSG_DETAIL_LEVEL_LOW, 10);
+						break;
+					case 1:
+						AddEventList(NOTIFY_MSG_DETAIL_LEVEL_MEDIUM, 10);
+						break;
+					case 2:
+						AddEventList(NOTIFY_MSG_DETAIL_LEVEL_HIGH, 10);
+						break;
+				}
+			}
+			break;
+
+		case 70: //'F'
+			if (m_bCtrlPressed)
+			{
+				LoadFriendList();
+				UpdateFriendsStatus();
+				EnableDialogBox(43, 0, 0, 0);
+			}
+			break;
+
+		case 72: // 'H' // Snoopy: Mimics VK_F1
+			if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus))
+			{
+				if (m_bIsDialogEnabled[35] == false)
+					EnableDialogBox(35, 0, 0, 0);
+				else
+				{
+					DisableDialogBox(35);
+					DisableDialogBox(18);
+				}
+			}
+			break;
+
+		case 87: // 'W' // Snoopy: mimics VK_F11 Togles transparency
+			if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus))
+			{
+				m_bDialogTrans = !m_bDialogTrans;
+			}
+			break;
+
+		case 88: // 'X' // Snoopy: mimics VK_F12 Logout Window
+			if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus))
+			{
+				if (m_bIsDialogEnabled[19] == false)
+					EnableDialogBox(19, 0, 0, 0);
+				else DisableDialogBox(19);
+			}
+			break;
+
+		case 77://'M'
+			if (m_cGameMode == GAMEMODE_ONMAINGAME)
+			{
+				if (m_bCtrlPressed)
+				{
+					if (m_bIsDialogEnabled[9] == true) DisableDialogBox(9);
+					else EnableDialogBox(9, 0, 0, 0, 0);
+				}
+			}
+			break;
+
+		case 78://'N'
+			if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && !m_bInputStatus) {
+				if (m_targetNeutral) {
+					m_targetNeutral = false;
+					AddEventList(MSG_TARGETNEUTRAL_OFF, 10);
+				}
+				else {
+					m_targetNeutral = true;
+					AddEventList(MSG_TARGETNEUTRAL_ON, 10);
+				}
+			}
+			break;
+
+		case 80://'P'
+			if ((m_bCtrlPressed == true) && (m_cGameMode == GAMEMODE_ONMAINGAME) && (!m_bInputStatus))
+			{
+				if (_tmp_sOwnerType < 7 && (strlen(_tmp_cName) > 0) && (m_iIlusionOwnerH == 0)
+					&& (strcmp(m_cMCName, m_cPlayerName) != 0) && m_cMCName[0] != '_') {
+					m_dialogBoxes[32].SetMode(3);
+					PlaySound('E', 14, 5);
+					ZeroMemory(m_dialogBoxes[32].cStr, sizeof(m_dialogBoxes[32].cStr));
+					strcpy(m_dialogBoxes[32].cStr, _tmp_cName);
+					bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQUEST_JOINPARTY, 0, 1, 0, 0, _tmp_cName);
+				}
+				else {
+					m_dialogBoxes[32].SetMode(0);
+					PlaySound('E', 14, 5);
+
+					AddEventList(POINT_COMMAND_HANDLER1, 10);
+				}
+			}
+			break;
+
+		case 82://'R'
+			if (m_bCtrlPressed == true && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus))
+			{
+				if (m_bRunningMode)
+				{
+					m_bRunningMode = false;
+					AddEventList(NOTIFY_MSG_CONVERT_WALKING_MODE, 10);
+				}
+				else
+				{
+					m_bRunningMode = true;
+					AddEventList(NOTIFY_MSG_CONVERT_RUNNING_MODE, 10);
+				}
+			}
+			break;
+
+		case 83://'S'
+			if (m_bCtrlPressed == true && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus))
+			{
+				if (m_bMusicStat == true) // Music Off
+				{
+					m_bMusicStat = false;
+					if (m_bSoundFlag)
+					{
+						// 					if (m_pBGM != NULL)
+						// 					{
+						// 						m_pBGM->bStop();
+						// 						delete m_pBGM;
+						// 						m_pBGM = NULL;
+						// 					}//DIRECTX
+					}
+					AddEventList(NOTIFY_MSG_MUSIC_OFF, 10);
+					break;
+				}
+				else if (m_bSoundStat == true)
+				{
+					//DIRECTX				m_pESound[38]->bStop();
+					m_bSoundStat = false;
+					AddEventList(NOTIFY_MSG_SOUND_OFF, 10);
+					break;
+				}
+				else 	// Music On
+				{
+					if (m_bSoundFlag)
+					{
+						m_bMusicStat = true;
+						AddEventList(NOTIFY_MSG_MUSIC_ON, 10);
+					}
+					if (m_bSoundFlag)
+					{
+						m_bSoundStat = true;
+						AddEventList(NOTIFY_MSG_SOUND_ON, 10);
+					}
+					StartBGM();
+				}
+			}
+			break;
+
+		case 84: //'T'
+			if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus))
+			{
+				char tempid[100];
+				uint8_t onButton = m_dialogBoxes[DIALOG_CHAT].OnButton();
+
+				ZeroMemory(tempid, sizeof(tempid));
+
+				if (m_bIsDialogEnabled[10] == true && onButton >= 10 && onButton <= 17)
+				{
+					CStrTok* pStrTok;
+					char* token, cBuff[128];
+					char   seps[] = "]: ";
+
+					int i = abs(onButton - 17);
+					if (i + m_dialogBoxes[10].sView >= m_chatDisplay->size()) return;
+					CMsg* msg = *(m_chatDisplay->rbegin() + m_dialogBoxes[10].sView + i);
+
+					if (msg->m_pMsg[0] == ' ') i++;
+					strcpy(cBuff, msg->m_pMsg);
+
+					pStrTok = new CStrTok(cBuff, seps);
+					token = pStrTok->pGet();
+					if (cBuff[0] == '[') // Time stamped msg
+					{
+						token = pStrTok->pGet();
+						token = pStrTok->pGet();
+						token = pStrTok->pGet();
+					}
+					if (token != 0) {
+						wsprintfA(tempid, "/to %s", token);
+						bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, tempid);
+					}
+					delete pStrTok;
+				}
+				else if (_tmp_sOwnerType < 7 && (strlen(_tmp_cName) > 0) && (m_iIlusionOwnerH == 0)
+					&& ((m_bIsCrusadeMode == false) || _iGetFOE(_tmp_iStatus) >= 0))
+				{
+					wsprintfA(tempid, "/to %s", _tmp_cName);
+					bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, tempid);
+				}
+				else
+				{
+					EndInputString();
+					wsprintfA(m_cChatMsg, "/to ");
+					//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
+					StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
+				}
+			}
+			break;
+			// 	case 107: //'+'
+			// 		if(m_bInputStatus == FALSE) m_bZoomMap = TRUE;
+			// 		break;
+			// 	case 109: //'-'
+			// 		if(m_bInputStatus == FALSE) m_bZoomMap = FALSE;
+			// 		break;
+
+		case VK_F2:
+			UseShortCut(1);
+			break;
+
+		case VK_F3:
+			UseShortCut(2);
+			break;
+
+		case VK_INSERT:
+			if (m_iHP <= 0) return;
+			if (m_bItemUsingStatus == true)
+			{
+				AddEventList(USE_RED_POTION1, 10);
+				return;
+			}
+			if (m_bIsDialogEnabled[27] == true)
+			{
+				AddEventList(USE_RED_POTION2, 10);
+				return;
+			}
+			for (i = 0; i < MAXITEMS; i++)
+				if ((m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
+					(m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 1))
+				{
+					bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
+					m_bIsItemDisabled[i] = true;
+					m_bItemUsingStatus = true;
+					return;
+				}
+
+			for (i = 0; i < MAXITEMS; i++)
+				if ((m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
+					(m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 2))
+				{
+					bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
+					m_bIsItemDisabled[i] = true;
+					m_bItemUsingStatus = true;
+					return;
+				}
+			break;
+
+		case VK_DELETE:
+			if (m_iHP <= 0) return;
+			if (m_bItemUsingStatus == true)
+			{
+				AddEventList(USE_BLUE_POTION1, 10);
+				return;
+			}
+			if (m_bIsDialogEnabled[27] == true)
+			{
+				AddEventList(USE_BLUE_POTION2, 10);
+				return;
+			}
+
+			for (i = 0; i < MAXITEMS; i++)
+				if ((m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
+					(m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 3))
+				{
+					bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
+					m_bIsItemDisabled[i] = true;
+					m_bItemUsingStatus = true;
+					return;
+				}
+
+			for (i = 0; i < MAXITEMS; i++)
+				if ((m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
+					(m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 4))
+				{
+					bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
+					m_bIsItemDisabled[i] = true;
+					m_bItemUsingStatus = true;
+					return;
+				}
+			break;
+
+		case VK_END:
+			if (!(m_bIsDialogEnabled[7] && m_dialogBoxes[7].GetMode() == 1 && iGetTopDialogBoxIndex() == 7) &&
+				!(m_bIsDialogEnabled[17] && m_dialogBoxes[17].GetMode() == 1 && iGetTopDialogBoxIndex() == 17) &&
+				!(m_bIsDialogEnabled[58] && m_dialogBoxes[58].GetMode() == 1 && iGetTopDialogBoxIndex() == 58) &&
+				!(m_bIsDialogEnabled[62] && m_dialogBoxes[62].GetMode() == 1 && iGetTopDialogBoxIndex() == 62) &&
+				!m_bInputStatus && m_cBackupChatMsg[0] != '!' && m_cBackupChatMsg[0] != '~' &&
+				m_cBackupChatMsg[0] != '^' && m_cBackupChatMsg[0] != '@')
+			{
+				ZeroMemory(m_cChatMsg, sizeof(m_cChatMsg));
+				strcpy(m_cChatMsg, m_cBackupChatMsg);
+				//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
+				StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
+			}
+			break;
+
+		case VK_F4:
+			if (m_cGameMode != GAMEMODE_ONMAINGAME) return;
+			UseMagic(m_sMagicShortCut);
+			break;
+
+		case VK_F5:
+			if (m_bIsDialogEnabled[1] == false)
+				EnableDialogBox(1, 0, 0, 0);
+			else DisableDialogBox(1);
+			break;
+
+		case VK_F6:
+			if (m_bIsDialogEnabled[2] == false)
+				EnableDialogBox(2, 0, 0, 0);
+			else DisableDialogBox(2);
+			break;
+
+		case VK_F7:
+			if (m_bIsDialogEnabled[3] == false)
+				EnableDialogBox(3, 0, 0, 0);
+			else DisableDialogBox(3);
+			break;
+			//#ifdef TitleClient
+				/*case VK_F8:
+					if (m_bIsDialogEnabled[63] == FALSE)
+						EnableDialogBox(63, NULL, NULL, NULL);
+					else DisableDialogBox(63);
+					break;*/
+					//#else
+		case VK_F8:
+			if (m_bIsDialogEnabled[15] == false)
+				EnableDialogBox(15, 0, 0, 0);
+			else DisableDialogBox(15);
+			break;
+			//#endif
+		case VK_F9:
+			if (m_bIsDialogEnabled[10] == false)
+				EnableDialogBox(10, 0, 0, 0);
+			else DisableDialogBox(10);
+			break;
+
+		case VK_F11:
+			m_bDialogTrans = !m_bDialogTrans;
+			break;
+
+		case VK_F12:
+			if (m_bInputStatus) return;
+			if (m_bIsDialogEnabled[19] == false)
+				EnableDialogBox(19, 0, 0, 0);
+			else DisableDialogBox(19);
+			CreateScreenShot();
+			break;
+
+		case VK_F1:
+			if (m_bInputStatus) return;
+			if (m_bIsDialogEnabled[35] == false) // 35 CLEROTH
+				EnableDialogBox(35, 0, 0, 0);
+			else
+			{
+				DisableDialogBox(35);
+				DisableDialogBox(18);
+			}
+			break;
+
+		case VK_UP:
+			m_cArrowPressed = 1;
+			if (m_cGameMode == GAMEMODE_ONMAINGAME)
+			{
+				int iTotalMsg = 0;
+				for (int i = MAXWHISPERMSG - 1; i >= 0; i--)
+				{
+					if (m_pWhisperMsg[i] != 0)
+					{
+						iTotalMsg = i;
+						break;
+					}
+				}
+				m_cWhisperIndex++;
+				if (m_cWhisperIndex > iTotalMsg) m_cWhisperIndex = 0;
+				if (m_cWhisperIndex < 0) m_cWhisperIndex = iTotalMsg;
+				if (m_pWhisperMsg[m_cWhisperIndex] != 0) {
+					EndInputString();
+					wsprintfA(m_cChatMsg, "/to %s", m_pWhisperMsg[m_cWhisperIndex]->m_pMsg);
+					//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
+					StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
+				}
+			}
+			break;
+
+		case VK_RIGHT:
+			m_cArrowPressed = 2;
+			break;
+
+		case VK_DOWN:
+			m_cArrowPressed = 3;
+			if (m_cGameMode == GAMEMODE_ONMAINGAME)
+			{
+				int iTotalMsg = 0;
+				for (int i = MAXWHISPERMSG - 1; i >= 0; i--)
+				{
+					if (m_pWhisperMsg[i] != 0)
+					{
+						iTotalMsg = i;
+						break;
+					}
+				}
+				m_cWhisperIndex--;
+				if (m_cWhisperIndex < 0) m_cWhisperIndex = iTotalMsg;
+				if (m_cWhisperIndex > iTotalMsg) m_cWhisperIndex = 0;
+				if (m_pWhisperMsg[m_cWhisperIndex] != 0) {
+					EndInputString();
+					wsprintfA(m_cChatMsg, "/to %s", m_pWhisperMsg[m_cWhisperIndex]->m_pMsg);
+					//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
+					StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
+				}
+			}
+			break;
+
+		case VK_LEFT:
+			m_cArrowPressed = 4;
+			break;
+
+		case VK_SNAPSHOT:
+			CreateScreenShot();
+			break;
+
+#ifndef USING_WIN_IME
+		case VK_TAB:
+			if (m_bShiftPressed)
+			{
+				m_cCurFocus--;
+				if (m_cCurFocus < 1) m_cCurFocus = m_cMaxFocus;
+			}
+			else
+			{
+				m_cCurFocus++;
+				if (m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
+			}
+			if ((dwTime - dwPrevTabTime) > 500 && m_cGameMode == GAMEMODE_ONMAINGAME)
+			{
+				dwPrevTabTime = dwTime;
+				bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_TOGGLECOMBATMODE, 0, 0, 0, 0, 0);
+			}
+			break;
+
+		case VK_RETURN:
+			m_bEnterPressed = true;
+			//if (m_altPressed)
+				//change screen mode
+			break;
+#endif
+
+		case VK_HOME:
+			if (m_cGameMode == GAMEMODE_ONMAINGAME) {
+				bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_TOGGLESAFEATTACKMODE, 0, 0, 0, 0, 0);
+			}
+			break;
+
+		case VK_ESCAPE:
+			m_bEscPressed = true;
+			if (m_cGameMode == GAMEMODE_ONMAINGAME)
+			{
+				if ((m_bIsObserverMode == true) && (m_bShiftPressed))
+				{ //ObserverMode Shift+Esc
+					// Log Out
+					if (m_cLogOutCount == -1) m_cLogOutCount = 1;
+					DisableDialogBox(19);
+					PlaySound('E', 14, 5);
+				}
+				else if (m_cLogOutCount != -1)
+				{
+					if (m_bForceDisconn == false)
+					{ //Esc
+						m_cLogOutCount = -1;
+						AddEventList(DLGBOX_CLICK_SYSMENU2, 10);
+					}
+				}
+				if (m_bIsGetPointingMode == true)
+				{
+					m_bIsGetPointingMode = false;
+					AddEventList(COMMAND_PROCESSOR1, 10);
+				}
+				m_bIsF1HelpWindowEnabled = false;
+			}
+			if (!clipmousewindow)
+			{
+				RECT trect;
+				GetWindowRect(*(HWND*)&G_hWnd, &trect);
+				ClipCursor(&trect);
+				clipmousegame = true;
+				clipmousewindow = true;
+			}
+			else
+			{
+				clipmousewindow = clipmousegame = false;
+				ClipCursor(0);
+			}
+			break;
+
+		case 33:
+			if (m_cGameMode != GAMEMODE_ONMAINGAME) return;
+			if (m_bInputStatus) return;
+			if (m_bIsSpecialAbilityEnabled == true)
+			{
+				if (m_iSpecialAbilityType != 0) {
+					bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQUEST_ACTIVATESPECABLTY, 0, 0, 0, 0, 0);
+					m_bIsSpecialAbilityEnabled = false;
+				}
+				else AddEventList(ON_KEY_UP26, 10);
+			}
+			else {
+				if (m_iSpecialAbilityType == 0) AddEventList(ON_KEY_UP26, 10);
+				else {
+					if ((m_sPlayerAppr4 & 0x00F0) != 0) {
+						AddEventList(ON_KEY_UP28, 10);
+						return;
+					}
+
+					i = (dwTime - m_dwSpecialAbilitySettingTime) / 1000;
+					i = m_iSpecialAbilityTimeLeftSec - i;
+					if (i < 0) i = 0;
+
+					ZeroMemory(G_cTxt, sizeof(G_cTxt));
+					if (i < 60) {
+						switch (m_iSpecialAbilityType) {
+							case 1: wsprintfA(G_cTxt, ON_KEY_UP29, i); break;//"
+							case 2: wsprintfA(G_cTxt, ON_KEY_UP30, i); break;//"
+							case 3: wsprintfA(G_cTxt, ON_KEY_UP31, i); break;//"
+							case 4: wsprintfA(G_cTxt, ON_KEY_UP32, i); break;//"
+							case 5: wsprintfA(G_cTxt, ON_KEY_UP33, i); break;//"
+							case 50:wsprintfA(G_cTxt, ON_KEY_UP34, i); break;//"
+							case 51:wsprintfA(G_cTxt, ON_KEY_UP35, i); break;//"
+							case 52:wsprintfA(G_cTxt, ON_KEY_UP36, i); break;//"
+						}
+					}
+					else {
+						switch (m_iSpecialAbilityType) {
+							case 1: wsprintfA(G_cTxt, ON_KEY_UP37, i / 60); break;//"
+							case 2: wsprintfA(G_cTxt, ON_KEY_UP38, i / 60); break;//"
+							case 3: wsprintfA(G_cTxt, ON_KEY_UP39, i / 60); break;//"
+							case 4: wsprintfA(G_cTxt, ON_KEY_UP40, i / 60); break;//"
+							case 5: wsprintfA(G_cTxt, ON_KEY_UP41, i / 60); break;//"
+							case 50:wsprintfA(G_cTxt, ON_KEY_UP42, i / 60); break;//"
+							case 51:wsprintfA(G_cTxt, ON_KEY_UP43, i / 60); break;//"
+							case 52:wsprintfA(G_cTxt, ON_KEY_UP44, i / 60); break;//"
+						}
+					}
+					AddEventList(G_cTxt, 10);
+				}
+			}
+			break;
+	}
+}
+
+void CGame::OnKeyDown(WPARAM wParam)
+{
+	switch (wParam) {
+		case VK_CONTROL:
+		case 162://temporary
+			m_bCtrlPressed = true;
+			break;
+		case VK_SHIFT:
+		case 160://temporary (irrlicht shift code)
+			m_bShiftPressed = true;
+			break;
+		case VK_INSERT:
+		case VK_DELETE:
+			break;
+		case VK_TAB:
+		{
+			/*if (m_cGameMode == GAMEMODE_ONMAINMENU)
+			{
+				WindowManager& wmgr = WindowManager::getSingleton();
+				Window* myRoot;
+				myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
+				Window* login = myRoot->getChild("login")->getChild("loginchild");
+				Window* active = login->getActiveChild();
+				if (active)
+				{
+					if (active->getName() == CEGUI::String("username"))
+						login->getChild("password")->activate();
+					else if (active->getName() == CEGUI::String("password"))
+						login->getChild("username")->activate();
+				}
+			}*/
+		}
+		break;
+		case VK_RETURN:
+		case VK_ESCAPE:
+		case VK_END:
+		case VK_HOME:
+			break;
+		case VK_F1:
+		{
+			/*WindowManager& wmgr = WindowManager::getSingleton();
+			Window* myRoot;
+			myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
+			if (ui.testchat == nullptr)
+			{
+				ui.testchat = wmgr.loadLayoutFromFile("testchat.layout");
+				myRoot->addChild(ui.testchat);
+				Window* enter = ui.testchat->getChild("enter");
+				enter->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UITestChat, this));
+			}*/
+
+			//myRoot->destroyChild("selectcharacter");
+			//ui.selectcharacter = wmgr.loadLayoutFromFile("selectcharacter.layout");
+			//myRoot->addChild(ui.selectcharacter);
+			//Window * entergame = ui.selectcharacter->getChild("entergame");
+			//entergame->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UIEnterGame, this));
+		}
+		break;
+		case VK_F2:
+		case VK_F3:
+		case VK_F4:
+		case VK_F5:
+		case VK_F6:
+		case VK_F7:
+		case VK_F8:
+		case VK_F9:
+		case VK_F10:
+		case VK_F11:
+		case VK_F12:
+		case VK_PRIOR: // Page-Up
+		case VK_NEXT: // Page-Down
+		case VK_LWIN:
+		case VK_RWIN:
+		case VK_MULTIPLY:
+		case VK_ADD: //'+'
+		case VK_SEPARATOR:
+		case VK_SUBTRACT: //'-'
+		case VK_DECIMAL:
+		case VK_DIVIDE:
+		case VK_NUMLOCK:
+		case VK_SCROLL:
+			break;
+
+		default:
+			if (m_cGameMode == GAMEMODE_ONMAINGAME)
+			{
+				if (m_bCtrlPressed)
+				{
+					switch (wParam) {
+						case 48: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 9; break; // 0
+						case 49: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 0; break; // 1
+						case 50: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 1; break; // 2
+						case 51: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 2; break; // 3
+						case 52: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 3; break; // 4
+						case 53: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 4; break; // 5
+						case 54: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 5; break; // 6
+						case 55: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 6; break; // 7
+						case 56: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 7; break; // 8
+						case 57: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 8; break; // 9
+					}
+				}
+				else if ((m_bInputStatus == false) && (GetAsyncKeyState(VK_MENU) >> 15 == false))
+				{	//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
+					StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
+					ClearInputString();
+				}
+			}
+			break;
+	}
+	// 	if (m_pInputBuffer == NULL) return;
+	// 	if(wParam == 8)
+	// 	{
+	// 		if(strlen(m_pInputBuffer) > 0)
+	// 		{
+	// 			int len = strlen(m_pInputBuffer);
+	// 
+	// 			switch (GetCharKind(m_pInputBuffer, len-1))
+	// 			{
+	// 			case 1:
+	// 				m_pInputBuffer[len-1] = NULL;
+	// 				break;
+	// 			case 2:
+	// 			case 3:
+	// 				m_pInputBuffer[len-2]  = NULL;
+	// 				m_pInputBuffer[len-1]  = NULL;
+	// 				break;
+	// 			}
+	// 			ZeroMemory(m_cEdit, sizeof(m_cEdit));
+	// 		}
+	// 	}
+	// 	else if ((wParam != 9) && (wParam != 13) && (wParam != 27)) {
+	// 		int len = strlen(m_pInputBuffer);
+	// 		if (len >= m_inputMaxLen-1) return;
+	// 		m_pInputBuffer[len] = wParam & 0xff;
+	// 		m_pInputBuffer[len+1] = 0;
+	// 	}
+}
+

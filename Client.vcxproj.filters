@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="res">
+      <UniqueIdentifier>{3b4aee6c-56d5-4761-8892-e4852787d379}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="char">
+      <UniqueIdentifier>{ce2382fa-493a-45ec-b2de-b9147319631f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="char\item">
+      <UniqueIdentifier>{18c15bca-c41f-472e-8272-8aaca1ad52ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="map">
+      <UniqueIdentifier>{1cb358df-06be-4f0d-8ec4-6cf443948e7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{2ef9a486-ed83-45c5-adb6-d0e20647d6ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="net">
+      <UniqueIdentifier>{51bb33f4-70e3-4aa0-9bf1-4e8873980854}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lang">
+      <UniqueIdentifier>{2d425115-61df-4c6b-baf1-70f58d7187ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shared">
+      <UniqueIdentifier>{ad59ab46-ac01-4081-bb34-b916cb330654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine">
+      <UniqueIdentifier>{3a499399-abc8-4898-9cbf-6b14da6a2472}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Res\favicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Res\resource.h">
+      <Filter>res</Filter>
+    </ClInclude>
+    <ClInclude Include="src\global_def.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc.h" />
+    <ClInclude Include="src\StrTok.h" />
+    <ClInclude Include="src\helbreath.h" />
+    <ClInclude Include="src\BuildItem.h">
+      <Filter>char\item</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Item.h">
+      <Filter>char\item</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ItemName.h">
+      <Filter>char\item</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ActionID.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CharInfo.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Curse.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DynamicObjectID.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Guild.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Magic.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mail.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Skill.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Title.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\effect.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sound_id.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sprite.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sprite_id.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\tile_sprite.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lan_eng.h">
+      <Filter>lang</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MapData.h">
+      <Filter>map</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tile.h">
+      <Filter>map</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Msg.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\streams.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\buffer.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\dialog_box.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ItemBag.h" />
+    <ClInclude Include="src\json.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Res\resource.rc">
+      <Filter>res</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Misc.cpp" />
+    <ClCompile Include="src\StrTok.cpp" />
+    <ClCompile Include="src\helbreath.cpp" />
+    <ClCompile Include="src\BuildItem.cpp">
+      <Filter>char\item</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Item.cpp">
+      <Filter>char\item</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ItemName.cpp">
+      <Filter>char\item</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CharInfo.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Curse.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Guild.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mail.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DrawObject.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\effect.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sprite.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\tile_sprite.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UpdateScreen.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MapData.cpp">
+      <Filter>map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tile.cpp">
+      <Filter>map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Msg.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\buffer.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dialog_box.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\ItemBag.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="key code.txt" />
+  </ItemGroup>
+</Project>
