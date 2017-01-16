@@ -1,0 +1,44 @@
+===============================================================================================================================
+version 0.1:
+*completed the connectivity to mysql login server;
+*added hb 2.23+ new level system;
+*took off languages, only english is available;
+*fixed loading and new game screens;
+*changed netmessages.h so custom-made clients won't connect/play;
+*added all new monsters, maptiles and equipments;
+===============================================================================================================================
+version 0.2:
+*fixed status bug, now enemies are shown as enemies, and not as neutral;
+*High level exploit fix; //by cleroth
+*added code to check if players are in same map when giving out items; //by cleroth
+*Observer mode fixed; //by cleroth
+*some special items appear with green name; //by Ice-T
+*fixed abbadon crash and abaddon dead crash; //by Cleroth
+*fixed abbadon appearance; //by Daxation
+*updated hero items list at cityhall, and GetHeroMantleHandler() function at hgserver; //by Ice-T
+*added DefenseShield effect;
+*added Protection From Magic effect;
+*added Protection From Arrow effect;
+*added GoldDrop for npcs in npc.cfg, gold drop is not based on expdice anymore;
+*changed the way player gets experience at every level, higher the level, less the experience he will get;
+===============================================================================================================================
+version 0.21:
+*fixed version check in the client;
+===============================================================================================================================
+version 0.3:
+*removed bad word monitor and curse filter;
+*/unsummonall command updated to kill only summoned monsters;//by elimos
+*removed anti exp-hack;
+*item upgrade fixed;//by Ice-T
+*Fire-Bow and DIrection-Bow fixed;//by Ice-T
+*added level-up button;//by Daxation
+*added hotkeys by config.ini;//by elimos
+*removed wrong messages on character creation screen;//by daxation
+*fixed minimaps;//by daxation
+*loading screen now shows % loaded instead of "loading" sprite;//by daxation
+*fixed magics from circle 1 not being buyable from magic shop;
+*create-food now in fact create food;
+*fixed minimap coords;
+*fixed items getting deleted when the char logout more than once without modifying the bank;
+*fixed energysphere;//by Ice-T
+===============================================================================================================================
