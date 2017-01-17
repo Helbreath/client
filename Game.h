@@ -1187,7 +1187,8 @@ public:
 	int m_iTHAC0;					// To Hit Armour Class 0
 	int m_iDefenseRatio; // Auto updates defense ingame xRisenx
 
-	int m_iLevel, m_iExp, m_iContribution, m_iLucky;
+    uint64_t m_iExp;
+	int m_iLevel, m_iContribution, m_iLucky;
 	int m_stat[6];
 	//int m_angelStat[STAT_STR], m_angelStat[STAT_INT], m_angelStat[STAT_DEX], m_angelStat[STAT_MAG];
 	int m_angelStat[6];

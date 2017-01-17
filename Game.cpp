@@ -6073,9 +6073,8 @@ void CGame::InitPlayerCharacteristics(char * pData)
 	m_iLU_Point = (*wp - 3); // Comment out - 3 ? xRisenx
 	cp += 2; // Change to 7? xRisenx
 
-	ip   = (int *)cp;
-	m_iExp = *ip;
-	cp += 4;
+	m_iExp = *(uint64_t *)cp;
+	cp += 8;
 
 	ip   = (int *)cp;
 	m_iEnemyKillCount = *ip;
@@ -46664,7 +46663,7 @@ void CGame::InitDataResponseHandler(char * pData)
 	// PlayerObjectID
 	sp = (short *)cp;
 	m_sPlayerObjectID = *sp;
-	cp += 2;
+	cp += 4;
 
 	sp = (short *)cp;
 	sX = *sp;
