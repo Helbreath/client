@@ -12,6 +12,7 @@
 #include <boost/shared_ptr.hpp>
 #include "request_handler.h"
 #include "streams.h"
+#include <boost/asio/ssl.hpp>
 
 class CGame;
 class request_handler;
@@ -26,10 +27,14 @@ class connection
 public:
 	/// Construct a connection with the given io_service.
 	explicit connection(boost::asio::io_service& io_service,
-		CGame & client, request_handler& handler);
+		CGame & client, request_handler& handler, boost::asio::ssl::context& context);
 
 	/// Get the socket associated with the connection.
-	boost::asio::ip::tcp::socket& socket();
+    boost::asio::ssl::stream<boost::asio::ip::tcp::socket>::lowest_layer_type& socket()
+    {
+        return socket_.lowest_layer();
+    }
+    //boost::asio::ssl::stream<boost::asio::ip::tcp::socket>& socket();
 
 	/// Start the first asynchronous operation for the connection.
 	void start();
@@ -48,8 +53,11 @@ public:
 	/// Handle completion of a write operation.
 	void handle_write(const boost::system::error_code& e);
 
+    void handle_handshake(const boost::system::error_code& error);
+
 	/// Socket for the connection.
-	boost::asio::ip::tcp::socket socket_;
+	//boost::asio::ip::tcp::socket socket_;
+    boost::asio::ssl::stream<boost::asio::ip::tcp::socket> socket_;
 
 	/// The manager for this connection.
 	CGame & client;
@@ -64,6 +72,8 @@ public:
 	request request_;
 
 	int32_t size;
+
+    bool handshake_complete;
 };
 
 typedef boost::shared_ptr<connection> connection_ptr;

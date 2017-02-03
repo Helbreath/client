@@ -188,4 +188,12 @@
       <Filter>shared</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Library Include="ssleay32.lib">
+      <Filter>res</Filter>
+    </Library>
+    <Library Include="libeay32.lib">
+      <Filter>res</Filter>
+    </Library>
+  </ItemGroup>
 </Project>

@@ -63,7 +63,6 @@
 #include "CEGUI/RendererModules/Irrlicht/TextureTarget.h"
 #include "CEGUI/RendererModules/Irrlicht/Texture.h"
 
-
 #define BTNSZX				74
 #define BTNSZY				20
 #define LBTNPOSX			30
@@ -232,6 +231,7 @@ public:
 	boost::asio::signal_set signals_;
 	connection_ptr new_connection_;
 	request_handler request_handler_;
+    bool loggedin;
 
 	std::mutex uimtx;
 	std::mutex screenupdate;
@@ -250,6 +250,9 @@ public:
 		Window * instantchat;
 		Window * testchat;
 	} ui;
+
+
+    void CreateSocket();
 
 	boost::shared_ptr<boost::thread> socketthread;
 
@@ -1402,6 +1405,8 @@ public:
 	std::set<string> m_MuteList;
 
 	bool m_partyAutoAccept;
+
+    boost::asio::ssl::context ctx;
 
 	bool m_ekScreenshot;
 	uint32_t m_ekSSTime;

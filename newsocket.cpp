@@ -7,31 +7,71 @@
 #include "../streams.h"
 
 connection::connection(boost::asio::io_service& io_service,
-	CGame& client, request_handler& handler)
-	: socket_(io_service),
+	CGame& client, request_handler& handler, boost::asio::ssl::context& context)
+	: socket_(io_service, context),
 	client(client),
 	request_handler_(handler)
 {
 	size = 0;
+    handshake_complete = false;
 }
 
-boost::asio::ip::tcp::socket& connection::socket()
+/*boost::asio::ssl::stream<boost::asio::ip::tcp::socket>& connection::socket()
 {
 	return socket_;
-}
+}*/
 
 void connection::start()
 {
-	boost::asio::async_read(socket_, boost::asio::buffer(buffer_, 3), boost::bind(&connection::handle_read_header, shared_from_this(),
+    client.m_dwCheckSprTime = unixtime() + 1000;
+/*
+    socket_.async_handshake(boost::asio::ssl::stream_base::client,
+                            boost::bind(&connection::handle_handshake, this,
+                                        boost::asio::placeholders::error));
+*/
+
+    boost::system::error_code ec;
+    socket_.handshake(boost::asio::ssl::stream_base::client, ec);
+
+    handshake_complete = true;
+
+    if (!ec)
+    {
+        boost::asio::async_read(socket_, boost::asio::buffer(buffer_, 2), boost::bind(&connection::handle_read_header, shared_from_this(),
+            boost::asio::placeholders::error,
+            boost::asio::placeholders::bytes_transferred));
+    }
+    else
+    {
+        //error
+        printf("connection exception: %s\n", ec.message().c_str());
+        stop();
+    }
+
+	/*boost::asio::async_read(socket_, boost::asio::buffer(buffer_, 3), boost::bind(&connection::handle_read_header, shared_from_this(),
 		boost::asio::placeholders::error,
-		boost::asio::placeholders::bytes_transferred));
+		boost::asio::placeholders::bytes_transferred));*/
+}
+
+void connection::handle_handshake(const boost::system::error_code& error)
+{
+    if (!error)
+    {
+        boost::asio::async_read(socket_, boost::asio::buffer(buffer_, 2), boost::bind(&connection::handle_read_header, shared_from_this(),
+                                                                                      boost::asio::placeholders::error,
+                                                                                      boost::asio::placeholders::bytes_transferred));
+    }
+    else
+    {
+        client.stop(shared_from_this());
+    }
 }
 
 void connection::stop()
 {
 	try
 	{
-		socket_.close();
+		socket_.lowest_layer().close();
 		//client._socket.reset();
 	}
 	catch (std::exception& e)
@@ -42,13 +82,11 @@ void connection::stop()
 
 void connection::write(const char * data, const uint64_t size)
 {
-	char ckey[1] = { 0 };
 	char csize[2];
 	try {
-		uint16_t tsize = uint16_t(size) + 3;
-		*(int16_t*)csize = tsize;
-		std::array<boost::asio::const_buffer, 3> buffers = {
-			boost::asio::buffer(ckey, 1),
+		uint16_t tsize = uint16_t(size);
+		*(uint16_t*)csize = tsize;
+		std::array<boost::asio::const_buffer, 2> buffers = {
 			boost::asio::buffer(csize, 2),
 			boost::asio::buffer(data, size)
 		};
@@ -67,22 +105,31 @@ void connection::write(const char * data, const uint64_t size)
 
 void connection::write(StreamWrite & sw)
 {
-	char ckey[1] = { 0 };
+    printf("asio::write() data\n");
+    char ckey[1] = { 0 };
 	char csize[2];
 	try {
-		uint16_t tsize = uint16_t(sw.size) + 3;
-		*(int16_t*)csize = tsize;
-		std::array<boost::asio::const_buffer, 3> buffers = {
-			boost::asio::buffer(ckey, 1),
+		uint16_t tsize = uint16_t(sw.position);
+		*(uint16_t*)csize = tsize;
+/*
+        shared_ptr<StreamWrite> tmppacket = make_shared<StreamWrite>();
+        tmppacket->WriteBytes(sw.data, sw.position);
+		std::array<boost::asio::const_buffer, 2> buffers = {
 			boost::asio::buffer(csize, 2),
-			boost::asio::buffer(sw.data, sw.size)
+			boost::asio::buffer(tmppacket->data, tmppacket->position)
 		};
-		boost::asio::async_write(socket_, buffers, [this](boost::system::error_code ec, std::size_t){
+		boost::asio::async_write(socket_, buffers, [this, tmppacket](boost::system::error_code ec, std::size_t){
 			if (ec)
 			{
 				//error
 			}
-		});
+		});*/
+        std::array<boost::asio::const_buffer, 2> buffers = {
+            boost::asio::buffer(csize, 2),
+            boost::asio::buffer(sw.data, sw.position)
+        };
+        if (socket_.lowest_layer().is_open())
+            boost::asio::write(socket_, buffers);
 	}
 	catch (std::exception& e)
 	{
@@ -95,17 +142,16 @@ void connection::handle_read_header(const boost::system::error_code& e,
 {
 	if (!e)
 	{
-		if (bytes_transferred == 3)
+		if (bytes_transferred == 2)
 		{
-			//TODO: helbreath's ghetto xor key needs to go. first bytes = size or gtfo
-			size = *(int16_t*)(((char*)buffer_.data()) + 1);
-			if (size > 8192)//temporary set size .. shouldn't really be more than this anyway//2048
+			size = *(int16_t*)((char*)buffer_.data());
+			if (size > 8192 || size <= 0)//temporary set size .. shouldn't really be more than this anyway//2048
 			{
 				printf("Invalid packet size : %d", size);
 				client.stop(shared_from_this());
 				return;
 			}
-			boost::asio::async_read(socket_, boost::asio::buffer(buffer_, size - 3), boost::bind(&connection::handle_read, shared_from_this(),
+			boost::asio::async_read(socket_, boost::asio::buffer(buffer_, size), boost::bind(&connection::handle_read, shared_from_this(),
 				boost::asio::placeholders::error,
 				boost::asio::placeholders::bytes_transferred));
 		}
@@ -123,7 +169,7 @@ void connection::handle_read(const boost::system::error_code& e,
 {
 	if (!e)
 	{
-		if (bytes_transferred != size - 3)
+		if (bytes_transferred != size)
 		{
 			printf("Did not receive proper amount of bytes : rcv: %d needed: %d", bytes_transferred, size);
 			client.stop(shared_from_this());
@@ -145,7 +191,7 @@ void connection::handle_read(const boost::system::error_code& e,
 		request_.connection = this;
 		request_handler_.handle_request(request_);
 
-		boost::asio::async_read(socket_, boost::asio::buffer(buffer_, 3), boost::bind(&connection::handle_read_header, shared_from_this(),
+		boost::asio::async_read(socket_, boost::asio::buffer(buffer_, 2), boost::bind(&connection::handle_read_header, shared_from_this(),
 			boost::asio::placeholders::error,
 			boost::asio::placeholders::bytes_transferred));
 	}
