@@ -222,9 +222,11 @@
     <ClCompile Include="char\item\BuildItem.cpp" />
     <ClCompile Include="char\item\Item.cpp" />
     <ClCompile Include="char\item\ItemName.cpp" />
+    <ClCompile Include="DialogBoxGame.cpp" />
     <ClCompile Include="DirectX\Effect.cpp" />
     <ClCompile Include="DirectX\Sprite.cpp" />
     <ClCompile Include="DirectX\TileSpr.cpp" />
+    <ClCompile Include="DrawObject.cpp" />
     <ClCompile Include="Map\MapData.cpp" />
     <ClCompile Include="Map\Tile.cpp" />
     <ClCompile Include="newsocket.cpp" />
@@ -249,6 +251,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</BrowseInformation>
     </ClCompile>
+    <ClCompile Include="UpdateScreen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="libeay32.lib" />

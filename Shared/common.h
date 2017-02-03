@@ -239,7 +239,7 @@ enum Weather
 	WEATHER_HEAVYSNOW
 };
 
-enum Element
+enum WeatherElement
 {
 	ELEMENT_NONE =			0,
 	ELEMENT_EARTH =		1,

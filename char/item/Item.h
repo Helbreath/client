@@ -169,7 +169,7 @@ public:
 	ItemUID ItemUniqueID;
 	uint32_t m_serverPtr;
 
-	static const struct ItemMapComp
+	const struct ItemMapComp
 	{
 		bool operator()(CItem * x, CItem * y) const
 		{

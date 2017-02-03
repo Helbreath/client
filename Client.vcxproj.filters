@@ -28,6 +28,9 @@
     <Filter Include="shared">
       <UniqueIdentifier>{ad59ab46-ac01-4081-bb34-b916cb330654}</UniqueIdentifier>
     </Filter>
+    <Filter Include="net\packets">
+      <UniqueIdentifier>{8ea15c90-250a-4a71-a6b7-9187a2aa6e40}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\_OK.bmp">
@@ -186,6 +189,15 @@
     <ClCompile Include="request_handler.cpp" />
     <ClCompile Include="Shared\buffer.cpp">
       <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawObject.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="UpdateScreen.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="DialogBoxGame.cpp">
+      <Filter>char</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
