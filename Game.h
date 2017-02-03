@@ -63,6 +63,10 @@
 #include "CEGUI/RendererModules/Irrlicht/TextureTarget.h"
 #include "CEGUI/RendererModules/Irrlicht/Texture.h"
 
+#include <Awesomium/WebCore.h>
+#include <Awesomium/BitmapSurface.h>
+#include <Awesomium/STLHelpers.h>
+
 #define BTNSZX				74
 #define BTNSZY				20
 #define LBTNPOSX			30
@@ -194,6 +198,7 @@ enum
 };
 
 using namespace CEGUI;
+using namespace Awesomium;
 
 class CGame : public irr::IEventReceiver
 {
@@ -264,7 +269,8 @@ public:
 	irr::gui::IGUIEnvironment* env;
 
 	irr::video::ITexture* bg;
-	irr::video::ITexture* charselect;
+    irr::video::ITexture* charselect;
+    irr::video::ITexture* uihtml;
 
 	bool gamemode;
 
@@ -329,7 +335,8 @@ public:
 		if (driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
 		{
 			bg = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth() + 100, GetHeight() + 100), "RTT1");
-			charselect = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(256, 256 ), "RTT2");
+            charselect = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(256, 256), "RTT2");
+            uihtml = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth() + 100, GetHeight() + 100), "RTT3");
 		}
 		else
 		{

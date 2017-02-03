@@ -52,11 +52,52 @@ using namespace CEGUI;
 
 // --------------------------------------------------------------
 
+#include <Awesomium/WebCore.h>
+#include <Awesomium/BitmapSurface.h>
+#include <Awesomium/STLHelpers.h>
+
+void Update(int sleep_ms)
+{
+    // Sleep a specified amount
+#if defined(__WIN32__) || defined(_WIN32)
+    Sleep(sleep_ms);
+#elif defined(__APPLE__)
+    usleep(sleep_ms * 1000);
+#endif
+
+    // You must call WebCore::update periodically
+    // during the lifetime of your application.
+    WebCore::instance()->Update();
+}
+
+#define WIDTH   800
+#define HEIGHT  600
+#define URL     "http://www.google.com"
+
+using namespace Awesomium;
+
+WebView* view;
+
 int main(int argc, char * argv[])
 {
-	srand((unsigned)time(0));
-	G_pGame = new class CGame;
 
+    WebCore* web_core;
+    WebURL url;
+
+	srand((unsigned)time(0));
+
+
+    web_core = WebCore::Initialize(WebConfig());
+    view = web_core->CreateWebView(WIDTH, HEIGHT);
+    url = WebURL(WSLit(URL));
+    view->LoadURL(url);
+    while (view->IsLoading())
+        Update(50);
+    Update(300);
+
+    G_pGame = new class CGame;
+  
+    
     G_pGame->_renderer = L"DirectX3D9";
     driverType = video::EDT_DIRECT3D9;
 

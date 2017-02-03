@@ -47,7 +47,7 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)_d</TargetName>
-    <LibraryPath>..\irrlicht-1.8.4\lib\Win32-visualstudio;..\boost_1_63_0\stage\lib;..\cegui-cegui-dependencies-0ecdf3a9e49b\dependencies\lib\static;..\cegui-0.8.7\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>..\irrlicht-1.8.4\lib\Win32-visualstudio;..\boost_1_63_0\stage\lib;..\cegui-cegui-dependencies-0ecdf3a9e49b\dependencies\lib\static;..\cegui-0.8.7\lib;$(AWE_DIR)build\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>bin\bin\</OutDir>
@@ -79,7 +79,7 @@
       <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\cegui-0.8.7\cegui\include;..\cegui-cegui-dependencies-0ecdf3a9e49b\dependencies\include;Shared\;..\boost_1_63_0;..\irrlicht-1.8.4\include;..\lua\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\cegui-0.8.7\cegui\include;..\cegui-cegui-dependencies-0ecdf3a9e49b\dependencies\include;Shared\;..\boost_1_63_0;..\irrlicht-1.8.4\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -98,7 +98,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>winmm.lib;DbgHelp.lib;freeimage_d.lib;xerces-c_3_d.lib;zlib_d.lib;pcre_d.lib;libpng_d.lib;jpeg_d.lib;freetype_d.lib;CEGUIBase-0_d.lib;CEGUICommonDialogs-0_d.lib;CEGUICoreWindowRendererSet_d.lib;CEGUIIrrlichtRenderer-0_d.lib;CEGUIFreeImageImageCodec_d.lib;CEGUIXercesParser_d.lib;libboost_chrono-vc140-mt-gd-1_63.lib;libboost_date_time-vc140-mt-gd-1_63.lib;libboost_regex-vc140-mt-gd-1_63.lib;libboost_thread-vc140-mt-gd-1_63.lib;libboost_filesystem-vc140-mt-gd-1_63.lib;libboost_system-vc140-mt-gd-1_63.lib;libboost_timer-vc140-mt-gd-1_63.lib;Irrlicht.lib;netapi32.lib;lib/search.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>awesomium.lib;winmm.lib;DbgHelp.lib;freeimage_d.lib;xerces-c_3_d.lib;zlib_d.lib;pcre_d.lib;libpng_d.lib;jpeg_d.lib;freetype_d.lib;CEGUIBase-0_d.lib;CEGUICommonDialogs-0_d.lib;CEGUICoreWindowRendererSet_d.lib;CEGUIIrrlichtRenderer-0_d.lib;CEGUIFreeImageImageCodec_d.lib;CEGUIXercesParser_d.lib;libboost_chrono-vc140-mt-gd-1_63.lib;libboost_date_time-vc140-mt-gd-1_63.lib;libboost_regex-vc140-mt-gd-1_63.lib;libboost_thread-vc140-mt-gd-1_63.lib;libboost_filesystem-vc140-mt-gd-1_63.lib;libboost_system-vc140-mt-gd-1_63.lib;libboost_timer-vc140-mt-gd-1_63.lib;Irrlicht.lib;netapi32.lib;lib/search.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <EntryPointSymbol>
       </EntryPointSymbol>

@@ -14,6 +14,7 @@
 
 
 
+extern WebView* view;
 extern class CGame * G_pGame;
 
 extern IrrlichtDevice * device;
@@ -645,11 +646,14 @@ void CGame::CreateSocket()
     new_connection_ = boost::make_shared<connection>(io_service_, *this, request_handler_, ctx);
 }
 
+
 CGame::CGame()
 	: io_service_(),
 	signals_(io_service_),
     ctx(io_service_, boost::asio::ssl::context::sslv23)
 {
+
+
 
 /*
     char test[] = "-----BEGIN CERTIFICATE-----\n"
@@ -1635,6 +1639,20 @@ void CGame::UpdateScreen()
 {
 	G_pGame->driver->beginScene(true, true);
 	G_dwGlobalTime = unixtime();
+    BitmapSurface* surface = (BitmapSurface*)view->surface();
+
+    if (surface && surface->is_dirty())
+    {
+        int width = surface->width();
+        int height = surface->height();
+        static char data[102400];
+        memset(data, 0, sizeof(data));
+        ITexture* texture = driver->getTexture("RTT3");
+        c8* tex_data = (c8*)texture->lock();
+        surface->CopyTo((unsigned char*)tex_data, surface->row_span(), 4, false, false);
+        texture->unlock();
+    }
+
 	switch (m_cGameMode) {
 #ifdef MAKE_ACCOUNT
 	case GAMEMODE_ONAGREEMENT:
