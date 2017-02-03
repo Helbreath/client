@@ -42,9 +42,9 @@ void * G_hInstance = 0;
 char   G_cSpriteAlphaDegree;
 class CGame * G_pGame;
 
-//video::E_DRIVER_TYPE driverType = video::EDT_OPENGL;
+video::E_DRIVER_TYPE driverType = video::EDT_OPENGL;
 //video::E_DRIVER_TYPE driverType = video::EDT_SOFTWARE;
-video::E_DRIVER_TYPE driverType = video::EDT_DIRECT3D9;
+//video::E_DRIVER_TYPE driverType = video::EDT_DIRECT3D9;
 
 using namespace irr;
 using namespace irr::video;
@@ -56,6 +56,46 @@ int main(int argc, char * argv[])
 {
 	srand((unsigned)time(0));
 	G_pGame = new class CGame;
+
+    G_pGame->_renderer = L"DirectX3D9";
+    driverType = video::EDT_DIRECT3D9;
+
+    if (argc >= 2)
+    {
+        for (int i = 0; i < argc; ++i)
+        {
+            if (!memcmp(argv[i], "-data=", 6))
+            {
+                char * ctx;
+                char * c = strtok_s(argv[i], "=:", &ctx);
+                memcpy(G_pGame->m_cAccountName, strtok_s(0, "=:", &ctx), 10);
+                memcpy(G_pGame->m_cAccountPassword, strtok_s(0, "=:", &ctx), 10);//TODO: encode this when sent from launcher
+                G_pGame->autologin = true;
+            }
+            else if (!memcmp(argv[i], "-renderer=", 10))
+            {
+                char * ctx;
+                char * c = strtok_s(argv[i], "=:", &ctx);
+                string renderer = strtok_s(0, "=:", &ctx);
+                if (renderer == "opengl")
+                {
+                    G_pGame->_renderer = L"OpenGL";
+                    driverType = video::EDT_OPENGL;
+                }
+                else if (renderer == "software")
+                {
+                    G_pGame->_renderer = L"Software";
+                    driverType = video::EDT_SOFTWARE;
+                }
+                else
+                {
+                    G_pGame->_renderer = L"DirectX3D9";
+                    driverType = video::EDT_DIRECT3D9;
+                }
+            }
+        }
+    }
+
 
 	if (!G_pGame->CreateRenderer())
 	{
@@ -208,21 +248,6 @@ int main(int argc, char * argv[])
 // 	// set size to be half the size of the parent
 // 	fWnd->setSize(USize(UDim(0.5f, 0.0f), UDim(0.5f, 0.0f)));
 // 	fWnd->setText("Hello World!");
-
-	if (argc >= 2)
-	{
-		for (int i = 0; i < argc; ++i)
-		{
-			if (!memcmp(argv[i], "-data=", 6))
-			{
-				char * ctx;
-				char * c = strtok_s(argv[i], "=:", &ctx);
-				memcpy(G_pGame->m_cAccountName, strtok_s(0, "=:", &ctx), 10);
-				memcpy(G_pGame->m_cAccountPassword, strtok_s(0, "=:", &ctx), 10);//TODO: encode this when sent from launcher
-				G_pGame->autologin = true;
-			}
-		}
-	}
 
 
 	G_pGame->ceguistarted = true;

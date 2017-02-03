@@ -1391,8 +1391,8 @@ bool CGame::bInit(void * hWnd, void * hInst, char * pCmdLine)
 	m_stMCursor.sY = 0;
 	m_pMapData = new class CMapData(this);
 	memset(m_cPlayerName, 0, sizeof(m_cPlayerName));
-	memset(m_cAccountName, 0, sizeof(m_cAccountName));
-	memset(m_cAccountPassword, 0, sizeof(m_cAccountPassword));
+	//memset(m_cAccountName, 0, sizeof(m_cAccountName));
+	//memset(m_cAccountPassword, 0, sizeof(m_cAccountPassword));
 
 	m_sPlayerType = 2;
 	m_cPlayerTurn = 0;
@@ -14946,7 +14946,7 @@ bool CGame::UILoginTab(const CEGUI::EventArgs& e)
         }
     }
 
-    return true;
+    return false;
 }
 
 bool CGame::UILogin(const CEGUI::EventArgs& e)
@@ -15039,8 +15039,8 @@ void CGame::UpdateScreen_OnLogin()
 				myRoot->addChild(ui.login);
 				Window * loginbutton = ui.login->getChild("loginchild")->getChild("loginbutton");
 				loginbutton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UILogin, this));
-                Window * usernamebox = ui.login->getChild("loginchild")->getChild("username");
-                usernamebox->subscribeEvent(CEGUI::Editbox::EventKeyDown, CEGUI::SubscriberSlot(&CGame::UILoginTab, this));
+                ui.login->getChild("loginchild")->getChild("username")->subscribeEvent(CEGUI::Editbox::EventKeyDown, CEGUI::SubscriberSlot(&CGame::UILoginTab, this));
+                ui.login->getChild("loginchild")->getChild("password")->subscribeEvent(CEGUI::Editbox::EventKeyDown, CEGUI::SubscriberSlot(&CGame::UILoginTab, this));
             }
 			else
 			{

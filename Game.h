@@ -291,6 +291,8 @@ public:
 
 	irr::gui::IGUISpriteBank * cursors;
 
+    wstring _renderer;
+
 	bool CreateRenderer(bool fs = false)
 	{
 		ceguistarted = false;
@@ -309,7 +311,7 @@ public:
 
 
 		wchar_t winName[256];
-		wsprintfW(winName, L"Helbreath Xtreme %u.%u.%u", HBF_MAJOR, HBF_MINOR, HBF_LOWER);
+		wsprintfW(winName, L"Helbreath Xtreme %u.%u.%u Renderer: %s", HBF_MAJOR, HBF_MINOR, HBF_LOWER, _renderer.c_str());
 		device->setWindowCaption(winName);
 
 		driver = device->getVideoDriver();
@@ -344,7 +346,8 @@ public:
 
 	bool KeyIsDown[irr::KEY_KEY_CODES_COUNT];
 
-	bool UILogin(const CEGUI::EventArgs& /*e*/);
+    bool UILogin(const CEGUI::EventArgs& /*e*/);
+    bool UILoginTab(const CEGUI::EventArgs& /*e*/);
 	bool UIEnterGame(const CEGUI::EventArgs& /*e*/);
 	bool UITestChat(const CEGUI::EventArgs& /*e*/);
 	bool UISelectCharacterClicked(const CEGUI::EventArgs& /*e*/);
@@ -1096,25 +1099,25 @@ public:
 
 	char * m_pInputBuffer;
 
-	uint32_t G_dwGlobalTime;
-	uint32_t m_dwCommandTime; //v2.15 SpeedHack
-	uint32_t m_dwConnectMode;
-	uint32_t m_dwTime;
-	uint32_t m_dwCurTime;
-	uint32_t m_dwCheckConnTime, m_dwCheckSprTime, m_dwCheckChatTime;
-	uint32_t m_dwDialogCloseTime;
-	int  m_dwLogOutCountTime;//was DWORD
-	uint32_t m_dwRestartCountTime;
-	uint32_t m_dwWOFtime; //v1.4
-	uint32_t m_dwObserverCamTime;
-	uint32_t m_dwDamagedTime;
-	uint32_t m_dwSpecialAbilitySettingTime;
-	uint32_t m_dwCommanderCommandRequestedTime;
-	uint32_t m_dwTopMsgTime;
-	uint32_t m_dwEnvEffectTime;
+    uint64_t G_dwGlobalTime;
+    uint64_t m_dwCommandTime; //v2.15 SpeedHack
+    uint64_t m_dwConnectMode;
+    uint64_t m_dwTime;
+    uint64_t m_dwCurTime;
+	uint64_t m_dwCheckConnTime, m_dwCheckSprTime, m_dwCheckChatTime;
+    uint64_t m_dwDialogCloseTime;
+    uint64_t  m_dwLogOutCountTime;//was DWORD
+    uint64_t m_dwRestartCountTime;
+    uint64_t m_dwWOFtime; //v1.4
+    uint64_t m_dwObserverCamTime;
+    uint64_t m_dwDamagedTime;
+    uint64_t m_dwSpecialAbilitySettingTime;
+    uint64_t m_dwCommanderCommandRequestedTime;
+    uint64_t m_dwTopMsgTime;
+    uint64_t m_dwEnvEffectTime;
 
 	//v2.2
-	uint32_t m_dwMonsterEventTime;
+    uint64_t m_dwMonsterEventTime;
 	short m_sMonsterID;
 	short m_sEventX, m_sEventY;
 
