@@ -175,6 +175,10 @@
     <Image Include="Res\icon1.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\x-server\src\netmessages.h" />
+    <ClInclude Include="..\x-server\src\protobuf\initdata.pb.h" />
+    <ClInclude Include="..\x-server\src\protobuf\initplayer.pb.h" />
+    <ClInclude Include="..\x-server\src\protobuf\item.pb.h" />
     <ClInclude Include="char\mail.h" />
     <ClInclude Include="newsocket.h" />
     <ClInclude Include="request_handler.h" />
