@@ -3127,6 +3127,8 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
     iTemp2 = 0;
     iYear = iMonth = iDay = iHour = iMinute = 0;
 
+    if (selectedchar)
+
     {
         // 		if ((m_cCurFocus - 1 == i) && (bIgnoreFocus == false))
         // 			 m_pSprite[SPRID_INTERFACE_ND_SELECTCHAR]->PutTransSpriteRGB(sX+92+i*138+36, 63+77, 6, 0, 0, 0, dwTime);		// Character HOVER
