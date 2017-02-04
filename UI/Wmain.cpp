@@ -52,48 +52,9 @@ using namespace CEGUI;
 
 // --------------------------------------------------------------
 
-#include <Awesomium/WebCore.h>
-#include <Awesomium/BitmapSurface.h>
-#include <Awesomium/STLHelpers.h>
-
-void Update(int sleep_ms)
-{
-    // Sleep a specified amount
-#if defined(__WIN32__) || defined(_WIN32)
-    Sleep(sleep_ms);
-#elif defined(__APPLE__)
-    usleep(sleep_ms * 1000);
-#endif
-
-    // You must call WebCore::update periodically
-    // during the lifetime of your application.
-    WebCore::instance()->Update();
-}
-
-#define WIDTH   800
-#define HEIGHT  600
-#define URL     "http://www.google.com"
-
-using namespace Awesomium;
-
-WebView* view;
-
 int main(int argc, char * argv[])
 {
-
-    WebCore* web_core;
-    WebURL url;
-
 	srand((unsigned)time(0));
-
-
-    web_core = WebCore::Initialize(WebConfig());
-    view = web_core->CreateWebView(WIDTH, HEIGHT);
-    url = WebURL(WSLit(URL));
-    view->LoadURL(url);
-    while (view->IsLoading())
-        Update(50);
-    Update(300);
 
     G_pGame = new class CGame;
   
@@ -176,13 +137,13 @@ int main(int argc, char * argv[])
 
 	Initialize((char *)"");
 
-	irr::gui::IGUIEnvironment* env = G_pGame->device->getGUIEnvironment();
+	/*irr::gui::IGUIEnvironment* env = G_pGame->device->getGUIEnvironment();
 	irr::gui::IGUISkin* skin = env->getSkin();
 	irr::gui::IGUIFont* font = G_pGame->font[FONT_TREBMS6PX];
 	if (font)
 		skin->setFont(font);
 
-	skin->setFont(G_pGame->font[FONT_BUILTIN]);
+	skin->setFont(G_pGame->font[FONT_BUILTIN]);*/
 
 // 	irr::gui::IGUISpriteBank* test = skin->getSpriteBank();
 // 	//skin->
@@ -243,6 +204,8 @@ int main(int argc, char * argv[])
 
 
 	//IrrlichtRenderer& myRenderer = IrrlichtRenderer::bootstrapSystem(*G_pGame->device);
+
+	/*
 	CEGUI::IrrlichtRenderer& myRenderer = CEGUI::IrrlichtRenderer::create(*G_pGame->device);
 	CEGUI::System::create(myRenderer);
 
@@ -276,11 +239,12 @@ int main(int argc, char * argv[])
 	CEGUI::SchemeManager::getSingleton().createFromFile("VanillaCommonDialogs.scheme");
 	CEGUI::SchemeManager::getSingleton().createFromFile("AlfiskoSkin.scheme");
 	CEGUI::FontManager::getSingleton().createFromFile("DejaVuSans-10.font");
+	*/
 
-	WindowManager & wmgr = WindowManager::getSingleton();
-	Window* myRoot = wmgr.createWindow("DefaultWindow", "root");
-	System::getSingleton().getDefaultGUIContext().setRootWindow(myRoot);
-	myRoot->setMousePassThroughEnabled(true);
+	// WindowManager & wmgr = WindowManager::getSingleton();
+	// Window* myRoot = wmgr.createWindow("DefaultWindow", "root");
+	// System::getSingleton().getDefaultGUIContext().setRootWindow(myRoot);
+	// myRoot->setMousePassThroughEnabled(true);
 
 // 	FrameWindow* fWnd = static_cast<FrameWindow*>(wmgr.createWindow("TaharezLook/FrameWindow", "testWindow"));
 // 	myRoot->addChild(fWnd);
@@ -291,7 +255,7 @@ int main(int argc, char * argv[])
 // 	fWnd->setText("Hello World!");
 
 
-	G_pGame->ceguistarted = true;
+	// G_pGame->ceguistarted = true;
 
 	uint64_t ceguitime = 0.0f;
 	uint64_t currenttime = 0;
@@ -330,27 +294,27 @@ int main(int argc, char * argv[])
 		if (G_pGame->fullscreenswap)
 		{
 			grace++;
-			guiskin = G_pGame->env->getSkin();
-			G_pGame->font[FONT_BUILTIN]  = G_pGame->env->getBuiltInFont();
-			G_pGame->font[FONT_TREBMS6PX]  = G_pGame->env->getFont(L"data/fonts/treb6px.xml");
-			G_pGame->font[FONT_TREBMS8PX]  = G_pGame->env->getFont(L"data/fonts/treb8px.xml");
-			G_pGame->font[FONT_TREBMS10PX]  = G_pGame->env->getFont(L"data/fonts/treb10px.xml");
-			G_pGame->font[FONT_TREBMS12PX]  = G_pGame->env->getFont(L"data/fonts/treb12px.xml");
-			G_pGame->font[FONT_TREBMS14PX]  = G_pGame->env->getFont(L"data/fonts/treb14px.xml");
-			G_pGame->font[FONT_TREBMS16PX]  = G_pGame->env->getFont(L"data/fonts/treb16px.xml");
+			// guiskin = G_pGame->env->getSkin();
+			// G_pGame->font[FONT_BUILTIN]  = G_pGame->env->getBuiltInFont();
+			// G_pGame->font[FONT_TREBMS6PX]  = G_pGame->env->getFont(L"data/fonts/treb6px.xml");
+			// G_pGame->font[FONT_TREBMS8PX]  = G_pGame->env->getFont(L"data/fonts/treb8px.xml");
+			// G_pGame->font[FONT_TREBMS10PX]  = G_pGame->env->getFont(L"data/fonts/treb10px.xml");
+			// G_pGame->font[FONT_TREBMS12PX]  = G_pGame->env->getFont(L"data/fonts/treb12px.xml");
+			// G_pGame->font[FONT_TREBMS14PX]  = G_pGame->env->getFont(L"data/fonts/treb14px.xml");
+			// G_pGame->font[FONT_TREBMS16PX]  = G_pGame->env->getFont(L"data/fonts/treb16px.xml");
 
-			setskincolor(irr::gui::EGDC_3D_FACE);
-			setskincolor(irr::gui::EGDC_3D_SHADOW);
-			setskincolor(irr::gui::EGDC_ACTIVE_CAPTION);
-			setskincolor(irr::gui::EGDC_ACTIVE_BORDER);
-			setskincolor(irr::gui::EGDC_3D_DARK_SHADOW);
-			setskincolor(irr::gui::EGDC_3D_HIGH_LIGHT);
-			setskincolor(irr::gui::EGDC_BUTTON_TEXT);
-			setskincolor(irr::gui::EGDC_HIGH_LIGHT_TEXT);
-			setskincolor(irr::gui::EGDC_HIGH_LIGHT);
-			setskincolor(irr::gui::EGDC_WINDOW);
-			setskincolor(irr::gui::EGDC_WINDOW_SYMBOL);
-			setskincolor(irr::gui::EGDC_SCROLLBAR);
+			// setskincolor(irr::gui::EGDC_3D_FACE);
+			// setskincolor(irr::gui::EGDC_3D_SHADOW);
+			// setskincolor(irr::gui::EGDC_ACTIVE_CAPTION);
+			// setskincolor(irr::gui::EGDC_ACTIVE_BORDER);
+			// setskincolor(irr::gui::EGDC_3D_DARK_SHADOW);
+			// setskincolor(irr::gui::EGDC_3D_HIGH_LIGHT);
+			// setskincolor(irr::gui::EGDC_BUTTON_TEXT);
+			// setskincolor(irr::gui::EGDC_HIGH_LIGHT_TEXT);
+			// setskincolor(irr::gui::EGDC_HIGH_LIGHT);
+			// setskincolor(irr::gui::EGDC_WINDOW);
+			// setskincolor(irr::gui::EGDC_WINDOW_SYMBOL);
+			// setskincolor(irr::gui::EGDC_SCROLLBAR);
 
 			cursor = G_pGame->device->getCursorControl();
 			cursor->setVisible(false);
@@ -476,8 +440,8 @@ int main(int argc, char * argv[])
 // 			}
 // 			else
 				G_pGame->UpdateScreen();
-			CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(((float)(currenttime - ceguitime))/1000);
-			ceguitime = currenttime;
+			// CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(((float)(currenttime - ceguitime))/1000);
+			// ceguitime = currenttime;
 		}
 	}
 

@@ -1639,19 +1639,7 @@ void CGame::UpdateScreen()
 {
 	G_pGame->driver->beginScene(true, true);
 	G_dwGlobalTime = unixtime();
-    BitmapSurface* surface = (BitmapSurface*)view->surface();
-
-    if (surface && surface->is_dirty())
-    {
-        int width = surface->width();
-        int height = surface->height();
-        static char data[102400];
-        memset(data, 0, sizeof(data));
-        ITexture* texture = driver->getTexture("RTT3");
-        c8* tex_data = (c8*)texture->lock();
-        surface->CopyTo((unsigned char*)tex_data, surface->row_span(), 4, false, false);
-        texture->unlock();
-    }
+	BitmapSurface* surface = (BitmapSurface*)view->surface();
 
 	switch (m_cGameMode) {
 #ifdef MAKE_ACCOUNT
@@ -1746,25 +1734,59 @@ void CGame::UpdateScreen()
 
 	if (GetAsyncKeyState(VK_RETURN) != 0) m_cEnterCheck = 1;
 	if ((m_cEnterCheck == 1) && (GetAsyncKeyState(VK_RETURN) == 0))
-	{	m_bEnterPressed = true;
+	{
+		m_bEnterPressed = true;
 		m_cEnterCheck = 0;
 	}
 	if (GetAsyncKeyState(VK_TAB) != 0) m_cTabCheck = 1;
- 	if ((m_cTabCheck == 1) && (GetAsyncKeyState(VK_TAB) == 0))
-	{	m_cCurFocus++;
-		if( m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
+	if ((m_cTabCheck == 1) && (GetAsyncKeyState(VK_TAB) == 0))
+	{
+		m_cCurFocus++;
+		if (m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
 		if (m_cGameMode == GAMEMODE_ONMAINGAME) bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_TOGGLECOMBATMODE, 0, 0, 0, 0, 0);
 		m_cTabCheck = 0;
 	}
-	if( m_bInputStatus )
-	{	if (GetAsyncKeyState(VK_LEFT) != 0) m_cLeftArrowCheck = 1;
+	if (m_bInputStatus)
+	{
+		if (GetAsyncKeyState(VK_LEFT) != 0) m_cLeftArrowCheck = 1;
 		if ((m_cLeftArrowCheck == 1) && (GetAsyncKeyState(VK_LEFT) == 0))
-		{	m_cLeftArrowCheck = 0;
-			if( G_hEditWnd != 0 )
-			{	int iStrLen = strlen(m_pInputBuffer);
-				SendMessage( G_hEditWnd, EM_SETSEL, iStrLen, iStrLen );
-	}	}	}
+		{
+			m_cLeftArrowCheck = 0;
+			if (G_hEditWnd != 0)
+			{
+				int iStrLen = strlen(m_pInputBuffer);
+				SendMessage(G_hEditWnd, EM_SETSEL, iStrLen, iStrLen);
+			}
+		}
+	}
 #endif
+
+	// Render HTML ui
+	if (surface && surface->is_dirty())
+	{
+		int width = surface->width();
+		int height = surface->height();
+		ITexture* texture = driver->getTexture("RTT3");
+		unsigned int* tex_data = (unsigned int*)texture->lock();
+		surface->CopyTo((unsigned char *)tex_data, surface->row_span(), 4, false, false);
+		surface->SaveToPNG(WSLit("./ui-debug.png"), true);
+
+		// Convert to ARGB
+		int y, x;
+
+		for (y = 0; y < height; y++)
+		{
+			for (x = 0; x < surface->row_span(); x++) {
+				tex_data[y*width + x] = ((tex_data[y*width + x] << 8) & 0xFF00FF00) | ((tex_data[y*width + x] >> 8) & 0xFF00FF);
+				tex_data[y*width + x] = (tex_data[y*width + x] << 16) | (tex_data[y*width + x] >> 16);
+			}
+		}
+		texture->unlock();
+	}
+
+	G_pGame->driver->draw2DImage(uihtml, core::vector2d<s32>(0, 0));
+
+
 	char cfps[20];
 	sprintf(cfps, "FPS: %d", driver->getFPS());
 
@@ -1818,7 +1840,7 @@ void CGame::UpdateScreen()
 
 	{
 		lock_guard<std::mutex> lock(uimtx);
-		CEGUI::System::getSingleton().renderAllGUIContexts();
+		// CEGUI::System::getSingleton().renderAllGUIContexts();
 	}
 
 	m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, unixseconds());
@@ -8879,8 +8901,8 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 	//SetRect(&rcRect, sModX, sModY, 640+sModX, 480+sModY); // our fictitious sprite bitmap is
 	SetRect(&rcRect, sModX, sModY, GetWidth()+sModX, GetHeight()+sModY); // 800x600 Resolution xRisenx
 	//DIRECTX m_DDraw.m_lpBackB4->BltFast( 0, 0, //DIRECTX m_DDraw.m_lpPDBGS, &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-	
-	driver->draw2DImage(bg, core::vector2d<s32>(0-sModX,0-sModY));
+
+	driver->draw2DImage(bg, core::vector2d<s32>(0 - sModX, 0 - sModY));
 
 // 
 // 	char cfps[20];
