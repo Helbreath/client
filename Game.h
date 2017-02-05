@@ -48,6 +48,7 @@
 #include "char\guild.h"
 #include "char\mail.h"
 #include "ui\DialogBox.h"
+#include "ui\HTMLUI.h"
 
 #include "titles\Title.h" // Titles xRisenx
 
@@ -63,9 +64,6 @@
 #include "CEGUI/RendererModules/Irrlicht/TextureTarget.h"
 #include "CEGUI/RendererModules/Irrlicht/Texture.h"
 
-#include <Awesomium/WebCore.h>
-#include <Awesomium/BitmapSurface.h>
-#include <Awesomium/STLHelpers.h>
 
 #define BTNSZX				74
 #define BTNSZY				20
@@ -198,7 +196,6 @@ enum
 };
 
 using namespace CEGUI;
-using namespace Awesomium;
 
 class CGame : public irr::IEventReceiver
 {
@@ -270,7 +267,9 @@ public:
 
 	irr::video::ITexture* bg;
 	irr::video::ITexture* charselect;
-	irr::video::ITexture* uihtml;
+	irr::video::ITexture* htmlRTT;
+
+	HTMLUI* htmlUI;
 
 	bool gamemode;
 
@@ -299,27 +298,6 @@ public:
 
     wstring _renderer;
 
-
-		void Update(int sleep_ms)
-		{
-			// Sleep a specified amount
-	#if defined(__WIN32__) || defined(_WIN32)
-			Sleep(sleep_ms);
-	#elif defined(__APPLE__)
-			usleep(sleep_ms * 1000);
-	#endif
-
-			// You must call WebCore::update periodically
-			// during the lifetime of your application.
-			WebCore::instance()->Update();
-		}
-
-	#define WIDTH   800
-	#define HEIGHT  600
-	#define URL     "http://www.google.com"
-
-		WebView* view;
-
 	bool CreateRenderer(bool fs = false)
 	{
 		ceguistarted = false;
@@ -345,20 +323,9 @@ public:
 		driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
 		smgr = device->getSceneManager();
 		env = device->getGUIEnvironment();
-		
-		WebCore* web_core;
 
-		web_core = WebCore::Initialize(WebConfig());
-		view = web_core->CreateWebView(WIDTH, HEIGHT);
-		WebURL url(WSLit("data:text/html,<body style='background:red;'><h1 style='color:white;'>Hello World</h1></body>"));
-		view->LoadURL(url);
-		while (view->IsLoading()) {
-			Update(50);
-		}
-
-		Update(300);
-
-		BitmapSurface* surface = (BitmapSurface*)view->surface();
+		htmlUI = new HTMLUI(this);
+		htmlUI->Init();
 
 		irr::video::SExposedVideoData vdata = driver->getExposedVideoData();
 		G_hWnd = reinterpret_cast<HWND>(vdata.D3D9.HWnd);
@@ -370,7 +337,6 @@ public:
 		{
 			bg = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth() + 100, GetHeight() + 100), "RTT1");
 			charselect = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(256, 256), "RTT2");
-			uihtml = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth(), GetHeight()), "RTT3");
 		}
 		else
 		{

@@ -12,9 +12,6 @@
 #include "lan_eng.h"
 #include <boost/asio/ssl.hpp>
 
-
-
-extern WebView* view;
 extern class CGame * G_pGame;
 
 extern IrrlichtDevice * device;
@@ -86,7 +83,13 @@ uint32_t unixseconds()
 
 bool CGame::OnEvent(const irr::SEvent& event)
 {
-	// GUI Events
+	// HTML UI Events
+	if(event.MouseInput.Event == irr::EMIE_MOUSE_MOVED) {
+		G_pGame->htmlUI->view->InjectMouseMove(event.MouseInput.X, event.MouseInput.Y);
+		WebCore::instance()->Update();
+	}
+
+	// CEGUI Events
 
 	if (ceguistarted)
 	{
@@ -1639,7 +1642,6 @@ void CGame::UpdateScreen()
 {
 	G_pGame->driver->beginScene(true, true);
 	G_dwGlobalTime = unixtime();
-	BitmapSurface* surface = (BitmapSurface*)view->surface();
 
 	switch (m_cGameMode) {
 #ifdef MAKE_ACCOUNT
@@ -1762,18 +1764,20 @@ void CGame::UpdateScreen()
 #endif
 
 	// Render HTML ui
-	if (surface && surface->is_dirty())
+	if (G_pGame->htmlUI->isDirty())
 	{
-		int width = surface->width();
-		int height = surface->height();
-		G_pGame->driver->removeTexture(uihtml);
-		surface->SaveToPNG(WSLit("./ui-debug.png"), true);
-		IImage *img = G_pGame->driver->createImageFromData(ECF_A8R8G8B8, irr::core::dimension2d<u32>(800, 600), (unsigned char*)surface->buffer(), false, false);
-		uihtml = G_pGame->driver->addTexture("ui-html.png", img);
-		surface->set_is_dirty(false);
+		int width = G_pGame->htmlUI->surface->width();
+		int height = G_pGame->htmlUI->surface->height();
+		if (htmlRTT) {
+			G_pGame->driver->removeTexture(htmlRTT);
+		}
+		// G_pGame->ui->surface->SaveToPNG(WSLit("./ui-debug.png"), true);
+		IImage *img = G_pGame->driver->createImageFromData(ECF_A8R8G8B8, irr::core::dimension2d<u32>(800, 600), (unsigned char*)G_pGame->htmlUI->surface->buffer(), false, false);
+		htmlRTT = G_pGame->driver->addTexture("ui-html.png", img);
+		G_pGame->htmlUI->surface->set_is_dirty(false);
 	}
 
-	G_pGame->driver->draw2DImage(uihtml, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, 800, 600), 0, video::SColor(255, 255, 255, 255), true);
+	G_pGame->driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, 800, 600), 0, video::SColor(255, 255, 255, 255), true);
 
 
 	char cfps[20];
