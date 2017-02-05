@@ -4,6 +4,13 @@ HTMLUI::HTMLUI(class CGame * pGame)
 {
 	core = WebCore::Initialize(WebConfig());
 	view = this->core->CreateWebView(WIDTH, HEIGHT);
+
+	jsNamespace = view->CreateGlobalJavascriptObject(WSLit("client"));
+	jsData = jsNamespace.ToObject();
+	jsData.SetCustomMethod(WSLit("log"), false);
+
+	mHandler = new HTMLUIMethodHandler(this);
+	view->set_js_method_handler(mHandler);
 }
 
 
@@ -13,7 +20,8 @@ HTMLUI::~HTMLUI()
 
 void HTMLUI::Init()
 {
-	WebURL url(WSLit("file:///G:/projects/x-client/bin/ui/main.html"));
+	// WebURL url(WSLit("http://hbx.decouple.io/index.html"));
+	WebURL url(WSLit("file:///G:/projects/hbx-ui/public/index.html"));
 	view->LoadURL(url);
 	view->SetTransparent(true);
 	while (view->IsLoading()) {
@@ -22,8 +30,6 @@ void HTMLUI::Init()
 	HTMLUI::Update(250);
 
 	surface = (BitmapSurface*)view->surface();
-
-	JSValue result = view->CreateGlobalJavascriptObject(WSLit("client"));
 }
 
 bool HTMLUI::isDirty()
@@ -43,4 +49,28 @@ void HTMLUI::Update(int sleep_ms)
 	// You must call WebCore::update periodically
 	// during the lifetime of your application.
 	WebCore::instance()->Update();
+}
+
+HTMLUIMethodHandler::HTMLUIMethodHandler(HTMLUI * htmlUI)
+{
+
+}
+
+void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_object_id, const WebString& method_name, const JSArray& args)
+{
+	if (method_name == WSLit("log")) {
+		std::string buffer = "";
+		int i = 0;
+		while (i < args.size()) {
+			JSValue entry = args.At(i);
+			buffer = buffer + Awesomium::ToString(entry.ToString()) + " ";
+			i++;
+		}
+		printf("[JS] > %s\n", buffer.c_str());
+	}
+}
+
+JSValue HTMLUIMethodHandler::OnMethodCallWithReturnValue(WebView *caller, unsigned int remote_object_id, const WebString& method_name, const JSArray& args)
+{
+	return JSValue::Undefined();
 }
