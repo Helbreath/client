@@ -1103,7 +1103,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
             CEGUI::Texture &baseTexture = target.getTexture();
             CEGUI::IrrlichtTexture &texture = dynamic_cast<CEGUI::IrrlichtTexture&>(baseTexture);
             //irr::video::ITexture * irrTexture = texture.getIrrlichtTexture();
-            texture.setIrrlichtTexture(uihtml);
+            texture.setIrrlichtTexture(charselect);
 
 
         }
@@ -1327,16 +1327,16 @@ void CGame::UpdateScreen_OnConnecting()
         try
         {
             lock_guard<std::mutex> lock(uimtx);
-            // Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
+            Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
             if (ui.connecting == nullptr)
             {
-                // ui.connecting = WindowManager::getSingleton().loadLayoutFromFile("connecting.layout");
-                // ui.connecting->setModalState(true);
-                // myRoot->addChild(ui.connecting);
+                ui.connecting = WindowManager::getSingleton().loadLayoutFromFile("connecting.layout");
+                ui.connecting->setModalState(true);
+                myRoot->addChild(ui.connecting);
             }
             else
             {
-                // myRoot->addChild(ui.connecting);
+                myRoot->addChild(ui.connecting);
                 //login = myRoot->getChild("login");
             }
         }

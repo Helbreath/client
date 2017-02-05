@@ -270,7 +270,8 @@ public:
 
 	irr::video::ITexture* bg;
 	irr::video::ITexture* charselect;
-	irr::video::ITexture* uihtml;
+    irr::video::ITexture* uihtml;
+    irr::video::ITexture* uihtml2;
 
 	bool gamemode;
 
@@ -315,10 +316,11 @@ public:
 		}
 
 	#define WIDTH   800
-	#define HEIGHT  600
+	#define HEIGHT  100
 	#define URL     "http://www.google.com"
 
-		WebView* view;
+        WebView* view;
+        WebView* view2;
 
 	bool CreateRenderer(bool fs = false)
 	{
@@ -350,15 +352,21 @@ public:
 
 		web_core = WebCore::Initialize(WebConfig());
 		view = web_core->CreateWebView(WIDTH, HEIGHT);
-		WebURL url(WSLit("data:text/html,<body style='background:red;'><h1 style='color:white;'>Hello World</h1></body>"));
+        view->SetTransparent(true);
+        WebURL url(WSLit("data:text/html,<html style='background:transparent;'><body style='background:transparent;'><h1 style='color:white;'>Hello World</h1></body></html>"));
 		view->LoadURL(url);
 		while (view->IsLoading()) {
 			Update(50);
 		}
-
+        view2 = web_core->CreateWebView(WIDTH, HEIGHT);
+        view2->SetTransparent(true);
+        WebURL url2(WSLit("data:text/html,<html style='background:transparent;'><body style='background:transparent;'><h1 style='color:white;'>Hello World from down unda</h1></body></html>"));
+        view2->LoadURL(url2);
+        while (view2->IsLoading())
+        {
+            Update(50);
+        }
 		Update(300);
-
-		BitmapSurface* surface = (BitmapSurface*)view->surface();
 
 		irr::video::SExposedVideoData vdata = driver->getExposedVideoData();
 		G_hWnd = reinterpret_cast<HWND>(vdata.D3D9.HWnd);
@@ -370,7 +378,6 @@ public:
 		{
 			bg = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth() + 100, GetHeight() + 100), "RTT1");
 			charselect = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(256, 256), "RTT2");
-			uihtml = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth(), GetHeight()), "RTT3");
 		}
 		else
 		{

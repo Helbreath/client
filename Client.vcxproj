@@ -47,12 +47,13 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)_d</TargetName>
-    <LibraryPath>..\irrlicht-1.8.4\lib\Win32-visualstudio;..\boost_1_63_0\stage\lib;..\cegui-cegui-dependencies-0ecdf3a9e49b\dependencies\lib\static;..\cegui-0.8.7\lib;$(AWE_DIR)build\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>lib;..\irrlicht-1.8.4\lib\Win32-visualstudio;..\boost_1_63_0\stage\lib;..\cegui-cegui-dependencies-0ecdf3a9e49b\dependencies\lib\static;..\cegui-0.8.7\lib;$(AWE_DIR)build\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>bin\bin\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>lib;..\irrlicht-1.8.4\lib\Win32-visualstudio;..\boost_1_63_0\stage\lib;..\cegui-cegui-dependencies-0ecdf3a9e49b\dependencies\lib\static;..\cegui-0.8.7\lib;$(AWE_DIR)build\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
@@ -98,7 +99,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>awesomium.lib;winmm.lib;DbgHelp.lib;freeimage_d.lib;xerces-c_3_d.lib;zlib_d.lib;pcre_d.lib;libpng_d.lib;jpeg_d.lib;freetype_d.lib;CEGUIBase-0_d.lib;CEGUICommonDialogs-0_d.lib;CEGUICoreWindowRendererSet_d.lib;CEGUIIrrlichtRenderer-0_d.lib;CEGUIFreeImageImageCodec_d.lib;CEGUIXercesParser_d.lib;libboost_chrono-vc140-mt-gd-1_63.lib;libboost_date_time-vc140-mt-gd-1_63.lib;libboost_regex-vc140-mt-gd-1_63.lib;libboost_thread-vc140-mt-gd-1_63.lib;libboost_filesystem-vc140-mt-gd-1_63.lib;libboost_system-vc140-mt-gd-1_63.lib;libboost_timer-vc140-mt-gd-1_63.lib;Irrlicht.lib;netapi32.lib;lib/search.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libeay32.lib;ssleay32.lib;awesomium.lib;winmm.lib;DbgHelp.lib;freeimage_d.lib;xerces-c_3_d.lib;zlib_d.lib;pcre_d.lib;libpng_d.lib;jpeg_d.lib;freetype_d.lib;CEGUIBase-0_d.lib;CEGUICommonDialogs-0_d.lib;CEGUICoreWindowRendererSet_d.lib;CEGUIIrrlichtRenderer-0_d.lib;CEGUIFreeImageImageCodec_d.lib;CEGUIXercesParser_d.lib;libboost_chrono-vc140-mt-gd-1_63.lib;libboost_date_time-vc140-mt-gd-1_63.lib;libboost_regex-vc140-mt-gd-1_63.lib;libboost_thread-vc140-mt-gd-1_63.lib;libboost_filesystem-vc140-mt-gd-1_63.lib;libboost_system-vc140-mt-gd-1_63.lib;libboost_timer-vc140-mt-gd-1_63.lib;Irrlicht.lib;netapi32.lib;lib/search.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -132,7 +133,7 @@
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WarningLevel>Level1</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalIncludeDirectories>C:\Code\cegui-0.8.7\cegui\include;C:\Code\irrlicht-1.8.4\include;C:\Code\cegui-cegui-dependencies-0ecdf3a9e49b\dependencies\include;C:\Code\boost_1_63_0;Shared\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\cegui-0.8.7\cegui\include;..\cegui-cegui-dependencies-0ecdf3a9e49b\dependencies\include;Shared\;..\boost_1_63_0;..\irrlicht-1.8.4\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MinimalRebuild>true</MinimalRebuild>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -153,7 +154,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>winmm.lib;lib/SILLY.lib;lib/xerces-c_3.lib;lib/zlib.lib;lib/pcre.lib;lib/libpng.lib;lib/jpeg.lib;lib/freetype.lib;lib/CEGUIBase-0.lib;lib/CEGUICommonDialogs-0.lib;lib/CEGUICoreWindowRendererSet.lib;lib/CEGUIIrrlichtRenderer-0.lib;lib/CEGUISILLYImageCodec.lib;lib/CEGUIXercesParser.lib;lib/libboost_chrono-vc120-mt-1_57.lib;lib/libboost_date_time-vc120-mt-1_57.lib;lib/libboost_regex-vc120-mt-1_57.lib;lib/libboost_thread-vc120-mt-1_57.lib;lib/libboost_system-vc120-mt-1_57.lib;lib/libboost_filesystem-vc120-mt-1_57.lib;lib/libboost_timer-vc120-mt-1_57.lib;lib/Irrlicht.lib;netapi32.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libeay32.lib;ssleay32.lib;awesomium.lib;winmm.lib;xerces-c_3.lib;zlib.lib;pcre.lib;libpng.lib;jpeg.lib;freetype.lib;CEGUIBase-0.lib;CEGUICommonDialogs-0.lib;CEGUICoreWindowRendererSet.lib;CEGUIIrrlichtRenderer-0.lib;CEGUIFreeImageImageCodec.lib;CEGUIXercesParser.lib;libboost_chrono-vc140-mt-1_63.lib;libboost_date_time-vc140-mt-1_63.lib;libboost_regex-vc140-mt-1_63.lib;libboost_thread-vc140-mt-1_63.lib;libboost_filesystem-vc140-mt-1_63.lib;libboost_system-vc140-mt-1_63.lib;libboost_timer-vc140-mt-1_63.lib;Irrlicht.lib;netapi32.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EntryPointSymbol>
@@ -256,10 +257,6 @@
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</BrowseInformation>
     </ClCompile>
     <ClCompile Include="UpdateScreen.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="libeay32.lib" />
-    <Library Include="ssleay32.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

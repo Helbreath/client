@@ -1761,19 +1761,33 @@ void CGame::UpdateScreen()
 	}
 #endif
 
+    static uint64_t uitime = unixtime();
 	// Render HTML ui
-	if (surface && surface->is_dirty())
+	//if (surface && surface->is_dirty())
+    if (uitime - G_dwGlobalTime > 50)
 	{
-		int width = surface->width();
-		int height = surface->height();
-		G_pGame->driver->removeTexture(uihtml);
-		surface->SaveToPNG(WSLit("./ui-debug.png"), true);
-		IImage *img = G_pGame->driver->createImageFromData(ECF_A8R8G8B8, irr::core::dimension2d<u32>(800, 600), (unsigned char*)surface->buffer(), false, false);
-		uihtml = G_pGame->driver->addTexture("ui-html.png", img);
+        BitmapSurface* surface2 = (BitmapSurface*)view2->surface();
+        WebCore::instance()->Update();
+        uitime = G_dwGlobalTime;
+        if (driver->getTexture("ui-html.png") != nullptr)
+		    driver->removeTexture(uihtml);
+		//surface->SaveToPNG(WSLit("./ui-debug.png"), true);
+		IImage *img = driver->createImageFromData(ECF_A8R8G8B8, core::dimension2d<u32>(800, 100), (unsigned char*)surface->buffer(), false, true);
+		uihtml = driver->addTexture("ui-html.png", img);
+        img->drop();
 		surface->set_is_dirty(false);
+
+        if (driver->getTexture("ui-html2.png") != nullptr)
+            driver->removeTexture(uihtml2);
+        //surface->SaveToPNG(WSLit("./ui-debug.png"), true);
+        img = driver->createImageFromData(ECF_A8R8G8B8, core::dimension2d<u32>(800, 100), (unsigned char*)surface2->buffer(), false, true);
+        uihtml2 = driver->addTexture("ui-html2.png", img);
+        img->drop();
+        surface2->set_is_dirty(false);
 	}
 
-	G_pGame->driver->draw2DImage(uihtml, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, 800, 600), 0, video::SColor(255, 255, 255, 255), true);
+    G_pGame->driver->draw2DImage(uihtml, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, 800, 100), 0, video::SColor(255, 255, 255, 255), true);
+    G_pGame->driver->draw2DImage(uihtml2, core::vector2d<s32>(0, 500), core::rect<s32>(0, 0, 800, 100), 0, video::SColor(255, 255, 255, 255), true);
 
 
 	char cfps[20];
@@ -1829,7 +1843,7 @@ void CGame::UpdateScreen()
 
 	{
 		lock_guard<std::mutex> lock(uimtx);
-		// CEGUI::System::getSingleton().renderAllGUIContexts();
+		CEGUI::System::getSingleton().renderAllGUIContexts();
 	}
 
 	m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, unixseconds());
