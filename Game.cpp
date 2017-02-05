@@ -1775,6 +1775,7 @@ void CGame::UpdateScreen()
 		// G_pGame->ui->surface->SaveToPNG(WSLit("./ui-debug.png"), true);
 		IImage *img = G_pGame->driver->createImageFromData(ECF_A8R8G8B8, irr::core::dimension2d<u32>(800, 600), (unsigned char*)G_pGame->htmlUI->surface->buffer(), false, false);
 		htmlRTT = G_pGame->driver->addTexture("ui-html.png", img);
+		img->drop();
 		G_pGame->htmlUI->surface->set_is_dirty(false);
 	}
 
@@ -1834,7 +1835,7 @@ void CGame::UpdateScreen()
 
 	{
 		lock_guard<std::mutex> lock(uimtx);
-		CEGUI::System::getSingleton().renderAllGUIContexts();
+		// CEGUI::System::getSingleton().renderAllGUIContexts();
 	}
 
 	m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, unixseconds());

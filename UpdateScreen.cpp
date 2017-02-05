@@ -1102,10 +1102,8 @@ void CGame::UpdateScreen_OnSelectCharacter()
             CEGUI::IrrlichtTextureTarget &target = dynamic_cast<CEGUI::IrrlichtTextureTarget&>(baseTarget);
             CEGUI::Texture &baseTexture = target.getTexture();
             // CEGUI::IrrlichtTexture &texture = dynamic_cast<CEGUI::IrrlichtTexture&>(baseTexture);
-            //irr::video::ITexture * irrTexture = texture.getIrrlichtTexture();
-            texture.setIrrlichtTexture(charselect);
-
-
+            // irr::video::ITexture * irrTexture = texture.getIrrlichtTexture();
+            // texture.setIrrlichtTexture(charselect);
         }
         else
         {

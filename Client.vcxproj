@@ -205,6 +205,7 @@
     <ClInclude Include="streams.h" />
     <ClInclude Include="titles\Title.h" />
     <ClInclude Include="UI\DialogBox.h" />
+    <ClInclude Include="UI\HTMLUI.h" />
     <ClInclude Include="UI\Winmain.h" />
     <ClInclude Include="Net\Msg.h" />
     <ClInclude Include="lan_eng.h" />
@@ -239,6 +240,7 @@
     <ClCompile Include="Shared\buffer.cpp" />
     <ClCompile Include="titles\Title.cpp" />
     <ClCompile Include="UI\DialogBox.cpp" />
+    <ClCompile Include="UI\HTMLUI.cpp" />
     <ClCompile Include="UI\Wmain.cpp" />
     <ClCompile Include="Net\Msg.cpp" />
     <ClCompile Include="Game.cpp" />
