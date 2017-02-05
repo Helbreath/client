@@ -269,8 +269,8 @@ public:
 	irr::gui::IGUIEnvironment* env;
 
 	irr::video::ITexture* bg;
-    irr::video::ITexture* charselect;
-    irr::video::ITexture* uihtml;
+	irr::video::ITexture* charselect;
+	irr::video::ITexture* uihtml;
 
 	bool gamemode;
 
@@ -363,15 +363,14 @@ public:
 		irr::video::SExposedVideoData vdata = driver->getExposedVideoData();
 		G_hWnd = reinterpret_cast<HWND>(vdata.D3D9.HWnd);
 
-		driver->getMaterial2D().TextureLayer[0].BilinearFilter=false;
-		driver->getMaterial2D().AntiAliasing = video::EAAM_OFF;
-
+		driver->getMaterial2D().TextureLayer[0].BilinearFilter = true;
+		driver->getMaterial2D().AntiAliasing = video::EAAM_FULL_BASIC;
 
 		if (driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
 		{
 			bg = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth() + 100, GetHeight() + 100), "RTT1");
-            charselect = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(256, 256), "RTT2");
-            uihtml = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth() + 100, GetHeight() + 100), "RTT3");
+			charselect = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(256, 256), "RTT2");
+			uihtml = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth(), GetHeight()), "RTT3");
 		}
 		else
 		{

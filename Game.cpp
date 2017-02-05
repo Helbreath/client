@@ -1766,25 +1766,14 @@ void CGame::UpdateScreen()
 	{
 		int width = surface->width();
 		int height = surface->height();
-		ITexture* texture = driver->getTexture("RTT3");
-		unsigned int* tex_data = (unsigned int*)texture->lock();
-		surface->CopyTo((unsigned char *)tex_data, surface->row_span(), 4, false, false);
+		G_pGame->driver->removeTexture(uihtml);
 		surface->SaveToPNG(WSLit("./ui-debug.png"), true);
-
-		// Convert to ARGB
-		int y, x;
-
-		for (y = 0; y < height; y++)
-		{
-			for (x = 0; x < surface->row_span(); x++) {
-				tex_data[y*width + x] = ((tex_data[y*width + x] << 8) & 0xFF00FF00) | ((tex_data[y*width + x] >> 8) & 0xFF00FF);
-				tex_data[y*width + x] = (tex_data[y*width + x] << 16) | (tex_data[y*width + x] >> 16);
-			}
-		}
-		texture->unlock();
+		IImage *img = G_pGame->driver->createImageFromData(ECF_A8R8G8B8, irr::core::dimension2d<u32>(800, 600), (unsigned char*)surface->buffer(), false, false);
+		uihtml = G_pGame->driver->addTexture("ui-html.png", img);
+		surface->set_is_dirty(false);
 	}
 
-	G_pGame->driver->draw2DImage(uihtml, core::vector2d<s32>(0, 0));
+	G_pGame->driver->draw2DImage(uihtml, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, 800, 600), 0, video::SColor(255, 255, 255, 255), true);
 
 
 	char cfps[20];
