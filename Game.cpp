@@ -11,6 +11,9 @@
 
 #include "lan_eng.h"
 #include <boost/asio/ssl.hpp>
+#include "Awesomium\WebKeyboardEvent.h"
+
+using namespace Awesomium;
 
 extern class CGame * G_pGame;
 
@@ -83,12 +86,6 @@ uint32_t unixseconds()
 
 bool CGame::OnEvent(const irr::SEvent& event)
 {
-	// HTML UI Events
-	if(event.MouseInput.Event == irr::EMIE_MOUSE_MOVED) {
-		G_pGame->htmlUI->view->InjectMouseMove(event.MouseInput.X, event.MouseInput.Y);
-		WebCore::instance()->Update();
-	}
-
     if (event.MouseInput.Event != irr::EMIE_MOUSE_MOVED)
     {
         //AddEventList("Irrlicht Injected Successfully.", 10);
@@ -98,6 +95,7 @@ bool CGame::OnEvent(const irr::SEvent& event)
     {
         if (event.MouseInput.Event == irr::EMIE_LMOUSE_PRESSED_DOWN)
         {
+			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Left);
             if (wasinactive)
             {
                 wasinactive = false;
@@ -107,7 +105,8 @@ bool CGame::OnEvent(const irr::SEvent& event)
             m_stMCursor.LB = true;
         }
         else if (event.MouseInput.Event == irr::EMIE_RMOUSE_PRESSED_DOWN)
-        {
+		{
+			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
             if (wasinactive)
             {
                 wasinactive = false;
@@ -117,7 +116,8 @@ bool CGame::OnEvent(const irr::SEvent& event)
             m_stMCursor.RB = true;
         }
         else if (event.MouseInput.Event == irr::EMIE_MMOUSE_PRESSED_DOWN)
-        {
+		{
+			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
             if (wasinactive)
             {
                 wasinactive = false;
@@ -129,15 +129,18 @@ bool CGame::OnEvent(const irr::SEvent& event)
         else if (event.MouseInput.Event == irr::EMIE_LMOUSE_LEFT_UP)
         {
             m_stMCursor.LB = false;
+			G_pGame->htmlUI->view->InjectMouseUp(Awesomium::MouseButton::kMouseButton_Left);
             //context.injectMouseButtonUp(MouseButton::LeftButton);
         }
         else if (event.MouseInput.Event == irr::EMIE_RMOUSE_LEFT_UP)
-        {
+		{
+			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
             m_stMCursor.RB = false;
             //context.injectMouseButtonUp(MouseButton::RightButton);
         }
         else if (event.MouseInput.Event == irr::EMIE_MMOUSE_LEFT_UP)
-        {
+		{
+			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
             m_stMCursor.MB = false;
             //context.injectMouseButtonUp(MouseButton::MiddleButton);
         }
@@ -160,13 +163,19 @@ bool CGame::OnEvent(const irr::SEvent& event)
         else if (event.MouseInput.Event == irr::EMIE_MOUSE_WHEEL)
         {
             // TODO: get values?
-            m_stMCursor.sZ = event.MouseInput.Wheel;
+			m_stMCursor.sZ = event.MouseInput.Wheel;
+			G_pGame->htmlUI->view->InjectMouseWheel(event.MouseInput.Wheel, 0);
             //mouse wheel for dialogs?
         }
         else if (event.MouseInput.Event == irr::EMIE_MOUSE_MOVED)
-        {
+		{
+			G_pGame->htmlUI->view->InjectMouseMove(event.MouseInput.X, event.MouseInput.Y);
             //context.injectMousePosition(event.MouseInput.X, event.MouseInput.Y);
-        }
+		}
+
+		if (G_pGame->htmlUI) {
+			G_pGame->htmlUI->core->Update();
+		}
         return false;
     }
     else
@@ -176,12 +185,23 @@ bool CGame::OnEvent(const irr::SEvent& event)
         // Remember whether each key is down or up
         if (event.EventType == irr::EET_KEY_INPUT_EVENT)
         {
-            KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+			KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
             if (event.KeyInput.PressedDown)
             {
                 //if (GetText(0, WM_CHAR, event.KeyInput.Key, 0))
                 //	return true;
-                //context.injectKeyDown((Key::Scan)event.KeyInput.Key);
+				//context.injectKeyDown((Key::Scan)event.KeyInput.Key);
+
+				WebKeyboardEvent keyEvent = WebKeyboardEvent();
+				keyEvent.type = WebKeyboardEvent::kTypeKeyDown;
+				keyEvent.native_key_code = event.KeyInput.Char;
+				G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+
+				WebKeyboardEvent keyEvent2 = WebKeyboardEvent();
+				keyEvent2.type = WebKeyboardEvent::kTypeChar;
+				keyEvent2.text[0] = event.KeyInput.Char;
+				G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent2);
+				
                 OnKeyDown(event.KeyInput.Key);
                 OnSysKeyDown(event.KeyInput.Key);
                 //lastchar = event.KeyInput.Key;
@@ -189,13 +209,21 @@ bool CGame::OnEvent(const irr::SEvent& event)
             }
             else
             {
-                //context.injectKeyUp((Key::Scan)event.KeyInput.Key);
+				//context.injectKeyUp((Key::Scan)event.KeyInput.Key);
+				WebKeyboardEvent keyEvent = WebKeyboardEvent();
+				keyEvent.type = WebKeyboardEvent::kTypeKeyUp;
+				keyEvent.native_key_code = event.KeyInput.Char;
+				G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+
                 OnKeyUp(event.KeyInput.Key);
                 OnSysKeyUp(event.KeyInput.Key);
-            }
+			}
+			if (G_pGame->htmlUI) {
+				G_pGame->htmlUI->core->Update();
+			}
             return false;
         }
-    }
+	}
 	return false;
 }
 
@@ -1668,10 +1696,16 @@ void CGame::UpdateScreen()
 	}
 #endif
 
-    static uint64_t uitime = unixtime();
+	static uint64_t uitime = unixtime();
+	if (G_pGame->htmlUI->surface && uitime - G_dwGlobalTime > 100) {
+		G_pGame->htmlUI->surface->set_is_dirty(true);
+		uitime = G_dwGlobalTime;
+	}
+
 	// Render HTML ui
 	if (G_pGame->htmlUI->isDirty())
 	{
+		uitime = G_dwGlobalTime;
 		int width = G_pGame->htmlUI->surface->width();
 		int height = G_pGame->htmlUI->surface->height();
 		if (htmlRTT) {
