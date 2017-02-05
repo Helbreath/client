@@ -1103,7 +1103,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
             CEGUI::Texture &baseTexture = target.getTexture();
             // CEGUI::IrrlichtTexture &texture = dynamic_cast<CEGUI::IrrlichtTexture&>(baseTexture);
             //irr::video::ITexture * irrTexture = texture.getIrrlichtTexture();
-            // texture.setIrrlichtTexture(uihtml);
+            texture.setIrrlichtTexture(charselect);
 
 
         }
@@ -1327,16 +1327,16 @@ void CGame::UpdateScreen_OnConnecting()
         try
         {
             lock_guard<std::mutex> lock(uimtx);
-            // Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
+            Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
             if (ui.connecting == nullptr)
             {
-                // ui.connecting = WindowManager::getSingleton().loadLayoutFromFile("connecting.layout");
-                // ui.connecting->setModalState(true);
-                // myRoot->addChild(ui.connecting);
+                ui.connecting = WindowManager::getSingleton().loadLayoutFromFile("connecting.layout");
+                ui.connecting->setModalState(true);
+                myRoot->addChild(ui.connecting);
             }
             else
             {
-                // myRoot->addChild(ui.connecting);
+                myRoot->addChild(ui.connecting);
                 //login = myRoot->getChild("login");
             }
         }
@@ -3682,7 +3682,7 @@ void CGame::UpdateScreen_OnLogResMsg()
 
         case 'I': //
             PutString_SprFont(dlgX + 77, dlgY + 43, "Not Enough Point!", 7, 0, 0);
-            PutAlignedString(dlgX + 15, dlgX + 300, dlgY + 74, "ÂI¼Æ¨Ï¥Î´Á­­¤wµ²§ô, ½Ð¦ÜGD2S.gamania.com©µªø¨Ï¥Î´Á­­");
+            PutAlignedString(dlgX + 15, dlgX + 300, dlgY + 74, "ï¿½Iï¿½Æ¨Ï¥Î´ï¿½ï¿½ï¿½ï¿½wï¿½ï¿½ï¿½ï¿½, ï¿½Ð¦ï¿½GD2S.gamania.comï¿½ï¿½ï¿½ï¿½ï¿½Ï¥Î´ï¿½ï¿½ï¿½");
 
             break;
 
@@ -4253,7 +4253,7 @@ void CGame::UpdateScreen_OnGame()
                                         GetNpcName(m_dialogBoxes[17].sV3, m_dialogBoxes[20].cStr);
                                         break;
                                     case 1000: // Trade stackable items
-                                               // hum, déjà affiché? , j'attends le retour et je désactive!
+                                               // hum, dï¿½jï¿½ affichï¿½? , j'attends le retour et je dï¿½sactive!
                                                /*m_stDialogBoxInfo[27].sV1 = m_pItemList[m_stDialogBoxInfo[17].sV4]->m_sSprite;
                                                m_stDialogBoxInfo[27].sV2 = m_pItemList[m_stDialogBoxInfo[17].sV4]->m_sSpriteFrame;
                                                m_stDialogBoxInfo[27].sV3 = iAmount;

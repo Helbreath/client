@@ -1763,6 +1763,7 @@ void CGame::UpdateScreen()
 	}
 #endif
 
+    static uint64_t uitime = unixtime();
 	// Render HTML ui
 	if (G_pGame->htmlUI->isDirty())
 	{
@@ -1833,7 +1834,7 @@ void CGame::UpdateScreen()
 
 	{
 		lock_guard<std::mutex> lock(uimtx);
-		// CEGUI::System::getSingleton().renderAllGUIContexts();
+		CEGUI::System::getSingleton().renderAllGUIContexts();
 	}
 
 	m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, unixseconds());
@@ -4482,7 +4483,7 @@ void CGame::InitGameSettings()
 /*
 void CGame::_GetHairColorRGB(int iColorType, int * pR, int * pG, int * pB)
 {	switch (iColorType) {
-	case 0: // rouge foncé
+	case 0: // rouge foncï¿½
 		*pR = 14; *pG = -5; *pB = -5; break;
 	case 1: // Orange
 		*pR = 20; *pG = 0; *pB = 0; break;
@@ -4492,7 +4493,7 @@ void CGame::_GetHairColorRGB(int iColorType, int * pR, int * pG, int * pB)
 		*pR = 0; *pG = 10; *pB = 0; break;
 	case 4: // Bleu flashy
 		*pR = 0; *pG = 0; *pB = 22; break;
-	case 5: // Bleu foncé
+	case 5: // Bleu foncï¿½
 		*pR = -5; *pG = -5; *pB = 15; break;
 	case 6: //Mauve
 		*pR = 15; *pG = -5; *pB = 16; break;
@@ -4529,7 +4530,7 @@ void CGame::_GetHairColorRGB(int iColorType, int * pR, int * pG, int * pB)//TODO
 		*pR = 0; *pG = 10; *pB = 0; break;
 	case 4: // Bleu flashy
 		*pR = 0; *pG = 0; *pB = 22; break;
-	case 5: // Bleu foncé
+	case 5: // Bleu foncï¿½
 		*pR = -5; *pG = -5; *pB = 15; break;
 	case 6: //Mauve
 		*pR = 15; *pG = -5; *pB = 16; break;
@@ -4940,7 +4941,7 @@ void CGame::bAddNewEffect(short sType, int sX, int sY, int dX, int dY, char cSta
 			m_pEffectList[i]->m_dwFrameTime = 10;
 			break;
 
-		case 2:	// Flêche qui vole
+		case 2:	// Flï¿½che qui vole
 			m_pEffectList[i]->m_mX     = sX*32;
 			m_pEffectList[i]->m_mY     = sY*32 - _iAttackerHeight[iV1];
 			m_pEffectList[i]->m_iErr   = 0;
@@ -5525,7 +5526,7 @@ void CGame::bAddNewEffect(short sType, int sX, int sY, int dX, int dY, char cSta
 			m_pEffectList[i]->m_dwFrameTime = 40;
 			break;
 
-		case 80: // Snoopy: rajoué, implémenté en dernier ds la v351
+		case 80: // Snoopy: rajouï¿½, implï¿½mentï¿½ en dernier ds la v351
 			m_pEffectList[i]->m_mX     = sX;
 			m_pEffectList[i]->m_mY     = sY;
 			m_pEffectList[i]->m_iV1    = 20;
@@ -5841,7 +5842,7 @@ void CGame::bAddNewEffect(short sType, int sX, int sY, int dX, int dY, char cSta
 			PlaySound('E', 1, sDist, lPan);
 			break;
 
-		case 244: // Snoopy: déplacé pour nvx sorts: Aura du casteur de Mass MagicMissile
+		case 244: // Snoopy: dï¿½placï¿½ pour nvx sorts: Aura du casteur de Mass MagicMissile
 		//case 184: // effet sur le caster pour MassMM
 			m_pEffectList[i]->m_cMaxFrame   = 29;
 			m_pEffectList[i]->m_dwFrameTime = 80;
@@ -6572,7 +6573,7 @@ void CGame::DrawEffects()
 			if (cTempFrame < 0) break;
 			dX  = (m_pEffectList[i]->m_mX)  - m_sViewPointX;
 			dY  = (m_pEffectList[i]->m_mY)  - m_sViewPointY;
-			m_pEffectSpr[91]->PutSpriteFast(dX, dY, cTempFrame, dwTime); //Nbe d'arguments modifiés ds la 351....
+			m_pEffectSpr[91]->PutSpriteFast(dX, dY, cTempFrame, dwTime); //Nbe d'arguments modifiï¿½s ds la 351....
 			m_pEffectSpr[92]->PutTransSprite(dX, dY, cTempFrame, dwTime);
 			break;
 
@@ -6896,7 +6897,7 @@ void CGame::DrawEffects()
 		//	//m_pEffectSpr[5]->PutTransSprite_NoColorKey(dX, dY, cTempFrame, dwTime);
 		//	break;
 
-		case 244: // Snoopy: déplacé pour nvx sorts: Aura du casteur de Mass MagicMissile
+		case 244: // Snoopy: dï¿½placï¿½ pour nvx sorts: Aura du casteur de Mass MagicMissile
 		//case 184: // Aura du casteur de Mass MagicMissile
 			cTempFrame = m_pEffectList[i]->m_cFrame;
 			if (cTempFrame < 0) break;
@@ -10150,7 +10151,7 @@ bool CGame::bEffectFrameCounter()
 			case 195:
 			case 242: // Mage hero effect
 			case 243: // War hero effect
-			case 244: // Snoopy: déplacé pour nvx sorts: Aura du casteur de Mass MagicMissile
+			case 244: // Snoopy: dï¿½placï¿½ pour nvx sorts: Aura du casteur de Mass MagicMissile
 				if (m_pEffectList[i]->m_cFrame > m_pEffectList[i]->m_cMaxFrame)
 				{	delete m_pEffectList[i];
 					m_pEffectList[i] = 0;
@@ -10587,7 +10588,7 @@ void CGame::EnableDialogBox(int iBoxID, int cType, int sV1, int sV2, const char 
 		}
 		break;
 
-	case 17: // demande quantité
+	case 17: // demande quantitï¿½
 		if (m_bIsDialogEnabled[17] == false)
 		{	
 			m_dialogBoxes[iBoxID].SetMode(1);
@@ -13061,7 +13062,7 @@ void CGame::bItemDrop_ExchangeDialog()
 		ZeroMemory(m_dialogBoxes[17].cStr, sizeof(m_dialogBoxes[17].cStr));
 		EnableDialogBox(17, cItemID, m_pItemList[cItemID]->m_dwCount, 0);
 		return;
-	}else // hum? déjà on affiche? , bon je désactive, ca devrait plutôt s'afficher lors du retour du serveur.
+	}else // hum? dï¿½jï¿½ on affiche? , bon je dï¿½sactive, ca devrait plutï¿½t s'afficher lors du retour du serveur.
 	{	/*m_stDialogBoxInfo[27].sV1 = m_pItemList[cItemID]->m_sSprite;
 		m_stDialogBoxInfo[27].sV2 = m_pItemList[cItemID]->m_sSpriteFrame;
 		m_stDialogBoxInfo[27].sV3 = 1;
@@ -16433,7 +16434,7 @@ void CGame::NotifyMsgHandler(char * pData)
 		m_bUsingSlate = false;
 		break;
 
-	// MJ Stats Change - Diuuude: Erreur, ici il s'agit de sorts et skills, le serveur comme la v351 sont aussi bugués !
+	// MJ Stats Change - Diuuude: Erreur, ici il s'agit de sorts et skills, le serveur comme la v351 sont aussi buguï¿½s !
 	case NOTIFY_STATECHANGE_SUCCESS:	// 0x0BB5
 		cp = (char *)(pData	+ INDEX2_MSGTYPE + 2);
 		for (i = 0; i < MAXMAGICTYPE; i++)
@@ -21334,7 +21335,7 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 						m_cCommand = OBJECTATTACK;
 						m_sCommX = m_sMCX;
 						m_sCommY = m_sMCY;
-					}else // Pas au corp à corp
+					}else // Pas au corp ï¿½ corp
 					{	switch (_iGetWeaponSkillType()) {
 						case 6: // Bow
 							m_cCommand = OBJECTATTACK;
