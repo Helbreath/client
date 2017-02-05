@@ -86,10 +86,6 @@ uint32_t unixseconds()
 
 bool CGame::OnEvent(const irr::SEvent& event)
 {
-	if (G_pGame->htmlUI != nullptr && G_pGame->htmlUI->view != nullptr) {
-		G_pGame->htmlUI->view->Focus();
-	}
-
     if (event.MouseInput.Event != irr::EMIE_MOUSE_MOVED)
     {
         //AddEventList("Irrlicht Injected Successfully.", 10);
@@ -176,10 +172,6 @@ bool CGame::OnEvent(const irr::SEvent& event)
 			G_pGame->htmlUI->view->InjectMouseMove(event.MouseInput.X, event.MouseInput.Y);
             //context.injectMousePosition(event.MouseInput.X, event.MouseInput.Y);
 		}
-
-		if (G_pGame->htmlUI) {
-			G_pGame->htmlUI->core->Update();
-		}
         return false;
     }
     else
@@ -221,9 +213,6 @@ bool CGame::OnEvent(const irr::SEvent& event)
 
                 OnKeyUp(event.KeyInput.Key);
                 OnSysKeyUp(event.KeyInput.Key);
-			}
-			if (G_pGame->htmlUI) {
-				G_pGame->htmlUI->core->Update();
 			}
             return false;
         }
@@ -1701,6 +1690,10 @@ void CGame::UpdateScreen()
 #endif
 
 	static uint64_t uitime = unixtime();
+	if (G_pGame->htmlUI->surface && uitime - G_dwGlobalTime > 50) {
+        WebCore::instance()->Update();
+		uitime = G_dwGlobalTime;
+	}
 
 	// Render HTML ui
 	if (G_pGame->htmlUI->isDirty())
