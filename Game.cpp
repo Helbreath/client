@@ -86,6 +86,10 @@ uint32_t unixseconds()
 
 bool CGame::OnEvent(const irr::SEvent& event)
 {
+	if (G_pGame->htmlUI != nullptr && G_pGame->htmlUI->view != nullptr) {
+		G_pGame->htmlUI->view->Focus();
+	}
+
     if (event.MouseInput.Event != irr::EMIE_MOUSE_MOVED)
     {
         //AddEventList("Irrlicht Injected Successfully.", 10);
