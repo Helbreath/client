@@ -1701,10 +1701,6 @@ void CGame::UpdateScreen()
 #endif
 
 	static uint64_t uitime = unixtime();
-	if (G_pGame->htmlUI->surface && uitime - G_dwGlobalTime > 100) {
-		G_pGame->htmlUI->surface->set_is_dirty(true);
-		uitime = G_dwGlobalTime;
-	}
 
 	// Render HTML ui
 	if (G_pGame->htmlUI->isDirty())
