@@ -89,207 +89,27 @@ bool CGame::OnEvent(const irr::SEvent& event)
 		WebCore::instance()->Update();
 	}
 
-	// CEGUI Events
-
-	if (ceguistarted)
+	// Remember whether each key is down or up
+	if (event.EventType == irr::EET_KEY_INPUT_EVENT)
 	{
-		CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
-
-/*
-		if (event.EventType == EET_GUI_EVENT)
+		KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+		if (event.KeyInput.PressedDown)
 		{
-			s32 id = event.GUIEvent.Caller->getID();
-			irr::gui::IGUIEnvironment* env = device->getGUIEnvironment();
-
-			switch (event.GUIEvent.EventType)
-			{
-			case irr::gui::EGET_SCROLL_BAR_CHANGED:
-				if (id == GUI_ID_TRANSPARENCY_SCROLL_BAR)
-				{
-					s32 pos = ((irr::gui::IGUIScrollBar*)event.GUIEvent.Caller)->getPos();
-					//setSkinTransparency(pos, env->getSkin());
-				}
-				break;
-			case irr::gui::EGET_ELEMENT_FOCUSED:
-				context.listbox->addItem(L"EGET_ELEMENT_FOCUSED");
-				return false;
-			case irr::gui::EGET_BUTTON_CLICKED:
-				switch (id)
-				{
-				case GUI_ID_QUIT_BUTTON:
-					device->closeDevice();
-					return true;
-
-				case GUI_ID_NEW_WINDOW_BUTTON:
-				{
-					context.listbox->addItem(L"Window created");
-					context.counter += 30;
-					if (context.counter > 200)
-						context.counter = 0;
-
-					irr::gui::IGUIWindow* window = env->addWindow(
-						irr::core::rect<s32>(100 + context.counter, 100 + context.counter, 300 + context.counter, 200 + context.counter),
-						false, // modal?
-						L"Test window");
-
-					env->addStaticText(L"Please close me",
-						irr::core::rect<s32>(35, 35, 140, 50),
-						true, // border?
-						false, // wordwrap?
-						window);
-				}
-					return true;
-
-				case GUI_ID_FILE_OPEN_BUTTON:
-					context.listbox->addItem(L"File open");
-					// There are some options for the file open dialog
-					// We set the title, make it a modal window, and make sure
-					// that the working directory is restored after the dialog
-					// is finished.
-					env->addFileOpenDialog(L"Please choose a file.", true, 0, -1, true);
-					return true;
-
-				default:
-					context.listbox->addItem(L"EGET_BUTTON_CLICKED");
-					return true;
-				}
-				break;
-
-			case irr::gui::EGET_FILE_SELECTED:
-			{
-				// show the model filename, selected in the file dialog
-				irr::gui::IGUIFileOpenDialog* dialog =
-					(irr::gui::IGUIFileOpenDialog*)event.GUIEvent.Caller;
-				context.listbox->addItem(dialog->getFileName());
-			}
-				break;
-
-			default:
-				break;
-			}
-		}*/
-
-		if (((CEGUI::IrrlichtRenderer*)CEGUI::System::getSingleton().getRenderer())->injectEvent(event))
-		{
-			// Irrlicht UI has accepted the input (mouse events need to still be passed for the sake of old UI elements until replaced)
-
-			if (event.MouseInput.Event != irr::EMIE_MOUSE_MOVED)
-			{
-				//AddEventList("Irrlicht Injected Successfully.", 10);
-			}
-			Window * win = context.getWindowContainingMouse();
-			Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-			if (win == myRoot)
-			{
-				// Move out of if(true) at a later date when all UI elements are updated
-				if (event.EventType == irr::EET_MOUSE_INPUT_EVENT)
-				{
-					if (event.MouseInput.Event == irr::EMIE_LMOUSE_PRESSED_DOWN)
-					{
-						if (wasinactive)
-						{
-							wasinactive = false;
-							return false;
-						}
-						//context.injectMouseButtonDown(MouseButton::LeftButton);
-						m_stMCursor.LB = true;
-					}
-					else if (event.MouseInput.Event == irr::EMIE_RMOUSE_PRESSED_DOWN)
-					{
-						if (wasinactive)
-						{
-							wasinactive = false;
-							return false;
-						}
-						//context.injectMouseButtonDown(MouseButton::RightButton);
-						m_stMCursor.RB = true;
-					}
-					else if (event.MouseInput.Event == irr::EMIE_MMOUSE_PRESSED_DOWN)
-					{
-						if (wasinactive)
-						{
-							wasinactive = false;
-							return false;
-						}
-						//context.injectMouseButtonDown(MouseButton::MiddleButton);
-						m_stMCursor.MB = true;
-					}
-					else if (event.MouseInput.Event == irr::EMIE_LMOUSE_LEFT_UP)
-					{
-						m_stMCursor.LB = false;
-						//context.injectMouseButtonUp(MouseButton::LeftButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_RMOUSE_LEFT_UP)
-					{
-						m_stMCursor.RB = false;
-						//context.injectMouseButtonUp(MouseButton::RightButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_MMOUSE_LEFT_UP)
-					{
-						m_stMCursor.MB = false;
-						//context.injectMouseButtonUp(MouseButton::MiddleButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_LMOUSE_DOUBLE_CLICK)
-					{
-						//context.injectMouseButtonDoubleClick(MouseButton::LeftButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_LMOUSE_TRIPLE_CLICK)
-					{
-						//context.injectMouseButtonTripleClick(MouseButton::LeftButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_RMOUSE_DOUBLE_CLICK)
-					{
-						//context.injectMouseButtonDoubleClick(MouseButton::RightButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_RMOUSE_TRIPLE_CLICK)
-					{
-						//context.injectMouseButtonTripleClick(MouseButton::RightButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_MOUSE_WHEEL)
-					{
-						// TODO: get values?
-						m_stMCursor.sZ = event.MouseInput.Wheel;
-						//mouse wheel for dialogs?
-					}
-					else if (event.MouseInput.Event == irr::EMIE_MOUSE_MOVED)
-					{
-						//context.injectMousePosition(event.MouseInput.X, event.MouseInput.Y);
-					}
-					return false;
-				}
-			}
-
+			//if (GetText(0, WM_CHAR, event.KeyInput.Key, 0))
+			//	return true;
+			//context.injectKeyDown((Key::Scan)event.KeyInput.Key);
+			OnKeyDown(event.KeyInput.Key);
+			OnSysKeyDown(event.KeyInput.Key);
+			//lastchar = event.KeyInput.Key;
+			//context.injectChar((Key::Scan)event.KeyInput.Key);
 		}
 		else
 		{
-			// Only processed if a UI element does not accept input from keypress
-
-			// Remember whether each key is down or up
-			if (event.EventType == irr::EET_KEY_INPUT_EVENT)
-			{
-				KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
-				if (event.KeyInput.PressedDown)
-				{
-					//if (GetText(0, WM_CHAR, event.KeyInput.Key, 0))
-					//	return true;
-					//context.injectKeyDown((Key::Scan)event.KeyInput.Key);
-					OnKeyDown(event.KeyInput.Key);
-					OnSysKeyDown(event.KeyInput.Key);
-					//lastchar = event.KeyInput.Key;
-					//context.injectChar((Key::Scan)event.KeyInput.Key);
-				}
-				else
-				{
-					//context.injectKeyUp((Key::Scan)event.KeyInput.Key);
-					OnKeyUp(event.KeyInput.Key);
-					OnSysKeyUp(event.KeyInput.Key);
-				}
-				return false;
-			}
+			//context.injectKeyUp((Key::Scan)event.KeyInput.Key);
+			OnKeyUp(event.KeyInput.Key);
+			OnSysKeyUp(event.KeyInput.Key);
 		}
-
-
-
+		return false;
 	}
 	return false;
 }
@@ -1775,6 +1595,7 @@ void CGame::UpdateScreen()
 		// G_pGame->ui->surface->SaveToPNG(WSLit("./ui-debug.png"), true);
 		IImage *img = G_pGame->driver->createImageFromData(ECF_A8R8G8B8, irr::core::dimension2d<u32>(800, 600), (unsigned char*)G_pGame->htmlUI->surface->buffer(), false, false);
 		htmlRTT = G_pGame->driver->addTexture("ui-html.png", img);
+		img->drop();
 		G_pGame->htmlUI->surface->set_is_dirty(false);
 	}
 
@@ -1834,7 +1655,7 @@ void CGame::UpdateScreen()
 
 	{
 		lock_guard<std::mutex> lock(uimtx);
-		CEGUI::System::getSingleton().renderAllGUIContexts();
+		// CEGUI::System::getSingleton().renderAllGUIContexts();
 	}
 
 	m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, unixseconds());
@@ -3659,30 +3480,6 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
 
 void CGame::ConnectionEstablishHandler(char cWhere)
 {
-	try
-	{
-		lock_guard<std::mutex> lock(uimtx);
-		WindowManager::getSingleton().destroyAllWindows();
-		Window * myRoot = WindowManager::getSingleton().createWindow("DefaultWindow", "root");
-		System::getSingleton().getDefaultGUIContext().setRootWindow(myRoot);
-		memset(&ui, 0, sizeof(ui));
-
-// 		if (ui.login != nullptr)
-// 		{
-// 			WindowManager::getSingleton().destroyWindow(ui.login);
-// 			ui.login = nullptr;
-// 		}
-// 		if (ui.connecting != nullptr)
-// 		{
-// 			WindowManager::getSingleton().destroyWindow(ui.connecting);
-// 			ui.connecting = nullptr;
-// 		}
-		//myRoot->getChild("connecting")->destroy();
-	}
-	catch (...)
-	{
-	}
-
 	ChangeGameMode(GAMEMODE_ONWAITINGRESPONSE);
 
 	switch (cWhere) {
@@ -14880,153 +14677,6 @@ void CGame::_LoadAgreementTextContents(char cType)
 
 #endif //endif from #ifdef MAKE_ACCOUNT
 
-bool CGame::UIEnterGame(const CEGUI::EventArgs& e)
-{
-	PlaySound('E', 14, 5);
-
-	if (selectedchar != nullptr)
-	{
-		if (selectedchar->m_sSex != 0)
-		{
-			ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-			strcpy(m_cPlayerName, selectedchar->m_cName.c_str());
-			m_iLevel = (int)selectedchar->m_sLevel;
-			if (m_Misc.bCheckValidString(m_cPlayerName) == true)
-			{
-				m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
-				m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
-
-				ZeroMemory(m_cMsg, sizeof(m_cMsg));
-				strcpy(m_cMsg, "33");
-				ZeroMemory(m_cMapName, sizeof(m_cMapName));
-				memcpy(m_cMapName, selectedchar->m_cMapName.c_str(), 10);
-
-				m_dwConnectMode = MSGID_REQUEST_ENTERGAME;
-				m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
-				ChangeGameMode(GAMEMODE_ONCONNECTING);
-				return true;
-			}
-		}
-	}
-	else
-	{
-		//TODO: this should never run, fallback just in case
-		_InitOnCreateNewCharacter();
-		ChangeGameMode(GAMEMODE_ONCREATENEWCHARACTER);
-		return true;
-	}
-	return true;
-}
-
-bool CGame::UISelectCharacterClicked(const CEGUI::EventArgs& e)
-{
-	Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-	Window * temp = ((WindowEventArgs&)e).window;
-	string name = temp->getName().c_str();
-	name = name.substr(6);
-	Window * selchar = myRoot->getChild("selectcharacter")->getChild(name);
-	for (int i = 0; i < m_pCharList.size(); ++i)
-	{
-		stringstream ss; ss << "char" << i;
-		Window * charsel = myRoot->getChild("selectcharacter")->getChild(ss.str());
-		charsel->setProperty("BackgroundColours", "tl:FF592500 tr:FF592500 bl:FF592500 br:FF592500"/*ss.str()*/);
-	}
-	selectedchar = m_pCharList[atoi(name.substr(4).c_str())];
-// 	stringstream ss;
-// 	ss << "tl:FF" << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10
-// 		<< " tr:FF" << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10
-// 		<< " bl:FF" << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10
-// 		<< " br:FF" << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10;
-	selchar->setProperty("BackgroundColours", "tl:FF913D00 tr:FF913D00 bl:FF913D00 br:FF913D00"/*ss.str()*/);
-	return true;
-}
-
-bool CGame::UITestChat(const CEGUI::EventArgs& e)
-{
-	Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-	Window * chat = myRoot->getChild("chatwindow")->getChild("editbox");
-
-	bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, chat->getText().c_str());
-
-	return true;
-}
-
-bool CGame::UILoginTab(const CEGUI::EventArgs& e)
-{
-    Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-    Window * login = myRoot->getChild("login")->getChild("loginchild");
-    Window * active = login->getActiveChild();
-
-    /*
-     * VK_TAB 0x0F
-     * VK_RETURN 0x1C
-     */
-    //int test = static_cast<const CEGUI::KeyEventArgs&>(e).scancode;
-    if (static_cast<const CEGUI::KeyEventArgs&>(e).scancode ==  0x1C)
-    {
-        //enter
-        UILogin(e);
-        return true;
-    }
-    if (static_cast<const CEGUI::KeyEventArgs&>(e).scancode == 0x0F)
-    {
-        if (active)
-        {
-            if (active->getName() == CEGUI::String("username"))
-                login->getChild("password")->activate();
-            else if (active->getName() == CEGUI::String("password"))
-                login->getChild("username")->activate();
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool CGame::UILogin(const CEGUI::EventArgs& e)
-{
-	Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-	Window * login = myRoot->getChild("login")->getChild("loginchild");
-	Window * loginbutton = login->getChild("loginbutton");
-
-	ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
-	ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-	strcpy(m_cAccountName, login->getChild("username")->getText().c_str());
-	strcpy(m_cAccountPassword, login->getChild("password")->getText().c_str());
-	ChangeGameMode(GAMEMODE_ONCONNECTING);
-	m_dwConnectMode = MSGID_REQUEST_LOGIN;
-	ZeroMemory(m_cMsg, sizeof(m_cMsg));
-	strcpy(m_cMsg, "11");
-	if (_socket != nullptr)
-	{
-		_socket->stop();
-	}
-	if (new_connection_ != nullptr)
-	{
-		new_connection_->stop();
-	}
-	ToggleButton * remember = static_cast<ToggleButton*>(login->getChild("remember"));
-	b_cRemember = remember->isSelected();
-
-	if (b_cRemember == true)
-	{
-		WriteUsername(login->getChild("username")->getText().c_str(), true);
-	}
-	else {
-		WriteUsername("", false);
-	}
-
-	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
-//	boost::system::error_code err;
-//	new_connection_->socket().connect(endpoint, err);
-    CreateSocket();
- 	new_connection_->socket().async_connect(endpoint,
- 		boost::bind(&CGame::handle_connect, this,
- 		boost::asio::placeholders::error));
-
-	return true;
-}
-
 void CGame::UpdateScreen_OnLogin()
 {
 	short msX, msY, msZ, sX, sY;
@@ -15051,41 +14701,6 @@ void CGame::UpdateScreen_OnLogin()
 		{
 			new_connection_->stop();
 		}
-		try
-		{
-			lock_guard<std::mutex> lock(uimtx);
-			WindowManager::getSingleton().destroyAllWindows();
-			Window * myRoot = WindowManager::getSingleton().createWindow("DefaultWindow", "root");
-			System::getSingleton().getDefaultGUIContext().setRootWindow(myRoot);
-			memset(&ui, 0, sizeof(ui));
-		}
-		catch (...)
-		{
-		}
-
-		try
-		{
-			lock_guard<std::mutex> lock(uimtx);
-			Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-			if (ui.login == nullptr)
-			{
-				ui.login = WindowManager::getSingleton().loadLayoutFromFile("login.layout");
-				myRoot->addChild(ui.login);
-				Window * loginbutton = ui.login->getChild("loginchild")->getChild("loginbutton");
-				loginbutton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UILogin, this));
-                ui.login->getChild("loginchild")->getChild("username")->subscribeEvent(CEGUI::Editbox::EventKeyDown, CEGUI::SubscriberSlot(&CGame::UILoginTab, this));
-                ui.login->getChild("loginchild")->getChild("password")->subscribeEvent(CEGUI::Editbox::EventKeyDown, CEGUI::SubscriberSlot(&CGame::UILoginTab, this));
-            }
-			else
-			{
-				//login = myRoot->getChild("login");
-			}
-		}
-		catch (CEGUI::AlreadyExistsException & e)
-		{
-			
-		}
-
 	}
 
 	m_cGameModeCount++;
@@ -15913,23 +15528,6 @@ void CGame::OnKeyDown(WPARAM wParam)
 	case VK_DELETE:
 		break;
 	case VK_TAB:
-	{
-		if (m_cGameMode == GAMEMODE_ONMAINMENU)
-		{
-			WindowManager & wmgr = WindowManager::getSingleton();
-			Window * myRoot;
-			myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-			Window * login = myRoot->getChild("login")->getChild("loginchild");
-			Window * active = login->getActiveChild();
-			if (active)
-			{
-				if (active->getName() == CEGUI::String("username"))
-					login->getChild("password")->activate();
-				else if (active->getName() == CEGUI::String("password"))
-					login->getChild("username")->activate();
-			}
-		}
-	}
 		break;
 	case VK_RETURN:
 	case VK_ESCAPE:
@@ -15937,24 +15535,6 @@ void CGame::OnKeyDown(WPARAM wParam)
 	case VK_HOME:
 		break;
 	case VK_F1:
-	{
-		WindowManager & wmgr = WindowManager::getSingleton();
-		Window * myRoot;
-		myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-		if (ui.testchat == nullptr)
-		{
-			ui.testchat = wmgr.loadLayoutFromFile("testchat.layout");
-			myRoot->addChild(ui.testchat);
-			Window * enter = ui.testchat->getChild("enter");
-			enter->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UITestChat, this));
-		}
-
-		//myRoot->destroyChild("selectcharacter");
-		//ui.selectcharacter = wmgr.loadLayoutFromFile("selectcharacter.layout");
-		//myRoot->addChild(ui.selectcharacter);
-		//Window * entergame = ui.selectcharacter->getChild("entergame");
-		//entergame->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UIEnterGame, this));
-	}
 		break;
 	case VK_F2:
 	case VK_F3:
