@@ -89,28 +89,113 @@ bool CGame::OnEvent(const irr::SEvent& event)
 		WebCore::instance()->Update();
 	}
 
-	// Remember whether each key is down or up
-	if (event.EventType == irr::EET_KEY_INPUT_EVENT)
-	{
-		KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
-		if (event.KeyInput.PressedDown)
-		{
-			//if (GetText(0, WM_CHAR, event.KeyInput.Key, 0))
-			//	return true;
-			//context.injectKeyDown((Key::Scan)event.KeyInput.Key);
-			OnKeyDown(event.KeyInput.Key);
-			OnSysKeyDown(event.KeyInput.Key);
-			//lastchar = event.KeyInput.Key;
-			//context.injectChar((Key::Scan)event.KeyInput.Key);
-		}
-		else
-		{
-			//context.injectKeyUp((Key::Scan)event.KeyInput.Key);
-			OnKeyUp(event.KeyInput.Key);
-			OnSysKeyUp(event.KeyInput.Key);
-		}
-		return false;
-	}
+    if (event.MouseInput.Event != irr::EMIE_MOUSE_MOVED)
+    {
+        //AddEventList("Irrlicht Injected Successfully.", 10);
+    }
+    // Move out of if(true) at a later date when all UI elements are updated
+    if (event.EventType == irr::EET_MOUSE_INPUT_EVENT)
+    {
+        if (event.MouseInput.Event == irr::EMIE_LMOUSE_PRESSED_DOWN)
+        {
+            if (wasinactive)
+            {
+                wasinactive = false;
+                return false;
+            }
+            //context.injectMouseButtonDown(MouseButton::LeftButton);
+            m_stMCursor.LB = true;
+        }
+        else if (event.MouseInput.Event == irr::EMIE_RMOUSE_PRESSED_DOWN)
+        {
+            if (wasinactive)
+            {
+                wasinactive = false;
+                return false;
+            }
+            //context.injectMouseButtonDown(MouseButton::RightButton);
+            m_stMCursor.RB = true;
+        }
+        else if (event.MouseInput.Event == irr::EMIE_MMOUSE_PRESSED_DOWN)
+        {
+            if (wasinactive)
+            {
+                wasinactive = false;
+                return false;
+            }
+            //context.injectMouseButtonDown(MouseButton::MiddleButton);
+            m_stMCursor.MB = true;
+        }
+        else if (event.MouseInput.Event == irr::EMIE_LMOUSE_LEFT_UP)
+        {
+            m_stMCursor.LB = false;
+            //context.injectMouseButtonUp(MouseButton::LeftButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_RMOUSE_LEFT_UP)
+        {
+            m_stMCursor.RB = false;
+            //context.injectMouseButtonUp(MouseButton::RightButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_MMOUSE_LEFT_UP)
+        {
+            m_stMCursor.MB = false;
+            //context.injectMouseButtonUp(MouseButton::MiddleButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_LMOUSE_DOUBLE_CLICK)
+        {
+            //context.injectMouseButtonDoubleClick(MouseButton::LeftButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_LMOUSE_TRIPLE_CLICK)
+        {
+            //context.injectMouseButtonTripleClick(MouseButton::LeftButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_RMOUSE_DOUBLE_CLICK)
+        {
+            //context.injectMouseButtonDoubleClick(MouseButton::RightButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_RMOUSE_TRIPLE_CLICK)
+        {
+            //context.injectMouseButtonTripleClick(MouseButton::RightButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_MOUSE_WHEEL)
+        {
+            // TODO: get values?
+            m_stMCursor.sZ = event.MouseInput.Wheel;
+            //mouse wheel for dialogs?
+        }
+        else if (event.MouseInput.Event == irr::EMIE_MOUSE_MOVED)
+        {
+            //context.injectMousePosition(event.MouseInput.X, event.MouseInput.Y);
+        }
+        return false;
+    }
+    else
+    {
+        // Only processed if a UI element does not accept input from keypress
+
+        // Remember whether each key is down or up
+        if (event.EventType == irr::EET_KEY_INPUT_EVENT)
+        {
+            KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+            if (event.KeyInput.PressedDown)
+            {
+                //if (GetText(0, WM_CHAR, event.KeyInput.Key, 0))
+                //	return true;
+                //context.injectKeyDown((Key::Scan)event.KeyInput.Key);
+                OnKeyDown(event.KeyInput.Key);
+                OnSysKeyDown(event.KeyInput.Key);
+                //lastchar = event.KeyInput.Key;
+                //context.injectChar((Key::Scan)event.KeyInput.Key);
+            }
+            else
+            {
+                //context.injectKeyUp((Key::Scan)event.KeyInput.Key);
+                OnKeyUp(event.KeyInput.Key);
+                OnSysKeyUp(event.KeyInput.Key);
+            }
+            return false;
+        }
+    }
 	return false;
 }
 
