@@ -1,9 +1,13 @@
+#include "../Game.h"
+
+
 #include "HTMLUI.h"
+
 
 HTMLUI::HTMLUI(class CGame * pGame)
 {
 	core = WebCore::Initialize(WebConfig());
-	view = this->core->CreateWebView(WIDTH, HEIGHT);
+	view = this->core->CreateWebView(pGame->GetWidth(), pGame->GetHeight());
 }
 
 
@@ -13,7 +17,7 @@ HTMLUI::~HTMLUI()
 
 void HTMLUI::Init()
 {
-	WebURL url(WSLit("file:///G:/projects/x-client/bin/ui/main.html"));
+	WebURL url(WSLit("http://hbx.decouple.io/index.html"));
 	view->LoadURL(url);
 	view->SetTransparent(true);
 	while (view->IsLoading()) {

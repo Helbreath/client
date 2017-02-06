@@ -129,7 +129,8 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
     switch (m_cLoading)
     {
         case 0:
-        {	//m_hPakFile = CreateFileA("sprites\\interface.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+        {
+            //m_hPakFile = CreateFileA("sprites\\interface.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
             if (m_hPakFile != INVALID_HANDLE_VALUE)
             {
                 //ReadFramePositions(m_hPakFile, framePositions, 2);
@@ -994,6 +995,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             }
             isItemLoaded = false;
             //ChangeGameMode(GAMEMODE_ONMAINMENU);
+
             if (autologin)
             {
                 ChangeGameMode(GAMEMODE_ONCONNECTING);
