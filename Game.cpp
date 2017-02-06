@@ -1698,6 +1698,11 @@ void CGame::UpdateScreen()
 	// Render HTML ui
 	if (G_pGame->htmlUI->isDirty())
 	{
+		char cfps[20];
+		sprintf(cfps, "%d", driver->getFPS());
+		G_pGame->htmlUI->jsData.SetProperty(WSLit("fps"), WSLit(cfps));
+
+		uitime = G_dwGlobalTime;
 		int width = G_pGame->htmlUI->surface->width();
 		int height = G_pGame->htmlUI->surface->height();
 		if (htmlRTT) {
@@ -1713,6 +1718,7 @@ void CGame::UpdateScreen()
 	//G_pGame->driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, video::SColor(255, 255, 255, 255), true);
 
 
+	/*
 	char cfps[20];
 	sprintf(cfps, "FPS: %d", driver->getFPS());
 
@@ -1739,6 +1745,7 @@ void CGame::UpdateScreen()
 	font[0]->draw(ts.str().c_str(),
 		core::rect<s32>(5, 25, 40, 10),
 		video::SColor(255, 255, 255, 255));
+	*/
 
 // 	sprintf(cfps, "Mouse: (%d,%d)", m_stMCursor.sX, m_stMCursor.sY);
 // 
