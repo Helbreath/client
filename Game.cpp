@@ -12,6 +12,7 @@
 #include "lan_eng.h"
 #include <boost/asio/ssl.hpp>
 #include "Awesomium\WebKeyboardEvent.h"
+#include <vector2d.h>
 
 using namespace Awesomium;
 
@@ -95,7 +96,7 @@ bool CGame::OnEvent(const irr::SEvent& event)
     {
         if (event.MouseInput.Event == irr::EMIE_LMOUSE_PRESSED_DOWN)
         {
-			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Left);
+			htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Left);
             if (wasinactive)
             {
                 wasinactive = false;
@@ -106,7 +107,7 @@ bool CGame::OnEvent(const irr::SEvent& event)
         }
         else if (event.MouseInput.Event == irr::EMIE_RMOUSE_PRESSED_DOWN)
 		{
-			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
+			htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
             if (wasinactive)
             {
                 wasinactive = false;
@@ -117,7 +118,7 @@ bool CGame::OnEvent(const irr::SEvent& event)
         }
         else if (event.MouseInput.Event == irr::EMIE_MMOUSE_PRESSED_DOWN)
 		{
-			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
+			htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
             if (wasinactive)
             {
                 wasinactive = false;
@@ -129,18 +130,18 @@ bool CGame::OnEvent(const irr::SEvent& event)
         else if (event.MouseInput.Event == irr::EMIE_LMOUSE_LEFT_UP)
         {
             m_stMCursor.LB = false;
-			G_pGame->htmlUI->view->InjectMouseUp(Awesomium::MouseButton::kMouseButton_Left);
+			htmlUI->view->InjectMouseUp(Awesomium::MouseButton::kMouseButton_Left);
             //context.injectMouseButtonUp(MouseButton::LeftButton);
         }
         else if (event.MouseInput.Event == irr::EMIE_RMOUSE_LEFT_UP)
 		{
-			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
+			htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
             m_stMCursor.RB = false;
             //context.injectMouseButtonUp(MouseButton::RightButton);
         }
         else if (event.MouseInput.Event == irr::EMIE_MMOUSE_LEFT_UP)
 		{
-			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
+			htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
             m_stMCursor.MB = false;
             //context.injectMouseButtonUp(MouseButton::MiddleButton);
         }
@@ -164,12 +165,12 @@ bool CGame::OnEvent(const irr::SEvent& event)
         {
             // TODO: get values?
 			m_stMCursor.sZ = event.MouseInput.Wheel;
-			G_pGame->htmlUI->view->InjectMouseWheel(event.MouseInput.Wheel, 0);
+			//htmlUI->view->InjectMouseWheel(event.MouseInput.Wheel, 0);
             //mouse wheel for dialogs?
         }
         else if (event.MouseInput.Event == irr::EMIE_MOUSE_MOVED)
 		{
-			G_pGame->htmlUI->view->InjectMouseMove(event.MouseInput.X, event.MouseInput.Y);
+			//htmlUI->view->InjectMouseMove(event.MouseInput.X, event.MouseInput.Y);
             //context.injectMousePosition(event.MouseInput.X, event.MouseInput.Y);
 		}
         return false;
@@ -191,12 +192,12 @@ bool CGame::OnEvent(const irr::SEvent& event)
 				WebKeyboardEvent keyEvent = WebKeyboardEvent();
 				keyEvent.type = WebKeyboardEvent::kTypeKeyDown;
 				keyEvent.native_key_code = event.KeyInput.Char;
-				G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+				htmlUI->view->InjectKeyboardEvent(keyEvent);
 
 				WebKeyboardEvent keyEvent2 = WebKeyboardEvent();
 				keyEvent2.type = WebKeyboardEvent::kTypeChar;
 				keyEvent2.text[0] = event.KeyInput.Char;
-				G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent2);
+				htmlUI->view->InjectKeyboardEvent(keyEvent2);
 				
                 OnKeyDown(event.KeyInput.Key);
                 OnSysKeyDown(event.KeyInput.Key);
@@ -209,7 +210,7 @@ bool CGame::OnEvent(const irr::SEvent& event)
 				WebKeyboardEvent keyEvent = WebKeyboardEvent();
 				keyEvent.type = WebKeyboardEvent::kTypeKeyUp;
 				keyEvent.native_key_code = event.KeyInput.Char;
-				G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+				htmlUI->view->InjectKeyboardEvent(keyEvent);
 
                 OnKeyUp(event.KeyInput.Key);
                 OnSysKeyUp(event.KeyInput.Key);
@@ -720,10 +721,16 @@ CGame::CGame()
 
 //	screenwidth = 800;
 //	screenheight = 600;
-	SetResolution(800,600);
-	//SetResolution(1024,768);
+    //SetResolution(640, 480);
+	//SetResolution(800,600);
+	SetResolution(1024,768);
 	//SetResolution(1280, 1024);
-	//SetResolution(1920, 1080);
+    //SetResolution(1920, 1200);
+    
+    //SetResolution(1280, 720);
+    //SetResolution(1366, 768);
+    //SetResolution(1600, 900);
+    //SetResolution(1920, 1080);
 
 #ifdef _DEBUG
 	m_bToggleScreen = true;
@@ -1731,6 +1738,10 @@ void CGame::UpdateScreen()
 		core::rect<s32>(5,5,40,10),
 		video::SColor(255,255,255,255));
 
+    font[0]->draw("Arrow keys = Map Pivot Change - Shift = ViewDest Change - Control = Player Offset Change",
+                  core::rect<s32>(5, 15, 40, 10),
+                  video::SColor(255, 255, 255, 255));
+
 
     char cdata[100];
     sprintf(cdata, "m_cCommandCount: %d", (int)m_cCommandCount);
@@ -1751,6 +1762,55 @@ void CGame::UpdateScreen()
 		core::rect<s32>(5, 25, 40, 10),
 		video::SColor(255, 255, 255, 255));
 	*/
+
+
+    short sPivotX, sPivotY, sVal, sDivX, sModX, sDivY, sModY;
+    sPivotX = m_pMapData->m_sPivotX;
+    sPivotY = m_pMapData->m_sPivotY;
+    sVal = m_sViewPointX - (sPivotX * 32);
+    sDivX = sVal / 32;
+    sModX = sVal % 32;
+    sVal = m_sViewPointY - (sPivotY * 32);
+    sDivY = sVal / 32;
+    sModY = sVal % 32;
+
+    ts.str(string());
+
+    ts  << "sPivotX:sPivotY " << m_pMapData->m_sPivotX << " : " << m_pMapData->m_sPivotY << "\n"
+        << "sDivX:sModX     " << sDivX << " : " << sModX << "\n"
+        << "sDivY:sModY     " << sDivY << " : " << sModY;
+
+
+    font[0]->draw(ts.str().c_str(),
+                  core::rect<s32>(5, 80, 80, 10),
+                  video::SColor(255, 255, 255, 255));
+
+
+    char cdata2[500];
+    sprintf(cdata2, 
+            "DrawBackground(sDivX, sModX, sDivY, sModY)\n"
+            "DrawBackground(%d, %d, %d, %d)\n"
+            "DrawObjects(sPivotX, sPivotY, sDivX, sDivY, sModX, sModY, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY)\n"
+            "DrawObjects(%d, %d, %d, %d, %d, %d, %d, %d)\n\n"
+            "m_sViewDstX = (m_sPlayerX - 24) * 32 | m_sViewDstY = (m_sPlayerY - 16) * 32\n"
+            "%d = (%d - %d) * 32 | %d = (%d - %d) * 32",
+        (int)sDivX, (int)sModX, (int)sDivY, (int)sModY, (int)sPivotX, (int)sPivotY, (int)sDivX, (int)sDivY, (int)sModX, (int)sModY, (int)m_stMCursor.sX, (int)m_stMCursor.sY,
+            (m_sPlayerX - viewdstxcharvar) * 32, m_sPlayerX, viewdstxcharvar, (m_sPlayerY - viewdstycharvar) * 32, m_sPlayerY, viewdstycharvar);
+    
+
+
+    font[0]->draw(cdata2,
+                  core::rect<s32>(5, 120, 80, 10),
+                  video::SColor(255, 255, 255, 255));
+
+
+//     static uint64_t vptime = unixtime();
+//     if (G_dwGlobalTime - vptime > 100)
+//     {
+//         m_bIsRedrawPDBGS = true;
+//         CalcViewPoint();
+//         vptime = G_dwGlobalTime;
+//     }
 
 // 	sprintf(cfps, "Mouse: (%d,%d)", m_stMCursor.sX, m_stMCursor.sY);
 // 
@@ -1781,7 +1841,22 @@ void CGame::UpdateScreen()
 		// CEGUI::System::getSingleton().renderAllGUIContexts();
 	}
 
-	m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, unixseconds());
+	//m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, unixseconds());
+
+    if (m_bIsObserverMode == true)
+    {
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 5, G_pGame->m_stMCursor.sY), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX + 5, G_pGame->m_stMCursor.sY), irr::video::SColor(255, 255, 0, 0));
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX, G_pGame->m_stMCursor.sY - 5), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY + 5), irr::video::SColor(255, 255, 0, 0));
+
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 5, G_pGame->m_stMCursor.sY - 1), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX + 5, G_pGame->m_stMCursor.sY - 1), irr::video::SColor(127, 255, 255, 0));
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 1, G_pGame->m_stMCursor.sY - 5), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX - 1, G_pGame->m_stMCursor.sY + 5), irr::video::SColor(127, 255, 255, 0));
+
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 5, G_pGame->m_stMCursor.sY + 1), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX + 5, G_pGame->m_stMCursor.sY + 1), irr::video::SColor(127, 255, 255, 0));
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX + 1, G_pGame->m_stMCursor.sY - 5), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX + 1, G_pGame->m_stMCursor.sY + 5), irr::video::SColor(127, 255, 255, 0));
+    }
+    //else m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY, m_stMCursor.sCursorFrame, dwTime);
+    else m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, unixseconds());
+
 	m_stMCursor.sZ = 0;
 	driver->endScene();
 }
@@ -2970,8 +3045,13 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 							//m_sViewDstY = (indexY*32) - 224;
 							//m_sViewDstX = (indexX*32) - 288 - 32-32-32; // 800x600 Resolution xRisenx Center Char
 							//m_sViewDstY = (indexY*32) - 224-32-32; // 800x600 Resolution xRisenx Center Char
-                             m_sViewDstX = (m_sPlayerX - 24) * 32; // 800x600 Resolution xRisenx Center Char
-                             m_sViewDstY = (m_sPlayerY - 16) * 32; // 800x600 Resolution xRisenx Center Char
+                             m_sViewDstX = (m_sPlayerX - viewdstxcharvar) * 32; // 800x600 Resolution xRisenx Center Char
+                             m_sViewDstY = (m_sPlayerY - viewdstycharvar) * 32; // 800x600 Resolution xRisenx Center Char
+
+                             m_sViewDstX = (m_sPlayerX - (GetWidth() / 32) / 2) * 32;
+                             m_sViewDstY = (m_sPlayerY - ((GetHeight() - 60) / 32) / 2) * 32;
+
+
                         }
 						SetRect(&m_rcPlayerRect, m_rcBodyRect.left, m_rcBodyRect.top, m_rcBodyRect.right, m_rcBodyRect.bottom);
 						bIsPlayerDrawed = true;
@@ -8000,7 +8080,7 @@ void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
 				ZeroMemory(cName, sizeof(cName));
 				sprintf(cName, "npc%d", wObjectID - 10000);
 			}
-			m_pMapData->bSetOwner(wObjectID, sPivotX + sX, sPivotY + sY, sType, cDir, sAppr1, sAppr2, sAppr3, sAppr4, iApprColor, sHeadApprValue, sBodyApprValue, sArmApprValue, sLegApprValue, iStatus, cName, OBJECTSTOP, 0, 0, 0);
+			m_pMapData->bSetOwner(wObjectID, /*sPivotX + */sX, /*sPivotY + */sY, sType, cDir, sAppr1, sAppr2, sAppr3, sAppr4, iApprColor, sHeadApprValue, sBodyApprValue, sArmApprValue, sLegApprValue, iStatus, cName, OBJECTSTOP, 0, 0, 0);
 		}
 		if (ucHeader & 0x02) // object ID
 		{	
@@ -8064,7 +8144,7 @@ void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
 				ZeroMemory(cName, sizeof(cName));
 				sprintf(cName, "npc%d", wObjectID - 10000);
 			}
-			m_pMapData->bSetDeadOwner(wObjectID, sPivotX + sX, sPivotY + sY, sType, cDir, sAppr1, sAppr2, sAppr3, sAppr4, iApprColor, sHeadApprValue, sBodyApprValue, sArmApprValue, sLegApprValue, iStatus, cName);
+			m_pMapData->bSetDeadOwner(wObjectID, /*sPivotX + */sX, /*sPivotY + */sY, sType, cDir, sAppr1, sAppr2, sAppr3, sAppr4, iApprColor, sHeadApprValue, sBodyApprValue, sArmApprValue, sLegApprValue, iStatus, cName);
 		}
 		if (ucHeader & 0x04)
 		{
@@ -8077,7 +8157,7 @@ void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
 			ip = (int *)cp;
 			cItemColor = *ip;
 			cp += 4;
-			m_pMapData->bSetItem(sPivotX + sX, sPivotY + sY, sItemSpr, sItemSprFrame, cItemColor, false);
+			m_pMapData->bSetItem(/*sPivotX + */sX, /*sPivotY + */sY, sItemSpr, sItemSprFrame, cItemColor, false);
 		}
 		if (ucHeader & 0x08) // Dynamic object
 		{
@@ -8087,7 +8167,7 @@ void CGame::_ReadMapData(short sPivotX, short sPivotY, char * pData)
 			sp  = (short *)cp;
 			sDynamicObjectType = *sp;
 			cp += 2;
-			m_pMapData->bSetDynamicObject(sPivotX + sX, sPivotY + sY, wDynamicObjectID, sDynamicObjectType, false);
+			m_pMapData->bSetDynamicObject(/*sPivotX + */sX, /*sPivotY + */sY, wDynamicObjectID, sDynamicObjectType, false);
 		}
 	}
 }
@@ -8789,7 +8869,7 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 	int indexX, indexY, ix, iy, iyMax;
 	short sSpr, sSprFrame;
 
- 	if (sDivX < 0 || sDivY < 0) return ;
+// 	if (sDivX < 0 || sDivY < 0) return ;
 
 	//iyMax = m_bIsObserverMode ? 480+48 : 427+48;
 	iyMax = m_bIsObserverMode ? GetHeight()+48 : GetHeight()-3; // 800x600 Resolution xRisenx
@@ -8810,16 +8890,19 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 			//for (ix = -sModX; ix < 640+48 ; ix += 32)
 			for (ix = -sModX; ix < GetWidth()+48 +32; ix += 32) // 800x600 Resolution xRisenx
 			{
-				sSpr      = m_pMapData->m_tile[indexX][indexY].m_sTileSprite;
-				sSprFrame = m_pMapData->m_tile[indexX][indexY].m_sTileSpriteFrame;
-				if (m_pTileSpr[sSpr])
-					//m_pTileSpr[sSpr]->PutSpriteFastNoColorKeyDst((LPDIRECTDRAWSURFACE7)0, ix - 16 +sModX, iy - 16 +sModY, sSprFrame, m_dwCurTime);
-				{
-// 					if ((indexY % 2) + (indexX % 2) == 1)
-// 						m_pTileSpr[sSpr]->PutSpriteRGB(ix - 16 + sModX, iy - 16 + sModY, sSprFrame, (uint32_t)irr::video::SColor(255, 200, 0, 0).color, m_dwCurTime);//color ground
-// 					else
-						m_pTileSpr[sSpr]->DrawSpriteNCK(ix - 16 + sModX, iy - 16 + sModY, sSprFrame, m_dwCurTime);
-				}
+                if (indexX >= 0 && indexY >= 0)
+                {
+                    sSpr = m_pMapData->m_tile[indexX][indexY].m_sTileSprite;
+                    sSprFrame = m_pMapData->m_tile[indexX][indexY].m_sTileSpriteFrame;
+                    if (m_pTileSpr[sSpr])
+                        //m_pTileSpr[sSpr]->PutSpriteFastNoColorKeyDst((LPDIRECTDRAWSURFACE7)0, ix - 16 +sModX, iy - 16 +sModY, sSprFrame, m_dwCurTime);
+                    {
+                        // 					if ((indexY % 2) + (indexX % 2) == 1)
+                        // 						m_pTileSpr[sSpr]->PutSpriteRGB(ix - 16 + sModX, iy - 16 + sModY, sSprFrame, (uint32_t)irr::video::SColor(255, 200, 0, 0).color, m_dwCurTime);//color ground
+                        // 					else
+                        m_pTileSpr[sSpr]->DrawSpriteNCK(ix - 16 + sModX, iy - 16 + sModY, sSprFrame, m_dwCurTime);
+                    }
+                }
 				indexX++;
 			}
 			indexY++;
@@ -8856,6 +8939,14 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 			{
 				DrawLine(ix - 16 , iy - 16 , ix + 16 , iy - 16 , 6,13,13);
 				DrawLine(ix - 16 , iy - 16 , ix - 16 , iy + 16 , 6,13,13);
+
+                char cfps[20];
+                sprintf(cfps, "(%d,%d)", (m_sViewPointX+ix)/32, (m_sViewPointY+iy)/32);
+
+                font[0]->draw(cfps,
+                              core::rect<s32>(ix-16, iy, 15, 10),
+                              video::SColor(128, 255, 255, 255));
+
 				indexX++;
 			}
 			indexY++;
@@ -12546,7 +12637,9 @@ void CGame::DrawLine(int x0, int y0, int x1, int y1, int iR, int iG, int iB)
  uint32_t * pDwDst;
 
 	if ((x0 == x1) && (y0 == y1)) return;
-	error = 0;
+    driver->draw2DLine(irr::core::vector2d<s32>(x0, y0), irr::core::vector2d<s32>(x1, y1), irr::video::SColor(255, 255, 128, 128));
+    return;
+    error = 0;
 	iResultX = x0;
 	iResultY = y0;
 	dx = x1-x0;
@@ -12583,6 +12676,7 @@ void CGame::DrawLine(int x0, int y0, int x1, int y1, int iR, int iG, int iB)
 			//if ((iResultX >= 0) && (iResultX < 640) && (iResultY >= 0) && (iResultY < 480)) {
 //			if ((iResultX >= 0) && (iResultX < GetWidth()) && (iResultY >= 0) && (iResultY < GetHeight()))
 			{ // 800x600 Resolution xRisenx
+                driver->draw2DLine(irr::core::vector2d<s32>(x0, y0), irr::core::vector2d<s32>(x1, y1), irr::video::SColor(255, 255, 128, 255));
 //				pDst = (uint16_t *)//DIRECTX m_DDraw.m_pBackB4Addr + iResultX + ((iResultY)*//DIRECTX m_DDraw.m_sBackB4Pitch);
 // 				switch (//DIRECTX m_DDraw.m_cPixelFormat) {
 // 				case 1:
@@ -12620,6 +12714,7 @@ void CGame::DrawLine(int x0, int y0, int x1, int y1, int iR, int iG, int iB)
 			//if ((iResultX >= 0) && (iResultX < 640) && (iResultY >= 0) && (iResultY < 480)) {
 //			if ((iResultX >= 0) && (iResultX < GetWidth()) && (iResultY >= 0) && (iResultY < GetHeight()))
 			{ // 800x600 Resolution xRisenx
+                driver->draw2DLine(irr::core::vector2d<s32>(x0, y0), irr::core::vector2d<s32>(x1, y1), irr::video::SColor(255, 255, 128, 255));
 //				pDst = (uint16_t *)//DIRECTX m_DDraw.m_pBackB4Addr + iResultX + ((iResultY)*//DIRECTX m_DDraw.m_sBackB4Pitch);
 // 				switch (//DIRECTX m_DDraw.m_cPixelFormat) {
 // 				case 1:
@@ -15663,113 +15758,145 @@ void CGame::OnKeyDown(WPARAM wParam)
                 viewdstxvar--;
                 m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
                 m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-                CalcViewPoint();
                 break;
             case 40:
                 viewdstyvar--;
                 m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
                 m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-                CalcViewPoint();
                 break;
             case 37:
                 viewdstxvar++;
                 m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
                 m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-                CalcViewPoint();
                 break;
             case 38:
                 viewdstyvar++;
                 m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
                 m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-                CalcViewPoint();
                 break;
         }
         return;
     }
-	switch (wParam) {
-        case 39://right arrow
-            m_pMapData->m_sPivotX += 1;
-            CalcViewPoint();
+    if (m_bCtrlPressed)
+    {
+        switch (wParam)
+        {
+            case 39:
+                viewdstxcharvar--;
+                break;
+            case 40:
+                viewdstycharvar--;
+                break;
+            case 37:
+                viewdstxcharvar++;
+                break;
+            case 38:
+                viewdstycharvar++;
+                break;
+        }
+        return;
+    }
+	switch (wParam)
+    {
+//         case 39://right arrow
+//             m_pMapData->m_sPivotX += 1;
+//             break;
+//         case 40://down arrow
+//             m_pMapData->m_sPivotY += 1;
+//             break;
+//         case 37://left arrow
+//             m_pMapData->m_sPivotX -= 1;
+//             break;
+//         case 38://up arrow
+//             m_pMapData->m_sPivotY -= 1;
+//             break;
+        case 39:
+            viewdstxvar--;
+            m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
+            m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
             break;
-        case 40://down arrow
-            m_pMapData->m_sPivotY += 1;
-            CalcViewPoint();
+        case 40:
+            viewdstyvar--;
+            m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
+            m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
             break;
-        case 37://left arrow
-            m_pMapData->m_sPivotX -= 1;
-            CalcViewPoint();
+        case 37:
+            viewdstxvar++;
+            m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
+            m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
             break;
-        case 38://up arrow
-            m_pMapData->m_sPivotY -= 1;
-            CalcViewPoint();
+        case 38:
+            viewdstyvar++;
+            m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
+            m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
             break;
         case VK_CONTROL:
-	case 162://temporary
-		m_bCtrlPressed = true;
-		break;
-	case VK_SHIFT:
-	case 160://temporary (irrlicht shift code)
-		m_bShiftPressed = true;
-		break;
-	case VK_INSERT:
-	case VK_DELETE:
-		break;
-	case VK_TAB:
-		break;
-	case VK_RETURN:
-	case VK_ESCAPE:
-	case VK_END:
-	case VK_HOME:
-		break;
-	case VK_F1:
-		break;
-	case VK_F2:
-	case VK_F3:
-	case VK_F4:
-	case VK_F5:
-	case VK_F6:
-	case VK_F7:
-	case VK_F8:
-	case VK_F9:
-	case VK_F10:
-	case VK_F11:
-	case VK_F12:
-	case VK_PRIOR: // Page-Up
-	case VK_NEXT: // Page-Down
-	case VK_LWIN:
-	case VK_RWIN:
-	case VK_MULTIPLY:
-	case VK_ADD: //'+'
-	case VK_SEPARATOR:
-	case VK_SUBTRACT: //'-'
-	case VK_DECIMAL:
-	case VK_DIVIDE:
-	case VK_NUMLOCK:
-	case VK_SCROLL:
-		break;
+	    case 162://temporary
+		    m_bCtrlPressed = true;
+		    break;
+	    case VK_SHIFT:
+	    case 160://temporary (irrlicht shift code)
+		    m_bShiftPressed = true;
+		    break;
+	    case VK_INSERT:
+	    case VK_DELETE:
+		    break;
+	    case VK_TAB:
+		    break;
+	    case VK_RETURN:
+	    case VK_ESCAPE:
+	    case VK_END:
+	    case VK_HOME:
+		    break;
+	    case VK_F1:
+		    break;
+	    case VK_F2:
+	    case VK_F3:
+	    case VK_F4:
+	    case VK_F5:
+	    case VK_F6:
+	    case VK_F7:
+	    case VK_F8:
+	    case VK_F9:
+	    case VK_F10:
+	    case VK_F11:
+	    case VK_F12:
+	    case VK_PRIOR: // Page-Up
+	    case VK_NEXT: // Page-Down
+	    case VK_LWIN:
+	    case VK_RWIN:
+	    case VK_MULTIPLY:
+	    case VK_ADD: //'+'
+	    case VK_SEPARATOR:
+	    case VK_SUBTRACT: //'-'
+	    case VK_DECIMAL:
+	    case VK_DIVIDE:
+	    case VK_NUMLOCK:
+	    case VK_SCROLL:
+		    break;
 
-	default:
-		if (m_cGameMode == GAMEMODE_ONMAINGAME)
-		{	if (m_bCtrlPressed)
-			{	switch (wParam) {
-				case 48: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 9; break; // 0
-				case 49: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 0; break; // 1
-				case 50: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 1; break; // 2
-				case 51: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 2; break; // 3
-				case 52: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 3; break; // 4
-				case 53: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 4; break; // 5
-				case 54: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 5; break; // 6
-				case 55: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 6; break; // 7
-				case 56: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 7; break; // 8
-				case 57: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 8; break; // 9
-				}
-			}else if ((m_bInputStatus == false) && (GetAsyncKeyState(VK_MENU)>>15 == false))
-			{	//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
-				StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
-				ClearInputString();
-			}
-		}
-		break;
+	    default:
+		    if (m_cGameMode == GAMEMODE_ONMAINGAME)
+		    {	if (m_bCtrlPressed)
+			    {	switch (wParam) {
+				    case 48: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 9; break; // 0
+				    case 49: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 0; break; // 1
+				    case 50: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 1; break; // 2
+				    case 51: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 2; break; // 3
+				    case 52: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 3; break; // 4
+				    case 53: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 4; break; // 5
+				    case 54: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 5; break; // 6
+				    case 55: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 6; break; // 7
+				    case 56: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 7; break; // 8
+				    case 57: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 8; break; // 9
+				    }
+			    }else if ((m_bInputStatus == false) && (GetAsyncKeyState(VK_MENU)>>15 == false))
+			    {	//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
+				    StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
+				    ClearInputString();
+			    }
+		    }
+		    break;
 	}
 // 	if (m_pInputBuffer == NULL) return;
 // 	if(wParam == 8)
@@ -20646,6 +20773,9 @@ void CGame::MotionResponseHandler(char * pData)
 		//m_sViewDstY = m_sViewPointY = (m_sPlayerY-7)*32;
         m_sViewDstX = m_sViewPointX = (m_sPlayerX-12)*32; // 800x600 Resolution xRisenx Center Char xRisenx
         m_sViewDstY = m_sViewPointY = (m_sPlayerY-9)*32; // 800x600 Resolution xRisenx Center Char xRisenx
+
+        m_sViewDstX = m_sViewPointX = (m_sPlayerX - (GetWidth() / 32) / 2) * 32;
+        m_sViewDstY = m_sViewPointY = (m_sPlayerY - ((GetHeight() - 60) / 32) / 2) * 32;
         //m_sViewDstX = m_sViewPointX = (m_sPlayerX-24)*32; // 800x600 Resolution xRisenx Center Char xRisenx
         //m_sViewDstY = m_sViewPointY = (m_sPlayerY-18)*32; // 800x600 Resolution xRisenx Center Char xRisenx
 
@@ -20755,6 +20885,9 @@ void CGame::MotionResponseHandler(char * pData)
 
         m_sViewDstX = m_sViewPointX = (m_sPlayerX - 24) * 32; // 800x600 Resolution xRisenx Center Char xRisenx
         m_sViewDstY = m_sViewPointY = (m_sPlayerY - 18) * 32; // 800x600 Resolution xRisenx Center Char xRisenx
+
+        m_sViewDstX = m_sViewPointX = (m_sPlayerX - (GetWidth() / 32) / 2) * 32;
+        m_sViewDstY = m_sViewPointY = (m_sPlayerY - ((GetHeight() - 60) / 32) / 2) * 32;
 
         m_bIsPrevMoveBlocked = true;
 		switch (m_sPlayerType) {
@@ -25312,10 +25445,13 @@ void CGame::InitDataResponseHandler(char * pData)
 	memcpy(m_cMapName, cp, 10);
 	m_cMapIndex = GetOfficialMapName(m_cMapName, m_cMapMessage);
 	if( m_cMapIndex < 0 )
-	{	m_dialogBoxes[9].sSizeX = -1;
+	{
+        m_dialogBoxes[9].sSizeX = -1;
 		m_dialogBoxes[9].sSizeY = -1;
-	}else
-	{	m_dialogBoxes[9].sSizeX = 128;
+	}
+    else
+	{
+        m_dialogBoxes[9].sSizeX = 128;
 		m_dialogBoxes[9].sSizeY = 128;
 	}
 	cp += 10;
@@ -25357,27 +25493,26 @@ void CGame::InitDataResponseHandler(char * pData)
 	m_pMapData->OpenMapDataFile(cMapFileName);
 
 
-    if (GetWidth() == 800)
-    {
-
-        m_pMapData->m_sPivotX = sX - 19;
-        m_pMapData->m_sPivotY = sY - 17;
-    }
-    else if (GetWidth() == 1024)
-    {
-        m_pMapData->m_sPivotX = sX - 26;
-        m_pMapData->m_sPivotY = sY - 22;
-    }
-    else if (GetWidth() == 1280)
-    {
-        m_pMapData->m_sPivotX = sX - 35;
-        m_pMapData->m_sPivotY = sY - 29;
-    }
-    else if (GetWidth() == 1920)
-    {
-        m_pMapData->m_sPivotX = sX - 55;
-        m_pMapData->m_sPivotY = sY - 30;
-    }
+//     if (GetWidth() == 800)
+//     {
+//         m_pMapData->m_sPivotX = sX - 19;
+//         m_pMapData->m_sPivotY = sY - 17;
+//     }
+//     else if (GetWidth() == 1024)
+//     {
+//         m_pMapData->m_sPivotX = sX - 26;
+//         m_pMapData->m_sPivotY = sY - 22;
+//     }
+//     else if (GetWidth() == 1280)
+//     {
+//         m_pMapData->m_sPivotX = sX - 35;
+//         m_pMapData->m_sPivotY = sY - 29;
+//     }
+//     else if (GetWidth() == 1920)
+//     {
+//         m_pMapData->m_sPivotX = sX - 55;
+//         m_pMapData->m_sPivotY = sY - 30;
+//     }
 
 	m_sPlayerX   = sX ;
 	m_sPlayerY   = sY;
@@ -25385,7 +25520,8 @@ void CGame::InitDataResponseHandler(char * pData)
 	m_cPlayerDir = 5;
 
 	if (bIsObserverMode == false)
-	{	m_pMapData->bSetOwner(m_sPlayerObjectID, m_sPlayerX, m_sPlayerY, m_sPlayerType, m_cPlayerDir,
+	{
+        m_pMapData->bSetOwner(m_sPlayerObjectID, m_sPlayerX, m_sPlayerY, m_sPlayerType, m_cPlayerDir,
 							                  m_sPlayerAppr1, m_sPlayerAppr2, m_sPlayerAppr3, m_sPlayerAppr4, m_iPlayerApprColor,
 											  m_sPlayerHeadApprValue, m_sPlayerBodyApprValue, m_sPlayerArmApprValue, m_sPlayerLegApprValue, // Re-Coding Sprite xRisenx
 											  m_iPlayerStatus, m_cPlayerName,
@@ -25397,12 +25533,22 @@ void CGame::InitDataResponseHandler(char * pData)
 	//m_sViewDstX = m_sViewPointX = (sX+7)*32; // 800x600 Resolution xRisenx Center Char xRisenx
 	//m_sViewDstY = m_sViewPointY = (sY+8)*32; // 800x600 Resolution xRisenx Center Char xRisenx
 
-    m_sViewDstX = m_sViewPointX = (sX ) * 32; // 800x600 Resolution xRisenx Center Char xRisenx
-    m_sViewDstY = m_sViewPointY = (sY ) * 32; // 800x600 Resolution xRisenx Center Char xRisenx
+    //m_sViewDstX = m_sViewPointX = (sX ) * 32; // 800x600 Resolution xRisenx Center Char xRisenx
+    //m_sViewDstY = m_sViewPointY = (sY ) * 32; // 800x600 Resolution xRisenx Center Char xRisenx
+
+    m_sViewDstX = m_sViewPointX = (sX) * 32 - GetWidth()/2;// ((GetWidth() / 32 /*tiles across*/) / 2);
+    m_sViewDstY = m_sViewPointY = (sY) * 32 - (GetHeight()-60)/2;// (((GetHeight() - 60) / 32 /*tiles across*/) / 2);
+
+    viewdstxvar = (GetWidth() / 32) / 2;
+    viewdstyvar = ((GetHeight()-60) / 32) / 2;
+
+    m_sViewDstX = m_sViewPointX = (sX - (GetWidth() / 32) / 2) * 32;
+    m_sViewDstY = m_sViewPointY = (sY - ((GetHeight() - 60) / 32) / 2) * 32;
 
     cout << "viewpoint " << m_sViewPointX << ":" << m_sViewPointY << endl;
 	//_ReadMapData(sX + 4 + 5, sY + 5 + 5, cp);
-	_ReadMapData(sX + 7, sY + 8, cp); // 800x600 Resolution xRisenx Center Char xRisenx
+	//_ReadMapData(sX + 7, sY + 8, cp); // 800x600 Resolution xRisenx Center Char xRisenx
+    _ReadMapData(sX, sY, cp);
 	//_ReadMapData(sX + 4 + 5 - 2, sY + 5 + 5 - 2, cp); // Maybe this insted ? xRisenx
 	m_bIsRedrawPDBGS = true;
     // ------------------------------------------------------------------------+

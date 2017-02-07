@@ -24,8 +24,8 @@
 #include "../char/DynamicObjectID.h"
 
 
-#define MAPDATASIZEX	40
-#define MAPDATASIZEY	35
+#define MAPDATASIZEX	550//40
+#define MAPDATASIZEY	550//35
 
 class CMapData  
 {
@@ -59,7 +59,7 @@ public:
 
 	int getChatMsgIndex(uint16_t wObjectID) const;
 
-	class CTile m_pData[MAPDATASIZEX][MAPDATASIZEY];
+	class CTile m_pData[550][550];
 	class CTile m_pTmpData[MAPDATASIZEX][MAPDATASIZEY];
 	class CTileSpr m_tile[550][550];//[752][752];
 	class CGame * m_pGame;

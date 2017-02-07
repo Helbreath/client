@@ -4708,15 +4708,6 @@ void CGame::UpdateScreen_OnGame()
         }
 #endif
 
-        if (m_bIsObserverMode == true)
-        {	//DIRECTX m_DDraw.PutPixel(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY,   255,255,255);
-            //DIRECTX m_DDraw.PutPixel(G_pGame->m_stMCursor.sX+1, G_pGame->m_stMCursor.sY, 255,255,255);
-            //DIRECTX m_DDraw.PutPixel(G_pGame->m_stMCursor.sX-1, G_pGame->m_stMCursor.sY, 255,255,255);
-            //DIRECTX m_DDraw.PutPixel(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY+1, 255,255,255);
-            //DIRECTX m_DDraw.PutPixel(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY-1, 255,255,255);
-        }
-        //else m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY, m_stMCursor.sCursorFrame, dwTime);
-
         //if( //DIRECTX m_DDraw.iFlip() == DDERR_SURFACELOST ) RestoreSprites();
     }
 
