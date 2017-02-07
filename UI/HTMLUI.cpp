@@ -34,10 +34,23 @@ void HTMLUI::Init()
 	WebURL url(WSLit("http://hbx.decouple.io/index.html"));
 	view->LoadURL(url);
 	view->SetTransparent(true);
+
 	while (view->IsLoading()) {
-		HTMLUI::Update(25);
+		HTMLUI::Update(10);
 	}
-	HTMLUI::Update(250);
+	HTMLUI::Update(100);
+
+	uiValue = view->ExecuteJavascriptWithResult(WSLit("UI"), WSLit(""));
+	if (!uiValue.IsObject())
+	{
+		//ERROR
+		__asm int 3;
+	}
+
+	uiJS = uiValue.ToObject();
+	JSArray args;
+	args.Push(WSLit("load"));
+	uiJS.Invoke(WSLit("emit"), args);
 
     window = view->ExecuteJavascriptWithResult(WSLit("window"), WSLit(""));
     if (!window.IsObject())

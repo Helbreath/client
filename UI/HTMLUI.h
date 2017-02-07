@@ -33,7 +33,8 @@ public:
 	JSObject jsData;
 	HTMLUIMethodHandler *mHandler;
     CGame * game;
-    JSValue window;
+	JSValue uiValue;
+    JSObject& uiJS;
 
 	HTMLUI(class CGame *pGame);
 	~HTMLUI();
