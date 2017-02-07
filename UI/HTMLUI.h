@@ -20,7 +20,7 @@ public:
 
 	HTMLUI *htmlUI;
 
-    void Emit(bool result, string message);
+    void Emit(string event, bool result, string message);
 };
 
 class HTMLUI
