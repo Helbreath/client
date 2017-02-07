@@ -17,12 +17,6 @@ HTMLUI::HTMLUI(class CGame * pGame)
     jsData.SetCustomMethod(WSLit("login"), false);
     jsData.SetCustomMethod(WSLit("selectcharacter"), false);
     jsData.SetCustomMethod(WSLit("entergame"), false);
-    window = view->ExecuteJavascriptWithResult(WSLit("window"), WSLit(""));
-    if (!window.IsObject())
-    {
-        //ERROR
-        __asm int 3;
-    }
 
 	mHandler = new HTMLUIMethodHandler(this);
 	view->set_js_method_handler(mHandler);
@@ -39,10 +33,23 @@ void HTMLUI::Init()
 	WebURL url(WSLit("http://hbx.decouple.io/index.html"));
 	view->LoadURL(url);
 	view->SetTransparent(true);
+
 	while (view->IsLoading()) {
-		HTMLUI::Update(25);
+		HTMLUI::Update(10);
 	}
-	HTMLUI::Update(250);
+	HTMLUI::Update(100);
+
+	uiValue = view->ExecuteJavascriptWithResult(WSLit("UI"), WSLit(""));
+	if (!uiValue.IsObject())
+	{
+		//ERROR
+		__asm int 3;
+	}
+
+	uiJS = uiValue.ToObject();
+	JSArray args;
+	args.Push(WSLit("load"));
+	uiJS.Invoke(WSLit("emit"), args);
 
 	surface = (BitmapSurface*)view->surface();
 }
