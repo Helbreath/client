@@ -148,7 +148,6 @@ void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_obje
             G_pGame->m_cAccountPassword = ToString(password);
             G_pGame->StartLogin();
             G_pGame->ChangeGameMode(GAMEMODE_ONCONNECTING);
-            Emit("login", true, "");
             return;
         }
     }
@@ -218,6 +217,6 @@ void HTMLUIMethodHandler::Emit(string event, bool result, string message)
     if (htmlUI->uiJS.HasProperty(WSLit("emit")))
         htmlUI->uiJS.Invoke(WSLit("UI.emit"), args);
     else
-        __asm int 3;
+        __asm int 3;//TODO: error handling
 }
 
