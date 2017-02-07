@@ -9,6 +9,7 @@ using namespace Awesomium;
 #define HEIGHT  600
 
 class CGame;
+class HTMLUI;
 
 class HTMLUIMethodHandler : public JSMethodHandler
 {
@@ -19,7 +20,7 @@ public:
 
 	HTMLUI *htmlUI;
 
-    void Emit(JSValue window, bool result, string message);
+    void Emit(bool result, string message);
 };
 
 class HTMLUI

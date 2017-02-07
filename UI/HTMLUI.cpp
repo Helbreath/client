@@ -13,7 +13,16 @@ HTMLUI::HTMLUI(class CGame * pGame)
 
 	jsNamespace = view->CreateGlobalJavascriptObject(WSLit("client"));
 	jsData = jsNamespace.ToObject();
-	jsData.SetCustomMethod(WSLit("log"), false);
+    jsData.SetCustomMethod(WSLit("log"), false);
+    jsData.SetCustomMethod(WSLit("login"), false);
+    jsData.SetCustomMethod(WSLit("selectcharacter"), false);
+    jsData.SetCustomMethod(WSLit("entergame"), false);
+    window = view->ExecuteJavascriptWithResult(WSLit("window"), WSLit(""));
+    if (!window.IsObject())
+    {
+        //ERROR
+        __asm int 3;
+    }
 
 	mHandler = new HTMLUIMethodHandler(this);
 	view->set_js_method_handler(mHandler);
@@ -34,7 +43,6 @@ void HTMLUI::Init()
 		HTMLUI::Update(25);
 	}
 	HTMLUI::Update(250);
-    window = view->ExecuteJavascriptWithResult(WSLit("window"), WSLit(""));
 
 	surface = (BitmapSurface*)view->surface();
 }
@@ -60,6 +68,12 @@ void HTMLUI::Update(int sleep_ms)
 
 void HTMLUI::SetCharacters()
 {
+    if (!window.IsObject())
+    {
+        //ERROR
+        __asm int 3;
+    }
+
     if (game->m_pCharList.size() > 0)
     {
         JSArray args;
@@ -81,7 +95,8 @@ void HTMLUI::SetCharacters()
             properties.SetProperty(WSLit("mapname"), JSValue(ToWebString(character->m_cMapName)));
             args.Push(properties);
         }
-        window.ToObject().Invoke(WSLit("emit"), args);
+        JSObject obj = window.ToObject();
+        obj.Invoke(WSLit("emit"), args);
     }
 }
 
@@ -92,9 +107,6 @@ HTMLUIMethodHandler::HTMLUIMethodHandler(HTMLUI * htmlUI)
 
 void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_object_id, const WebString& method_name, const JSArray& args)
 {
-
-    JSValue window = caller->ExecuteJavascriptWithResult(WSLit("window"), WSLit(""));
-
 	if (method_name == WSLit("log")) {
 		std::string buffer = "";
 		int i = 0;
@@ -110,7 +122,7 @@ void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_obje
     {
         if (args.size() < 2)
         {
-            Emit(window, false, "Invalid login information");
+            Emit(false, "Invalid login information");
             return;
         }
         else
@@ -120,7 +132,7 @@ void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_obje
 
             if (username.IsEmpty() || password.IsEmpty())
             {
-                Emit(window, false, "Username and password cannot be empty");
+                Emit(false, "Username and password cannot be empty");
                 return;
             }
 
@@ -133,7 +145,7 @@ void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_obje
     {
         if (args.size() == 0)
         {
-            Emit(window, false, "Invalid character");
+            Emit(false, "Invalid character");
             return;
         }
         else
@@ -143,7 +155,7 @@ void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_obje
             if (G_pGame->m_pCharList.size() > selectedchar)
             {
                 G_pGame->m_cCurFocus = selectedchar;
-                Emit(window, true, "");
+                Emit(true, "");
             }
             return;
         }
@@ -168,10 +180,10 @@ void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_obje
                     strcpy(G_pGame->m_cMsg, "33");
                     ZeroMemory(G_pGame->m_cMapName, sizeof(G_pGame->m_cMapName));
                     memcpy(G_pGame->m_cMapName, G_pGame->m_pCharList[G_pGame->m_cCurFocus]->m_cMapName.c_str(), 10);
-                    Emit(window, true, "");
+                    Emit(true, "");
                     return;
                 }
-                Emit(window, false, "Invalid character name");
+                Emit(false, "Invalid character name");
                 return;
             }
         }
@@ -183,7 +195,7 @@ JSValue HTMLUIMethodHandler::OnMethodCallWithReturnValue(WebView *caller, unsign
 	return JSValue::Undefined();
 }
 
-void HTMLUIMethodHandler::Emit(JSValue window, bool result, string message)
+void HTMLUIMethodHandler::Emit(bool result, string message)
 {
     JSObject properties;
     properties.SetProperty(WSLit("success"), JSValue(false));
@@ -191,6 +203,6 @@ void HTMLUIMethodHandler::Emit(JSValue window, bool result, string message)
 
     JSArray args;
     args.Push(properties);
-    window.ToObject().Invoke(WSLit("emit"), args);
+    htmlUI->window.ToObject().Invoke(WSLit("emit"), args);
 }
 
