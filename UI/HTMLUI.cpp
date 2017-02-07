@@ -209,14 +209,14 @@ JSValue HTMLUIMethodHandler::OnMethodCallWithReturnValue(WebView *caller, unsign
 void HTMLUIMethodHandler::Emit(string event, bool result, string message)
 {
     JSObject properties;
-    properties.SetProperty(WSLit("event"), JSValue(ToWebString(event)));
-    properties.SetProperty(WSLit("success"), JSValue(false));
+    properties.SetProperty(WSLit("success"), JSValue(result));
     properties.SetProperty(WSLit("message"), JSValue(ToWebString(message)));
 
     JSArray args;
+	args.Push(ToWebString(event));
     args.Push(properties);
-    if (htmlUI->uiJS.HasProperty(WSLit("emit")))
-        htmlUI->uiJS.Invoke(WSLit("UI.emit"), args);
+    if (htmlUI->uiJS.HasMethod(WSLit("emit")))
+        htmlUI->uiJS.Invoke(WSLit("emit"), args);
     else
         __asm int 3;
 }
