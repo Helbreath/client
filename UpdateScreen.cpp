@@ -1065,59 +1065,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
         InitGameSettings();
 
         dwCTime = unixtime();
-
-        lock_guard<std::mutex> lock(uimtx);
-        Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-        if (ui.selectcharacter == nullptr)
-        {
-            ui.selectcharacter = WindowManager::getSingleton().loadLayoutFromFile("selectcharacter.layout");
-            myRoot->addChild(ui.selectcharacter);
-            Window * entergame = ui.selectcharacter->getChild("entergame");
-            Window * deletechar = ui.selectcharacter->getChild("deletechar");
-            Window * newchar = ui.selectcharacter->getChild("newchar");
-            entergame->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UIEnterGame, this));
-            //deletechar->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UIDeleteChar, this));
-            //newchar->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UINewChar, this));
-            int i = 0;
-            for (shared_ptr<CCharInfo> character : m_pCharList)
-            {
-                stringstream ss;
-                ss << "char" << i;
-                Window * charselecttext = ui.selectcharacter->getChild(ss.str());
-                ss.str("");
-                ss << "selectchar" << i;
-                Window * charselectbutton = ui.selectcharacter->getChild(ss.str());
-                ss.str("");
-                ss << "[colour='FF00A2B2']" << m_pCharList[i]->m_cName << "\n[colour='FF19EAFF']" << m_pCharList[i]->m_sLevel << "\n[colour='FF00E8FF']" << m_pCharList[i]->m_cMapName;
-                charselectbutton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UISelectCharacterClicked, this));
-                charselecttext->setText(ss.str());
-                charselecttext->setVisible(true);
-                charselecttext->setProperty("BackgroundColours", "tl:FF592500 tr:FF592500 bl:FF592500 br:FF592500");
-                ++i;
-            }
-            Window * charrender = ui.selectcharacter->getChild("charwindow")->getChild("charrender")->getChild("charrender2");
-
-            CEGUI::RenderingSurface *surface = charrender->getRenderingSurface();
-            CEGUI::RenderTarget &baseTarget = surface->getRenderTarget();
-            CEGUI::IrrlichtTextureTarget &target = dynamic_cast<CEGUI::IrrlichtTextureTarget&>(baseTarget);
-            CEGUI::Texture &baseTexture = target.getTexture();
-            CEGUI::IrrlichtTexture &texture = dynamic_cast<CEGUI::IrrlichtTexture&>(baseTexture);
-            //irr::video::ITexture * irrTexture = texture.getIrrlichtTexture();
-            texture.setIrrlichtTexture(charselect);
-
-
-        }
-        else
-        {
-            //login = myRoot->getChild("login");
-        }
-        Window * wnd = myRoot->getChild("selectcharacter")->getChild("selectchar0");
-        CEGUI::WindowEventArgs e(wnd);
-        //(*(CEGUI::WindowEventArgs*)e)
-        wnd->fireEvent(CEGUI::PushButton::EventClicked, e);
     }
-
-    ui.selectcharacter->getChild("charwindow")->getChild("charrender")->invalidate(true);
 
     m_cGameModeCount++;
     if (m_cGameModeCount > 100) m_cGameModeCount = 100;
@@ -1324,27 +1272,6 @@ void CGame::UpdateScreen_OnConnecting()
         m_bEscPressed = false;
         dwCTime = dwMTime = unixtime();
 
-        try
-        {
-            lock_guard<std::mutex> lock(uimtx);
-            Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-            if (ui.connecting == nullptr)
-            {
-                ui.connecting = WindowManager::getSingleton().loadLayoutFromFile("connecting.layout");
-                ui.connecting->setModalState(true);
-                myRoot->addChild(ui.connecting);
-            }
-            else
-            {
-                myRoot->addChild(ui.connecting);
-                //login = myRoot->getChild("login");
-            }
-        }
-        catch (CEGUI::AlreadyExistsException & e)
-        {
-
-        }
-
         if (_socket == nullptr)
         {
             boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
@@ -1378,8 +1305,6 @@ void CGame::UpdateScreen_OnConnecting()
             {
                 new_connection_->stop();
             }
-            WindowManager::getSingleton().destroyWindow(ui.connecting);
-            ui.connecting = nullptr;
         }
         m_bEscPressed = false;
         return;
@@ -1443,18 +1368,6 @@ void CGame::UpdateScreen_OnConnecting()
     //DrawNewDialogBox(SPRID_INTERFACE_ND_GAME4, 162+80,125+80,2); // xRisenx added x+80 and y+80
     wsprintfA(G_cTxt, "Connecting to Server... (%d)", (dwTime - m_dwTime) / 1000);
     //PutString_SprFont(172 + 35 + 80, 190 + 80, G_cTxt, 7,0,0); // xRisenx added x+80 and y+80
-    try
-    {
-        //BUG: check later
-        lock_guard<mutex> lock(uimtx);
-        if (ui.connecting != nullptr)
-        {
-            ui.connecting->getChild("connecttext")->setText(G_cTxt);
-        }
-    }
-    catch (CEGUI::UnknownObjectException & e)
-    {
-    }
 
 
     // 	if ((dwTime - m_dwTime) > 7000)
@@ -3682,7 +3595,7 @@ void CGame::UpdateScreen_OnLogResMsg()
 
         case 'I': //
             PutString_SprFont(dlgX + 77, dlgY + 43, "Not Enough Point!", 7, 0, 0);
-            PutAlignedString(dlgX + 15, dlgX + 300, dlgY + 74, "ÂI¼Æ¨Ï¥Î´Á­­¤wµ²§ô, ½Ð¦ÜGD2S.gamania.com©µªø¨Ï¥Î´Á­­");
+            PutAlignedString(dlgX + 15, dlgX + 300, dlgY + 74, "ï¿½Iï¿½Æ¨Ï¥Î´ï¿½ï¿½ï¿½ï¿½wï¿½ï¿½ï¿½ï¿½, ï¿½Ð¦ï¿½GD2S.gamania.comï¿½ï¿½ï¿½ï¿½ï¿½Ï¥Î´ï¿½ï¿½ï¿½");
 
             break;
 
@@ -4253,7 +4166,7 @@ void CGame::UpdateScreen_OnGame()
                                         GetNpcName(m_dialogBoxes[17].sV3, m_dialogBoxes[20].cStr);
                                         break;
                                     case 1000: // Trade stackable items
-                                               // hum, déjà affiché? , j'attends le retour et je désactive!
+                                               // hum, dï¿½jï¿½ affichï¿½? , j'attends le retour et je dï¿½sactive!
                                                /*m_stDialogBoxInfo[27].sV1 = m_pItemList[m_stDialogBoxInfo[17].sV4]->m_sSprite;
                                                m_stDialogBoxInfo[27].sV2 = m_pItemList[m_stDialogBoxInfo[17].sV4]->m_sSpriteFrame;
                                                m_stDialogBoxInfo[27].sV3 = iAmount;

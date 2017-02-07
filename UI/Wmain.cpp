@@ -17,7 +17,6 @@
 #include "..\Game.h"
 #include "..\res\resource.h"
 #include "..\GlobalDef.h"
-#include <CEGUI/RendererModules/Irrlicht/Renderer.h>
 
 extern "C" __declspec( dllimport) int __FindHackingDll__(char *);
 
@@ -48,15 +47,16 @@ video::E_DRIVER_TYPE driverType = video::EDT_OPENGL;
 
 using namespace irr;
 using namespace irr::video;
-using namespace CEGUI;
 
 // --------------------------------------------------------------
 
 int main(int argc, char * argv[])
 {
 	srand((unsigned)time(0));
-	G_pGame = new class CGame;
 
+    G_pGame = new class CGame;
+  
+    
     G_pGame->_renderer = L"DirectX3D9";
     driverType = video::EDT_DIRECT3D9;
 
@@ -143,40 +143,6 @@ int main(int argc, char * argv[])
 
 	skin->setFont(G_pGame->font[FONT_BUILTIN]);
 
-// 	irr::gui::IGUISpriteBank* test = skin->getSpriteBank();
-// 	//skin->
-// 
-// 	env->addButton(irr::core::rect<s32>(10, 240, 110, 240 + 32), 0, GUI_ID_QUIT_BUTTON,
-// 		L"Quit", L"Exits Program");
-// 	env->addButton(irr::core::rect<s32>(10, 280, 110, 280 + 32), 0, GUI_ID_NEW_WINDOW_BUTTON,
-// 		L"New Window", L"Launches a new Window");
-// 	env->addButton(irr::core::rect<s32>(10, 320, 110, 320 + 32), 0, GUI_ID_FILE_OPEN_BUTTON,
-// 		L"File Open", L"Opens a file");
-// 
-// 
-// 	env->addStaticText(L"Transparent Control:", irr::core::rect<s32>(150, 20, 350, 40), true);
-// 	irr::gui::IGUIScrollBar* scrollbar = env->addScrollBar(true,
-// 		irr::core::rect<s32>(150, 45, 350, 60), 0, GUI_ID_TRANSPARENCY_SCROLL_BAR);
-// 	scrollbar->setMax(255);
-// 	scrollbar->setPos(255);
-// 	CGame::setSkinTransparency(scrollbar->getPos(), env->getSkin());
-// 
-// 	// set scrollbar position to alpha value of an arbitrary element
-// 	scrollbar->setPos(env->getSkin()->getColor(irr::gui::EGDC_WINDOW).getAlpha());
-// 
-// 	env->addStaticText(L"Logging ListBox:", irr::core::rect<s32>(50, 110, 250, 130), true);
-// 	irr::gui::IGUIListBox * listbox = env->addListBox(irr::core::rect<s32>(50, 140, 250, 210));
-// 	env->addEditBox(L"Editable Text", irr::core::rect<s32>(350, 80, 550, 100));
-// 
-// 	// Store the appropriate data in a context structure.
-// 	G_pGame->context.device = G_pGame->device;
-// 	G_pGame->context.counter = 0;
-// 	G_pGame->context.listbox = listbox;
-// 
-// 	env->addMessageBox(L"TEST NIGGA", L"TEXT NIGGA", false, irr::gui::EMBF_OK | irr::gui::EMBF_CANCEL);
-
-
-
 	gui::ICursorControl* cursor = G_pGame->device->getCursorControl();
 	cursor->setVisible(false);
 	cursor->setPosition(G_pGame->GetWidth() / 2, G_pGame->GetHeight() / 2);
@@ -200,65 +166,9 @@ int main(int argc, char * argv[])
 
 	time1 = time2 = unixtime();
 
-
-	//IrrlichtRenderer& myRenderer = IrrlichtRenderer::bootstrapSystem(*G_pGame->device);
-	CEGUI::IrrlichtRenderer& myRenderer = CEGUI::IrrlichtRenderer::create(*G_pGame->device);
-	CEGUI::System::create(myRenderer);
-
-	DefaultResourceProvider * rp = static_cast<DefaultResourceProvider*>(CEGUI::System::getSingleton().getResourceProvider());
-
-	rp->setResourceGroupDirectory("schemes", "./data/schemes/");
-	rp->setResourceGroupDirectory("imagesets", "./data/imagesets/");
-	rp->setResourceGroupDirectory("fonts", "./data/fonts/");
-	rp->setResourceGroupDirectory("layouts", "./data/layouts/");
-	rp->setResourceGroupDirectory("looknfeels", "./data/looknfeel/");
-	rp->setResourceGroupDirectory("lua_scripts", "./data/lua_scripts/");
-	rp->setResourceGroupDirectory("schemas", "./data/xml_schemas/");
-
-	// set the default resource groups to be used
-	CEGUI::ImageManager::setImagesetDefaultResourceGroup("imagesets");
-	CEGUI::Font::setDefaultResourceGroup("fonts");
-	CEGUI::Scheme::setDefaultResourceGroup("schemes");
-	CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeels");
-	CEGUI::WindowManager::setDefaultResourceGroup("layouts");
-	CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
-	// setup default group for validation schemas
-	CEGUI::XMLParser* parser = CEGUI::System::getSingleton().getXMLParser();
-	if (parser->isPropertyPresent("SchemaDefaultResourceGroup"))
-		parser->setProperty("SchemaDefaultResourceGroup", "schemas");
-
-	CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
-	CEGUI::SchemeManager::getSingleton().createFromFile("WindowsLook.scheme");
-	CEGUI::SchemeManager::getSingleton().createFromFile("Generic.scheme");
-	CEGUI::SchemeManager::getSingleton().createFromFile("GameMenu.scheme");
-	CEGUI::SchemeManager::getSingleton().createFromFile("VanillaSkin.scheme");
-	CEGUI::SchemeManager::getSingleton().createFromFile("VanillaCommonDialogs.scheme");
-	CEGUI::SchemeManager::getSingleton().createFromFile("AlfiskoSkin.scheme");
-	CEGUI::FontManager::getSingleton().createFromFile("DejaVuSans-10.font");
-
-	WindowManager & wmgr = WindowManager::getSingleton();
-	Window* myRoot = wmgr.createWindow("DefaultWindow", "root");
-	System::getSingleton().getDefaultGUIContext().setRootWindow(myRoot);
-	myRoot->setMousePassThroughEnabled(true);
-
-// 	FrameWindow* fWnd = static_cast<FrameWindow*>(wmgr.createWindow("TaharezLook/FrameWindow", "testWindow"));
-// 	myRoot->addChild(fWnd);
-// 	// position a quarter of the way in from the top-left of parent.
-// 	fWnd->setPosition(UVector2(UDim(0.25f, 0.0f), UDim(0.25f, 0.0f)));
-// 	// set size to be half the size of the parent
-// 	fWnd->setSize(USize(UDim(0.5f, 0.0f), UDim(0.5f, 0.0f)));
-// 	fWnd->setText("Hello World!");
-
-
-	G_pGame->ceguistarted = true;
-
-	uint64_t ceguitime = 0.0f;
-	uint64_t currenttime = 0;
-
 	MSG msg;
 	while (G_pGame->device->run() && G_pGame->driver)
 	{
-		currenttime = unixtime();
 		G_pGame->OnTimer();
 		//process packets
 
@@ -270,46 +180,30 @@ int main(int argc, char * argv[])
 				G_pGame->GameRecvMsgHandler(entry->size, entry->data);
 			}
 		}
-
-// 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
-// 		{
-// 			if (msg.message == WM_QUIT)
-// 			{
-// 				if (grace > 0)
-// 					grace--;
-// 				else
-// 					break;
-// 			}
-// 			TranslateMessage(&msg);
-// 			DispatchMessage(&msg);
-// 
-// 			WndProc(msg.hwnd, msg.message, msg.wParam, msg.lParam);
-// 		}
-
 		if (G_pGame->fullscreenswap)
 		{
 			grace++;
-			guiskin = G_pGame->env->getSkin();
-			G_pGame->font[FONT_BUILTIN]  = G_pGame->env->getBuiltInFont();
-			G_pGame->font[FONT_TREBMS6PX]  = G_pGame->env->getFont(L"data/fonts/treb6px.xml");
-			G_pGame->font[FONT_TREBMS8PX]  = G_pGame->env->getFont(L"data/fonts/treb8px.xml");
-			G_pGame->font[FONT_TREBMS10PX]  = G_pGame->env->getFont(L"data/fonts/treb10px.xml");
-			G_pGame->font[FONT_TREBMS12PX]  = G_pGame->env->getFont(L"data/fonts/treb12px.xml");
-			G_pGame->font[FONT_TREBMS14PX]  = G_pGame->env->getFont(L"data/fonts/treb14px.xml");
-			G_pGame->font[FONT_TREBMS16PX]  = G_pGame->env->getFont(L"data/fonts/treb16px.xml");
+            guiskin = G_pGame->env->getSkin();
+            G_pGame->font[FONT_BUILTIN] = G_pGame->env->getBuiltInFont();
+            G_pGame->font[FONT_TREBMS6PX] = G_pGame->env->getFont(L"data/fonts/treb6px.xml");
+            G_pGame->font[FONT_TREBMS8PX] = G_pGame->env->getFont(L"data/fonts/treb8px.xml");
+            G_pGame->font[FONT_TREBMS10PX] = G_pGame->env->getFont(L"data/fonts/treb10px.xml");
+            G_pGame->font[FONT_TREBMS12PX] = G_pGame->env->getFont(L"data/fonts/treb12px.xml");
+            G_pGame->font[FONT_TREBMS14PX] = G_pGame->env->getFont(L"data/fonts/treb14px.xml");
+            G_pGame->font[FONT_TREBMS16PX] = G_pGame->env->getFont(L"data/fonts/treb16px.xml");
 
-			setskincolor(irr::gui::EGDC_3D_FACE);
-			setskincolor(irr::gui::EGDC_3D_SHADOW);
-			setskincolor(irr::gui::EGDC_ACTIVE_CAPTION);
-			setskincolor(irr::gui::EGDC_ACTIVE_BORDER);
-			setskincolor(irr::gui::EGDC_3D_DARK_SHADOW);
-			setskincolor(irr::gui::EGDC_3D_HIGH_LIGHT);
-			setskincolor(irr::gui::EGDC_BUTTON_TEXT);
-			setskincolor(irr::gui::EGDC_HIGH_LIGHT_TEXT);
-			setskincolor(irr::gui::EGDC_HIGH_LIGHT);
-			setskincolor(irr::gui::EGDC_WINDOW);
-			setskincolor(irr::gui::EGDC_WINDOW_SYMBOL);
-			setskincolor(irr::gui::EGDC_SCROLLBAR);
+            setskincolor(irr::gui::EGDC_3D_FACE);
+            setskincolor(irr::gui::EGDC_3D_SHADOW);
+            setskincolor(irr::gui::EGDC_ACTIVE_CAPTION);
+            setskincolor(irr::gui::EGDC_ACTIVE_BORDER);
+            setskincolor(irr::gui::EGDC_3D_DARK_SHADOW);
+            setskincolor(irr::gui::EGDC_3D_HIGH_LIGHT);
+            setskincolor(irr::gui::EGDC_BUTTON_TEXT);
+            setskincolor(irr::gui::EGDC_HIGH_LIGHT_TEXT);
+            setskincolor(irr::gui::EGDC_HIGH_LIGHT);
+            setskincolor(irr::gui::EGDC_WINDOW);
+            setskincolor(irr::gui::EGDC_WINDOW_SYMBOL);
+            setskincolor(irr::gui::EGDC_SCROLLBAR);
 
 			cursor = G_pGame->device->getCursorControl();
 			cursor->setVisible(false);
@@ -435,8 +329,6 @@ int main(int argc, char * argv[])
 // 			}
 // 			else
 				G_pGame->UpdateScreen();
-			CEGUI::System::getSingleton().getDefaultGUIContext().injectTimePulse(((float)(currenttime - ceguitime))/1000);
-			ceguitime = currenttime;
 		}
 	}
 

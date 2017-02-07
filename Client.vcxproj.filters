@@ -137,6 +137,9 @@
     <ClInclude Include="..\x-server\src\netmessages.h">
       <Filter>net\packets</Filter>
     </ClInclude>
+    <ClInclude Include="UI\HTMLUI.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Res\resource.rc">
@@ -211,13 +214,8 @@
     <ClCompile Include="DialogBoxGame.cpp">
       <Filter>char</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="ssleay32.lib">
-      <Filter>res</Filter>
-    </Library>
-    <Library Include="libeay32.lib">
-      <Filter>res</Filter>
-    </Library>
+    <ClCompile Include="UI\HTMLUI.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

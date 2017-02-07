@@ -11,8 +11,9 @@
 
 #include "lan_eng.h"
 #include <boost/asio/ssl.hpp>
+#include "Awesomium\WebKeyboardEvent.h"
 
-
+using namespace Awesomium;
 
 extern class CGame * G_pGame;
 
@@ -85,207 +86,167 @@ uint32_t unixseconds()
 
 bool CGame::OnEvent(const irr::SEvent& event)
 {
-	// GUI Events
-
-	if (ceguistarted)
-	{
-		CEGUI::GUIContext& context = CEGUI::System::getSingleton().getDefaultGUIContext();
-
-/*
-		if (event.EventType == EET_GUI_EVENT)
+	if (G_pGame->htmlUI) {
+		G_pGame->htmlUI->view->Focus();
+	}
+    if (event.MouseInput.Event != irr::EMIE_MOUSE_MOVED)
+    {
+        //AddEventList("Irrlicht Injected Successfully.", 10);
+    }
+    // Move out of if(true) at a later date when all UI elements are updated
+    if (event.EventType == irr::EET_MOUSE_INPUT_EVENT)
+    {
+        if (event.MouseInput.Event == irr::EMIE_LMOUSE_PRESSED_DOWN)
+        {
+			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Left);
+            if (wasinactive)
+            {
+                wasinactive = false;
+                return false;
+            }
+            //context.injectMouseButtonDown(MouseButton::LeftButton);
+            m_stMCursor.LB = true;
+        }
+        else if (event.MouseInput.Event == irr::EMIE_RMOUSE_PRESSED_DOWN)
 		{
-			s32 id = event.GUIEvent.Caller->getID();
-			irr::gui::IGUIEnvironment* env = device->getGUIEnvironment();
-
-			switch (event.GUIEvent.EventType)
-			{
-			case irr::gui::EGET_SCROLL_BAR_CHANGED:
-				if (id == GUI_ID_TRANSPARENCY_SCROLL_BAR)
-				{
-					s32 pos = ((irr::gui::IGUIScrollBar*)event.GUIEvent.Caller)->getPos();
-					//setSkinTransparency(pos, env->getSkin());
-				}
-				break;
-			case irr::gui::EGET_ELEMENT_FOCUSED:
-				context.listbox->addItem(L"EGET_ELEMENT_FOCUSED");
-				return false;
-			case irr::gui::EGET_BUTTON_CLICKED:
-				switch (id)
-				{
-				case GUI_ID_QUIT_BUTTON:
-					device->closeDevice();
-					return true;
-
-				case GUI_ID_NEW_WINDOW_BUTTON:
-				{
-					context.listbox->addItem(L"Window created");
-					context.counter += 30;
-					if (context.counter > 200)
-						context.counter = 0;
-
-					irr::gui::IGUIWindow* window = env->addWindow(
-						irr::core::rect<s32>(100 + context.counter, 100 + context.counter, 300 + context.counter, 200 + context.counter),
-						false, // modal?
-						L"Test window");
-
-					env->addStaticText(L"Please close me",
-						irr::core::rect<s32>(35, 35, 140, 50),
-						true, // border?
-						false, // wordwrap?
-						window);
-				}
-					return true;
-
-				case GUI_ID_FILE_OPEN_BUTTON:
-					context.listbox->addItem(L"File open");
-					// There are some options for the file open dialog
-					// We set the title, make it a modal window, and make sure
-					// that the working directory is restored after the dialog
-					// is finished.
-					env->addFileOpenDialog(L"Please choose a file.", true, 0, -1, true);
-					return true;
-
-				default:
-					context.listbox->addItem(L"EGET_BUTTON_CLICKED");
-					return true;
-				}
-				break;
-
-			case irr::gui::EGET_FILE_SELECTED:
-			{
-				// show the model filename, selected in the file dialog
-				irr::gui::IGUIFileOpenDialog* dialog =
-					(irr::gui::IGUIFileOpenDialog*)event.GUIEvent.Caller;
-				context.listbox->addItem(dialog->getFileName());
-			}
-				break;
-
-			default:
-				break;
-			}
-		}*/
-
-		if (((CEGUI::IrrlichtRenderer*)CEGUI::System::getSingleton().getRenderer())->injectEvent(event))
+			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
+            if (wasinactive)
+            {
+                wasinactive = false;
+                return false;
+            }
+            //context.injectMouseButtonDown(MouseButton::RightButton);
+            m_stMCursor.RB = true;
+        }
+        else if (event.MouseInput.Event == irr::EMIE_MMOUSE_PRESSED_DOWN)
 		{
-			// Irrlicht UI has accepted the input (mouse events need to still be passed for the sake of old UI elements until replaced)
-
-			if (event.MouseInput.Event != irr::EMIE_MOUSE_MOVED)
-			{
-				//AddEventList("Irrlicht Injected Successfully.", 10);
-			}
-			Window * win = context.getWindowContainingMouse();
-			Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-			if (win == myRoot)
-			{
-				// Move out of if(true) at a later date when all UI elements are updated
-				if (event.EventType == irr::EET_MOUSE_INPUT_EVENT)
-				{
-					if (event.MouseInput.Event == irr::EMIE_LMOUSE_PRESSED_DOWN)
-					{
-						if (wasinactive)
-						{
-							wasinactive = false;
-							return false;
-						}
-						//context.injectMouseButtonDown(MouseButton::LeftButton);
-						m_stMCursor.LB = true;
-					}
-					else if (event.MouseInput.Event == irr::EMIE_RMOUSE_PRESSED_DOWN)
-					{
-						if (wasinactive)
-						{
-							wasinactive = false;
-							return false;
-						}
-						//context.injectMouseButtonDown(MouseButton::RightButton);
-						m_stMCursor.RB = true;
-					}
-					else if (event.MouseInput.Event == irr::EMIE_MMOUSE_PRESSED_DOWN)
-					{
-						if (wasinactive)
-						{
-							wasinactive = false;
-							return false;
-						}
-						//context.injectMouseButtonDown(MouseButton::MiddleButton);
-						m_stMCursor.MB = true;
-					}
-					else if (event.MouseInput.Event == irr::EMIE_LMOUSE_LEFT_UP)
-					{
-						m_stMCursor.LB = false;
-						//context.injectMouseButtonUp(MouseButton::LeftButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_RMOUSE_LEFT_UP)
-					{
-						m_stMCursor.RB = false;
-						//context.injectMouseButtonUp(MouseButton::RightButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_MMOUSE_LEFT_UP)
-					{
-						m_stMCursor.MB = false;
-						//context.injectMouseButtonUp(MouseButton::MiddleButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_LMOUSE_DOUBLE_CLICK)
-					{
-						//context.injectMouseButtonDoubleClick(MouseButton::LeftButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_LMOUSE_TRIPLE_CLICK)
-					{
-						//context.injectMouseButtonTripleClick(MouseButton::LeftButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_RMOUSE_DOUBLE_CLICK)
-					{
-						//context.injectMouseButtonDoubleClick(MouseButton::RightButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_RMOUSE_TRIPLE_CLICK)
-					{
-						//context.injectMouseButtonTripleClick(MouseButton::RightButton);
-					}
-					else if (event.MouseInput.Event == irr::EMIE_MOUSE_WHEEL)
-					{
-						// TODO: get values?
-						m_stMCursor.sZ = event.MouseInput.Wheel;
-						//mouse wheel for dialogs?
-					}
-					else if (event.MouseInput.Event == irr::EMIE_MOUSE_MOVED)
-					{
-						//context.injectMousePosition(event.MouseInput.X, event.MouseInput.Y);
-					}
-					return false;
-				}
-			}
-
+			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
+            if (wasinactive)
+            {
+                wasinactive = false;
+                return false;
+            }
+            //context.injectMouseButtonDown(MouseButton::MiddleButton);
+            m_stMCursor.MB = true;
+        }
+        else if (event.MouseInput.Event == irr::EMIE_LMOUSE_LEFT_UP)
+        {
+            m_stMCursor.LB = false;
+			G_pGame->htmlUI->view->InjectMouseUp(Awesomium::MouseButton::kMouseButton_Left);
+            //context.injectMouseButtonUp(MouseButton::LeftButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_RMOUSE_LEFT_UP)
+		{
+			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
+            m_stMCursor.RB = false;
+            //context.injectMouseButtonUp(MouseButton::RightButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_MMOUSE_LEFT_UP)
+		{
+			G_pGame->htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
+            m_stMCursor.MB = false;
+            //context.injectMouseButtonUp(MouseButton::MiddleButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_LMOUSE_DOUBLE_CLICK)
+        {
+            //context.injectMouseButtonDoubleClick(MouseButton::LeftButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_LMOUSE_TRIPLE_CLICK)
+        {
+            //context.injectMouseButtonTripleClick(MouseButton::LeftButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_RMOUSE_DOUBLE_CLICK)
+        {
+            //context.injectMouseButtonDoubleClick(MouseButton::RightButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_RMOUSE_TRIPLE_CLICK)
+        {
+            //context.injectMouseButtonTripleClick(MouseButton::RightButton);
+        }
+        else if (event.MouseInput.Event == irr::EMIE_MOUSE_WHEEL)
+        {
+            // TODO: get values?
+			m_stMCursor.sZ = event.MouseInput.Wheel;
+			G_pGame->htmlUI->view->InjectMouseWheel(event.MouseInput.Wheel, 0);
+            //mouse wheel for dialogs?
+        }
+        else if (event.MouseInput.Event == irr::EMIE_MOUSE_MOVED)
+		{
+			G_pGame->htmlUI->view->InjectMouseMove(event.MouseInput.X, event.MouseInput.Y);
+            //context.injectMousePosition(event.MouseInput.X, event.MouseInput.Y);
 		}
-		else
-		{
-			// Only processed if a UI element does not accept input from keypress
+        return false;
+    }
+    else
+    {
+        // Only processed if a UI element does not accept input from keypress
 
-			// Remember whether each key is down or up
-			if (event.EventType == irr::EET_KEY_INPUT_EVENT)
-			{
-				KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
-				if (event.KeyInput.PressedDown)
-				{
-					//if (GetText(0, WM_CHAR, event.KeyInput.Key, 0))
-					//	return true;
-					//context.injectKeyDown((Key::Scan)event.KeyInput.Key);
-					OnKeyDown(event.KeyInput.Key);
-					OnSysKeyDown(event.KeyInput.Key);
-					//lastchar = event.KeyInput.Key;
-					//context.injectChar((Key::Scan)event.KeyInput.Key);
+        // Remember whether each key is down or up
+        if (event.EventType == irr::EET_KEY_INPUT_EVENT)
+        {
+			KeyIsDown[event.KeyInput.Key] = event.KeyInput.PressedDown;
+            if (event.KeyInput.PressedDown)
+            {
+                //if (GetText(0, WM_CHAR, event.KeyInput.Key, 0))
+                //	return true;
+				//context.injectKeyDown((Key::Scan)event.KeyInput.Key);
+
+				if (event.KeyInput.Char) {
+					WebKeyboardEvent keyEvent = WebKeyboardEvent();
+					keyEvent.type = WebKeyboardEvent::kTypeKeyDown;
+					keyEvent.native_key_code = event.KeyInput.Key;
+
+					if (event.KeyInput.Control) {
+						keyEvent.modifiers |= WebKeyboardEvent::kModControlKey;
+					}
+					else if (event.KeyInput.Shift) {
+						keyEvent.modifiers |= WebKeyboardEvent::kModShiftKey;
+					}
+
+					G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+
+					WebKeyboardEvent keyEvent2 = WebKeyboardEvent();
+					keyEvent2.type = WebKeyboardEvent::kTypeChar;
+					keyEvent2.text[0] = event.KeyInput.Char;
+
+					if (event.KeyInput.Control) {
+						keyEvent2.modifiers |= WebKeyboardEvent::kModControlKey;
+					}
+					else if (event.KeyInput.Shift) {
+						keyEvent2.modifiers |= WebKeyboardEvent::kModShiftKey;
+					}
+
+					G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent2);
 				}
-				else
-				{
-					//context.injectKeyUp((Key::Scan)event.KeyInput.Key);
-					OnKeyUp(event.KeyInput.Key);
-					OnSysKeyUp(event.KeyInput.Key);
+				
+                OnKeyDown(event.KeyInput.Key);
+                OnSysKeyDown(event.KeyInput.Key);
+                //lastchar = event.KeyInput.Key;
+                //context.injectChar((Key::Scan)event.KeyInput.Key);
+            }
+            else
+            {
+				//context.injectKeyUp((Key::Scan)event.KeyInput.Key);
+
+				if (event.KeyInput.Char) {
+					WebKeyboardEvent keyEvent = WebKeyboardEvent();
+					keyEvent.type = WebKeyboardEvent::kTypeKeyUp;
+					keyEvent.native_key_code = event.KeyInput.Key;
+					G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+
+					if (event.KeyInput.Control) {
+						keyEvent.modifiers = WebKeyboardEvent::kModControlKey;
+					}
+					else if (event.KeyInput.Shift) {
+						keyEvent.modifiers = WebKeyboardEvent::kModShiftKey;
+					}
 				}
-				return false;
+
+                OnKeyUp(event.KeyInput.Key);
+                OnSysKeyUp(event.KeyInput.Key);
 			}
-		}
-
-
-
+            return false;
+        }
 	}
 	return false;
 }
@@ -645,11 +606,14 @@ void CGame::CreateSocket()
     new_connection_ = boost::make_shared<connection>(io_service_, *this, request_handler_, ctx);
 }
 
+
 CGame::CGame()
 	: io_service_(),
 	signals_(io_service_),
     ctx(io_service_, boost::asio::ssl::context::sslv23)
 {
+
+
 
 /*
     char test[] = "-----BEGIN CERTIFICATE-----\n"
@@ -1635,6 +1599,7 @@ void CGame::UpdateScreen()
 {
 	G_pGame->driver->beginScene(true, true);
 	G_dwGlobalTime = unixtime();
+
 	switch (m_cGameMode) {
 #ifdef MAKE_ACCOUNT
 	case GAMEMODE_ONAGREEMENT:
@@ -1728,25 +1693,69 @@ void CGame::UpdateScreen()
 
 	if (GetAsyncKeyState(VK_RETURN) != 0) m_cEnterCheck = 1;
 	if ((m_cEnterCheck == 1) && (GetAsyncKeyState(VK_RETURN) == 0))
-	{	m_bEnterPressed = true;
+	{
+		m_bEnterPressed = true;
 		m_cEnterCheck = 0;
 	}
 	if (GetAsyncKeyState(VK_TAB) != 0) m_cTabCheck = 1;
- 	if ((m_cTabCheck == 1) && (GetAsyncKeyState(VK_TAB) == 0))
-	{	m_cCurFocus++;
-		if( m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
+	if ((m_cTabCheck == 1) && (GetAsyncKeyState(VK_TAB) == 0))
+	{
+		m_cCurFocus++;
+		if (m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
 		if (m_cGameMode == GAMEMODE_ONMAINGAME) bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_TOGGLECOMBATMODE, 0, 0, 0, 0, 0);
 		m_cTabCheck = 0;
 	}
-	if( m_bInputStatus )
-	{	if (GetAsyncKeyState(VK_LEFT) != 0) m_cLeftArrowCheck = 1;
+	if (m_bInputStatus)
+	{
+		if (GetAsyncKeyState(VK_LEFT) != 0) m_cLeftArrowCheck = 1;
 		if ((m_cLeftArrowCheck == 1) && (GetAsyncKeyState(VK_LEFT) == 0))
-		{	m_cLeftArrowCheck = 0;
-			if( G_hEditWnd != 0 )
-			{	int iStrLen = strlen(m_pInputBuffer);
-				SendMessage( G_hEditWnd, EM_SETSEL, iStrLen, iStrLen );
-	}	}	}
+		{
+			m_cLeftArrowCheck = 0;
+			if (G_hEditWnd != 0)
+			{
+				int iStrLen = strlen(m_pInputBuffer);
+				SendMessage(G_hEditWnd, EM_SETSEL, iStrLen, iStrLen);
+			}
+		}
+	}
 #endif
+    static uint64_t fpstime = unixtime();
+	static uint64_t uitime = unixtime();
+	if (htmlUI->surface && G_dwGlobalTime - uitime > 50) {
+        if (G_dwGlobalTime - fpstime > 1000)
+        {
+            char cfps[20];
+            sprintf(cfps, "%d", driver->getFPS());
+            htmlUI->jsData.SetProperty(WSLit("fps"), WSLit(cfps));
+            fpstime = G_dwGlobalTime;
+            htmlUI->surface->set_is_dirty(true);
+        }
+
+		G_pGame->htmlUI->view->Focus();
+        WebCore::instance()->Update();
+        uitime = G_dwGlobalTime;
+	}
+
+	// Render HTML ui
+	if (htmlUI->isDirty())
+	{
+		uitime = G_dwGlobalTime;
+		int width = htmlUI->surface->width();
+		int height = htmlUI->surface->height();
+		if (htmlRTT) {
+			driver->removeTexture(htmlRTT);
+		}
+		// ui->surface->SaveToPNG(WSLit("./ui-debug.png"), true);
+		IImage *img = driver->createImageFromData(ECF_A8R8G8B8, irr::core::dimension2d<u32>(GetWidth(), GetHeight()), (unsigned char*)htmlUI->surface->buffer(), false, false);
+		htmlRTT = driver->addTexture("ui-html.png", img);
+		img->drop();
+		htmlUI->surface->set_is_dirty(false);
+	}
+
+	driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, video::SColor(255, 255, 255, 255), true);
+
+
+	/*
 	char cfps[20];
 	sprintf(cfps, "FPS: %d", driver->getFPS());
 
@@ -1773,6 +1782,7 @@ void CGame::UpdateScreen()
 	font[0]->draw(ts.str().c_str(),
 		core::rect<s32>(5, 25, 40, 10),
 		video::SColor(255, 255, 255, 255));
+	*/
 
 // 	sprintf(cfps, "Mouse: (%d,%d)", m_stMCursor.sX, m_stMCursor.sY);
 // 
@@ -1800,7 +1810,7 @@ void CGame::UpdateScreen()
 
 	{
 		lock_guard<std::mutex> lock(uimtx);
-		CEGUI::System::getSingleton().renderAllGUIContexts();
+		// CEGUI::System::getSingleton().renderAllGUIContexts();
 	}
 
 	m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, unixseconds());
@@ -3625,30 +3635,6 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
 
 void CGame::ConnectionEstablishHandler(char cWhere)
 {
-	try
-	{
-		lock_guard<std::mutex> lock(uimtx);
-		WindowManager::getSingleton().destroyAllWindows();
-		Window * myRoot = WindowManager::getSingleton().createWindow("DefaultWindow", "root");
-		System::getSingleton().getDefaultGUIContext().setRootWindow(myRoot);
-		memset(&ui, 0, sizeof(ui));
-
-// 		if (ui.login != nullptr)
-// 		{
-// 			WindowManager::getSingleton().destroyWindow(ui.login);
-// 			ui.login = nullptr;
-// 		}
-// 		if (ui.connecting != nullptr)
-// 		{
-// 			WindowManager::getSingleton().destroyWindow(ui.connecting);
-// 			ui.connecting = nullptr;
-// 		}
-		//myRoot->getChild("connecting")->destroy();
-	}
-	catch (...)
-	{
-	}
-
 	ChangeGameMode(GAMEMODE_ONWAITINGRESPONSE);
 
 	switch (cWhere) {
@@ -4449,7 +4435,7 @@ void CGame::InitGameSettings()
 /*
 void CGame::_GetHairColorRGB(int iColorType, int * pR, int * pG, int * pB)
 {	switch (iColorType) {
-	case 0: // rouge foncé
+	case 0: // rouge foncï¿½
 		*pR = 14; *pG = -5; *pB = -5; break;
 	case 1: // Orange
 		*pR = 20; *pG = 0; *pB = 0; break;
@@ -4459,7 +4445,7 @@ void CGame::_GetHairColorRGB(int iColorType, int * pR, int * pG, int * pB)
 		*pR = 0; *pG = 10; *pB = 0; break;
 	case 4: // Bleu flashy
 		*pR = 0; *pG = 0; *pB = 22; break;
-	case 5: // Bleu foncé
+	case 5: // Bleu foncï¿½
 		*pR = -5; *pG = -5; *pB = 15; break;
 	case 6: //Mauve
 		*pR = 15; *pG = -5; *pB = 16; break;
@@ -4496,7 +4482,7 @@ void CGame::_GetHairColorRGB(int iColorType, int * pR, int * pG, int * pB)//TODO
 		*pR = 0; *pG = 10; *pB = 0; break;
 	case 4: // Bleu flashy
 		*pR = 0; *pG = 0; *pB = 22; break;
-	case 5: // Bleu foncé
+	case 5: // Bleu foncï¿½
 		*pR = -5; *pG = -5; *pB = 15; break;
 	case 6: //Mauve
 		*pR = 15; *pG = -5; *pB = 16; break;
@@ -4907,7 +4893,7 @@ void CGame::bAddNewEffect(short sType, int sX, int sY, int dX, int dY, char cSta
 			m_pEffectList[i]->m_dwFrameTime = 10;
 			break;
 
-		case 2:	// Flêche qui vole
+		case 2:	// Flï¿½che qui vole
 			m_pEffectList[i]->m_mX     = sX*32;
 			m_pEffectList[i]->m_mY     = sY*32 - _iAttackerHeight[iV1];
 			m_pEffectList[i]->m_iErr   = 0;
@@ -5492,7 +5478,7 @@ void CGame::bAddNewEffect(short sType, int sX, int sY, int dX, int dY, char cSta
 			m_pEffectList[i]->m_dwFrameTime = 40;
 			break;
 
-		case 80: // Snoopy: rajoué, implémenté en dernier ds la v351
+		case 80: // Snoopy: rajouï¿½, implï¿½mentï¿½ en dernier ds la v351
 			m_pEffectList[i]->m_mX     = sX;
 			m_pEffectList[i]->m_mY     = sY;
 			m_pEffectList[i]->m_iV1    = 20;
@@ -5808,7 +5794,7 @@ void CGame::bAddNewEffect(short sType, int sX, int sY, int dX, int dY, char cSta
 			PlaySound('E', 1, sDist, lPan);
 			break;
 
-		case 244: // Snoopy: déplacé pour nvx sorts: Aura du casteur de Mass MagicMissile
+		case 244: // Snoopy: dï¿½placï¿½ pour nvx sorts: Aura du casteur de Mass MagicMissile
 		//case 184: // effet sur le caster pour MassMM
 			m_pEffectList[i]->m_cMaxFrame   = 29;
 			m_pEffectList[i]->m_dwFrameTime = 80;
@@ -6539,7 +6525,7 @@ void CGame::DrawEffects()
 			if (cTempFrame < 0) break;
 			dX  = (m_pEffectList[i]->m_mX)  - m_sViewPointX;
 			dY  = (m_pEffectList[i]->m_mY)  - m_sViewPointY;
-			m_pEffectSpr[91]->PutSpriteFast(dX, dY, cTempFrame, dwTime); //Nbe d'arguments modifiés ds la 351....
+			m_pEffectSpr[91]->PutSpriteFast(dX, dY, cTempFrame, dwTime); //Nbe d'arguments modifiï¿½s ds la 351....
 			m_pEffectSpr[92]->PutTransSprite(dX, dY, cTempFrame, dwTime);
 			break;
 
@@ -6863,7 +6849,7 @@ void CGame::DrawEffects()
 		//	//m_pEffectSpr[5]->PutTransSprite_NoColorKey(dX, dY, cTempFrame, dwTime);
 		//	break;
 
-		case 244: // Snoopy: déplacé pour nvx sorts: Aura du casteur de Mass MagicMissile
+		case 244: // Snoopy: dï¿½placï¿½ pour nvx sorts: Aura du casteur de Mass MagicMissile
 		//case 184: // Aura du casteur de Mass MagicMissile
 			cTempFrame = m_pEffectList[i]->m_cFrame;
 			if (cTempFrame < 0) break;
@@ -8861,8 +8847,8 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 	//SetRect(&rcRect, sModX, sModY, 640+sModX, 480+sModY); // our fictitious sprite bitmap is
 	SetRect(&rcRect, sModX, sModY, GetWidth()+sModX, GetHeight()+sModY); // 800x600 Resolution xRisenx
 	//DIRECTX m_DDraw.m_lpBackB4->BltFast( 0, 0, //DIRECTX m_DDraw.m_lpPDBGS, &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-	
-	driver->draw2DImage(bg, core::vector2d<s32>(0-sModX,0-sModY));
+
+	driver->draw2DImage(bg, core::vector2d<s32>(0 - sModX, 0 - sModY));
 
 // 
 // 	char cfps[20];
@@ -10117,7 +10103,7 @@ bool CGame::bEffectFrameCounter()
 			case 195:
 			case 242: // Mage hero effect
 			case 243: // War hero effect
-			case 244: // Snoopy: déplacé pour nvx sorts: Aura du casteur de Mass MagicMissile
+			case 244: // Snoopy: dï¿½placï¿½ pour nvx sorts: Aura du casteur de Mass MagicMissile
 				if (m_pEffectList[i]->m_cFrame > m_pEffectList[i]->m_cMaxFrame)
 				{	delete m_pEffectList[i];
 					m_pEffectList[i] = 0;
@@ -10554,7 +10540,7 @@ void CGame::EnableDialogBox(int iBoxID, int cType, int sV1, int sV2, const char 
 		}
 		break;
 
-	case 17: // demande quantité
+	case 17: // demande quantitï¿½
 		if (m_bIsDialogEnabled[17] == false)
 		{	
 			m_dialogBoxes[iBoxID].SetMode(1);
@@ -13028,7 +13014,7 @@ void CGame::bItemDrop_ExchangeDialog()
 		ZeroMemory(m_dialogBoxes[17].cStr, sizeof(m_dialogBoxes[17].cStr));
 		EnableDialogBox(17, cItemID, m_pItemList[cItemID]->m_dwCount, 0);
 		return;
-	}else // hum? déjà on affiche? , bon je désactive, ca devrait plutôt s'afficher lors du retour du serveur.
+	}else // hum? dï¿½jï¿½ on affiche? , bon je dï¿½sactive, ca devrait plutï¿½t s'afficher lors du retour du serveur.
 	{	/*m_stDialogBoxInfo[27].sV1 = m_pItemList[cItemID]->m_sSprite;
 		m_stDialogBoxInfo[27].sV2 = m_pItemList[cItemID]->m_sSpriteFrame;
 		m_stDialogBoxInfo[27].sV3 = 1;
@@ -14846,153 +14832,6 @@ void CGame::_LoadAgreementTextContents(char cType)
 
 #endif //endif from #ifdef MAKE_ACCOUNT
 
-bool CGame::UIEnterGame(const CEGUI::EventArgs& e)
-{
-	PlaySound('E', 14, 5);
-
-	if (selectedchar != nullptr)
-	{
-		if (selectedchar->m_sSex != 0)
-		{
-			ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-			strcpy(m_cPlayerName, selectedchar->m_cName.c_str());
-			m_iLevel = (int)selectedchar->m_sLevel;
-			if (m_Misc.bCheckValidString(m_cPlayerName) == true)
-			{
-				m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
-				m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
-
-				ZeroMemory(m_cMsg, sizeof(m_cMsg));
-				strcpy(m_cMsg, "33");
-				ZeroMemory(m_cMapName, sizeof(m_cMapName));
-				memcpy(m_cMapName, selectedchar->m_cMapName.c_str(), 10);
-
-				m_dwConnectMode = MSGID_REQUEST_ENTERGAME;
-				m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
-				ChangeGameMode(GAMEMODE_ONCONNECTING);
-				return true;
-			}
-		}
-	}
-	else
-	{
-		//TODO: this should never run, fallback just in case
-		_InitOnCreateNewCharacter();
-		ChangeGameMode(GAMEMODE_ONCREATENEWCHARACTER);
-		return true;
-	}
-	return true;
-}
-
-bool CGame::UISelectCharacterClicked(const CEGUI::EventArgs& e)
-{
-	Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-	Window * temp = ((WindowEventArgs&)e).window;
-	string name = temp->getName().c_str();
-	name = name.substr(6);
-	Window * selchar = myRoot->getChild("selectcharacter")->getChild(name);
-	for (int i = 0; i < m_pCharList.size(); ++i)
-	{
-		stringstream ss; ss << "char" << i;
-		Window * charsel = myRoot->getChild("selectcharacter")->getChild(ss.str());
-		charsel->setProperty("BackgroundColours", "tl:FF592500 tr:FF592500 bl:FF592500 br:FF592500"/*ss.str()*/);
-	}
-	selectedchar = m_pCharList[atoi(name.substr(4).c_str())];
-// 	stringstream ss;
-// 	ss << "tl:FF" << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10
-// 		<< " tr:FF" << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10
-// 		<< " bl:FF" << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10
-// 		<< " br:FF" << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10 << rand() % 10;
-	selchar->setProperty("BackgroundColours", "tl:FF913D00 tr:FF913D00 bl:FF913D00 br:FF913D00"/*ss.str()*/);
-	return true;
-}
-
-bool CGame::UITestChat(const CEGUI::EventArgs& e)
-{
-	Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-	Window * chat = myRoot->getChild("chatwindow")->getChild("editbox");
-
-	bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, chat->getText().c_str());
-
-	return true;
-}
-
-bool CGame::UILoginTab(const CEGUI::EventArgs& e)
-{
-    Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-    Window * login = myRoot->getChild("login")->getChild("loginchild");
-    Window * active = login->getActiveChild();
-
-    /*
-     * VK_TAB 0x0F
-     * VK_RETURN 0x1C
-     */
-    //int test = static_cast<const CEGUI::KeyEventArgs&>(e).scancode;
-    if (static_cast<const CEGUI::KeyEventArgs&>(e).scancode ==  0x1C)
-    {
-        //enter
-        UILogin(e);
-        return true;
-    }
-    if (static_cast<const CEGUI::KeyEventArgs&>(e).scancode == 0x0F)
-    {
-        if (active)
-        {
-            if (active->getName() == CEGUI::String("username"))
-                login->getChild("password")->activate();
-            else if (active->getName() == CEGUI::String("password"))
-                login->getChild("username")->activate();
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool CGame::UILogin(const CEGUI::EventArgs& e)
-{
-	Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-	Window * login = myRoot->getChild("login")->getChild("loginchild");
-	Window * loginbutton = login->getChild("loginbutton");
-
-	ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
-	ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-	strcpy(m_cAccountName, login->getChild("username")->getText().c_str());
-	strcpy(m_cAccountPassword, login->getChild("password")->getText().c_str());
-	ChangeGameMode(GAMEMODE_ONCONNECTING);
-	m_dwConnectMode = MSGID_REQUEST_LOGIN;
-	ZeroMemory(m_cMsg, sizeof(m_cMsg));
-	strcpy(m_cMsg, "11");
-	if (_socket != nullptr)
-	{
-		_socket->stop();
-	}
-	if (new_connection_ != nullptr)
-	{
-		new_connection_->stop();
-	}
-	ToggleButton * remember = static_cast<ToggleButton*>(login->getChild("remember"));
-	b_cRemember = remember->isSelected();
-
-	if (b_cRemember == true)
-	{
-		WriteUsername(login->getChild("username")->getText().c_str(), true);
-	}
-	else {
-		WriteUsername("", false);
-	}
-
-	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
-//	boost::system::error_code err;
-//	new_connection_->socket().connect(endpoint, err);
-    CreateSocket();
- 	new_connection_->socket().async_connect(endpoint,
- 		boost::bind(&CGame::handle_connect, this,
- 		boost::asio::placeholders::error));
-
-	return true;
-}
-
 void CGame::UpdateScreen_OnLogin()
 {
 	short msX, msY, msZ, sX, sY;
@@ -15017,41 +14856,6 @@ void CGame::UpdateScreen_OnLogin()
 		{
 			new_connection_->stop();
 		}
-		try
-		{
-			lock_guard<std::mutex> lock(uimtx);
-			WindowManager::getSingleton().destroyAllWindows();
-			Window * myRoot = WindowManager::getSingleton().createWindow("DefaultWindow", "root");
-			System::getSingleton().getDefaultGUIContext().setRootWindow(myRoot);
-			memset(&ui, 0, sizeof(ui));
-		}
-		catch (...)
-		{
-		}
-
-		try
-		{
-			lock_guard<std::mutex> lock(uimtx);
-			Window * myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-			if (ui.login == nullptr)
-			{
-				ui.login = WindowManager::getSingleton().loadLayoutFromFile("login.layout");
-				myRoot->addChild(ui.login);
-				Window * loginbutton = ui.login->getChild("loginchild")->getChild("loginbutton");
-				loginbutton->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UILogin, this));
-                ui.login->getChild("loginchild")->getChild("username")->subscribeEvent(CEGUI::Editbox::EventKeyDown, CEGUI::SubscriberSlot(&CGame::UILoginTab, this));
-                ui.login->getChild("loginchild")->getChild("password")->subscribeEvent(CEGUI::Editbox::EventKeyDown, CEGUI::SubscriberSlot(&CGame::UILoginTab, this));
-            }
-			else
-			{
-				//login = myRoot->getChild("login");
-			}
-		}
-		catch (CEGUI::AlreadyExistsException & e)
-		{
-			
-		}
-
 	}
 
 	m_cGameModeCount++;
@@ -15879,23 +15683,6 @@ void CGame::OnKeyDown(WPARAM wParam)
 	case VK_DELETE:
 		break;
 	case VK_TAB:
-	{
-		if (m_cGameMode == GAMEMODE_ONMAINMENU)
-		{
-			WindowManager & wmgr = WindowManager::getSingleton();
-			Window * myRoot;
-			myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-			Window * login = myRoot->getChild("login")->getChild("loginchild");
-			Window * active = login->getActiveChild();
-			if (active)
-			{
-				if (active->getName() == CEGUI::String("username"))
-					login->getChild("password")->activate();
-				else if (active->getName() == CEGUI::String("password"))
-					login->getChild("username")->activate();
-			}
-		}
-	}
 		break;
 	case VK_RETURN:
 	case VK_ESCAPE:
@@ -15903,24 +15690,6 @@ void CGame::OnKeyDown(WPARAM wParam)
 	case VK_HOME:
 		break;
 	case VK_F1:
-	{
-		WindowManager & wmgr = WindowManager::getSingleton();
-		Window * myRoot;
-		myRoot = System::getSingleton().getDefaultGUIContext().getRootWindow();
-		if (ui.testchat == nullptr)
-		{
-			ui.testchat = wmgr.loadLayoutFromFile("testchat.layout");
-			myRoot->addChild(ui.testchat);
-			Window * enter = ui.testchat->getChild("enter");
-			enter->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UITestChat, this));
-		}
-
-		//myRoot->destroyChild("selectcharacter");
-		//ui.selectcharacter = wmgr.loadLayoutFromFile("selectcharacter.layout");
-		//myRoot->addChild(ui.selectcharacter);
-		//Window * entergame = ui.selectcharacter->getChild("entergame");
-		//entergame->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&CGame::UIEnterGame, this));
-	}
 		break;
 	case VK_F2:
 	case VK_F3:
@@ -16400,7 +16169,7 @@ void CGame::NotifyMsgHandler(char * pData)
 		m_bUsingSlate = false;
 		break;
 
-	// MJ Stats Change - Diuuude: Erreur, ici il s'agit de sorts et skills, le serveur comme la v351 sont aussi bugués !
+	// MJ Stats Change - Diuuude: Erreur, ici il s'agit de sorts et skills, le serveur comme la v351 sont aussi buguï¿½s !
 	case NOTIFY_STATECHANGE_SUCCESS:	// 0x0BB5
 		cp = (char *)(pData	+ INDEX2_MSGTYPE + 2);
 		for (i = 0; i < MAXMAGICTYPE; i++)
@@ -21301,7 +21070,7 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 						m_cCommand = OBJECTATTACK;
 						m_sCommX = m_sMCX;
 						m_sCommY = m_sMCY;
-					}else // Pas au corp à corp
+					}else // Pas au corp ï¿½ corp
 					{	switch (_iGetWeaponSkillType()) {
 						case 6: // Bow
 							m_cCommand = OBJECTATTACK;

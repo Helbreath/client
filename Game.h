@@ -48,20 +48,13 @@
 #include "char\guild.h"
 #include "char\mail.h"
 #include "ui\DialogBox.h"
+#include "ui\HTMLUI.h"
 
 #include "titles\Title.h" // Titles xRisenx
-
-
 
 #include <irrlicht.h>
 
 #include "streams.h"
-
-#include "CEGUI/CEGUI.h"
-#include "CEGUI/RendererModules/Irrlicht/Renderer.h"
-#include "CEGUI/RendererModules/Irrlicht/RenderTarget.h"
-#include "CEGUI/RendererModules/Irrlicht/TextureTarget.h"
-#include "CEGUI/RendererModules/Irrlicht/Texture.h"
 
 #define BTNSZX				74
 #define BTNSZY				20
@@ -193,8 +186,6 @@ enum
 	GUI_ID_TRANSPARENCY_SCROLL_BAR
 };
 
-using namespace CEGUI;
-
 class CGame : public irr::IEventReceiver
 {
 public:
@@ -237,21 +228,6 @@ public:
 	std::mutex screenupdate;
 	std::mutex socketmut;
 
-	struct {
-		Window * login;
-		Window * connecting;
-		Window * selectcharacter;
-		Window * inventory;
-		Window * character;
-		Window * shop;
-		Window * magic;
-		Window * guild;
-		Window * chat;
-		Window * instantchat;
-		Window * testchat;
-	} ui;
-
-
     void CreateSocket();
 
 	boost::shared_ptr<boost::thread> socketthread;
@@ -265,6 +241,9 @@ public:
 
 	irr::video::ITexture* bg;
 	irr::video::ITexture* charselect;
+	irr::video::ITexture* htmlRTT;
+
+	HTMLUI* htmlUI;
 
 	bool gamemode;
 
@@ -282,8 +261,6 @@ public:
 	uint32_t backgroundframetime;
 	uint64_t time1;
 	uint64_t time2;
-
-	WindowManager * wmgr;
 
 	bool wasinactive;
 	SAppContext context;
@@ -319,17 +296,19 @@ public:
 		smgr = device->getSceneManager();
 		env = device->getGUIEnvironment();
 
+		htmlUI = new HTMLUI(this);
+		htmlUI->Init();
+
 		irr::video::SExposedVideoData vdata = driver->getExposedVideoData();
 		G_hWnd = reinterpret_cast<HWND>(vdata.D3D9.HWnd);
 
-		driver->getMaterial2D().TextureLayer[0].BilinearFilter=false;
-		driver->getMaterial2D().AntiAliasing=video::EAAM_OFF;
-
+		driver->getMaterial2D().TextureLayer[0].BilinearFilter = true;
+		driver->getMaterial2D().AntiAliasing = video::EAAM_FULL_BASIC;
 
 		if (driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
 		{
 			bg = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth() + 100, GetHeight() + 100), "RTT1");
-			charselect = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(256, 256 ), "RTT2");
+			charselect = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(256, 256), "RTT2");
 		}
 		else
 		{
@@ -345,12 +324,6 @@ public:
 	virtual bool IsKeyDown(irr::EKEY_CODE keyCode) const { return KeyIsDown[keyCode]; }
 
 	bool KeyIsDown[irr::KEY_KEY_CODES_COUNT];
-
-    bool UILogin(const CEGUI::EventArgs& /*e*/);
-    bool UILoginTab(const CEGUI::EventArgs& /*e*/);
-	bool UIEnterGame(const CEGUI::EventArgs& /*e*/);
-	bool UITestChat(const CEGUI::EventArgs& /*e*/);
-	bool UISelectCharacterClicked(const CEGUI::EventArgs& /*e*/);
 
 	shared_ptr<CCharInfo> selectedchar;
 	
