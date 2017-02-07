@@ -3002,11 +3002,11 @@ void CGame::DrawDialogBox_TopPanel()
     {
         if (m_bIsSafeAttackMode)
             //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(368+127, 440+120, 4, dwTime); // 800x600 Resolution xRisenx Right? +127 +120
-            m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(506 + 127, 433 + 120, 47, dwTime); // Fixed xRisenx
+            m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(506 + 127, GetHeight() - 47, 47, dwTime); // Fixed xRisenx
                                                                                                        //else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(368+127, 440+120, 5, dwTime); // 800x600 Resolution xRisenx Right? +127 +120
-        else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(506 + 127, 433 + 120, 46, dwTime); // Fixed xRisenx
+        else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(506 + 127, GetHeight() - 47, 46, dwTime); // Fixed xRisenx
     }
-    PutAlignedString(103 + 25, 245 + 25, 456 + 120, G_cTxt, video::SColor(255, 250, 250, 220)); // Fixed xRisenx
+    PutAlignedString(103 + 25, 245 + 25, GetHeight() - 24, G_cTxt, video::SColor(255, 250, 250, 220)); // Fixed xRisenx
 }
 void CGame::DrawDialogBox_IconPanel()
 {
@@ -3027,10 +3027,10 @@ void CGame::DrawDialogBox_IconPanel()
     }
 
     wsprintfA(G_cTxt, "Contri Pts: %d - Majs Pts: %d", m_iContribution, m_iGizonItemUpgradeLeft);
-    PutAlignedString(188, 342, 555, G_cTxt, video::SColor(255, 0, 20, 0));
+    PutAlignedString(188, 342, GetHeight() - 45, G_cTxt, video::SColor(255, 0, 20, 0));
     //wsprintfA(G_cTxt, "Def Ratio: %d - Hit Ratio: %d",m_iAC ,m_iTHAC0); // Armor Def dont show, Hitrate Only shows weaps. Fix later xRisenx
     wsprintfA(G_cTxt, "Def Ratio: %d - Hit Ratio: %d", m_iDefenseRatio, m_iTHAC0); // Hitrate Only shows weaps. Fix later xRisenx
-    PutAlignedString(188, 342, 565, G_cTxt, video::SColor(255, 0, 20, 0));
+    PutAlignedString(188, 342, GetHeight() - 35, G_cTxt, video::SColor(255, 0, 20, 0));
 
     if ((m_bIsCrusadeMode) && (m_iCrusadeDuty != 0))
     {
@@ -3038,17 +3038,17 @@ void CGame::DrawDialogBox_IconPanel()
         {
             if (onButton == 1)
                 //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(322+127, 434+120, 1, dwTime); // 800x600 Resolution xRisenx Right? +127 +120
-                m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(129, 554, 1, dwTime); // Fixed xRisenx
+                m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(129, GetHeight() - 46, 1, dwTime); // Fixed xRisenx
                                                                                               //else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(322+127, 434+120, 2, dwTime); // 800x600 Resolution xRisenx Right? +127 +120
-            else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(129, 554, 2, dwTime); // Fixed xRisenx
+            else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(129, GetHeight() - 46, 2, dwTime); // Fixed xRisenx
         }
         else if (m_side == ELVINE)
         {
             if (onButton == 1)
                 //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(322+127, 434+120, 0, dwTime); // 800x600 Resolution xRisenx Right? +127 +120
-                m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(129, 554, 0, dwTime); // Fixed xRisenx
+                m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(129, GetHeight() - 46, 0, dwTime); // Fixed xRisenx
                                                                                               //else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(322+127, 434+120, 15, dwTime); // 800x600 Resolution xRisenx Right? +127 +120
-            else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(129, 554, 15, dwTime); // Fixed xRisenx
+            else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(129, GetHeight() - 46, 15, dwTime); // Fixed xRisenx
         }
     }
 
@@ -3063,37 +3063,37 @@ void CGame::DrawDialogBox_IconPanel()
     short textY = G_pGame->m_stMCursor.sY - 20;
     if (onButton == 3)
     { // Character    
-        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(573, 555, 49, dwTime);
+        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(573, GetHeight() - 45, 49, dwTime);
         wsprintfA(G_cTxt, "Character Menu");
         PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
     }
     else if (onButton == 4)
     { // Inventory
-        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(610, 555, 50, dwTime);
+        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(610, GetHeight() - 45, 50, dwTime);
         wsprintfA(G_cTxt, "Inventory");
         PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
     }
     else if (onButton == 5)
     { // Magic
-        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(647, 555, 51, dwTime);
+        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(647, GetHeight() - 45, 51, dwTime);
         wsprintfA(G_cTxt, "Spell Book");
         PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
     }
     else if (onButton == 6)
     { // Skill
-        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(684, 555, 52, dwTime);
+        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(684, GetHeight() - 45, 52, dwTime);
         wsprintfA(G_cTxt, "Title List"); // Titles xRisenx
         PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
     }
     else if (onButton == 7)
     { // History
-        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(721, 555, 53, dwTime);
+        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(721, GetHeight() - 45, 53, dwTime);
         wsprintfA(G_cTxt, "Chat History");
         PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
     }
     else if (onButton == 8)
     { // System Menu
-        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(758, 555, 54, dwTime);
+        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(758, GetHeight() - 45, 54, dwTime);
         wsprintfA(G_cTxt, "Options");
         PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
     }
@@ -3110,7 +3110,7 @@ void CGame::DrawDialogBox_IconPanel()
     {
         wsprintfA(G_cTxt, "%d", m_sPfm);
         PutString2(551, 585, G_cTxt, 255, 255, 255);
-        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(542, 560, 22, dwTime);
+        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(542, GetHeight() - 40, 22, dwTime);
     }
     if (m_bPfm)
     {
@@ -3121,7 +3121,7 @@ void CGame::DrawDialogBox_IconPanel()
     {
         wsprintfA(G_cTxt, "%d", m_sZerk);
         PutString2(522, 585, G_cTxt, 255, 255, 255);
-        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(513, 560, 21, dwTime);
+        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(513, GetHeight() - 40, 21, dwTime);
     }
     if (m_bZerk)
     {
@@ -3132,7 +3132,7 @@ void CGame::DrawDialogBox_IconPanel()
     {
         wsprintfA(G_cTxt, "%d", m_sInv);
         PutString2(493, 585, G_cTxt, 255, 255, 255);
-        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(484, 560, 20, dwTime);
+        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(484, GetHeight() - 40, 20, dwTime);
     }
     if (m_bInv)
     {
@@ -3143,7 +3143,7 @@ void CGame::DrawDialogBox_IconPanel()
     {
         wsprintfA(G_cTxt, "%d", m_sShield);
         PutString2(551, 585, G_cTxt, 255, 255, 255);
-        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(542, 560, 24, dwTime);
+        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(542, GetHeight() - 40, 24, dwTime);
     }
     if (m_bShield)
     {
@@ -3154,7 +3154,7 @@ void CGame::DrawDialogBox_IconPanel()
     {
         wsprintfA(G_cTxt, "%d", m_sPfa);
         PutString2(551, 585, G_cTxt, 255, 255, 255);
-        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(542, 560, 23, dwTime);
+        m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(542, GetHeight() - 40, 23, dwTime);
     }
     if (m_bPfa)
     {
@@ -3169,7 +3169,7 @@ void CGame::DrawDialogBox_IconPanel()
     }
 #endif
     wsprintfA(G_cTxt, "%s(%d,%d)", m_cMapMessage, m_sPlayerX, m_sPlayerY);
-    PutAlignedString(188, 342, 576, G_cTxt, video::SColor(255, 250, 250, 220)); // Fixed xRisenx
+    PutAlignedString(188, 342, GetHeight() - 24, G_cTxt, video::SColor(255, 250, 250, 220)); // Fixed xRisenx
 
 }
 
@@ -3189,19 +3189,19 @@ void CGame::DrawDialogBox_GaugePanel()
     //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(23, 437,  12, iBarWidth, m_dwCurTime);
     //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(23, 437+120,  12, iBarWidth, m_dwCurTime); // 800x600 Resolution xRisenx Right?
     //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(4, 434+120,  12, iBarWidth, m_dwCurTime); // Fixed xRisenx
-    m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(53, 556, 44, iBarWidth, m_dwCurTime); // Fixed xRisenx
+    m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(53, GetHeight() - 44, 44, iBarWidth, m_dwCurTime); // Fixed xRisenx
 
     wsprintfA(G_cTxt, "(%d)", (short)m_iHP);
     if (m_bIsPoisoned)
     {
         //PutString_SprNum(85, 441+120, G_cTxt, m_wR[5]*11, m_wG[5]*11, m_wB[5]*11); // 800x600 Resolution xRisenx Right?
-        PutString_SprNum(77, 557, G_cTxt, m_wR[5] * 11, m_wG[5] * 11, m_wB[5] * 11); // Fixed xRisenx
+        PutString_SprNum(77, GetHeight() - 43, G_cTxt, m_wR[5] * 11, m_wG[5] * 11, m_wB[5] * 11); // Fixed xRisenx
                                                                                      //PutString_SprFont3(35, 439+120, "Poisoned", m_wR[5]*8, m_wG[5]*8, m_wB[5]*8, TRUE, 2); // 800x600 Resolution xRisenx Right?
-        PutString_SprFont3(77, 557, "", m_wR[5] * 8, m_wG[5] * 8, m_wB[5] * 8, true, 2); // Fixed xRisenx
+        PutString_SprFont3(77, GetHeight() - 43, "", m_wR[5] * 8, m_wG[5] * 8, m_wB[5] * 8, true, 2); // Fixed xRisenx
     }
     //else PutString_SprNum(80, 441+120, G_cTxt, 200, 100, 100); // 800x600 Resolution xRisenx Right?
     //else PutString_SprNum(58, 435+120, G_cTxt, 200, 100, 100); // Fixed xRisenx
-    else PutString_SprNum(77, 557, G_cTxt, 200, 100, 100); // Fixed xRisenx
+    else PutString_SprNum(77, GetHeight() - 43, G_cTxt, 200, 100, 100); // Fixed xRisenx
 
                                                            //MP bar
     iMaxPoint = m_stat[STAT_MAG] * 3 + m_iLevel * 2 + m_stat[STAT_INT] * 2; // MP System xRisenx
@@ -3211,10 +3211,10 @@ void CGame::DrawDialogBox_GaugePanel()
     if (iBarWidth > 66) iBarWidth = 66;
     //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(23, 459,  12, iBarWidth, m_dwCurTime);
     //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(23, 459+120,  12, iBarWidth, m_dwCurTime); // 800x600 Resolution xRisenx Right?
-    m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(53, 571, 44, iBarWidth, m_dwCurTime); // Fixed xRisenx
+    m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(53, GetHeight() - 29, 44, iBarWidth, m_dwCurTime); // Fixed xRisenx
     wsprintfA(G_cTxt, "%d", m_iMP);
     //PutString_SprNum(80, 463+120, G_cTxt, 100, 100, 200);  // 800x600 Resolution xRisenx Right?
-    PutString_SprNum(77, 572, G_cTxt, 100, 100, 200);  // Fixed xRisenx
+    PutString_SprNum(77, GetHeight() - 28, G_cTxt, 100, 100, 200);  // Fixed xRisenx
 
                                                        // SP bar
     iMaxPoint = m_iLevel * 17 + m_stat[STAT_STR]; // SP System xRisenx
@@ -3226,11 +3226,11 @@ void CGame::DrawDialogBox_GaugePanel()
     if (iBarWidth > 66) iBarWidth = 66; // Fixed xRisenx
                                         //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(147, 434, 13, iBarWidth, m_dwCurTime);
                                         //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(147, 434+120, 13, iBarWidth, m_dwCurTime); // 800x600 Resolution xRisenx Right?
-    m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(53, 586, 44, iBarWidth, m_dwCurTime); // Fixed xRisenx
+    m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(53, GetHeight() - 14, 44, iBarWidth, m_dwCurTime); // Fixed xRisenx
     iTemp = m_iSP;
     wsprintfA(G_cTxt, "%d", iTemp, iMaxPoint);
     //PutString_SprNum(225, 436+120, G_cTxt, 100, 100, 200); // 800x600 Resolution xRisenx Right?
-    PutString_SprNum(77, 587, G_cTxt, 100, 200, 100); // Fixed xRisenx
+    PutString_SprNum(77, GetHeight() - 13, G_cTxt, 100, 200, 100); // Fixed xRisenx
 
                                                       // Experience Gauge
     iMaxPoint = m_levelExpTable[m_iLevel + 1] - m_levelExpTable[m_iLevel];
@@ -3242,7 +3242,7 @@ void CGame::DrawDialogBox_GaugePanel()
     //if( iBarWidth > 167 ) iBarWidth = 167;
     if (iBarWidth > 800) iBarWidth = 800; // Fixed xRisenx
                                           //m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(147 + iBarWidth, 434/*+13*/+120, 13, (167-iBarWidth), m_dwCurTime); // 800x600 Resolution xRisenx Right?
-    m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(0, 427 + 120, 17, iBarWidth, m_dwCurTime); // Fixed xRisenx
+    m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(0, GetHeight() - 53, 17, iBarWidth, m_dwCurTime); // Fixed xRisenx
     iTemp = iTemp - iMaxPoint;
     //wsprintfA(G_cTxt, "%d", iTemp);
     //PutString_SprNum(216, 449+120, G_cTxt, 100, 100, 200); // 800x600 Resolution xRisenx Right?
@@ -3254,7 +3254,7 @@ void CGame::DrawDialogBox_GaugePanel()
     iBarWidth = 42 - (iHungerStatus * 42) / 100;
     if (iBarWidth < 0) iBarWidth = 0;
     if (iBarWidth > 42) iBarWidth = 42;
-    m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(123, 556, 25, iBarWidth, m_dwCurTime);
+    m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFastWidth(123, GetHeight() - 44, 25, iBarWidth, m_dwCurTime);
     iTemp = iHungerStatus;
 #ifdef MonsterBarClient
     if (bNpcBar)

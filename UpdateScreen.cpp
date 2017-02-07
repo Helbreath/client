@@ -129,7 +129,8 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
     switch (m_cLoading)
     {
         case 0:
-        {	//m_hPakFile = CreateFileA("sprites\\interface.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+        {
+            //m_hPakFile = CreateFileA("sprites\\interface.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
             if (m_hPakFile != INVALID_HANDLE_VALUE)
             {
                 //ReadFramePositions(m_hPakFile, framePositions, 2);
@@ -994,6 +995,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             }
             isItemLoaded = false;
             //ChangeGameMode(GAMEMODE_ONMAINMENU);
+
             if (autologin)
             {
                 ChangeGameMode(GAMEMODE_ONCONNECTING);
@@ -4705,15 +4707,6 @@ void CGame::UpdateScreen_OnGame()
             PutString_SprFont3(380 - ((strlen(cTitleLevelUpSubject) * 7) / 2), 295, cTitleLevelUpSubject, 2, 200, 250);
         }
 #endif
-
-        if (m_bIsObserverMode == true)
-        {	//DIRECTX m_DDraw.PutPixel(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY,   255,255,255);
-            //DIRECTX m_DDraw.PutPixel(G_pGame->m_stMCursor.sX+1, G_pGame->m_stMCursor.sY, 255,255,255);
-            //DIRECTX m_DDraw.PutPixel(G_pGame->m_stMCursor.sX-1, G_pGame->m_stMCursor.sY, 255,255,255);
-            //DIRECTX m_DDraw.PutPixel(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY+1, 255,255,255);
-            //DIRECTX m_DDraw.PutPixel(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY-1, 255,255,255);
-        }
-        //else m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY, m_stMCursor.sCursorFrame, dwTime);
 
         //if( //DIRECTX m_DDraw.iFlip() == DDERR_SURFACELOST ) RestoreSprites();
     }

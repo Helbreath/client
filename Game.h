@@ -189,7 +189,12 @@ enum
 class CGame : public irr::IEventReceiver
 {
 public:
-	static void setSkinTransparency(s32 alpha, irr::gui::IGUISkin * skin)
+
+    int viewdstxvar = 0;
+    int viewdstyvar = 0;
+    int viewdstxcharvar = 0;
+    int viewdstycharvar = 0;
+    static void setSkinTransparency(s32 alpha, irr::gui::IGUISkin * skin)
 	{
 		for (s32 i = 0; i < irr::gui::EGDC_COUNT; ++i)
 		{
@@ -230,6 +235,8 @@ public:
 
     void CreateSocket();
 
+    void ProcessUI();
+
 	boost::shared_ptr<boost::thread> socketthread;
 
 
@@ -264,15 +271,13 @@ public:
 
 	bool wasinactive;
 	SAppContext context;
-	bool ceguistarted;
 
-	irr::gui::IGUISpriteBank * cursors;
+    irr::gui::IGUISpriteBank * cursors;
 
     wstring _renderer;
 
 	bool CreateRenderer(bool fs = false)
 	{
-		ceguistarted = false;
 		fullscreen = fs;
 		//when streaming, vsync on = screen capture nogo
 		//has to use "game capture" (render hook)
@@ -315,8 +320,6 @@ public:
 			MessageBoxA(0, "Unable to RTT - background will not render", "RTT", MB_OK);
 		}
 
-
-		//cegui initialization
 
 		return true;
 	}
