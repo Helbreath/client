@@ -1688,34 +1688,39 @@ void CGame::UpdateScreen()
 		}
 	}
 #endif
-
+    static uint64_t fpstime = unixtime();
 	static uint64_t uitime = unixtime();
-	if (G_pGame->htmlUI->surface && uitime - G_dwGlobalTime > 50) {
+	if (htmlUI->surface && G_dwGlobalTime - uitime > 50) {
+        if (G_dwGlobalTime - fpstime > 1000)
+        {
+            char cfps[20];
+            sprintf(cfps, "%d", driver->getFPS());
+            htmlUI->jsData.SetProperty(WSLit("fps"), WSLit(cfps));
+            fpstime = G_dwGlobalTime;
+        }
+
+
         WebCore::instance()->Update();
-		uitime = G_dwGlobalTime;
+        uitime = G_dwGlobalTime;
 	}
 
 	// Render HTML ui
 	if (G_pGame->htmlUI->isDirty())
 	{
-		char cfps[20];
-		sprintf(cfps, "%d", driver->getFPS());
-		G_pGame->htmlUI->jsData.SetProperty(WSLit("fps"), WSLit(cfps));
-
 		uitime = G_dwGlobalTime;
-		int width = G_pGame->htmlUI->surface->width();
-		int height = G_pGame->htmlUI->surface->height();
+		int width = htmlUI->surface->width();
+		int height = htmlUI->surface->height();
 		if (htmlRTT) {
 			G_pGame->driver->removeTexture(htmlRTT);
 		}
-		// G_pGame->ui->surface->SaveToPNG(WSLit("./ui-debug.png"), true);
-		IImage *img = G_pGame->driver->createImageFromData(ECF_A8R8G8B8, irr::core::dimension2d<u32>(GetWidth(), GetHeight()), (unsigned char*)G_pGame->htmlUI->surface->buffer(), false, false);
-		htmlRTT = G_pGame->driver->addTexture("ui-html.png", img);
+		// ui->surface->SaveToPNG(WSLit("./ui-debug.png"), true);
+		IImage *img = driver->createImageFromData(ECF_A8R8G8B8, irr::core::dimension2d<u32>(GetWidth(), GetHeight()), (unsigned char*)htmlUI->surface->buffer(), false, false);
+		htmlRTT = driver->addTexture("ui-html.png", img);
 		img->drop();
-		G_pGame->htmlUI->surface->set_is_dirty(false);
+		htmlUI->surface->set_is_dirty(false);
 	}
 
-	//G_pGame->driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, video::SColor(255, 255, 255, 255), true);
+	driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, video::SColor(255, 255, 255, 255), true);
 
 
 	/*
