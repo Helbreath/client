@@ -8272,6 +8272,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 		break;
 
 	case LOGRESMSGTYPE_CONFIRM:
+        htmlUI->mHandler->Emit("login", true, "");
         loggedin = true;
 		wServerUpperVersion = sr.ReadShort();
 		wServerLowerVersion = sr.ReadShort();
@@ -14949,6 +14950,7 @@ void CGame::_LoadAgreementTextContents(char cType)
 
 void CGame::StartLogin()
 {
+    CreateSocket();
     if (_socket == nullptr)
     {
         boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
