@@ -8,6 +8,8 @@ using namespace Awesomium;
 #define WIDTH   800
 #define HEIGHT  600
 
+class CGame;
+
 class HTMLUIMethodHandler : public JSMethodHandler
 {
 public:
@@ -16,6 +18,8 @@ public:
 	JSValue OnMethodCallWithReturnValue(WebView *caller, unsigned int remote_object_id, const WebString& method_name, const JSArray& args);
 
 	HTMLUI *htmlUI;
+
+    void Emit(JSValue window, bool result, string message);
 };
 
 class HTMLUI
@@ -27,10 +31,13 @@ public:
 	JSValue jsNamespace;
 	JSObject jsData;
 	HTMLUIMethodHandler *mHandler;
+    CGame * game;
+    JSValue window;
 
 	HTMLUI(class CGame *pGame);
 	~HTMLUI();
 	void Init();
 	bool isDirty();
 	void Update(int sleep_ms);
+    void SetCharacters();
 };

@@ -1343,7 +1343,7 @@ void CGame::UpdateScreen_OnConnecting()
         case '1':
             sX = 146;
             sY = 114;
-            _Draw_OnLogin(m_cAccountName, m_cAccountPassword, 0, 0);
+            _Draw_OnLogin((char*)m_cAccountName.c_str(), (char*)m_cAccountPassword.c_str(), 0, 0);
             break;
 
         case '2':
@@ -2729,14 +2729,11 @@ void CGame::UpdateScreen_OnCreateNewAccount()
 
             case 7:
                 if (iFlag != 0) return;
-                ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
-                ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-
                 ZeroMemory(m_cAccountQuiz, sizeof(m_cAccountQuiz));
                 ZeroMemory(m_cAccountAnswer, sizeof(m_cAccountAnswer));
 
-                strcpy(m_cAccountName, cName);
-                strcpy(m_cAccountPassword, cPassword);
+                m_cAccountName = cName;
+                m_cAccountPassword = cPassword;
 
                 strcpy(m_cAccountQuiz, cTempQuiz);
                 strcpy(m_cAccountAnswer, cAnswer);
@@ -2797,15 +2794,12 @@ void CGame::UpdateScreen_OnCreateNewAccount()
 
             case 7:
                 if (iFlag != 0) return;
-                ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
-                ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-
                 ZeroMemory(m_cAccountQuiz, sizeof(m_cAccountQuiz));
                 ZeroMemory(m_cAccountAnswer, sizeof(m_cAccountAnswer));
 
 
-                strcpy(m_cAccountName, cName);
-                strcpy(m_cAccountPassword, cPassword);
+                m_cAccountName = cName;
+                m_cAccountPassword = cPassword;
                 strcpy(m_cAccountQuiz, cTempQuiz);
                 strcpy(m_cAccountAnswer, cAnswer);
 
@@ -3225,7 +3219,7 @@ void CGame::UpdateScreen_OnWaitingResponse()
         case '1':
             sX = 146;
             sY = 114;
-            _Draw_OnLogin(m_cAccountName, m_cAccountPassword, 0, 0);
+            _Draw_OnLogin((char*)m_cAccountName.c_str(), (char*)m_cAccountPassword.c_str(), 0, 0);
             break;
         case '2':
             _bDraw_OnCreateNewCharacter(m_cPlayerName, 0, 0, 0);
@@ -3450,7 +3444,7 @@ void CGame::UpdateScreen_OnLogResMsg()
             sX = 146;
             sY = 114;
 
-            _Draw_OnLogin(m_cAccountName, m_cAccountPassword, 0, 0);
+            _Draw_OnLogin((char*)m_cAccountName.c_str(), (char*)m_cAccountPassword.c_str(), 0, 0);
             break;
 
         case '2':
@@ -3734,7 +3728,7 @@ void CGame::UpdateScreen_OnChangePassword()
         ZeroMemory(cNewPassword, sizeof(cNewPassword));
         ZeroMemory(cNewPassConfirm, sizeof(cNewPassConfirm));
 
-        strcpy(cName, m_cAccountName);
+        strcpy(cName, m_cAccountName.c_str());
         //StartInputString(314, 155, 11, cName);
         StartInputString(314, 179, 11, cPassword);
         ClearInputString();
@@ -3805,12 +3799,10 @@ void CGame::UpdateScreen_OnChangePassword()
                     (m_Misc.bCheckValidName(cNewPassword) == false) || (m_Misc.bCheckValidName(cNewPassConfirm) == false) ||
                     (strlen(cNewPassword) == 0) || (memcmp(cNewPassword, cNewPassConfirm, 10) != 0)) break;
 
-                ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
-                ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
                 ZeroMemory(m_cNewPassword, sizeof(m_cNewPassword));
                 ZeroMemory(m_cNewPassConfirm, sizeof(m_cNewPassConfirm));
-                strcpy(m_cAccountName, cName);
-                strcpy(m_cAccountPassword, cPassword);
+                m_cAccountName = cName;
+                m_cAccountPassword = cPassword;
                 strcpy(m_cNewPassword, cNewPassword);
                 strcpy(m_cNewPassConfirm, cNewPassConfirm);
                 ChangeGameMode(GAMEMODE_ONCONNECTING);
@@ -3943,12 +3935,10 @@ void CGame::UpdateScreen_OnChangePassword()
                     (strlen(cNewPassword) == 0) || (memcmp(cNewPassword, cNewPassConfirm, 10) != 0)) break;
 
                 EndInputString();
-                ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
-                ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
                 ZeroMemory(m_cNewPassword, sizeof(m_cNewPassword));
                 ZeroMemory(m_cNewPassConfirm, sizeof(m_cNewPassConfirm));
-                strcpy(m_cAccountName, cName);
-                strcpy(m_cAccountPassword, cPassword);
+                m_cAccountName = cName;
+                m_cAccountPassword = cPassword;
                 strcpy(m_cNewPassword, cNewPassword);
                 strcpy(m_cNewPassConfirm, cNewPassConfirm);
                 ChangeGameMode(GAMEMODE_ONCONNECTING);

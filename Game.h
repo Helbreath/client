@@ -204,6 +204,7 @@ public:
 		}
 	};
 	void DrawStatusText(int sX, int sY);
+    void StartLogin();
 
 	bool autologin;
 
@@ -1272,8 +1273,8 @@ public:
 	char m_cGameMode;
 	char m_cWhisperIndex;
 	char m_cWhisperName[12];
-	char m_cAccountName[12];
-	char m_cAccountPassword[12];
+	string m_cAccountName;
+	string m_cAccountPassword;
 	char m_cAccountAge[12];
 	char m_cNewPassword[12];
 	char m_cNewPassConfirm[12];

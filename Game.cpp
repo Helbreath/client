@@ -168,12 +168,12 @@ bool CGame::OnEvent(const irr::SEvent& event)
         {
             // TODO: get values?
 			m_stMCursor.sZ = event.MouseInput.Wheel;
-			//htmlUI->view->InjectMouseWheel(event.MouseInput.Wheel, 0);
+			htmlUI->view->InjectMouseWheel(event.MouseInput.Wheel, 0);
             //mouse wheel for dialogs?
         }
         else if (event.MouseInput.Event == irr::EMIE_MOUSE_MOVED)
 		{
-			//htmlUI->view->InjectMouseMove(event.MouseInput.X, event.MouseInput.Y);
+			htmlUI->view->InjectMouseMove(event.MouseInput.X, event.MouseInput.Y);
             //context.injectMousePosition(event.MouseInput.X, event.MouseInput.Y);
 		}
         return false;
@@ -1793,7 +1793,6 @@ void CGame::UpdateScreen()
 	font[0]->draw(ts.str().c_str(),
 		core::rect<s32>(5, 25, 40, 10),
 		video::SColor(255, 255, 255, 255));
-	*/
 
 
     short sPivotX, sPivotY, sVal, sDivX, sModX, sDivY, sModY;
@@ -1835,6 +1834,7 @@ void CGame::UpdateScreen()
                   core::rect<s32>(5, 120, 80, 10),
                   video::SColor(255, 255, 255, 255));
 
+                  */
 
 //     static uint64_t vptime = unixtime();
 //     if (G_dwGlobalTime - vptime > 100)
@@ -8334,6 +8334,8 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 		ChangeGameMode(GAMEMODE_ONSELECTCHARACTER);
 		ClearContents_OnSelectCharacter();
 
+        htmlUI->SetCharacters();
+
 // #ifndef _DEBUG
 // 		if ( (wServerUpperVersion!=UPPER_VERSION) || (wServerLowerVersion!=LOWER_VERSION) )
 // 			ChangeGameMode(GAMEMODE_ONVERSIONNOTMATCH);
@@ -8607,7 +8609,7 @@ void CGame::_InitOnCreateNewCharacter()
 
 void CGame::ClearContents_OnCreateNewAccount()
 {
-	ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
+//	ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
 	ZeroMemory(m_cAccountAge, sizeof(m_cAccountAge));
 	ZeroMemory(m_cAccountCountry, sizeof(m_cAccountCountry));
 	ZeroMemory(m_cAccountSSN, sizeof(m_cAccountSSN));
@@ -12001,13 +12003,14 @@ void CGame::CrusadeWarResult(int iWinnerSide)
 void CGame::_Draw_UpdateScreen_OnCreateNewAccount()
 {
 	//DIRECTX m_DDraw.ClearBackB4();
+/*
 	DrawNewDialogBox(SPRID_INTERFACE_ND_NEWACCOUNT, 0,0,0, true);
 	PutString2((800/2)-80, (600/2)-120, m_cAccountName, 200,200,200);
 	PutString( (800/2)-80, (600/2)-120+20, m_cAccountPassword,video::SColor(255,200,200,200), true, 1);
 	PutString( (800/2)-80, (600/2)-120+20*2, m_cAccountPassword,video::SColor(255,200,200,200), true, 1);
 	PutString2((800/2)-80, (600/2)-120+20*3, m_cAccountCountry, 200,200,200);
 	PutString2((800/2)-80, (600/2)-120+20*4, m_cAccountSSN, 200,200,200);
-	PutString2((800/2)-80, (600/2)-120+20*5, m_cEmailAddr, 200,200,200);
+	PutString2((800/2)-80, (600/2)-120+20*5, m_cEmailAddr, 200,200,200);*/
 	/*//DIRECTX m_DDraw.ClearBackB4();
 	DrawNewDialogBox(SPRID_INTERFACE_ND_NEWACCOUNT, 0,0,0, TRUE);
 	PutString2(329, 110, m_cAccountName, 200,200,200);
@@ -14943,6 +14946,21 @@ void CGame::_LoadAgreementTextContents(char cType)
 
 
 #endif //endif from #ifdef MAKE_ACCOUNT
+
+void CGame::StartLogin()
+{
+    if (_socket == nullptr)
+    {
+        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+        new_connection_->socket().async_connect(endpoint,
+                                                boost::bind(&CGame::handle_connect, this,
+                                                            boost::asio::placeholders::error));
+    }
+    else
+    {
+        ConnectionEstablishHandler(SERVERTYPE_LOG);
+    }
+}
 
 void CGame::UpdateScreen_OnLogin()
 {

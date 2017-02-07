@@ -68,8 +68,8 @@ int main(int argc, char * argv[])
             {
                 char * ctx;
                 char * c = strtok_s(argv[i], "=:", &ctx);
-                memcpy(G_pGame->m_cAccountName, strtok_s(0, "=:", &ctx), 10);
-                memcpy(G_pGame->m_cAccountPassword, strtok_s(0, "=:", &ctx), 10);//TODO: encode this when sent from launcher
+                G_pGame->m_cAccountName = strtok_s(0, "=:", &ctx);
+                G_pGame->m_cAccountPassword = strtok_s(0, "=:", &ctx);//TODO: encode this when sent from launcher
                 G_pGame->autologin = true;
             }
             else if (!memcmp(argv[i], "-renderer=", 10))
