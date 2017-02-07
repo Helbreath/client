@@ -32,13 +32,14 @@ HTMLUI::~HTMLUI()
 void HTMLUI::Init()
 {
 	WebURL url(WSLit("http://hbx.decouple.io/index.html"));
+	// WebURL url(WSLit("file:///g:/projects/hbx-ui/public/index.html"));
 	view->LoadURL(url);
 	view->SetTransparent(true);
 
 	while (view->IsLoading()) {
-		HTMLUI::Update(10);
+		HTMLUI::Update(50);
 	}
-	HTMLUI::Update(100);
+	HTMLUI::Update(250);
 
 	uiValue = view->ExecuteJavascriptWithResult(WSLit("UI"), WSLit(""));
 	if (!uiValue.IsObject())
@@ -51,13 +52,6 @@ void HTMLUI::Init()
 	JSArray args;
 	args.Push(WSLit("load"));
 	uiJS.Invoke(WSLit("emit"), args);
-
-    window = view->ExecuteJavascriptWithResult(WSLit("window"), WSLit(""));
-    if (!window.IsObject())
-    {
-        //ERROR
-        __asm int 3;
-    }
 
 	surface = (BitmapSurface*)view->surface();
 }
@@ -83,7 +77,7 @@ void HTMLUI::Update(int sleep_ms)
 
 void HTMLUI::SetCharacters()
 {
-    if (!window.IsObject())
+    if (!uiValue.IsObject())
     {
         //ERROR
         __asm int 3;
@@ -110,8 +104,7 @@ void HTMLUI::SetCharacters()
             properties.SetProperty(WSLit("mapname"), JSValue(ToWebString(character->m_cMapName)));
             args.Push(properties);
         }
-        JSObject obj = window.ToObject();
-        obj.Invoke(WSLit("UI.emit"), args);
+        uiJS.Invoke(WSLit("emit"), args);
     }
 }
 
@@ -222,9 +215,8 @@ void HTMLUIMethodHandler::Emit(string event, bool result, string message)
 
     JSArray args;
     args.Push(properties);
-    JSObject obj = htmlUI->window.ToObject();
-    if (obj.HasProperty(WSLit("UI.emit")))
-        obj.Invoke(WSLit("UI.emit"), args);
+    if (htmlUI->uiJS.HasProperty(WSLit("emit")))
+        htmlUI->uiJS.Invoke(WSLit("UI.emit"), args);
     else
         __asm int 3;
 }

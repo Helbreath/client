@@ -34,7 +34,7 @@ public:
 	HTMLUIMethodHandler *mHandler;
     CGame * game;
 	JSValue uiValue;
-    JSObject& uiJS;
+    JSObject uiJS;
 
 	HTMLUI(class CGame *pGame);
 	~HTMLUI();
