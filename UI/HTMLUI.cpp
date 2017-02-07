@@ -11,6 +11,7 @@ HTMLUI::HTMLUI(class CGame * pGame)
 
 	mHandler = new HTMLUIMethodHandler(this);
 	view->set_js_method_handler(mHandler);
+	view->Focus();
 }
 
 

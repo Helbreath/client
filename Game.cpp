@@ -86,6 +86,9 @@ uint32_t unixseconds()
 
 bool CGame::OnEvent(const irr::SEvent& event)
 {
+	if (G_pGame->htmlUI) {
+		G_pGame->htmlUI->view->Focus();
+	}
     if (event.MouseInput.Event != irr::EMIE_MOUSE_MOVED)
     {
         //AddEventList("Irrlicht Injected Successfully.", 10);
@@ -188,15 +191,33 @@ bool CGame::OnEvent(const irr::SEvent& event)
                 //	return true;
 				//context.injectKeyDown((Key::Scan)event.KeyInput.Key);
 
-				WebKeyboardEvent keyEvent = WebKeyboardEvent();
-				keyEvent.type = WebKeyboardEvent::kTypeKeyDown;
-				keyEvent.native_key_code = event.KeyInput.Char;
-				G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+				if (event.KeyInput.Char) {
+					WebKeyboardEvent keyEvent = WebKeyboardEvent();
+					keyEvent.type = WebKeyboardEvent::kTypeKeyDown;
+					keyEvent.native_key_code = event.KeyInput.Key;
 
-				WebKeyboardEvent keyEvent2 = WebKeyboardEvent();
-				keyEvent2.type = WebKeyboardEvent::kTypeChar;
-				keyEvent2.text[0] = event.KeyInput.Char;
-				G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent2);
+					if (event.KeyInput.Control) {
+						keyEvent.modifiers |= WebKeyboardEvent::kModControlKey;
+					}
+					else if (event.KeyInput.Shift) {
+						keyEvent.modifiers |= WebKeyboardEvent::kModShiftKey;
+					}
+
+					G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+
+					WebKeyboardEvent keyEvent2 = WebKeyboardEvent();
+					keyEvent2.type = WebKeyboardEvent::kTypeChar;
+					keyEvent2.text[0] = event.KeyInput.Char;
+
+					if (event.KeyInput.Control) {
+						keyEvent2.modifiers |= WebKeyboardEvent::kModControlKey;
+					}
+					else if (event.KeyInput.Shift) {
+						keyEvent2.modifiers |= WebKeyboardEvent::kModShiftKey;
+					}
+
+					G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent2);
+				}
 				
                 OnKeyDown(event.KeyInput.Key);
                 OnSysKeyDown(event.KeyInput.Key);
@@ -206,10 +227,20 @@ bool CGame::OnEvent(const irr::SEvent& event)
             else
             {
 				//context.injectKeyUp((Key::Scan)event.KeyInput.Key);
-				WebKeyboardEvent keyEvent = WebKeyboardEvent();
-				keyEvent.type = WebKeyboardEvent::kTypeKeyUp;
-				keyEvent.native_key_code = event.KeyInput.Char;
-				G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+
+				if (event.KeyInput.Char) {
+					WebKeyboardEvent keyEvent = WebKeyboardEvent();
+					keyEvent.type = WebKeyboardEvent::kTypeKeyUp;
+					keyEvent.native_key_code = event.KeyInput.Key;
+					G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+
+					if (event.KeyInput.Control) {
+						keyEvent.modifiers = WebKeyboardEvent::kModControlKey;
+					}
+					else if (event.KeyInput.Shift) {
+						keyEvent.modifiers = WebKeyboardEvent::kModShiftKey;
+					}
+				}
 
                 OnKeyUp(event.KeyInput.Key);
                 OnSysKeyUp(event.KeyInput.Key);
@@ -1691,6 +1722,7 @@ void CGame::UpdateScreen()
 
 	static uint64_t uitime = unixtime();
 	if (G_pGame->htmlUI->surface && uitime - G_dwGlobalTime > 50) {
+		G_pGame->htmlUI->view->Focus();
         WebCore::instance()->Update();
 		uitime = G_dwGlobalTime;
 	}
