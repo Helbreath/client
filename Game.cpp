@@ -1788,6 +1788,16 @@ void CGame::UpdateScreen()
 
 	driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, video::SColor(255, 255, 255, 255), true);
 
+    // Things rendered over the UI are here
+
+    if (m_cGameMode == GAMEMODE_ONSELECTCHARACTER)
+    {
+        auto size = charselect->getSize();
+        driver->draw2DImage(charselect, core::position2d<s32>(charselectx, charselecty),
+                            core::rect<s32>(0, 0, size.Width, size.Height), 0,
+                            video::SColor(255, 255, 255, 255), true);
+    }
+
 
 	/*
 	char cfps[20];
@@ -4000,6 +4010,19 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
         }
         printf("[JS] > %s\n", buffer.c_str());
         return;
+    }
+    else if (method_name == WSLit("renderCharacter"))
+    {
+        if (args.size() < 2)
+        {
+            htmlUI->Emit("renderCharacter", false, "Invalid data");
+            return;
+        }
+        else
+        {
+            charselectx = args.At(0).ToInteger();
+            charselecty = args.At(1).ToInteger();
+        }
     }
     else if (method_name == WSLit("cancelLogin"))
     {

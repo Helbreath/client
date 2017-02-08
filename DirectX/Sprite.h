@@ -53,6 +53,7 @@ public:
 	void DrawSpriteNCK(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
 	void DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
 	void DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
+    void DrawScaledSprite(int sX, int sY, int sFrame, int sWidth, int sHeight, uint64_t dwTime = 0, video::SColor color = video::SColor(255, 255, 255, 255));
 	void DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
 	void DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
 	void DrawShadow(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));

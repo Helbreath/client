@@ -296,6 +296,8 @@ public:
 
     wstring _renderer;
 
+    uint16_t charselectx = 0, charselecty = 0;
+
 	bool CreateRenderer(bool fs = false)
 	{
 		fullscreen = fs;

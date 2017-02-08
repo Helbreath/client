@@ -255,6 +255,15 @@ void CSprite::DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor
 	m_rcBound.right  = dX + szx;
 	m_rcBound.bottom = dY + szy;
 }
+
+void CSprite::DrawScaledSprite(int sX, int sY, int sFrame, int sWidth, int sHeight, uint64_t dwTime, video::SColor color)
+{
+    if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX,sY),
+		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+sWidth,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy+sHeight), 0,
+		color, true);
+}
+
 void CSprite::DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, video::SColor color)
 {
 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
@@ -317,7 +326,6 @@ void CSprite::PutTransSprite70(int sX, int sY, int sFrame, uint32_t dwTime)
 	return;
 }
 
-
 void CSprite::PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,255,255,255));
@@ -329,7 +337,6 @@ void CSprite::PutTransSprite50(int sX, int sY, int sFrame, uint32_t dwTime)
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(125,255,255,255));
 	return;
 }
-
 
 void CSprite::PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime)
 {
@@ -343,13 +350,11 @@ void CSprite::PutTransSprite25(int sX, int sY, int sFrame, uint32_t dwTime)
 	return;
 }
 
-
 void CSprite::PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(64,255,255,255));
 	return;
 }
-
 
 void CSprite::PutTransSprite2(int sX, int sY, int sFrame, uint32_t dwTime)
 {
@@ -362,7 +367,6 @@ void CSprite::PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame,
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 }
-
 
 void CSprite::PutFadeSprite(short sX, short sY, short sFrame, uint32_t dwTime)
 {
