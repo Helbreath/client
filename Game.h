@@ -56,6 +56,8 @@
 
 #include "streams.h"
 
+#include <irrKlang.h>
+
 #define BTNSZX				74
 #define BTNSZY				20
 #define LBTNPOSX			30
@@ -160,6 +162,7 @@ extern irr::video::E_DRIVER_TYPE driverType;
 
 class connection;
 typedef boost::shared_ptr<connection> connection_ptr;
+using namespace irrklang;
 
 
 #define FONT_BUILTIN 0
@@ -1034,10 +1037,11 @@ public:
 	} m_stQuestList[50];
 
 //	class YWSound m_DSound;
-// 	class CSoundBuffer *	m_pCSound[MAXSOUNDEFFECTS];
-// 	class CSoundBuffer *	m_pMSound[MAXSOUNDEFFECTS];
-// 	class CSoundBuffer *	m_pESound[MAXSOUNDEFFECTS];
-// 	class CSoundBuffer *    m_pBGM;
+    ISoundEngine * klang;
+ 	ISound *	m_pCSound[MAXSOUNDEFFECTS];
+    ISound *	m_pMSound[MAXSOUNDEFFECTS];
+    ISound *	m_pESound[MAXSOUNDEFFECTS];
+    ISound *    m_pBGM;
 //	class DXC_ddraw  m_DDraw;
 //	class DXC_dinput m_DInput;
 	class CMisc      m_Misc;

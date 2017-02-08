@@ -806,12 +806,13 @@ CGame::CGame()
 	for (i = 0; i < MAXSPRITES; i++) m_pSprite[i] = 0;
 	for (i = 0; i < MAXTILES; i++) m_pTileSpr[i] = 0;
 	for (i = 0; i < MAXEFFECTSPR; i++) m_pEffectSpr[i] = 0;
-// 	m_pBGM = NULL;
-// 	for (i = 0; i < MAXSOUNDEFFECTS; i++)
-// 	{	m_pCSound[i]  = NULL;
-// 		m_pESound[i]  = NULL;
-// 		m_pMSound[i]  = NULL;
-// 	}//DIRECTX
+	m_pBGM = nullptr;
+	for (i = 0; i < MAXSOUNDEFFECTS; i++)
+	{
+        m_pCSound[i]  = nullptr;
+		m_pESound[i]  = nullptr;
+		m_pMSound[i]  = nullptr;
+	}
 
 	for (i = 0; i < 13; i++){
 		strcpy(friendsList[i].friendName, "");
@@ -871,7 +872,7 @@ CGame::CGame()
 	m_bShiftPressed = false;
 	m_bEnterPressed = false;
 	m_bEscPressed	= false;
-	m_bSoundFlag = false;
+	m_bSoundFlag = true;
 	m_dwDialogCloseTime = 0;
 	m_iTimeLeftSecAccount = 0;
 	m_iTimeLeftSecIP      = 0;
@@ -1268,9 +1269,9 @@ bool CGame::bInit(void * hWnd, void * hInst, char * pCmdLine)
 	m_hWnd = hWnd;
 	m_bCommandAvailable = true;
 	m_dwTime = G_dwGlobalTime;
-	//m_bSoundFlag = m_DSound.Create(m_hWnd);//DIRECTX
-	if(!m_bSoundFlag)
-		m_bSoundStat = m_bMusicStat = false;
+    klang = createIrrKlangDevice();
+    if (!klang)
+        m_bSoundFlag = m_bSoundStat = m_bMusicStat = false;
 	m_bIsHideLocalCursor = false;
 	m_cEnterCheck = m_cTabCheck = m_cLeftArrowCheck = 0;
 
@@ -1528,13 +1529,14 @@ void CGame::Quit()
 	for (i = 0; i < MAXEFFECTSPR; i++)
 	if (m_pEffectSpr[i] != 0) delete m_pEffectSpr[i];
 
-// 	for (i = 0; i < MAXSOUNDEFFECTS; i++) {
-// 		if (m_pCSound[i] != NULL) delete m_pCSound[i];
-// 		if (m_pMSound[i] != NULL) delete m_pMSound[i];
-// 		if (m_pESound[i] != NULL) delete m_pESound[i];
-// 	}//DIRECTX
+	for (i = 0; i < MAXSOUNDEFFECTS; i++)
+    {
+		if (m_pCSound[i] != nullptr) m_pCSound[i]->drop();
+		if (m_pMSound[i] != nullptr) m_pMSound[i]->drop();
+		if (m_pESound[i] != nullptr) m_pESound[i]->drop();
+	}
 
-//	if (m_pBGM != NULL) delete m_pBGM;//DIRECTX
+    if (m_pBGM != nullptr) m_pBGM->drop();
 
 	for (i = 0; i < MAXITEMS; i++)
 	if (m_pItemList[i] != 0)	delete m_pItemList[i];
@@ -1765,7 +1767,7 @@ void CGame::UpdateScreen()
 		htmlUI->surface->set_is_dirty(false);
 	}
 
-	driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, video::SColor(255, 255, 255, 255), true);
+	//driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, video::SColor(255, 255, 255, 255), true);
 
 
 	/*
@@ -11842,12 +11844,14 @@ void CGame::CrusadeContributionResult(int iWarContribution)
  char cTemp[120];
 	DisableDialogBox(18);
 	for (i = 0; i < TEXTDLGMAXLINES; i++)
-	{	if (m_pMsgTextList[i] != 0)
+	{
+        if (m_pMsgTextList[i] != 0)
 			delete m_pMsgTextList[i];
 		m_pMsgTextList[i] = 0;
 	}
 	if (iWarContribution > 0)
-	{	PlaySound('E', 23, 0, 0);
+	{
+        PlaySound('E', 23, 0, 0);
 		PlaySound('C', 21, 0, 0);
 		PlaySound('C', 22, 0, 0);
 		m_pMsgTextList[0] = new class CMsg(0, CRUSADE_MESSAGE22, 0);
@@ -11865,8 +11869,10 @@ void CGame::CrusadeContributionResult(int iWarContribution)
 		for (i = 9; i < 18; i++)
 		m_pMsgTextList[i] = new class CMsg(0, " ", 0);
 
-	}else if (iWarContribution < 0)
-	{	PlaySound('E', 24, 0, 0);
+	}
+    else if (iWarContribution < 0)
+	{
+        PlaySound('E', 24, 0, 0);
 		PlaySound('C', 12, 0, 0);
 		PlaySound('C', 13, 0, 0);
 		m_pMsgTextList[0] = new class CMsg(0, CRUSADE_MESSAGE28, 0);
@@ -11880,8 +11886,10 @@ void CGame::CrusadeContributionResult(int iWarContribution)
 		m_pMsgTextList[8] = new class CMsg(0, CRUSADE_MESSAGE34, 0);
 		for (i = 9; i < 18; i++)
 		m_pMsgTextList[i] = new class CMsg(0, " ", 0);
-	}else if (iWarContribution == 0)
-	{	PlaySound('E', 25, 0, 0);
+	}
+    else if (iWarContribution == 0)
+	{
+        PlaySound('E', 25, 0, 0);
 		m_pMsgTextList[0] = new class CMsg(0, CRUSADE_MESSAGE50, 0); // The battle that you have participated
 		m_pMsgTextList[1] = new class CMsg(0, CRUSADE_MESSAGE51, 0); // is already finished;
 		m_pMsgTextList[2] = new class CMsg(0, CRUSADE_MESSAGE52, 0); //
@@ -12307,22 +12315,34 @@ void CGame::PlaySound(char cType, int iNum, int iDist, long lPan)
 	if (iVol > 0) iVol = 0;
 	if (iVol < -10000) iVol = -10000;
 
-// 		switch (cType) {
-// 		case 'C':
-// 			if (m_pCSound[iNum] == NULL) return;
-// 			m_pCSound[iNum]->Play(FALSE, lPan, iVol);
-// 			break;
-// 
-// 		case 'M':
-// 			if (m_pMSound[iNum] == NULL) return;
-// 			m_pMSound[iNum]->Play(FALSE, lPan, iVol);
-// 			break;
-// 
-// 		case 'E':
-// 			if (m_pESound[iNum] == NULL) return;
-// 			m_pESound[iNum]->Play(FALSE, lPan, iVol);
-// 			break;
-// 		}
+    //int width = GetWidth();
+    //int pan = lPan
+
+	switch (cType) {
+		case 'C':
+			if (m_pCSound[iNum] == nullptr) return;
+            //m_pCSound[iNum]->Play(FALSE, lPan, iVol);
+            m_pCSound[iNum]->setPan((float)lPan / 5000);
+            m_pCSound[iNum]->setVolume((iVol + 10000)/10000);
+            klang->play2D(m_pCSound[iNum]->getSoundSource());
+			break;
+
+		case 'M':
+			if (m_pMSound[iNum] == nullptr) return;
+			//m_pMSound[iNum]->Play(FALSE, lPan, iVol);
+            m_pMSound[iNum]->setPan((float)lPan / 5000);
+            m_pMSound[iNum]->setVolume((iVol + 10000) / 10000);
+            klang->play2D(m_pMSound[iNum]->getSoundSource());
+            break;
+
+		case 'E':
+			if (m_pESound[iNum] == nullptr) return;
+			//m_pESound[iNum]->Play(FALSE, lPan, iVol);
+            m_pESound[iNum]->setPan((float)lPan / 5000);
+            m_pESound[iNum]->setVolume((iVol + 10000) / 10000);
+            klang->play2D(m_pESound[iNum]->getSoundSource());
+            break;
+	}
 }
 
 void CGame::_DrawBlackRect(int iSize)
@@ -12652,8 +12672,11 @@ void CGame::SetWeatherStatus(Weather type)
 
 		if(type >= WEATHER_LIGHTRAIN && type <= WEATHER_HEAVYRAIN)
 		{
-// 			if(m_bSoundStat && m_bSoundFlag)
-// 				m_pESound[38]->Play(true);//DIRECTX
+            if (m_bSoundStat && m_bSoundFlag)
+            {
+                //m_pESound[38]->Play(true);
+                klang->play2D(m_pESound[38]->getSoundSource(), true);
+            }
 
 			if(m_bMusicStat) 
 				StartBGM();
@@ -12667,16 +12690,16 @@ void CGame::SetWeatherStatus(Weather type)
 		}
 	} else {
 		m_weather = WEATHER_SUNNY;
-//DIRECTX		if ((m_bSoundStat == TRUE) && (m_bSoundFlag)) m_pESound[38]->bStop();
+        if ((m_bSoundStat == TRUE) && (m_bSoundFlag)) m_pESound[38]->stop();
 	}
 }
 
 void CGame::DrawLine(int x0, int y0, int x1, int y1, int iR, int iG, int iB)
 {
- int dx, dy, x_inc, y_inc, error, index, dstR, dstG, dstB;
- int iResultX, iResultY;
- uint16_t * pDst;
- uint32_t * pDwDst;
+    int dx, dy, x_inc, y_inc, error, index, dstR, dstG, dstB;
+    int iResultX, iResultY;
+    uint16_t * pDst;
+    uint32_t * pDwDst;
 
 	if ((x0 == x1) && (y0 == y1)) return;
     driver->draw2DLine(irr::core::vector2d<s32>(x0, y0), irr::core::vector2d<s32>(x1, y1), irr::video::SColor(255, 255, 128, 128));
@@ -15294,9 +15317,11 @@ void CGame::OnKeyUp(WPARAM wParam)
 
 	case 68://'D'
 		if (m_bCtrlPressed == true && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{	m_cDetailLevel++;
+		{
+            m_cDetailLevel++;
 			if( m_cDetailLevel > 2 ) m_cDetailLevel = 0;
-			switch( m_cDetailLevel ) {
+			switch( m_cDetailLevel )
+            {
 			case 0:
 				AddEventList( NOTIFY_MSG_DETAIL_LEVEL_LOW, 10 );
 				break;
@@ -15306,36 +15331,43 @@ void CGame::OnKeyUp(WPARAM wParam)
 			case 2:
 				AddEventList( NOTIFY_MSG_DETAIL_LEVEL_HIGH, 10 );
 				break;
-		}	}
+		    }
+        }
 		break;
 
 	case 70: //'F'
 		if( m_bCtrlPressed )
-		{	LoadFriendList();
+		{
+            LoadFriendList();
 			UpdateFriendsStatus();
-			EnableDialogBox(43, 0, 0, 0);
-			}
-			break;
+            EnableDialogBox(43, 0, 0, 0);
+        }
+        break;
 
 	case 72: // 'H' // Snoopy: Mimics VK_F1
 		if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{	if (m_bIsDialogEnabled[35] == false)
+		{
+            if (m_bIsDialogEnabled[35] == false)
 				EnableDialogBox(35, 0, 0, 0);
 			else
-			{	DisableDialogBox(35);
+			{
+                DisableDialogBox(35);
 				DisableDialogBox(18);
-		}	}
+		    }
+        }
 		break;
 
 	case 87: // 'W' // Snoopy: mimics VK_F11 Togles transparency
 		if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{	m_bDialogTrans = !m_bDialogTrans;
+		{
+            m_bDialogTrans = !m_bDialogTrans;
 		}
 		break;
 
 	case 88: // 'X' // Snoopy: mimics VK_F12 Logout Window
 		if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{	if (m_bIsDialogEnabled[19] == false)
+		{
+            if (m_bIsDialogEnabled[19] == false)
 				EnableDialogBox(19, 0, 0, 0);
 			else DisableDialogBox(19);
 		}
@@ -15343,10 +15375,13 @@ void CGame::OnKeyUp(WPARAM wParam)
 
 	case 77://'M'
 		if( m_cGameMode == GAMEMODE_ONMAINGAME )
-		{	if( m_bCtrlPressed )
-			{	if( m_bIsDialogEnabled[9] == true ) DisableDialogBox(9);
+		{
+            if( m_bCtrlPressed )
+			{
+                if( m_bIsDialogEnabled[9] == true ) DisableDialogBox(9);
 				else EnableDialogBox(9, 0, 0, 0, 0);
-		}	}
+		    }
+        }
 		break;
 
 	case 78://'N'
@@ -15365,12 +15400,13 @@ void CGame::OnKeyUp(WPARAM wParam)
 		if( ( m_bCtrlPressed == true ) && ( m_cGameMode == GAMEMODE_ONMAINGAME ) && (!m_bInputStatus) )
 		{
 			if( _tmp_sOwnerType < 7 && (strlen(_tmp_cName)>0) && (m_iIlusionOwnerH==0)
-				&& (strcmp(m_cMCName, m_cPlayerName) != 0) && m_cMCName[0] != '_') {
-					m_dialogBoxes[32].SetMode(3);
-					PlaySound('E', 14, 5);
-					ZeroMemory(m_dialogBoxes[32].cStr, sizeof(m_dialogBoxes[32].cStr));
-					strcpy(m_dialogBoxes[32].cStr, _tmp_cName);
-					bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQUEST_JOINPARTY, 0, 1, 0, 0, _tmp_cName);
+				&& (strcmp(m_cMCName, m_cPlayerName) != 0) && m_cMCName[0] != '_')
+            {
+                m_dialogBoxes[32].SetMode(3);
+                PlaySound('E', 14, 5);
+                ZeroMemory(m_dialogBoxes[32].cStr, sizeof(m_dialogBoxes[32].cStr));
+                strcpy(m_dialogBoxes[32].cStr, _tmp_cName);
+                bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQUEST_JOINPARTY, 0, 1, 0, 0, _tmp_cName);
 			}
 			else {
 				m_dialogBoxes[32].SetMode(0);
@@ -15383,13 +15419,18 @@ void CGame::OnKeyUp(WPARAM wParam)
 
 	case 82://'R'
 		if (m_bCtrlPressed == true && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{	if( m_bRunningMode )
-			{	m_bRunningMode = false;
+		{
+            if( m_bRunningMode )
+			{
+            m_bRunningMode = false;
 				AddEventList( NOTIFY_MSG_CONVERT_WALKING_MODE, 10 );
-			}else
-			{	m_bRunningMode = true;
+			}
+            else
+			{
+            m_bRunningMode = true;
 				AddEventList( NOTIFY_MSG_CONVERT_RUNNING_MODE, 10 );
-		}	}
+		    }
+        }
 		break;
 
 	case 83://'S'
@@ -15400,23 +15441,22 @@ void CGame::OnKeyUp(WPARAM wParam)
 				m_bMusicStat = false;
 				if (m_bSoundFlag)
 				{
-// 					if (m_pBGM != NULL)
-// 					{
-// 						m_pBGM->bStop();
-// 						delete m_pBGM;
-// 						m_pBGM = NULL;
-// 					}//DIRECTX
+					if (m_pBGM != nullptr)
+					{
+						m_pBGM->stop();
+					}
 				}
 				AddEventList( NOTIFY_MSG_MUSIC_OFF, 10 );
 				break;
 			}
 			else if( m_bSoundStat == true )
 			{
-//DIRECTX				m_pESound[38]->bStop();
+				m_pESound[38]->stop();
 				m_bSoundStat = false;
 				AddEventList( NOTIFY_MSG_SOUND_OFF, 10 );
 				break;
-			}else 	// Music On
+			}
+            else 	// Music On
 			{
 				if( m_bSoundFlag )
 				{
@@ -15467,16 +15507,21 @@ void CGame::OnKeyUp(WPARAM wParam)
 					bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, tempid);
 				}
 				delete pStrTok;
-			}else if( _tmp_sOwnerType < 7 && (strlen(_tmp_cName)>0) && (m_iIlusionOwnerH==0)
+			}
+            else if( _tmp_sOwnerType < 7 && (strlen(_tmp_cName)>0) && (m_iIlusionOwnerH==0)
 						&& ((m_bIsCrusadeMode == false) || _iGetFOE(_tmp_iStatus) >= 0))
-			{	wsprintfA( tempid, "/to %s", _tmp_cName );
+			{
+                wsprintfA( tempid, "/to %s", _tmp_cName );
 				bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, tempid);
-			}else
-			{	EndInputString();
+			}
+            else
+			{
+                EndInputString();
 				wsprintfA( m_cChatMsg, "/to " );
 				//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
 				StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
-		}	}
+		    }
+        }
 		break;
 // 	case 107: //'+'
 // 		if(m_bInputStatus == FALSE) m_bZoomMap = TRUE;
@@ -15496,17 +15541,20 @@ void CGame::OnKeyUp(WPARAM wParam)
 	case VK_INSERT:
 		if (m_iHP <= 0) return;
 		if (m_bItemUsingStatus == true)
-		{	AddEventList(USE_RED_POTION1, 10);
+		{
+            AddEventList(USE_RED_POTION1, 10);
 			return;
 		}
 		if (m_bIsDialogEnabled[27] == true)
-		{	AddEventList(USE_RED_POTION2, 10);
+		{
+            AddEventList(USE_RED_POTION2, 10);
 			return;
 		}
 		for (i = 0; i < MAXITEMS; i++)
 		if ( (m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
 			 (m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 1))
-		{	bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
+		{
+            bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
 			m_bIsItemDisabled[i] = true;
 			m_bItemUsingStatus = true;
 			return;
@@ -15515,7 +15563,8 @@ void CGame::OnKeyUp(WPARAM wParam)
 		for (i = 0; i < MAXITEMS; i++)
 		if ( (m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
 			 (m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 2))
-		{	bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
+		{
+            bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
 			m_bIsItemDisabled[i] = true;
 			m_bItemUsingStatus = true;
 			return;
@@ -15525,18 +15574,21 @@ void CGame::OnKeyUp(WPARAM wParam)
 	case VK_DELETE:
 		if (m_iHP <= 0) return;
 		if (m_bItemUsingStatus == true)
-		{	AddEventList(USE_BLUE_POTION1, 10);
+		{
+            AddEventList(USE_BLUE_POTION1, 10);
 			return;
 		}
 		if (m_bIsDialogEnabled[27] == true)
-		{	AddEventList(USE_BLUE_POTION2, 10);
+		{
+            AddEventList(USE_BLUE_POTION2, 10);
 			return;
 		}
 
 		for (i = 0; i < MAXITEMS; i++)
 		if ( (m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
 			 (m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 3))
-		{	bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
+		{
+            bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
 			m_bIsItemDisabled[i] = true;
 			m_bItemUsingStatus = true;
 			return;
@@ -15545,7 +15597,8 @@ void CGame::OnKeyUp(WPARAM wParam)
 		for (i = 0; i < MAXITEMS; i++)
 		if ( (m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
 			 (m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 4))
-		{	bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
+		{
+            bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
 			m_bIsItemDisabled[i] = true;
 			m_bItemUsingStatus = true;
 			return;
@@ -20739,46 +20792,49 @@ void CGame::NotifyMsg_Heldenian(char * pData)
 }
 
 void CGame::StartBGM()
-{	if( m_bSoundFlag == false )
+{
+    if( m_bSoundFlag == false )
 	{
-// 		if (m_pBGM != NULL)
-// 		{	m_pBGM->bStop();
-// 			delete m_pBGM;
-// 			m_pBGM = NULL;
-// 		}//DIRECTX
+		if (m_pBGM != nullptr)
+		{
+            m_pBGM->stop();
+            m_pBGM->drop();
+            //delete m_pBGM;
+			m_pBGM = nullptr;
+		}
 		return;
 	}
 	char cWavFileName[32];
 	ZeroMemory( cWavFileName, sizeof(cWavFileName) );
-	if (m_bIsXmas == true) strcpy( cWavFileName, "music\\Carol.wav" );
+	if (m_bIsXmas == true) strcpy( cWavFileName, "data\\music\\Carol.wav" );
 	else
-	{	if (memcmp(m_cCurLocation, "aresden", 7) == 0) strcpy( cWavFileName, "music\\aresden.wav" );
-		else if (memcmp(m_cCurLocation, "elvine", 6) == 0) strcpy( cWavFileName, "music\\elvine.wav" );
-		else if (memcmp(m_cCurLocation, "dglv", 4) == 0) strcpy( cWavFileName, "music\\dungeon.wav" );
-		else if (memcmp(m_cCurLocation, "middled1", 8) == 0) strcpy( cWavFileName, "music\\dungeon.wav" );
-		else if (memcmp(m_cCurLocation, "middleland", 10) == 0) strcpy( cWavFileName, "music\\middleland.wav" );
+	{
+        if (memcmp(m_cCurLocation, "aresden", 7) == 0) strcpy( cWavFileName, "data\\music\\aresden.wav" );
+		else if (memcmp(m_cCurLocation, "elvine", 6) == 0) strcpy( cWavFileName, "data\\music\\elvine.wav" );
+		else if (memcmp(m_cCurLocation, "dglv", 4) == 0) strcpy( cWavFileName, "data\\music\\dungeon.wav" );
+		else if (memcmp(m_cCurLocation, "middled1", 8) == 0) strcpy( cWavFileName, "data\\music\\dungeon.wav" );
+		else if (memcmp(m_cCurLocation, "middleland", 10) == 0) strcpy( cWavFileName, "data\\music\\middleland.wav" );
 		// Snoopy: new musics
-		else if (memcmp(m_cCurLocation, "druncncity", 10) == 0) strcpy( cWavFileName, "music\\druncncity.wav" );
-		else if (memcmp(m_cCurLocation, "inferniaA", 9) == 0) strcpy( cWavFileName, "music\\middleland.wav" );
-		else if (memcmp(m_cCurLocation, "inferniaB", 9) == 0) strcpy( cWavFileName, "music\\middleland.wav" );
-		else if (memcmp(m_cCurLocation, "maze", 4) == 0) strcpy( cWavFileName, "music\\dungeon.wav" );
-		else if (memcmp(m_cCurLocation, "abaddon", 7) == 0) strcpy( cWavFileName, "music\\abaddon.wav" );
-		else if (strcmp(m_cCurLocation, "istria") == 0) strcpy( cWavFileName, "music\\istria.wav" );
-		else if (strcmp(m_cCurLocation, "astoria") == 0) strcpy( cWavFileName, "music\\astoria.wav" );
-		else strcpy( cWavFileName, "music\\MainTm.wav" );
+		else if (memcmp(m_cCurLocation, "druncncity", 10) == 0) strcpy( cWavFileName, "data\\music\\druncncity.wav" );
+		else if (memcmp(m_cCurLocation, "inferniaA", 9) == 0) strcpy( cWavFileName, "data\\music\\middleland.wav" );
+		else if (memcmp(m_cCurLocation, "inferniaB", 9) == 0) strcpy( cWavFileName, "data\\music\\middleland.wav" );
+		else if (memcmp(m_cCurLocation, "maze", 4) == 0) strcpy( cWavFileName, "data\\music\\dungeon.wav" );
+		else if (memcmp(m_cCurLocation, "abaddon", 7) == 0) strcpy( cWavFileName, "data\\music\\abaddon.wav" );
+		else if (strcmp(m_cCurLocation, "istria") == 0) strcpy( cWavFileName, "data\\music\\istria.wav" );
+		else if (strcmp(m_cCurLocation, "astoria") == 0) strcpy( cWavFileName, "data\\music\\astoria.wav" );
+		else strcpy( cWavFileName, "data\\music\\MainTm.wav" );
 	}
 
-// 	if (m_pBGM != NULL)
-// 	{	if( strcmp( m_pBGM->m_cWavFileName, cWavFileName ) == 0 ) return;
-// 		m_pBGM->bStop();
-// 		delete m_pBGM;
-// 		m_pBGM = NULL;
-// 	}//DIRECTX
+	if (m_pBGM != nullptr)
+	{
+        m_pBGM->stop();
+        m_pBGM->drop();
+        m_pBGM = klang->play2D(cWavFileName, true, false, true, irrklang::ESM_AUTO_DETECT, false);
+	}
 	int iVolume = (m_cMusicVolume - 100)*20;
 	if (iVolume > 0) iVolume = 0;
 	if (iVolume < -10000) iVolume = -10000; //iVolume == Volume
-// 	m_pBGM = new class CSoundBuffer(m_DSound.m_lpDS, m_DSound.m_DSCaps, cWavFileName, TRUE);
-// 	m_pBGM->Play(TRUE, 0, iVolume);//DIRECTX
+    m_pBGM = klang->play2D(cWavFileName, true, false, true, irrklang::ESM_AUTO_DETECT, false);
 }
 
 void CGame::MotionResponseHandler(char * pData)
@@ -21235,10 +21291,10 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 		_socket->stop();
 		m_bEscPressed = false;
 		PlaySound('E', 14, 5);
-//DIRECTX		if (m_bSoundFlag) m_pESound[38]->bStop();
+        if (m_bSoundFlag) m_pESound[38]->stop();
 		if ((m_bSoundFlag) && (m_bMusicStat == true))
 		{
-//DIRECTX			if (m_pBGM != NULL) m_pBGM->bStop();
+    		if (m_pBGM != nullptr) m_pBGM->stop();
 		}
 		isItemLoaded = false;
 		ChangeGameMode(GAMEMODE_ONMAINMENU);
@@ -23332,10 +23388,10 @@ void CGame::NotifyMsg_ForceDisconn(char *pData)
 		gamemode = 0;
 		_socket->stop();
 		m_bEscPressed = false;
-//DIRECTX		if (m_bSoundFlag) m_pESound[38]->bStop();
+        if (m_bSoundFlag) m_pESound[38]->stop();
 		if ((m_bSoundFlag) && (m_bMusicStat == true))
 		{
-//DIRECTX			if (m_pBGM != NULL) m_pBGM->bStop();
+			if (m_pBGM != nullptr) m_pBGM->stop();
 		}
 		if (strlen(G_cCmdLineTokenA) != 0)
 		{

@@ -47,7 +47,7 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)_d</TargetName>
-    <LibraryPath>lib;..\irrlicht-1.8.4\lib\Win32-visualstudio;..\boost_1_63_0\stage\lib;$(AWE_DIR)build\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>lib;..\irrlicht-1.8.4\lib\Win32-visualstudio;..\boost_1_63_0\stage\lib;$(AWE_DIR)build\lib;..\irrKlang-1.5.0\lib\Win32-visualStudio;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>bin\bin\</OutDir>
@@ -80,7 +80,7 @@
       <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Shared\;..\boost_1_63_0;..\irrlicht-1.8.4\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\irrKlang-1.5.0\include;Shared\;..\boost_1_63_0;..\irrlicht-1.8.4\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -99,7 +99,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>libeay32.lib;ssleay32.lib;awesomium.lib;winmm.lib;DbgHelp.lib;libboost_chrono-vc140-mt-gd-1_63.lib;libboost_date_time-vc140-mt-gd-1_63.lib;libboost_regex-vc140-mt-gd-1_63.lib;libboost_thread-vc140-mt-gd-1_63.lib;libboost_filesystem-vc140-mt-gd-1_63.lib;libboost_system-vc140-mt-gd-1_63.lib;libboost_timer-vc140-mt-gd-1_63.lib;Irrlicht.lib;netapi32.lib;lib/search.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>irrKlang.lib;libeay32.lib;ssleay32.lib;awesomium.lib;winmm.lib;DbgHelp.lib;libboost_chrono-vc140-mt-gd-1_63.lib;libboost_date_time-vc140-mt-gd-1_63.lib;libboost_regex-vc140-mt-gd-1_63.lib;libboost_thread-vc140-mt-gd-1_63.lib;libboost_filesystem-vc140-mt-gd-1_63.lib;libboost_system-vc140-mt-gd-1_63.lib;libboost_timer-vc140-mt-gd-1_63.lib;Irrlicht.lib;netapi32.lib;lib/search.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <EntryPointSymbol>
       </EntryPointSymbol>

@@ -978,19 +978,22 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             {
                 for (i = 1; i <= 24; i++)
                 {
-                    wsprintfA(G_cTxt, "sounds\\C%d.wav", i);
-                    //DIRECTX					m_pCSound[i] = new class CSoundBuffer(m_DSound.m_lpDS, m_DSound.m_DSCaps, G_cTxt);
+                    wsprintfA(G_cTxt, "data\\sounds\\C%d.wav", i);
+                    m_pCSound[i] = klang->play2D(G_cTxt, false, true, true, irrklang::ESM_NO_STREAMING, false);
+                    //m_pCSound[i] = new class CSoundBuffer(m_DSound.m_lpDS, m_DSound.m_DSCaps, G_cTxt);
                 }
 
                 for (i = 1; i <= 156; i++)
                 {
-                    wsprintfA(G_cTxt, "sounds\\M%d.wav", i);
-                    //DIRECTX					m_pMSound[i] = new class CSoundBuffer(m_DSound.m_lpDS, m_DSound.m_DSCaps, G_cTxt);
+                    wsprintfA(G_cTxt, "data\\sounds\\M%d.wav", i);
+                    m_pMSound[i] = klang->play2D(G_cTxt, false, true, true, irrklang::ESM_NO_STREAMING, false);
+                    //m_pMSound[i] = new class CSoundBuffer(m_DSound.m_lpDS, m_DSound.m_DSCaps, G_cTxt);
                 }
                 for (i = 1; i <= 54; i++)
                 {
-                    wsprintfA(G_cTxt, "sounds\\E%d.wav", i);
-                    //DIRECTX					m_pESound[i] = new class CSoundBuffer(m_DSound.m_lpDS, m_DSound.m_DSCaps, G_cTxt);
+                    wsprintfA(G_cTxt, "data\\sounds\\E%d.wav", i);
+                    m_pESound[i] = klang->play2D(G_cTxt, false, true, true, irrklang::ESM_NO_STREAMING, false);
+                    //m_pESound[i] = new class CSoundBuffer(m_DSound.m_lpDS, m_DSound.m_DSCaps, G_cTxt);
                 }
             }
             isItemLoaded = false;
