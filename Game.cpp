@@ -191,21 +191,27 @@ bool CGame::OnEvent(const irr::SEvent& event)
                 //if (GetText(0, WM_CHAR, event.KeyInput.Key, 0))
                 //	return true;
 				//context.injectKeyDown((Key::Scan)event.KeyInput.Key);
+				WebKeyboardEvent keyEvent = WebKeyboardEvent();
+				keyEvent.type = WebKeyboardEvent::kTypeKeyDown;
+				keyEvent.virtual_key_code = event.KeyInput.Key;
+				keyEvent.native_key_code = event.KeyInput.Key;
 
-				if (event.KeyInput.Char) {
-					WebKeyboardEvent keyEvent = WebKeyboardEvent();
-					keyEvent.type = WebKeyboardEvent::kTypeKeyDown;
-					keyEvent.native_key_code = event.KeyInput.Key;
+				char* buf = new char[20];
+				GetKeyIdentifierFromVirtualKeyCode(keyEvent.virtual_key_code, &buf);
+				strcpy(keyEvent.key_identifier, buf);
+				delete[] buf;
 
-					if (event.KeyInput.Control) {
-						keyEvent.modifiers |= WebKeyboardEvent::kModControlKey;
-					}
-					else if (event.KeyInput.Shift) {
-						keyEvent.modifiers |= WebKeyboardEvent::kModShiftKey;
-					}
+				if (event.KeyInput.Control) {
+					keyEvent.modifiers |= WebKeyboardEvent::kModControlKey;
+				}
+				else if (event.KeyInput.Shift) {
+					keyEvent.modifiers |= WebKeyboardEvent::kModShiftKey;
+				}
 
-					G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+				G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
 
+
+				if (event.KeyInput.Char && event.KeyInput.Key != KEY_TAB) {
 					WebKeyboardEvent keyEvent2 = WebKeyboardEvent();
 					keyEvent2.type = WebKeyboardEvent::kTypeChar;
 					keyEvent2.text[0] = event.KeyInput.Char;
@@ -232,7 +238,7 @@ bool CGame::OnEvent(const irr::SEvent& event)
 				if (event.KeyInput.Char) {
 					WebKeyboardEvent keyEvent = WebKeyboardEvent();
 					keyEvent.type = WebKeyboardEvent::kTypeKeyUp;
-					keyEvent.native_key_code = event.KeyInput.Key;
+					keyEvent.virtual_key_code = event.KeyInput.Key; // native_key_code = event.KeyInput.Key;
 					G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
 
 					if (event.KeyInput.Control) {
