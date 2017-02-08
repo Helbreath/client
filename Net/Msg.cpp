@@ -20,7 +20,7 @@ CMsg::CMsg()
 	m_cType = 0;
 }
 
-CMsg::CMsg(char cType, char * pMsg, uint32_t dwTime)
+CMsg::CMsg(char cType, char * pMsg, uint64_t dwTime)
 {
 	used = true;
 	m_cType = cType;

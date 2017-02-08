@@ -272,137 +272,137 @@ void CSprite::DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime,
 		color, true);
 }
 
-void CSprite::PutSpriteFast(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutSpriteFast(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 }
 
-void CSprite::PutSpriteFastNoColorKey(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutSpriteFastNoColorKey(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 }
 
-void CSprite::PutSpriteFastFrontBuffer(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutSpriteFastFrontBuffer(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 }
 
-void CSprite::PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, uint32_t dwTime)
+void CSprite::PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime)
 {
 	DrawWidth(sX, sY, sFrame, sWidth, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 }
 
-void CSprite::PutShadowSprite(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutShadowSprite(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 }
 
-void CSprite::PutShadowSpriteClip(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutShadowSpriteClip(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 }
 
-void CSprite::PutTransSprite(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth)
+void CSprite::PutTransSprite(int sX, int sY, int sFrame, uint64_t dwTime, int alphaDepth)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(alphaDepth,255,255,255));
 	return;
 }
 
-void CSprite::PutTransSprite_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth)
+void CSprite::PutTransSprite_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime, int alphaDepth)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(alphaDepth,255,255,255));
 	return;
 }
 
-void CSprite::PutTransSprite70(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutTransSprite70(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,255,255,255));
 	return;
 }
 
-void CSprite::PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,255,255,255));
 	return;
 }
 
-void CSprite::PutTransSprite50(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutTransSprite50(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(125,255,255,255));
 	return;
 }
 
-void CSprite::PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(125,255,255,255));
 	return;
 }
 
-void CSprite::PutTransSprite25(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutTransSprite25(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(64,255,255,255));
 	return;
 }
 
-void CSprite::PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(64,255,255,255));
 	return;
 }
 
-void CSprite::PutTransSprite2(int sX, int sY, int sFrame, uint32_t dwTime)
+void CSprite::PutTransSprite2(int sX, int sY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,255,255,255));
 	return;
 }
 
-void CSprite::PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame, uint32_t dwTime)
+void CSprite::PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 }
 
-void CSprite::PutFadeSprite(short sX, short sY, short sFrame, uint32_t dwTime)
+void CSprite::PutFadeSprite(short sX, short sY, short sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 }
 
-void CSprite::PutFadeSpriteDst(uint16_t * pDstAddr, short sPitch, short sX, short sY, short sFrame, uint32_t dwTime)
+void CSprite::PutFadeSpriteDst(uint16_t * pDstAddr, short sPitch, short sX, short sY, short sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 }
 
-void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint32_t dwTime)
+void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(color));
 }
 
-void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint32_t dwTime)
+void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,sRed,sGreen,sBlue));
 	return;
 }
 
-void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint32_t dwTime)
+void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(color));
 }
 
-void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint32_t dwTime)
+void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180, sRed, sGreen, sBlue));
 	return;
 }
 
-void CSprite::PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint32_t dwTime)
+void CSprite::PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,sRed,sGreen,sBlue));
 	return;
@@ -584,13 +584,13 @@ bool CSprite::_bCheckCollison(int sX, int sY, short sFrame, int msX, int msY)
 	return false;
 }
 
-void CSprite::PutShiftSpriteFast(int sX, int sY, int shX, int shY, int sFrame, uint32_t dwTime)
+void CSprite::PutShiftSpriteFast(int sX, int sY, int shX, int shY, int sFrame, uint64_t dwTime)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;
 }
 
-void CSprite::PutRevTransSprite(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth)
+void CSprite::PutRevTransSprite(int sX, int sY, int sFrame, uint64_t dwTime, int alphaDepth)
 {
 	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
 	return;

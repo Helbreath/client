@@ -68,12 +68,12 @@ public:
 		short m_sMaxFrame;
 		short m_sFrameTime;
 	} m_stFrame[TOTALCHARACTERS][TOTALACTION];
-	uint32_t m_dwFrameTime;
-	uint32_t m_dwDOframeTime;
-	uint32_t m_dwFrameCheckTime;
+	uint64_t m_dwFrameTime;
+    uint64_t m_dwDOframeTime;
+    uint64_t m_dwFrameCheckTime;
 	int m_iObjectIDcacheLocX[30000];
 	int m_iObjectIDcacheLocY[30000];
-	uint32_t m_dwFrameAdjustTime;
+    uint64_t m_dwFrameAdjustTime;
 	short m_sMapSizeX, m_sMapSizeY;
 	short m_sRectX, m_sRectY;
 	short m_sPivotX, m_sPivotY;

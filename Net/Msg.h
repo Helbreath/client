@@ -24,7 +24,7 @@ public:
 	static ChatType predremove;
 	static uint32_t nmsgs;
 
-	CMsg(char cType, char * pMsg, uint32_t dwTime);
+	CMsg(char cType, char * pMsg, uint64_t dwTime);
 	CMsg();
 	virtual ~CMsg();
 

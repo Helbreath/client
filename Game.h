@@ -280,12 +280,12 @@ public:
 	char oldmode;
 	bool fullscreenswap;
 	bool vsync;
-	uint32_t foregroundfpstarget;
-	uint32_t foregroundfps;
-	uint32_t foregroundframetime;
-	uint32_t backgroundfpstarget;
-	uint32_t backgroundfps;
-	uint32_t backgroundframetime;
+	uint64_t foregroundfpstarget;
+	uint64_t foregroundfps;
+	uint64_t foregroundframetime;
+	uint64_t backgroundfpstarget;
+	uint64_t backgroundfps;
+	uint64_t backgroundframetime;
 	uint64_t time1;
 	uint64_t time2;
 
@@ -362,7 +362,7 @@ public:
 	__forceinline uint16_t GetWidth() { return screenwidth; }
 	__forceinline uint16_t GetHeight() { return screenheight; }
 
-	void DrawScene(uint32_t time);
+	void DrawScene(uint64_t time);
 	//void DrawFPS2();//debug func
 	void DrawMouse();
 	void DrawVersion2();
@@ -416,8 +416,8 @@ public:
 	} friendsList[13];
 
 	// CLEROTH - AURAS
-	void CheckActiveAura(short sX, short sY, uint32_t dwTime, short sOwnerType);
-	void CheckActiveAura2(short sX, short sY, uint32_t dwTime, short sOwnerType);
+	void CheckActiveAura(short sX, short sY, uint64_t dwTime, short sOwnerType);
+	void CheckActiveAura2(short sX, short sY, uint64_t dwTime, short sOwnerType);
 
 	// MJ Stats Change Related functions - Alastor
 	void DrawDialogBox_ChangeStatsMajestic();// Change stats using majestic - Alastor
@@ -795,7 +795,7 @@ public:
 	void DrawEffects();
 	void bAddNewEffect(short sType, int sX, int sY, int dX, int dY, char cStartFrame, int iV1 = 1);
 	void AddEventList(char const * const pTxt, char cColor = 0, bool bDupAllow = true);
-	void ShowEventList(uint32_t dwTime);
+	void ShowEventList(uint64_t dwTime);
 	void SetItemCount(char * pItemName, uint32_t dwCount);
 	uint32_t GetItemCount(char * pItemName);
 	void _ShiftGuildOperationList();
@@ -815,18 +815,18 @@ public:
 	void InitItemList(char * pData);
 	int _iCheckDlgBoxFocus(char cButtonSide);
 	void GetPlayerTurn();
-	bool __fastcall DrawObject_OnDead(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
-	bool __fastcall DrawObject_OnDying(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
-	bool __fastcall DrawObject_OnMagic(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
-	bool __fastcall DrawObject_OnAttack(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
-	bool __fastcall DrawObject_OnAttackMove(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
-	bool __fastcall DrawObject_OnStop(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
-	bool __fastcall DrawObject_OnMove_ForMenu(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
-	bool __fastcall DrawObject_OnMove(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
-	bool __fastcall DrawObject_OnDamageMove(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
-	bool __fastcall DrawObject_OnRun(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
-	bool __fastcall DrawObject_OnDamage(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
-	bool __fastcall DrawObject_OnGetItem(int indexX, int indexY, int sX, int sY, bool bTrans, uint32_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnDead(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnDying(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnMagic(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnAttack(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnAttackMove(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnStop(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnMove_ForMenu(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnMove(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnDamageMove(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnRun(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnDamage(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
+	bool __fastcall DrawObject_OnGetItem(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
 	bool bEffectFrameCounter();
 	void ClearGuildNameList();
 	void DrawBackground(short sDivX, short sModX, short sDivY, short sModY);
@@ -908,7 +908,7 @@ public:
 	void DKGlare(int iWeaponColor, int iWeaponIndex, int *iWeaponGlare);
 	void DrawDruncncity();
 	void Abaddon_corpse(int sX, int sY);
-	void DrawAngel(int iSprite, short sX, short sY, char cFrame, uint32_t dwTime);
+	void DrawAngel(int iSprite, short sX, short sY, char cFrame, uint64_t dwTime);
 
 	void LoadMuteList();
 	void SaveMuteList();
@@ -935,7 +935,7 @@ public:
 		char  cSelectedObjectType;
 		short sSelectedObjectID;
 		short sPrevX, sPrevY, sDistX, sDistY;
-		uint32_t dwSelectClickTime;
+		uint64_t dwSelectClickTime;
 		short sClickX, sClickY;
 	} m_stMCursor;
 
@@ -963,13 +963,13 @@ public:
 	} m_stGuildOpList[100];
 
 	struct {
-		uint32_t dwTime;
+		uint64_t dwTime;
 		char  cColor;
 		char  cTxt[96];
 	} m_stEventHistory[6];
 
 	struct {
-		uint32_t dwTime;
+		uint64_t dwTime;
 		char  cColor;
 		char  cTxt[96];
 	} m_stEventHistory2[6];
@@ -1026,7 +1026,7 @@ public:
 	} m_stCrusadeStructureInfo[MAXCRUSADESTRUCTURES];
 
 	struct {
-		uint32_t dwRefTime;
+		uint64_t dwRefTime;
 		int iGuildRank;
 		char cCharName[12];
 		char cGuildName[24];
@@ -1152,8 +1152,8 @@ public:
 	bool m_bIsAstoriaMode;
 	Casualties m_astoriaStats[MAXSIDES];
 	//uint16 m_astoriaShieldsHP[MAXSIDES]; // Shield xRisenx
-	uint32_t m_astoriaShieldsHP[MAXSIDES]; // Shield xRisenx
-	uint32_t m_relicOwnedTime;
+	uint64_t m_astoriaShieldsHP[MAXSIDES]; // Shield xRisenx
+	uint64_t m_relicOwnedTime;
 	Side m_relicOwnedSide;
 	bool m_bIsSpecialAbilityEnabled;//was BOOL
 	bool m_bInputStatus;
@@ -1172,7 +1172,7 @@ public:
 	bool m_bParalyze;
 
 	int m_iFPS;
-	uint32_t m_dwFPStime;
+	uint64_t m_dwFPStime;
 	bool  m_bShowFPS;
 	bool  m_showTime;
 	bool  m_showGrid;
@@ -1229,10 +1229,10 @@ public:
 	int m_iPDBGSdivX, m_iPDBGSdivY;			   // Pre-Draw Background Surface
 	short m_sRecentShortCut;
 	short m_sShortCut[6]; // Snoopy: 6 shortcuts
-	int	m_iSpecialAbilityTimeLeftSec;
+	uint64_t	m_iSpecialAbilityTimeLeftSec;
 	int m_iDrawFlag;
 	int m_iSpecialAbilityType;
-	int m_iTimeLeftSecAccount, m_iTimeLeftSecIP;
+	uint64_t m_iTimeLeftSecAccount, m_iTimeLeftSecIP;
 	int m_iCrusadeDuty;
 	int m_iLogServerPort;
 	int m_iRating; //Rating
@@ -1411,7 +1411,7 @@ public:
     boost::asio::ssl::context ctx;
 
 	bool m_ekScreenshot;
-	uint32_t m_ekSSTime;
+	uint64_t m_ekSSTime;
 
 	bool m_tabbedNotification;
 	int m_relicX, m_relicY;
@@ -1429,7 +1429,7 @@ public:
 	bool m_bZerk, m_bInv, m_bPfm, m_bPfa, m_bShield; // Magic Icons xRisenx
     short m_sZerk, m_sInv, m_sPfm, m_sPfa, m_sShield; // Magic Icons xRisenx
 
-	uint32_t m_dwAuraTime, m_dwResurTime, m_dwVentanaTime; // Magic Icons xRisenx
+	uint64_t m_dwAuraTime, m_dwResurTime, m_dwVentanaTime; // Magic Icons xRisenx
 
 #ifdef MonsterBarClient
 	void NotifyMsg_NpcBar(char * pData);
@@ -1448,12 +1448,12 @@ public:
 	bool FindTitleName(char* pName, int* ipIndex);
 	int m_iTitleIndex;	// this is the index to the player's active title (?) -1 means none selected
 						//	The player's currently displayed title in m_pTitles[]
-	uint32_t dwTitleLevelUpTime;
+	uint64_t dwTitleLevelUpTime;
 	char cTitleLevelUpSubject[120]; // this seems to hold the most recently leveled up title (if any)
 									//		For displaying it on top of your character (informing/congratulating the player on the new title)
 
 	struct {// these are the titles being worn, for displaying under the name of each player
-		uint32_t dwRefTime;
+		uint64_t dwRefTime;
 		int iCrusadeT;//1=soldier, 2=constructor, 3=commander
 		int iRank;
 		int iCurrentNo;
@@ -1462,7 +1462,7 @@ public:
 	} m_stTitles[MAXGUILDNAMES];
 	
 	class Title * m_pTitles[MAXMENUITEMS];//besk: these are the player's own titles
-	uint32_t m_dwReqTitlesTime;
+	uint64_t m_dwReqTitlesTime;
 
 	void DrawDialogBox_Titles();
 	void DlgBoxClick_Titles(); // 

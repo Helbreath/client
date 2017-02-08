@@ -60,37 +60,37 @@ public:
 	void CreateShadow();
 
 
-	void PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint32_t dwTime);
+	void PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint64_t dwTime);
 
-	void PutSpriteFast(int sX, int sY, int sFrame, uint32_t dwTime);
-	void PutShiftSpriteFast(int sX, int sY, int shX, int shY, int sFrame, uint32_t dwTime);
-	void PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame, uint32_t dwTime);
-	void PutSpriteFastFrontBuffer(int sX, int sY, int sFrame, uint32_t dwTime);
-	void PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, uint32_t dwTime);
-	void PutSpriteFastNoColorKey(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutSpriteFast(int sX, int sY, int sFrame, uint64_t dwTime);
+	void PutShiftSpriteFast(int sX, int sY, int shX, int shY, int sFrame, uint64_t dwTime);
+	void PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame, uint64_t dwTime);
+	void PutSpriteFastFrontBuffer(int sX, int sY, int sFrame, uint64_t dwTime);
+	void PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime);
+	void PutSpriteFastNoColorKey(int sX, int sY, int sFrame, uint64_t dwTime);
 
-	void PutTransSprite(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth = 30);
-	void PutTransSprite2(int sX, int sY, int sFrame, uint32_t dwTime);
-	void PutTransSprite_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth = 0);
-	void PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint32_t dwTime);
-	void PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint32_t dwTime);
-	void PutTransSprite70(int sX, int sY, int sFrame, uint32_t dwTime);
-	void PutTransSprite50(int sX, int sY, int sFrame, uint32_t dwTime);
-	void PutTransSprite25(int sX, int sY, int sFrame, uint32_t dwTime);
-	void PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime);
-	void PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime);
-	void PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutTransSprite(int sX, int sY, int sFrame, uint64_t dwTime, int alphaDepth = 30);
+	void PutTransSprite2(int sX, int sY, int sFrame, uint64_t dwTime);
+	void PutTransSprite_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime, int alphaDepth = 0);
+	void PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint64_t dwTime);
+	void PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint64_t dwTime);
+	void PutTransSprite70(int sX, int sY, int sFrame, uint64_t dwTime);
+	void PutTransSprite50(int sX, int sY, int sFrame, uint64_t dwTime);
+	void PutTransSprite25(int sX, int sY, int sFrame, uint64_t dwTime);
+	void PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime);
+	void PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime);
+	void PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime);
 
-	void PutTransSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint32_t dwTime);
-	void PutSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint32_t dwTime);
+	void PutTransSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint64_t dwTime);
+	void PutSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint64_t dwTime);
 
-	void PutShadowSpriteClip(int sX, int sY, int sFrame, uint32_t dwTime);
-	void PutShadowSprite(int sX, int sY, int sFrame, uint32_t dwTime);
+	void PutShadowSpriteClip(int sX, int sY, int sFrame, uint64_t dwTime);
+	void PutShadowSprite(int sX, int sY, int sFrame, uint64_t dwTime);
 
-	void PutRevTransSprite(int sX, int sY, int sFrame, uint32_t dwTime, int alphaDepth = 0);
+	void PutRevTransSprite(int sX, int sY, int sFrame, uint64_t dwTime, int alphaDepth = 0);
 
-	void PutFadeSprite(short sX, short sY, short sFrame, uint32_t dwTime);
-	void PutFadeSpriteDst(uint16_t * pDstAddr, short sPitch, short sX, short sY, short sFrame, uint32_t dwTime);
+	void PutFadeSprite(short sX, short sY, short sFrame, uint64_t dwTime);
+	void PutFadeSpriteDst(uint16_t * pDstAddr, short sPitch, short sX, short sY, short sFrame, uint64_t dwTime);
 
 
 	bool _bCheckCollison(int sX, int sY, short sFrame, int msX, int msY);

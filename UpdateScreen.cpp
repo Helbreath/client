@@ -54,7 +54,7 @@ extern bool m_bStuckHack; // Anti Hack xRisenx
 
 void CGame::UpdateScreen_OnMainMenu()
 {
-    uint32_t dwTime = G_dwGlobalTime;
+    uint64_t dwTime = G_dwGlobalTime;
 
     m_iItemDropCnt = 0;
     m_bItemDrop = false;
@@ -1053,7 +1053,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
     short sX, sY, msX, msY, msZ;
     char  cLB, cRB, cMB, cTotalChar;
     char  cMIresult;
-    uint32_t dwTime;
+    uint64_t dwTime;
     static uint32_t dwCTime;
 
     int iMIbuttonNum;
@@ -1268,7 +1268,7 @@ void CGame::UpdateScreen_OnConnecting()
 {
     short sX, sY, msX, msY, msZ;
     char cLB, cRB, cMB;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
     static uint32_t dwMTime, dwCTime;
 
     if (m_cGameModeCount == 0)
@@ -1393,7 +1393,7 @@ void CGame::UpdateScreen_OnWaitInitData()
 {
     short msX, msY, msZ;
     char cLB, cRB, cMB;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
 
     msX = m_stMCursor.sX; msY = m_stMCursor.sY; msZ = m_stMCursor.sZ;
     cLB = (m_stMCursor.LB == true) ? 1 : 0; cRB = (m_stMCursor.RB == true) ? 1 : 0; cMB = (m_stMCursor.MB == true) ? 1 : 0;
@@ -1447,7 +1447,7 @@ void CGame::UpdateScreen_OnConnectionLost()
 {
     short msX, msY, msZ;
     char cLB, cRB, cMB;
-    static uint32_t dwTime;
+    static uint64_t dwTime;
 
     msX = m_stMCursor.sX; msY = m_stMCursor.sY; msZ = m_stMCursor.sZ;
     cLB = (m_stMCursor.LB == true) ? 1 : 0; cRB = (m_stMCursor.RB == true) ? 1 : 0; cMB = (m_stMCursor.MB == true) ? 1 : 0;
@@ -1497,7 +1497,7 @@ void CGame::UpdateScreen_OnCreateNewCharacter()		// DrawCreateCharacter
     short msX, msY, msZ;
     bool bFlag;
     static uint32_t dwMTime;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
 
     msX = m_stMCursor.sX; msY = m_stMCursor.sY; msZ = m_stMCursor.sZ;
     cLB = (m_stMCursor.LB == true) ? 1 : 0; cRB = (m_stMCursor.RB == true) ? 1 : 0; cMB = (m_stMCursor.MB == true) ? 1 : 0;
@@ -2161,7 +2161,7 @@ void CGame::UpdateScreen_OnAgreement()
     char  cLB, cRB, cMB;
     char  cMIresult;
     int i, iTotalLines, iPointerLoc;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
     double d1, d2, d3;
     int iMIbuttonNum;
 
@@ -2280,7 +2280,7 @@ void CGame::UpdateScreen_OnCreateNewAccount()
     char cMIresult;
     int  iMIbuttonNum;
     static char cName[12], cPassword[12], cConfirm[12], cPrevFocus, cSSN_A[8], cSSN_B[8], cQuiz[44], cAnswer[20], cTempQuiz[44];
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
     int iFlag = 0;
 
     msX = m_stMCursor.sX; msY = m_stMCursor.sY; msZ = m_stMCursor.sZ;
@@ -2869,7 +2869,7 @@ void CGame::UpdateScreen_OnQuit()
     char cMIresult;
     int  iMIbuttonNum;
 
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
 
     if (m_cGameModeCount == 0)
     {
@@ -2932,7 +2932,7 @@ void CGame::UpdateScreen_OnQueryForceLogin()
     int  iMIbuttonNum;
 
     static uint32_t dwCTime;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
 
     if (m_cGameModeCount == 0)
     {
@@ -3029,7 +3029,7 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
     int iYear, iMonth, iDay, iHour, iMinute;
     __int64 iTemp1, iTemp2;
     char cTotalChar = 0;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
     sY = 10;
     //DIRECTX m_DDraw.ClearBackB4();
     //DrawNewDialogBox(SPRID_INTERFACE_ND_SELECTCHAR, 0, 0, 0);
@@ -3166,7 +3166,7 @@ void CGame::UpdateScreen_OnWaitingResponse()
     short sX, sY, msX, msY, msZ;
     char cLB, cRB, cMB;
 
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
     static uint32_t dwCTime;
 
 
@@ -3269,7 +3269,7 @@ void CGame::UpdateScreen_OnQueryDeleteCharacter()
     int  iMIbuttonNum;
 
     static uint32_t dwCTime;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
 
 
     if (m_cGameModeCount == 0)
@@ -3368,7 +3368,7 @@ void CGame::UpdateScreen_OnLogResMsg()
 {
     short msX, msY, msZ, sX, sY;
     char  cLB, cRB, cMB;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
     static uint32_t dwCTime;
     int   iMIbuttonNum;
     char  cMIresult;
@@ -3709,7 +3709,7 @@ void CGame::UpdateScreen_OnChangePassword()
     int  iMIbuttonNum;
     static char  cName[12], cPassword[12], cNewPassword[12], cNewPassConfirm[12], cPrevFocus;
     static uint32_t dwCTime;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
     bool bFlag = true;
 
     msX = m_stMCursor.sX; msY = m_stMCursor.sY; msZ = m_stMCursor.sZ;
@@ -3969,7 +3969,7 @@ void CGame::UpdateScreen_OnVersionNotMatch()
     char cLB, cRB, cMB;
     char cMIresult;
     int  iMIbuttonNum;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
 
     msX = m_stMCursor.sX; msY = m_stMCursor.sY; msZ = m_stMCursor.sZ;
     cLB = (m_stMCursor.LB == true) ? 1 : 0; cRB = (m_stMCursor.RB == true) ? 1 : 0; cMB = (m_stMCursor.MB == true) ? 1 : 0;
@@ -4027,7 +4027,7 @@ void CGame::UpdateScreen_OnGame()
     short absX, absY, tX, tY;
     uint32_t ItemColor;
     int  i, iAmount;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
     static uint32_t dwPrevChatTime = 0;
     static int   imX = 0, imY = 0;
     iUpdateRet = 1;
@@ -4822,7 +4822,7 @@ void CGame::UpdateScreen_OnSelectServer()
     char cMIresult;
     int  iMIbuttonNum;
     static char  cPrevFocus;
-    uint32_t dwTime = unixtime();
+    uint64_t dwTime = unixtime();
     bool bFlag = true;
 
 

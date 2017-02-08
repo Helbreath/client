@@ -258,11 +258,11 @@ bool CGame::OnEvent(const irr::SEvent& event)
 	return false;
 }
 
-void CGame::DrawScene(uint32_t ptime)
+void CGame::DrawScene(uint64_t time)
 {
 	//driver->beginScene(true, true, video::SColor(255,120,102,136));
 	driver->beginScene(true, true);
-	mtime = ptime;
+	mtime = time;
 	//drawfunc();
 	//m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->DrawSprite(-1, -1, 0);
 	//DrawFPS2();
@@ -2732,7 +2732,7 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 	memset(m_cMCName, 0, sizeof(m_cMCName));
 
 	//dwTime = G_dwGlobalTime;
-	uint32_t dwTime = m_dwCurTime;
+	uint64_t dwTime = m_dwCurTime;
 	m_stMCursor.sCursorFrame = 0;
 	// Show Item On Ground xRisenx
 	/*for(iy = 0; iy < 15+10; iy++)
@@ -6318,7 +6318,7 @@ void CGame::DrawEffects()
 {
 	int i, dX, dY, iDvalue,  tX, tY, rX, rY, rX2, rY2, rX3, rY3, rX4, rY4, rX5, rY5, iErr;
 	char  cTempFrame;
-	uint32_t dwTime = m_dwCurTime;
+	uint64_t dwTime = m_dwCurTime;
 
  	for (i = 0;	i < MAXEFFECTS; i++)
 	if ((m_pEffectList[i] != 0) && (m_pEffectList[i]->m_cFrame >= 0))
@@ -7264,7 +7264,7 @@ void CGame::bItemDrop_IconPanel()
 void CGame::DrawEffectLights()
 {
 	int i, dX, dY, iDvalue;
- uint32_t dwTime = m_dwCurTime;
+ uint64_t dwTime = m_dwCurTime;
  char  cTempFrame;
 
 	for (i = 0;	i < MAXEFFECTS; i++)
@@ -7607,7 +7607,7 @@ void CGame::PutString_SprFont(int iX, int iY, char * pStr, short sR, short sG, s
 {
  int iXpos;
  uint32_t iCnt;
- uint32_t dwTime = G_dwGlobalTime;
+ uint64_t dwTime = G_dwGlobalTime;
  char  cTmpStr[100];
 
 	ZeroMemory(cTmpStr, sizeof(cTmpStr));
@@ -7629,7 +7629,7 @@ void CGame::PutString_SprFont2(int iX, int iY, char * pStr, short sR, short sG, 
 {
  int iXpos, iR, iG, iB;
  uint32_t iCnt;
- uint32_t dwTime = G_dwGlobalTime;
+ uint64_t dwTime = G_dwGlobalTime;
  char  cTmpStr[200];
 
 	//DIRECTX m_DDraw.ColorTransferRGB(RGB(sR, sG, sB), &iR, &iG, &iB);
@@ -7655,7 +7655,7 @@ void CGame::PutString_SprFont3(int iX, int iY, char * pStr, short sR, short sG, 
 {
  int iXpos, iAdd;
  uint32_t iCnt;
- uint32_t dwTime = G_dwGlobalTime;
+ uint64_t dwTime = G_dwGlobalTime;
  char  cTmpStr[128];
 
 	ZeroMemory(cTmpStr, sizeof(cTmpStr));
@@ -7710,7 +7710,7 @@ void CGame::PutString_SprNum(int iX, int iY, char * pStr, short sR, short sG, sh
 {
 	int iXpos;
 	unsigned char iCnt;
-	uint32_t dwTime = G_dwGlobalTime;
+	uint64_t dwTime = G_dwGlobalTime;
 	char  cTmpStr[200];
 	ZeroMemory(cTmpStr, sizeof(cTmpStr));
 	strcpy(cTmpStr, pStr);
@@ -8755,7 +8755,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 void CGame::UpdateScreen_OnMsg()
 {short msX, msY, msZ;
  char cLB, cRB, cMB;
- uint32_t dwTime = G_dwGlobalTime;
+ uint64_t dwTime = G_dwGlobalTime;
 
  msX = m_stMCursor.sX;msY = m_stMCursor.sY;msZ = m_stMCursor.sZ;
  cLB = (m_stMCursor.LB==true)?1:0;cRB = (m_stMCursor.RB==true)?1:0;cMB = (m_stMCursor.MB==true)?1:0;
@@ -8887,7 +8887,7 @@ void CGame::ChatMsgHandler(char * pData)
 	int i, iObjectID, iLoc;
 	short * sp, sX, sY;
 	char * cp, cMsgType, cName[21], cTemp[100], cMsg[100], cTxt1[100], cTxt2[100];
-	uint32_t dwTime;
+	uint64_t dwTime;
 	uint16_t * wp;
 	bool bFlag;
 
@@ -9047,7 +9047,7 @@ void CGame::ChatMsgHandler(char * pData)
 void CGame::ReleaseTimeoverChatMsg()
 {
 	int i;
-	uint32_t dwTime;
+	uint64_t dwTime;
 
 	dwTime = G_dwGlobalTime;
 	for ( i = 1; i < MAXCHATMSGS; i++)
@@ -9179,7 +9179,7 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 bool CGame::bEffectFrameCounter()
 {
 	int i, x;
-	uint32_t dwTime;
+	uint64_t dwTime;
 	bool bRet = false;
 	short sAbsX, sAbsY, sDist;
 	char  cDir;
@@ -12213,7 +12213,7 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, bool bIsPreDC)
 {
  char cMsg[200], cMsgA[22], cMsgB[22], cMsgC[22], * cp;
  int  iRet, iLines, i, iSize, iSize2, iLoc, iFontSize;
- uint32_t dwTime;
+ uint64_t dwTime;
  video::SColor rgb;
  bool bIsTrans;
  RECT rcRect;
@@ -12521,7 +12521,7 @@ void CGame::PlaySound(char cType, int iNum, int iDist, long lPan)
 void CGame::_DrawBlackRect(int iSize)
 {
  int ix, iy, sx, sy, dcx, dcy;
- uint32_t dwTime;
+ uint64_t dwTime;
 
 	dwTime = unixtime();
 
@@ -12687,7 +12687,7 @@ void CGame::DrawWeatherEffects()
  int i;
  short dX, dY, sCnt;
  char cTempFrame;
- uint32_t dwTime = m_dwCurTime;
+ uint64_t dwTime = m_dwCurTime;
 
 	switch (m_weather) {
 	case WEATHER_LIGHTRAIN:
@@ -12761,7 +12761,7 @@ void CGame::WeatherObjectFrameCounter()
  int i;
  short sCnt;
  char  cAdd;
- uint32_t dwTime = m_dwCurTime;
+ uint64_t dwTime = m_dwCurTime;
 
 	if ((dwTime - m_dwWOFtime) < 30) return;
 	m_dwWOFtime = dwTime;
@@ -13080,7 +13080,7 @@ void CGame::DrawLine2(int x0, int y0, int x1, int y1, int iR, int iG, int iB)
 void CGame::_DrawThunderEffect(int sX, int sY, int dX, int dY, int rX, int rY, char cType)
 {int j, iErr, pX1, pY1, iX1, iY1, tX, tY;
  char cDir;
- uint32_t dwTime;
+ uint64_t dwTime;
  uint16_t  wR1, wG1, wB1, wR2, wG2, wB2, wR3, wG3, wB3, wR4, wG4, wB4;
 	dwTime = m_dwCurTime;
 	sX = pX1 = iX1 = tX = sX;
@@ -14052,7 +14052,7 @@ bool CGame::bReadItemNameConfigFile()
 void CGame::DrawDialogBox_Map()
 {
  short sX, sY;
- uint32_t dwTime = m_dwCurTime;
+ uint64_t dwTime = m_dwCurTime;
  double dV1, dV2, dV3;
  int    tX, tY, szX, szY, dX, dY;
 
@@ -14801,7 +14801,7 @@ void CGame::CreateScreenShot()
 bool CGame::_bDraw_OnCreateNewCharacter(char * pName, short msX, short msY, int iPoint)		// DrawCreateCharacter
 {
  bool bFlag = true;
- uint32_t dwTime = unixtime();
+ uint64_t dwTime = unixtime();
  int i=0;
 
 	////DIRECTX m_DDraw.ClearBackB4();//DIRECTX
@@ -15446,7 +15446,7 @@ void CGame::OnSysKeyUp(WPARAM wParam)
 void CGame::OnKeyUp(WPARAM wParam)
 {
  int i=0;
- uint32_t dwTime = unixtime();
+ uint64_t dwTime = unixtime();
  static uint32_t dwPrevTabTime = 0;
 
 	switch (wParam) {
@@ -22431,7 +22431,8 @@ MOTION_COMMAND_PROCESS:;
 			m_sDamageMove = 0;
 		}
 
-		switch (m_cCommand) {
+		switch (m_cCommand)
+        {
 		case OBJECTRUN:
 		case OBJECTMOVE:
 		case OBJECTDAMAGEMOVE:
@@ -22449,11 +22450,14 @@ MOTION_COMMAND_PROCESS:;
 				(m_pMapData->m_tile[m_sCommX][m_sCommY].m_bIsMoveAllowed == false))
 				m_cCommand = OBJECTSTOP;
 			else
-			{	if( m_cCommand == OBJECTMOVE )
-				{	if(m_bRunningMode || m_bShiftPressed) m_cCommand = OBJECTRUN;
+			{
+                if( m_cCommand == OBJECTMOVE )
+				{
+                    if(m_bRunningMode || m_bShiftPressed) m_cCommand = OBJECTRUN;
 				}
 				if( m_cCommand == OBJECTRUN )
-				{	if( (m_bRunningMode == false) && (m_bShiftPressed == false) ) m_cCommand = OBJECTMOVE;
+				{
+                    if( (m_bRunningMode == false) && (m_bShiftPressed == false) ) m_cCommand = OBJECTMOVE;
 					if( m_iSP < 1 ) m_cCommand = OBJECTMOVE;
 				}
 
@@ -22471,22 +22475,16 @@ MOTION_COMMAND_PROCESS:;
 					
 					switch (cDir) 
 					{
-					case 1:	m_sPlayerY--; break;
-					case 2:	m_sPlayerY--; m_sPlayerX++;	break;
-					case 3:	m_sPlayerX++; break;
-					case 4:	m_sPlayerX++; m_sPlayerY++;	break;
-					case 5:	m_sPlayerY++; break;
-					case 6:	m_sPlayerX--; m_sPlayerY++;	break;
-					case 7:	m_sPlayerX--; break;
-					case 8:	m_sPlayerX--; m_sPlayerY--;	break;
+                        case 1:	m_sPlayerY--; break;
+                        case 2:	m_sPlayerY--; m_sPlayerX++;	break;
+                        case 3:	m_sPlayerX++; break;
+                        case 4:	m_sPlayerX++; m_sPlayerY++;	break;
+                        case 5:	m_sPlayerY++; break;
+                        case 6:	m_sPlayerX--; m_sPlayerY++;	break;
+                        case 7:	m_sPlayerX--; break;
+                        case 8:	m_sPlayerX--; m_sPlayerY--;	break;
 					}
 
-#ifdef _DEBUG
-					static int timez = unixtime();
-					//wsprintfA(G_cTxt, "Move: %i", unixtime() - timez);
-					//AddEventList(G_cTxt);
-					timez = unixtime();
-#endif
 					m_pMapData->bSetOwner(m_sPlayerObjectID, m_sPlayerX, m_sPlayerY, m_sPlayerType, m_cPlayerDir,
 						                  m_sPlayerAppr1, m_sPlayerAppr2, m_sPlayerAppr3, m_sPlayerAppr4, m_iPlayerApprColor,
 										  m_sPlayerHeadApprValue, m_sPlayerBodyApprValue, m_sPlayerArmApprValue, m_sPlayerLegApprValue, // Re-Coding Sprite xRisenx
@@ -22496,10 +22494,12 @@ MOTION_COMMAND_PROCESS:;
 					m_dwCommandTime = unixtime();
 					m_iPrevMoveX = m_sPlayerX;
 					m_iPrevMoveY = m_sPlayerY;
-			}	}
+			    }
+            }
 
 			if (m_cCommand == OBJECTDAMAGEMOVE)
-			{	m_bIsGetPointingMode = false;
+			{
+                m_bIsGetPointingMode = false;
 				m_iPointCommandType	 = -1;
 				m_stMCursor.sCursorFrame = 0;
 				ClearSkillUsingStatus();
@@ -22511,16 +22511,20 @@ MOTION_COMMAND_PROCESS:;
 			cDir = m_Misc.cGetNextMoveDir(m_sPlayerX, m_sPlayerY, m_sCommX, m_sCommY);
 			// Snoopy: Illusion movement
 			if (m_bIllusionMVT == true)
-			{	cDir +=4;
+			{
+                cDir +=4;
 				if (cDir >8) cDir -=8;
 			}
 			if (cDir != 0)
-			{	if ((wType == 2) || (wType == 25))
-				{	if (_bCheckItemByType(ITEMTYPE_ARROW) == false)
+			{
+                if ((wType == 2) || (wType == 25))
+				{
+                    if (_bCheckItemByType(ITEMTYPE_ARROW) == false)
 						wType = 0;
 				}
 				if (wType >= 20)
-				{	m_iSuperAttackLeft--;
+				{
+                    m_iSuperAttackLeft--;
 					if (m_iSuperAttackLeft < 0) m_iSuperAttackLeft = 0;
 				}
 				m_cPlayerDir = cDir;
@@ -22573,7 +22577,8 @@ MOTION_COMMAND_PROCESS:;
 					m_dwCommandTime = unixtime();
 					m_iPrevMoveX = m_sPlayerX;
 					m_iPrevMoveY = m_sPlayerY;
-			}	}
+			    }
+            }
 			m_cCommand = OBJECTSTOP;
 			break;
 
@@ -22602,7 +22607,8 @@ MOTION_COMMAND_PROCESS:;
 			_RemoveChatMsgListByObjectID(m_sPlayerObjectID);
 			for (i = 1; i < MAXCHATMSGS; i++)
 			if (m_pChatMsgList[i] == 0)
-			{	ZeroMemory(cTxt, sizeof(cTxt));
+			{
+                ZeroMemory(cTxt, sizeof(cTxt));
 				wsprintfA(cTxt, "%s!", m_pMagicCfgList[m_iCastingMagicType]->m_cName);
 				m_pChatMsgList[i] = new class CMsg(41, cTxt, unixtime());
 				m_pChatMsgList[i]->m_iObjectID = m_sPlayerObjectID;
@@ -22635,12 +22641,13 @@ void CGame::bItemDrop_Character()
 
 void CGame::bItemDrop_Inventory()
 { 
-	short sX, sY, dX, dY;
- char  cTxt[120];
+    short sX, sY, dX, dY;
+    char  cTxt[120];
 	if (m_cCommand < 0) return;
 	if (m_pItemList[m_stMCursor.sSelectedObjectID] == 0) return;
 	if ((m_bSkillUsingStatus == true) && (m_bIsItemEquipped[m_stMCursor.sSelectedObjectID] == true))
-	{	AddEventList(BITEMDROP_INVENTORY1, 10);
+	{
+        AddEventList(BITEMDROP_INVENTORY1, 10);
 		return;
 	}
 	if (m_bIsItemDisabled[m_stMCursor.sSelectedObjectID] == true) return;
@@ -22659,8 +22666,8 @@ void CGame::bItemDrop_Inventory()
 	}
 	else
 	{
-	m_pItemList[m_stMCursor.sSelectedObjectID]->m_sX = dX;
-	m_pItemList[m_stMCursor.sSelectedObjectID]->m_sY = dY;
+        m_pItemList[m_stMCursor.sSelectedObjectID]->m_sX = dX;
+        m_pItemList[m_stMCursor.sSelectedObjectID]->m_sY = dY;
 	}
 
 	short sTmpSpr, sTmpSprFrm;
@@ -22669,15 +22676,22 @@ void CGame::bItemDrop_Inventory()
 
 	char cItemID;
 	if (m_bShiftPressed)
-	{	for (int i = 0; i < MAXITEMS; i++)
-		{	if (m_cItemOrder[MAXITEMS - 1 - i] != -1)
-			{	cItemID = m_cItemOrder[MAXITEMS - 1 - i];
+	{
+        for (int i = 0; i < MAXITEMS; i++)
+		{
+            if (m_cItemOrder[MAXITEMS - 1 - i] != -1)
+			{
+                cItemID = m_cItemOrder[MAXITEMS - 1 - i];
 				if (m_pItemList[cItemID] != 0 && memcmp(m_pItemList[cItemID]->m_cName, m_pItemList[m_stMCursor.sSelectedObjectID]->m_cName, 20) == 0 )
-				{	m_pItemList[cItemID]->m_sX = dX;
+				{
+                    m_pItemList[cItemID]->m_sX = dX;
 					m_pItemList[cItemID]->m_sY = dY;
 					bSendCommand(MSGID_REQUEST_SETITEMPOS, 0, cItemID, dX, dY, 0, 0);
-		}	}	}
-    }else bSendCommand(MSGID_REQUEST_SETITEMPOS, 0, (char)(m_stMCursor.sSelectedObjectID), dX, dY, 0, 0);
+		        }
+            }
+        }
+    }
+    else bSendCommand(MSGID_REQUEST_SETITEMPOS, 0, (char)(m_stMCursor.sSelectedObjectID), dX, dY, 0, 0);
 
 	if (m_bIsItemEquipped[m_stMCursor.sSelectedObjectID] == true)
 	{	char cStr1[64], cStr2[64], cStr3[64];
@@ -25490,7 +25504,7 @@ void CGame::_Draw_OnLogin(char *pAccount, char *pPassword, int msX, int msY, int
 	DrawVersion();
 }
 
-void CGame::ShowEventList(uint32_t dwTime)
+void CGame::ShowEventList(uint64_t dwTime)
 {
 	int i;
 
@@ -26888,11 +26902,11 @@ void CGame::ItemEquipHandler(char cItemID)
 }
 
 /*********************************************************************************************************************
-**  void CheckActiveAura(short sX, short sY, uint32_t dwTime, short sOwnerType)( initially Cleroth fixed by Snoopy )	**
+**  void CheckActiveAura(short sX, short sY, uint64_t dwTime, short sOwnerType)( initially Cleroth fixed by Snoopy )	**
 **  description			: Generates special auras around players													**
 **						: v351 implements this in each drawn function,beter to regroup in single function.			**
 **********************************************************************************************************************/
-void CGame::CheckActiveAura(short sX, short sY, uint32_t dwTime, short sOwnerType)
+void CGame::CheckActiveAura(short sX, short sY, uint64_t dwTime, short sOwnerType)
 {	// Used at the beginning of character drawing
 	// DefenseShield
 	if ((_tmp_iStatus & STATUS_DEFENSESHIELD) != 0)
@@ -26953,11 +26967,11 @@ void CGame::CheckActiveAura(short sX, short sY, uint32_t dwTime, short sOwnerTyp
 }
 
 /*********************************************************************************************************************
-**  void CheckActiveAura2(short sX, short sY, uint32_t dwTime,  _tmp_sOwnerType) ( initially Cleroth fixed by Snoopy )	**
+**  void CheckActiveAura2(short sX, short sY, uint64_t dwTime,  _tmp_sOwnerType) ( initially Cleroth fixed by Snoopy )	**
 **  description			: Generates poison aura around players. This one should be use later...						**
 **						: v351 implements this in each drawn function,beter to regroup in single function.			**
 **********************************************************************************************************************/
-void CGame::CheckActiveAura2(short sX, short sY, uint32_t dwTime, short sOwnerType)
+void CGame::CheckActiveAura2(short sX, short sY, uint64_t dwTime, short sOwnerType)
 {	// Poison
 	if ((_tmp_iStatus & STATUS_POISON) != 0)
 		//m_pEffectSpr[81]->PutTransSprite(sX+115, sY+85, _tmp_iEffectFrame%21, dwTime);
@@ -26977,7 +26991,7 @@ void CGame::CheckActiveAura2(short sX, short sY, uint32_t dwTime, short sOwnerTy
 	}
 }
 
-void CGame::DrawAngel(int iSprite, short sX, short sY, char cFrame, uint32_t dwTime)
+void CGame::DrawAngel(int iSprite, short sX, short sY, char cFrame, uint64_t dwTime)
 {	if  ((_tmp_iStatus & 0x1000) != 0) m_pSprite[SPRID_TUTELARYANGELS_PIVOTPOINT+iSprite]->PutSpriteFast(sX, sY, cFrame, dwTime);  //AngelicPendant(STR)
 	else if ((_tmp_iStatus & 0x2000) != 0) m_pSprite[SPRID_TUTELARYANGELS_PIVOTPOINT+(50*1)+iSprite]->PutSpriteFast(sX, sY, cFrame, dwTime); //AngelicPendant(DEX)
 	else if ((_tmp_iStatus & 0x4000) != 0) m_pSprite[SPRID_TUTELARYANGELS_PIVOTPOINT+(50*2)+iSprite]->PutSpriteFast(sX, sY-20, cFrame, dwTime);//AngelicPendant(INT)

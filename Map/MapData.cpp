@@ -1417,11 +1417,11 @@ bool __fastcall CMapData::bSetOwner(uint16_t wObjectID, int sX, int sY, int sTyp
 bool __fastcall CMapData::bSetOwner(uint16_t wObjectID, int sX, int sY, int sType, int cDir, short sAppr1, short sAppr2, short sAppr3, short sAppr4, int iApprColor, short sHeadApprValue, short sBodyApprValue, short sArmApprValue, short sLegApprValue, UnitStatus iStatus, char * pName, short sAction, short sV1, short sV2, short sV3, int iPreLoc, int iFrame)
 #endif
 {
-	int   iX, iY, dX, dY;
- int   iChatIndex, iAdd;
- char  cTmpName[12];
-	uint32_t dwTime;
- int   iEffectType, iEffectFrame, iEffectTotalFrame;
+    int   iX, iY, dX, dY;
+    int   iChatIndex, iAdd;
+    char  cTmpName[12];
+    uint64_t dwTime;
+    int   iEffectType, iEffectFrame, iEffectTotalFrame;
 
 	//if ((m_sPivotX == -1) || (m_sPivotY == -1)) return false;
 	memset(cTmpName, 0, sizeof(cTmpName));
@@ -2147,11 +2147,11 @@ bool __fastcall CMapData::bGetDeadOwner(short sX, short sY, short * pOwnerType, 
 int CMapData::iObjectFrameCounter(char * cPlayerName, short sViewPointX, short sViewPointY)
 {
 	int dX,dY, sVal;
-	uint32_t dwTime, dwRealTime, dwFrameTime;
+	uint64_t dwTime, dwRealTime, dwFrameTime;
 	int  iDelay;
 	int  iRet, iSoundIndex, iSkipFrame;
 	int  cDir, cTotalFrame, cFrameMoveDots;
-	static uint32_t S_dwUpdateTime = unixtime();
+	static uint64_t S_dwUpdateTime = unixtime();
 	int   sWeaponType, sCenterX, sCenterY, sDist;//, sAbsX, sAbsY;
 
 	bool  bAutoUpdate = false, dynObjsNeedUpdate = false;
