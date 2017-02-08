@@ -546,8 +546,8 @@ void CGame::PutMsgQueue(shared_ptr<CGame::MsgQueueEntry> msg, MsgQueue & q)
 
 shared_ptr<CGame::MsgQueueEntry> CGame::GetMsgQueue()
 {
-	shared_ptr<CGame::MsgQueueEntry> msg = loginpipe.front();
-	loginpipe.pop_front();
+	shared_ptr<CGame::MsgQueueEntry> msg = socketpipe.front();
+    socketpipe.pop_front();
 	return msg;
 }
 
