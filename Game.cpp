@@ -168,7 +168,7 @@ bool CGame::OnEvent(const irr::SEvent& event)
         {
             // TODO: get values?
 			m_stMCursor.sZ = event.MouseInput.Wheel;
-			htmlUI->view->InjectMouseWheel(event.MouseInput.Wheel, 0);
+			htmlUI->view->InjectMouseWheel(event.MouseInput.Wheel * 16, 0);
             //mouse wheel for dialogs?
         }
         else if (event.MouseInput.Event == irr::EMIE_MOUSE_MOVED)
