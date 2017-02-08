@@ -31,8 +31,8 @@ HTMLUI::~HTMLUI()
 
 void HTMLUI::Init()
 {
-	WebURL url(WSLit("http://hbx.decouple.io/index.html"));
-	// WebURL url(WSLit("file:///g:/projects/hbx-ui/public/index.html"));
+	// WebURL url(WSLit("http://hbx.decouple.io/index.html"));
+	WebURL url(WSLit("file:///g:/projects/hbx-ui/public/index.html"));
 	view->LoadURL(url);
 	view->SetTransparent(true);
 
@@ -238,14 +238,10 @@ void HTMLUI::Emit(string event, bool result, string message)
 void HTMLUI::EmitObject(string event, bool result, JSValue obj)
 {
     JSValue ui = GetUI();
-  
-    JSObject properties;
-    properties.SetProperty(WSLit("success"), JSValue(result));
-    properties.SetProperty(WSLit("message"), JSValue(obj));
 
     JSArray args;
     args.Push(ToWebString(event));
-    args.Push(properties);
+    args.Push(obj);
     if (ui.ToObject().HasMethod(WSLit("emit")))
         ui.ToObject().Invoke(WSLit("emit"), args);
     else
