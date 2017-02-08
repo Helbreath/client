@@ -93,9 +93,12 @@ void HTMLUI::SetCharacters()
     if (game->m_pCharList.size() > 0)
     {
         JSArray args;
+        int i = 0;
         for (shared_ptr<CCharInfo> character : game->m_pCharList)
         {
             JSObject properties;
+            properties.SetProperty(WSLit("id"), JSValue(i++));
+            properties.SetProperty(WSLit("name"), JSValue(ToWebString(character->m_cName)));
             properties.SetProperty(WSLit("sex"), JSValue(character->m_sSex));
             properties.SetProperty(WSLit("level"), JSValue(character->m_sLevel));
             properties.SetProperty(WSLit("exp"), JSValue(static_cast<double>(character->m_iExp)));
