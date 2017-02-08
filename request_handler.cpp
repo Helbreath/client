@@ -22,7 +22,10 @@ void request_handler::handle_request(const request& req)
 			//c.client.GameRecvMsgHandler(req.size, req.data);
 		}
 		else
-			c.client.LogResponseHandler(req.size, req.data);
+        {
+            std::lock_guard<std::mutex> lock(c.client.socketmut);
+			c.client.PutMsgQueue(c.client.loginpipe, req.data, req.size);
+        }
 	}
 	catch (std::exception& e)
 	{

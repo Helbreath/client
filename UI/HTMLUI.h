@@ -19,8 +19,6 @@ public:
 	JSValue OnMethodCallWithReturnValue(WebView *caller, unsigned int remote_object_id, const WebString& method_name, const JSArray& args);
 
 	HTMLUI *htmlUI;
-
-    void Emit(string event, bool result, string message);
 };
 
 class HTMLUI
@@ -33,7 +31,6 @@ public:
 	JSObject jsData;
 	HTMLUIMethodHandler *mHandler;
     CGame * game;
-	JSValue uiValue;
     JSObject uiJS;
 
 	HTMLUI(class CGame *pGame);
@@ -42,4 +39,7 @@ public:
 	bool isDirty();
 	void Update(int sleep_ms);
     void SetCharacters();
+    JSValue GetUI();
+    void Emit(string event, bool result, string message);
+    void EmitObject(string event, bool result, JSObject obj);
 };

@@ -193,6 +193,17 @@ class CGame : public irr::IEventReceiver
 {
 public:
 
+    struct UIMsgQueueEntry
+    {
+        JSValue obj;
+        string message;
+    };
+
+    typedef std::deque<shared_ptr<UIMsgQueueEntry>> UIMsgQueue;
+    UIMsgQueue uiqueue;
+    void PutUIMsgQueue(shared_ptr<UIMsgQueueEntry> msg);
+    shared_ptr<UIMsgQueueEntry> GetUIMsgQueue();
+
     int viewdstxvar = 0;
     int viewdstyvar = 0;
     int viewdstxcharvar = 0;
@@ -220,7 +231,11 @@ public:
 	MsgQueue socketpipe;
 	void PutMsgQueue(MsgQueue & q, char * data, uint32_t size);
 	void PutMsgQueue(std::shared_ptr<MsgQueueEntry>, MsgQueue & q);
-	std::shared_ptr<MsgQueueEntry> GetMsgQueue(MsgQueue & q);
+	std::shared_ptr<MsgQueueEntry> GetMsgQueue();
+
+    MsgQueue loginpipe;
+    std::shared_ptr<MsgQueueEntry> GetLoginMsgQueue();
+
 
 	connection_ptr _socket;
 	void start(connection_ptr c);
@@ -235,11 +250,12 @@ public:
 
 	std::mutex uimtx;
 	std::mutex screenupdate;
-	std::mutex socketmut;
+    std::mutex socketmut;
+    std::mutex uimut;
 
     void CreateSocket();
 
-    void ProcessUI();
+    void ProcessUI(shared_ptr<UIMsgQueueEntry>);
 
 	boost::shared_ptr<boost::thread> socketthread;
 

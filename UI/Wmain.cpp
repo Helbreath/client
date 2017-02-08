@@ -172,14 +172,6 @@ int main(int argc, char * argv[])
 		G_pGame->OnTimer();
 		//process packets
 
-		{
-			std::lock_guard<std::mutex> lock(G_pGame->socketmut);
-			while (G_pGame->socketpipe.size() > 0)
-			{
-				shared_ptr<CGame::MsgQueueEntry> entry = G_pGame->GetMsgQueue(G_pGame->socketpipe);
-				G_pGame->GameRecvMsgHandler(entry->size, entry->data);
-			}
-		}
 		if (G_pGame->fullscreenswap)
 		{
 			grace++;

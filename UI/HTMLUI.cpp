@@ -41,7 +41,7 @@ void HTMLUI::Init()
 	}
 	HTMLUI::Update(250);
 
-	uiValue = view->ExecuteJavascriptWithResult(WSLit("UI"), WSLit(""));
+	JSValue uiValue = view->ExecuteJavascriptWithResult(WSLit("UI"), WSLit(""));
 	if (!uiValue.IsObject())
 	{
 		//ERROR
@@ -75,13 +75,20 @@ void HTMLUI::Update(int sleep_ms)
 	WebCore::instance()->Update();
 }
 
-void HTMLUI::SetCharacters()
+JSValue HTMLUI::GetUI()
 {
-    if (!uiValue.IsObject())
+    JSValue ui = view->ExecuteJavascriptWithResult(WSLit("UI"), WSLit(""));
+    if (!ui.IsObject())
     {
         //ERROR
         __asm int 3;
     }
+    return ui;
+}
+
+void HTMLUI::SetCharacters()
+{
+    JSValue ui = GetUI();
 
     if (game->m_pCharList.size() > 0)
     {
@@ -104,7 +111,7 @@ void HTMLUI::SetCharacters()
             properties.SetProperty(WSLit("mapname"), JSValue(ToWebString(character->m_cMapName)));
             args.Push(properties);
         }
-        uiJS.Invoke(WSLit("emit"), args);
+        ui.ToObject().Invoke(WSLit("emit"), args);
     }
 }
 
@@ -115,6 +122,14 @@ HTMLUIMethodHandler::HTMLUIMethodHandler(HTMLUI * htmlUI)
 
 void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_object_id, const WebString& method_name, const JSArray& args)
 {
+    JSObject obj;
+    obj.SetProperty(WSLit("method_name"), method_name);
+    obj.SetProperty(WSLit("args"), args);
+    shared_ptr<CGame::UIMsgQueueEntry> entry = make_shared<CGame::UIMsgQueueEntry>();
+    entry->obj = obj;
+    htmlUI->game->PutUIMsgQueue(entry);
+    return;
+/*
 	if (method_name == WSLit("log")) {
 		std::string buffer = "";
 		int i = 0;
@@ -148,6 +163,7 @@ void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_obje
             G_pGame->m_cAccountPassword = ToString(password);
             G_pGame->StartLogin();
             G_pGame->ChangeGameMode(GAMEMODE_ONCONNECTING);
+            G_pGame->m_dwConnectMode = MSGID_REQUEST_LOGIN;
             return;
         }
     }
@@ -197,7 +213,7 @@ void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_obje
                 return;
             }
         }
-    }
+    }*/
 }
 
 JSValue HTMLUIMethodHandler::OnMethodCallWithReturnValue(WebView *caller, unsigned int remote_object_id, const WebString& method_name, const JSArray& args)
@@ -205,8 +221,10 @@ JSValue HTMLUIMethodHandler::OnMethodCallWithReturnValue(WebView *caller, unsign
 	return JSValue::Undefined();
 }
 
-void HTMLUIMethodHandler::Emit(string event, bool result, string message)
+void HTMLUI::Emit(string event, bool result, string message)
 {
+    JSValue ui = GetUI();
+
     JSObject properties;
     properties.SetProperty(WSLit("success"), JSValue(result));
     properties.SetProperty(WSLit("message"), JSValue(ToWebString(message)));
@@ -214,9 +232,25 @@ void HTMLUIMethodHandler::Emit(string event, bool result, string message)
     JSArray args;
 	args.Push(ToWebString(event));
     args.Push(properties);
-    if (htmlUI->uiJS.HasMethod(WSLit("emit")))
-        htmlUI->uiJS.Invoke(WSLit("emit"), args);
+    if (ui.ToObject().HasMethod(WSLit("emit")))
+        ui.ToObject().Invoke(WSLit("emit"), args);
     else
         __asm int 3;//TODO: error handling
 }
 
+void HTMLUI::EmitObject(string event, bool result, JSObject obj)
+{
+    JSValue ui = GetUI();
+  
+    JSObject properties;
+    properties.SetProperty(WSLit("success"), JSValue(result));
+    properties.SetProperty(WSLit("message"), JSValue(obj));
+
+    JSArray args;
+    args.Push(ToWebString(event));
+    args.Push(properties);
+    if (ui.ToObject().HasMethod(WSLit("emit")))
+        ui.ToObject().Invoke(WSLit("emit"), args);
+    else
+        __asm int 3;//TODO: error handling
+}

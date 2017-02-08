@@ -508,6 +508,26 @@ void CGame::ReadUsername()
 	}
 }
 
+void CGame::PutUIMsgQueue(shared_ptr<UIMsgQueueEntry> msg)
+{
+    uiqueue.push_back(msg);
+}
+
+
+shared_ptr<CGame::UIMsgQueueEntry> CGame::GetUIMsgQueue()
+{
+    shared_ptr<UIMsgQueueEntry> msg = uiqueue.front();
+    uiqueue.pop_front();
+    return msg;
+}
+
+shared_ptr<CGame::MsgQueueEntry> CGame::GetLoginMsgQueue()
+{
+    shared_ptr<CGame::MsgQueueEntry> msg = loginpipe.front();
+    loginpipe.pop_front();
+    return msg;
+}
+
 void CGame::PutMsgQueue(MsgQueue & q, char * data, uint32_t size)
 {
 	//poco_information(*logger, "PutMsgQueue()");
@@ -524,11 +544,10 @@ void CGame::PutMsgQueue(shared_ptr<CGame::MsgQueueEntry> msg, MsgQueue & q)
 	q.push_back(msg);
 }
 
-
-shared_ptr<CGame::MsgQueueEntry> CGame::GetMsgQueue(MsgQueue & q)
+shared_ptr<CGame::MsgQueueEntry> CGame::GetMsgQueue()
 {
-	shared_ptr<CGame::MsgQueueEntry> msg = q.front();
-	q.pop_front();
+	shared_ptr<CGame::MsgQueueEntry> msg = loginpipe.front();
+	loginpipe.pop_front();
 	return msg;
 }
 
@@ -1746,7 +1765,7 @@ void CGame::UpdateScreen()
             htmlUI->surface->set_is_dirty(true);
         }
 
-		G_pGame->htmlUI->view->Focus();
+		htmlUI->view->Focus();
         WebCore::instance()->Update();
         uitime = G_dwGlobalTime;
 	}
@@ -3962,10 +3981,140 @@ void CGame::MakeLegionEffectSpr( char* FileName, short sStart, short sCount, boo
 }
 */
 
+void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
+{
+    WebString method_name = msg->obj.ToObject().GetProperty(WSLit("method_name")).ToString();
+    JSArray args = msg->obj.ToObject().GetProperty(WSLit("args")).ToArray();
+
+
+
+    if (method_name == WSLit("log"))
+    {
+        std::string buffer = "";
+        int i = 0;
+        while (i < args.size())
+        {
+            JSValue entry = args.At(i);
+            buffer = buffer + Awesomium::ToString(entry.ToString()) + " ";
+            i++;
+        }
+        printf("[JS] > %s\n", buffer.c_str());
+        return;
+    }
+    else if (method_name == WSLit("cancelLogin"))
+    {
+        if (_socket)
+        {
+            _socket->stop();
+            _socket = nullptr;
+            ChangeGameMode(GAMEMODE_ONLOGIN);
+        }
+    }
+    else if (method_name == WSLit("login"))
+    {
+        if (args.size() < 2)
+        {
+            htmlUI->Emit("login", false, "Invalid login information");
+            return;
+        }
+        else
+        {
+            WebString username = args.At(0).ToString();
+            WebString password = args.At(1).ToString();
+
+            if (username.IsEmpty() || password.IsEmpty())
+            {
+                htmlUI->Emit("login", false, "Username and password cannot be empty");
+                return;
+            }
+
+            m_cAccountName = ToString(username);
+            m_cAccountPassword = ToString(password);
+            StartLogin();
+            ChangeGameMode(GAMEMODE_ONCONNECTING);
+            m_dwConnectMode = MSGID_REQUEST_LOGIN;
+            return;
+        }
+    }
+    else if (method_name == WSLit("selectcharacter"))
+    {
+        if (args.size() == 0)
+        {
+            htmlUI->Emit("selectcharacter", false, "Invalid character");
+            return;
+        }
+        else
+        {
+            int16_t selectedchar = static_cast<int16_t>(args.At(0).ToInteger());
+
+            if (m_pCharList.size() > selectedchar)
+            {
+                m_cCurFocus = selectedchar;
+                htmlUI->Emit("selectcharacter", true, "");
+            }
+            return;
+        }
+    }
+    else if (method_name == WSLit("entergame"))
+    {
+        if (m_pCharList[m_cCurFocus] != 0)
+        {
+            if (m_pCharList[m_cCurFocus]->m_sSex != 0)
+            {
+                ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
+                strcpy(m_cPlayerName, m_pCharList[m_cCurFocus]->m_cName.c_str());
+                m_iLevel = (int)m_pCharList[m_cCurFocus]->m_sLevel;
+                if (m_Misc.bCheckValidString(m_cPlayerName) == true)
+                {
+                    m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
+                    m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
+                    ChangeGameMode(GAMEMODE_ONCONNECTING);
+                    m_dwConnectMode = MSGID_REQUEST_ENTERGAME;
+                    m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
+                    ZeroMemory(m_cMsg, sizeof(G_pGame->m_cMsg));
+                    strcpy(m_cMsg, "33");
+                    ZeroMemory(m_cMapName, sizeof(m_cMapName));
+                    memcpy(m_cMapName, m_pCharList[m_cCurFocus]->m_cMapName.c_str(), 10);
+                    htmlUI->Emit("entergame", true, "");
+                    return;
+                }
+                htmlUI->Emit("entergame", false, "Invalid character name");
+                return;
+            }
+        }
+    }
+}
+
 void CGame::OnTimer()
 {
 	if( m_cGameMode < 0 ) return;
 	uint64_t dwTime = unixtime();
+
+
+    {
+        std::lock_guard<std::mutex> lock(uimut);
+        while (uiqueue.size() > 0)
+        {
+            shared_ptr<UIMsgQueueEntry> entry = GetUIMsgQueue();
+            ProcessUI(entry);
+        }
+    }
+    {
+        std::lock_guard<std::mutex> lock(socketmut);
+        while (loginpipe.size() > 0)
+        {
+            shared_ptr<CGame::MsgQueueEntry> entry = GetLoginMsgQueue();
+            LogResponseHandler(entry->size, entry->data);
+        }
+    }
+    {
+        std::lock_guard<std::mutex> lock(socketmut);
+        while (socketpipe.size() > 0)
+        {
+            shared_ptr<CGame::MsgQueueEntry> entry = GetMsgQueue();
+            GameRecvMsgHandler(entry->size, entry->data);
+        }
+    }
 
 	if (m_cGameMode != GAMEMODE_ONLOADING)
 	{
@@ -8281,7 +8430,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 		break;
 
 	case LOGRESMSGTYPE_CONFIRM:
-        htmlUI->mHandler->Emit("login", true, "");
+        htmlUI->Emit("login", true, "");
         loggedin = true;
 		wServerUpperVersion = sr.ReadShort();
 		wServerLowerVersion = sr.ReadShort();
