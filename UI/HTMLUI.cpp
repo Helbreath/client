@@ -93,9 +93,6 @@ void HTMLUI::SetCharacters()
     if (game->m_pCharList.size() > 0)
     {
         JSArray args;
-        JSObject command;
-        command.SetProperty(WSLit("command"), JSValue(WSLit("setcharacters")));
-        args.Push(command);
         for (shared_ptr<CCharInfo> character : game->m_pCharList)
         {
             JSObject properties;
