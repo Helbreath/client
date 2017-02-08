@@ -41,5 +41,5 @@ public:
     void SetCharacters();
     JSValue GetUI();
     void Emit(string event, bool result, string message);
-    void EmitObject(string event, bool result, JSObject obj);
+    void EmitObject(string event, bool result, JSValue obj);
 };

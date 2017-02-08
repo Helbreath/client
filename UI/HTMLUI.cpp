@@ -111,7 +111,7 @@ void HTMLUI::SetCharacters()
             properties.SetProperty(WSLit("mapname"), JSValue(ToWebString(character->m_cMapName)));
             args.Push(properties);
         }
-        ui.ToObject().Invoke(WSLit("emit"), args);
+        EmitObject("setcharacters", true, JSValue(args));
     }
 }
 
@@ -238,7 +238,7 @@ void HTMLUI::Emit(string event, bool result, string message)
         __asm int 3;//TODO: error handling
 }
 
-void HTMLUI::EmitObject(string event, bool result, JSObject obj)
+void HTMLUI::EmitObject(string event, bool result, JSValue obj)
 {
     JSValue ui = GetUI();
   
