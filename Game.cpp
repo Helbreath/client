@@ -1767,7 +1767,7 @@ void CGame::UpdateScreen()
 		htmlUI->surface->set_is_dirty(false);
 	}
 
-	//driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, video::SColor(255, 255, 255, 255), true);
+	driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, video::SColor(255, 255, 255, 255), true);
 
 
 	/*
@@ -2127,7 +2127,8 @@ bool CGame::SendLoginCommand(uint32_t dwMsgID)
 bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1, int iV2, int iV3, char const * const pString, int iV4)
 {
 	char  * cp, cMsg[300 + MAX_MAIL_MSG_LENGTH], cTxt[256], cKey;
-	uint32_t * dwp, dwTime;
+    uint32_t * dwp;
+    uint64_t dwTime;
 	int   iRet, i, * fightzonenum ;
 	CDialogBox * dlg;
 
@@ -2151,7 +2152,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
 		sw.WriteInt64(dwTime);
 		sw.WriteShort(iV1);
 
-        switch (wCommand)
+        switch (dwMsgID)
         {
             case MSGID_MOTION_GETITEM:
             case MSGID_MOTION_RUN:
