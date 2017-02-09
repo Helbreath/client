@@ -26,6 +26,10 @@ HTMLUI::HTMLUI(class CGame * pGame)
 
 	mHandler = new HTMLUIMethodHandler(this);
 	lView = new HTMLUIViewListener(this);
+	iResource = new HTMLUIResourceInterceptor(this);
+
+	core->set_resource_interceptor(iResource);
+	// view->set_view_listener(lView);
 	view->set_js_method_handler(mHandler);
 	view->Focus();
     mHandler->htmlUI = this;
@@ -129,43 +133,60 @@ HTMLUIViewListener::HTMLUIViewListener(HTMLUI * htmlUI)
 
 void HTMLUIViewListener::OnAddConsoleMessage(Awesomium::WebView* caller, const Awesomium::WebString& message, int line_number, const Awesomium::WebString& source)
 {
-	printf("[JS] > %s [%s:%d]\n", ToString(message), line_number, ToString(source));
+	printf("[JS] > %s [%d:%s]\n", ToString(message).c_str(), line_number, ToString(source).c_str());
 }
 
 void HTMLUIViewListener::OnChangeTitle(Awesomium::WebView* caller, const Awesomium::WebString& title)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void HTMLUIViewListener::OnChangeAddressBar(Awesomium::WebView* caller, const Awesomium::WebURL& url)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void HTMLUIViewListener::OnChangeTooltip(Awesomium::WebView* caller, const Awesomium::WebString& tooltip)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void HTMLUIViewListener::OnChangeTargetURL(Awesomium::WebView* caller, const Awesomium::WebURL& url)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void HTMLUIViewListener::OnChangeCursor(Awesomium::WebView* caller, Awesomium::Cursor cursor)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void HTMLUIViewListener::OnChangeFocus(Awesomium::WebView* caller, Awesomium::FocusedElementType focused_type)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
 
 void HTMLUIViewListener::OnShowCreatedWebView(Awesomium::WebView* caller, Awesomium::WebView* new_view, const Awesomium::WebURL& opener_url, const Awesomium::WebURL& target_url, const Awesomium::Rect& initial_pos, bool is_popup)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
 }
+
+
+HTMLUIResourceInterceptor::HTMLUIResourceInterceptor(class HTMLUI *htmlUI)
+{
+
+}
+
+ResourceResponse *HTMLUIResourceInterceptor::OnRequest(ResourceRequest *request)
+{
+	// std::string url = ToString(request->url);
+	// if (url.substr(0, 7) == "item://") {
+		// return ResourceResponse::Create(num_bytes, char * buffer, WebString mime_type);
+	// }
+
+	return NULL;
+}
+
 
 HTMLUIMethodHandler::HTMLUIMethodHandler(HTMLUI * htmlUI)
 {

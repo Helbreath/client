@@ -4,6 +4,7 @@
 #include <Awesomium/BitmapSurface.h>
 #include <Awesomium/STLHelpers.h>
 #include <Awesomium/WebViewListener.h>
+#include <Awesomium/ResourceInterceptor.h>
 using namespace Awesomium;
 
 #define WIDTH   800
@@ -35,6 +36,12 @@ public:
 	virtual void OnShowCreatedWebView(Awesomium::WebView* caller, Awesomium::WebView* new_view, const Awesomium::WebURL& opener_url, const Awesomium::WebURL& target_url, const Awesomium::Rect& initial_pos, bool is_popup) override;
 };
 
+class HTMLUIResourceInterceptor : public ResourceInterceptor {
+public:
+	HTMLUIResourceInterceptor(class HTMLUI *htmlUI);
+	ResourceResponse* OnRequest(ResourceRequest *request);
+};
+
 class HTMLUI
 {
 public:
@@ -45,6 +52,7 @@ public:
 	JSObject jsData;
 	HTMLUIMethodHandler *mHandler;
 	HTMLUIViewListener *lView;
+	HTMLUIResourceInterceptor *iResource;
     CGame * game;
     JSObject uiJS;
 
