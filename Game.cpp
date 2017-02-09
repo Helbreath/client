@@ -1793,9 +1793,11 @@ void CGame::UpdateScreen()
     if (m_cGameMode == GAMEMODE_ONSELECTCHARACTER)
     {
         auto size = charselect->getSize();
-        driver->draw2DImage(charselect, core::position2d<s32>(charselectx, charselecty),
+        //driver->draw2DImage()
+        const SColor col = video::SColor(255, 255, 255, 255);
+        driver->draw2DImage(charselect, core::rect<s32>(charselectx, charselecty, charselectx + size.Width * 2, charselecty + size.Height * 2),
                             core::rect<s32>(0, 0, size.Width, size.Height), 0,
-                            video::SColor(255, 255, 255, 255), true);
+                            &col, true);
     }
 
 
