@@ -266,7 +266,8 @@ public:
 	irr::gui::IGUIFont * font[100];
 	irr::gui::IGUIEnvironment* env;
 
-	irr::video::ITexture* bg;
+    irr::video::ITexture* visible;
+    irr::video::ITexture* bg;
 	irr::video::ITexture* charselect;
 	irr::video::ITexture* htmlRTT;
 
@@ -304,7 +305,7 @@ public:
 		//when streaming, vsync on = screen capture nogo
 		//has to use "game capture" (render hook)
 		//vsync better for production though - include option for players to choose                                    \/
-		device = createDevice(driverType,irr::core::dimension2d<uint32_t>(GetWidth(), GetHeight()), 32, fullscreen, false, vsync, this);
+		device = createDevice(driverType,irr::core::dimension2d<uint32_t>(screenwidth, screenheight), 32, fullscreen, false, vsync, this);
 		if (device == 0)
 		{
 			MessageBox(0, L"Cannot create video device!", L"ERROR!", MB_OK);
@@ -319,9 +320,15 @@ public:
 		device->setWindowCaption(winName);
 
 		driver = device->getVideoDriver();
-		driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
+        driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
+        driver->setTextureCreationFlag(video::ETCF_ALLOW_NON_POWER_2, true);
+        driver->setTextureCreationFlag(video::ETCF_ALWAYS_32_BIT, true);
 		smgr = device->getSceneManager();
 		env = device->getGUIEnvironment();
+
+        //io::IAttributes & a = driver->getDriverAttributes();
+
+        //driver->setViewPort(core::rect<s32>(0, 0, 1024, 1024));
 
 		htmlUI = new HTMLUI(this);
 		htmlUI->Init();
@@ -334,8 +341,9 @@ public:
 
 		if (driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
 		{
-			bg = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth() + 100, GetHeight() + 100), "RTT1");
-			charselect = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(256, 256), "RTT2");
+            visible = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth(), GetHeight()), "game", ECF_A8R8G8B8);
+            bg = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth() + 200, GetHeight() + 200), "RTT1", ECF_A8R8G8B8);
+			charselect = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(256, 256), "RTT2", ECF_A8R8G8B8);
 		}
 		else
 		{
@@ -358,9 +366,12 @@ public:
 	bool isactive;
 	uint16_t screenwidth;
 	uint16_t screenheight;
-	void SetResolution(uint16_t width, uint16_t height) { screenwidth = width; screenheight = height; }
-	__forceinline uint16_t GetWidth() { return screenwidth; }
-	__forceinline uint16_t GetHeight() { return screenheight; }
+	uint16_t screenwidth_v;
+	uint16_t screenheight_v;
+    void SetResolution(uint16_t width, uint16_t height) { screenwidth = width; screenheight = height; }
+    void SetVirtualResolution(uint16_t width, uint16_t height) { screenwidth_v = width; screenheight_v = height; }
+	__forceinline uint16_t GetWidth() { return screenwidth_v; }
+	__forceinline uint16_t GetHeight() { return screenheight_v; }
 
 	void DrawScene(uint64_t time);
 	//void DrawFPS2();//debug func

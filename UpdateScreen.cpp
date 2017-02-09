@@ -3083,7 +3083,7 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
                 driver->setRenderTarget(charselect, true, true, video::SColor(0, 0, 0, 0));
                 //DrawObject_OnMove_ForMenu(0, 0, sX + 156 + 36, sY + 138 + 118 + 28, false, dwTime, 0, 0);
                 DrawObject_OnMove_ForMenu(0, 0, sX + 36, sY + 50 + 28, false, dwTime, 0, 0);
-                driver->setRenderTarget(0);
+                driver->setRenderTarget(visible);
                 int	_sLevel = selectedchar->m_sLevel;
                 wsprintfA(G_cTxt, "Name: %s", selectedchar->m_cName.c_str());
                 PutString(sX + 46 + 96, sY + 160, G_cTxt, video::SColor(255, 255, 255, 255));//25,35,25);	// sY = 14

@@ -85,7 +85,7 @@ int main(int argc, char * argv[])
                 else if (renderer == "software")
                 {
                     G_pGame->_renderer = L"Software";
-                    driverType = video::EDT_SOFTWARE;
+                    driverType = video::EDT_BURNINGSVIDEO;// EDT_SOFTWARE;
                 }
                 else
                 {
@@ -227,8 +227,15 @@ int main(int argc, char * argv[])
 			}
 			//core::position2d<s32> m = cursor->getPosition();
 			core::position2d<s32> m = cursor->getPosition();
-			G_pGame->m_stMCursor.sX = m.X;
-			G_pGame->m_stMCursor.sY = m.Y;
+
+            float diffx = static_cast<float>(G_pGame->screenwidth_v) / G_pGame->screenwidth;
+            float diffy = static_cast<float>(G_pGame->screenheight_v) / G_pGame->screenheight;
+            int mx = m.X * diffx;
+            int my = m.Y * diffy;
+
+
+			G_pGame->m_stMCursor.sX = mx;
+			G_pGame->m_stMCursor.sY = my;
 
 			//stick in a window move event
 			GetWindowRect(*(HWND*)&G_hWnd, &trect);
@@ -250,7 +257,7 @@ int main(int argc, char * argv[])
 					if (G_pGame->m_stMCursor.sX > G_pGame->GetWidth()) G_pGame->m_stMCursor.sX = G_pGame->GetWidth();
 					if (G_pGame->m_stMCursor.sY > G_pGame->GetHeight()) G_pGame->m_stMCursor.sY = G_pGame->GetHeight();
 				}
-				cursor->setPosition(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+				cursor->setPosition(m.X, m.Y);
 			}
 		}
 

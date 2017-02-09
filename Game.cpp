@@ -87,13 +87,27 @@ uint32_t unixseconds()
 
 bool CGame::OnEvent(const irr::SEvent& event)
 {
-	if (G_pGame->htmlUI) {
-		G_pGame->htmlUI->view->Focus();
+	if (htmlUI) {
+		htmlUI->view->Focus();
 	}
     if (event.MouseInput.Event != irr::EMIE_MOUSE_MOVED)
     {
         //AddEventList("Irrlicht Injected Successfully.", 10);
     }
+
+    //translate virtual space
+
+    int x, y;
+
+    if (event.EventType == irr::EET_MOUSE_INPUT_EVENT)
+    {
+        float diffx = static_cast<float>(screenwidth_v) / screenwidth;
+        float diffy = static_cast<float>(screenheight_v) / screenheight;
+        x = event.MouseInput.X * diffx;
+        y = event.MouseInput.Y * diffy;
+    }
+
+
     // Move out of if(true) at a later date when all UI elements are updated
     if (event.EventType == irr::EET_MOUSE_INPUT_EVENT)
     {
@@ -173,7 +187,7 @@ bool CGame::OnEvent(const irr::SEvent& event)
         }
         else if (event.MouseInput.Event == irr::EMIE_MOUSE_MOVED)
 		{
-			htmlUI->view->InjectMouseMove(event.MouseInput.X, event.MouseInput.Y);
+			htmlUI->view->InjectMouseMove(x, y);
             //context.injectMousePosition(event.MouseInput.X, event.MouseInput.Y);
 		}
         return false;
@@ -208,7 +222,7 @@ bool CGame::OnEvent(const irr::SEvent& event)
 					keyEvent.modifiers |= WebKeyboardEvent::kModShiftKey;
 				}
 
-				G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+				htmlUI->view->InjectKeyboardEvent(keyEvent);
 
 
 				if (event.KeyInput.Char && event.KeyInput.Key != KEY_TAB) {
@@ -223,7 +237,7 @@ bool CGame::OnEvent(const irr::SEvent& event)
 						keyEvent2.modifiers |= WebKeyboardEvent::kModShiftKey;
 					}
 
-					G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent2);
+					htmlUI->view->InjectKeyboardEvent(keyEvent2);
 				}
 				
                 OnKeyDown(event.KeyInput.Key);
@@ -239,7 +253,7 @@ bool CGame::OnEvent(const irr::SEvent& event)
 					WebKeyboardEvent keyEvent = WebKeyboardEvent();
 					keyEvent.type = WebKeyboardEvent::kTypeKeyUp;
 					keyEvent.virtual_key_code = event.KeyInput.Key; // native_key_code = event.KeyInput.Key;
-					G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
+					htmlUI->view->InjectKeyboardEvent(keyEvent);
 
 					if (event.KeyInput.Control) {
 						keyEvent.modifiers = WebKeyboardEvent::kModControlKey;
@@ -260,15 +274,15 @@ bool CGame::OnEvent(const irr::SEvent& event)
 
 void CGame::DrawScene(uint64_t time)
 {
-	//driver->beginScene(true, true, video::SColor(255,120,102,136));
-	driver->beginScene(true, true);
-	mtime = time;
-	//drawfunc();
-	//m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->DrawSprite(-1, -1, 0);
-	//DrawFPS2();
-	//DrawMouse();
-
-	driver->endScene();
+// 	//driver->beginScene(true, true, video::SColor(255,120,102,136));
+// 	driver->beginScene(true, true);
+// 	mtime = time;
+// 	//drawfunc();
+// 	//m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->DrawSprite(-1, -1, 0);
+// 	//DrawFPS2();
+// 	//DrawMouse();
+// 
+// 	driver->endScene();
 }
 void CGame::DrawVersion2()
 {
@@ -779,7 +793,7 @@ CGame::CGame()
 //	screenheight = 600;
     //SetResolution(640, 480);
 	//SetResolution(800,600);
-	SetResolution(1024,768);
+	//SetResolution(1024,768);
 	//SetResolution(1280, 1024);
     //SetResolution(1920, 1200);
     
@@ -787,6 +801,11 @@ CGame::CGame()
     //SetResolution(1366, 768);
     //SetResolution(1600, 900);
     //SetResolution(1920, 1080);
+
+
+    //SetVirtualResolution(5120, 2160);
+    SetVirtualResolution(1920/2, 1080/2);
+    SetResolution(1920, 1080);
 
 #ifdef _DEBUG
 	m_bToggleScreen = true;
@@ -1631,8 +1650,9 @@ void CGame::Quit()
 
 void CGame::UpdateScreen()
 {
-	G_pGame->driver->beginScene(true, true);
-	G_dwGlobalTime = unixtime();
+	driver->beginScene(false, false);
+    driver->setRenderTarget(visible, true, false, video::SColor(0, 0, 0, 0));
+    G_dwGlobalTime = unixtime();
 
 	switch (m_cGameMode) {
 #ifdef MAKE_ACCOUNT
@@ -1788,6 +1808,16 @@ void CGame::UpdateScreen()
 
 	driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, video::SColor(255, 255, 255, 255), true);
 
+
+
+    driver->setRenderTarget(0);
+
+    video::SColor col = video::SColor(255, 255, 255, 255);
+    driver->draw2DImage(visible, core::rect<s32>(0, 0, screenwidth, screenheight), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, &col, false);
+
+//     driver->draw2DImage(charselect, core::rect<s32>(charselectx, charselecty, charselectx + size.Width * 2, charselecty + size.Height * 2),
+//                         core::rect<s32>(0, 0, size.Width, size.Height), 0,
+//                         &col, true);
     // Things rendered over the UI are here
 
     if (m_cGameMode == GAMEMODE_ONSELECTCHARACTER)
@@ -1801,13 +1831,13 @@ void CGame::UpdateScreen()
     }
 
 
-	/*
 	char cfps[20];
 	sprintf(cfps, "FPS: %d", driver->getFPS());
 
 	font[0]->draw(cfps,
 		core::rect<s32>(5,5,40,10),
 		video::SColor(255,255,255,255));
+    /*
 
     font[0]->draw("Arrow keys = Map Pivot Change - Shift = ViewDest Change - Control = Player Offset Change",
                   core::rect<s32>(5, 15, 40, 10),
@@ -1860,7 +1890,7 @@ void CGame::UpdateScreen()
     sprintf(cdata2, 
             "DrawBackground(sDivX, sModX, sDivY, sModY)\n"
             "DrawBackground(%d, %d, %d, %d)\n"
-            "DrawObjects(sPivotX, sPivotY, sDivX, sDivY, sModX, sModY, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY)\n"
+            "DrawObjects(sPivotX, sPivotY, sDivX, sDivY, sModX, sModY, m_stMCursor.sX, m_stMCursor.sY)\n"
             "DrawObjects(%d, %d, %d, %d, %d, %d, %d, %d)\n\n"
             "m_sViewDstX = (m_sPlayerX - 24) * 32 | m_sViewDstY = (m_sPlayerY - 16) * 32\n"
             "%d = (%d - %d) * 32 | %d = (%d - %d) * 32",
@@ -1914,19 +1944,24 @@ void CGame::UpdateScreen()
 
 	//m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, unixseconds());
 
+    float diffx = static_cast<float>(screenwidth_v) / screenwidth;
+    float diffy = static_cast<float>(screenheight_v) / screenheight;
+    int mx = m_stMCursor.sX / diffx;
+    int my = m_stMCursor.sY / diffy;
+
     if (m_bIsObserverMode == true)
     {
-        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 5, G_pGame->m_stMCursor.sY), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX + 5, G_pGame->m_stMCursor.sY), irr::video::SColor(255, 255, 0, 0));
-        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX, G_pGame->m_stMCursor.sY - 5), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY + 5), irr::video::SColor(255, 255, 0, 0));
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 5, m_stMCursor.sY), irr::core::vector2d<s32>(m_stMCursor.sX + 5, m_stMCursor.sY), irr::video::SColor(255, 255, 0, 0));
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX, m_stMCursor.sY - 5), irr::core::vector2d<s32>(m_stMCursor.sX, m_stMCursor.sY + 5), irr::video::SColor(255, 255, 0, 0));
 
-        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 5, G_pGame->m_stMCursor.sY - 1), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX + 5, G_pGame->m_stMCursor.sY - 1), irr::video::SColor(127, 255, 255, 0));
-        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 1, G_pGame->m_stMCursor.sY - 5), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX - 1, G_pGame->m_stMCursor.sY + 5), irr::video::SColor(127, 255, 255, 0));
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 5, m_stMCursor.sY - 1), irr::core::vector2d<s32>(m_stMCursor.sX + 5, m_stMCursor.sY - 1), irr::video::SColor(127, 255, 255, 0));
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 1, m_stMCursor.sY - 5), irr::core::vector2d<s32>(m_stMCursor.sX - 1, m_stMCursor.sY + 5), irr::video::SColor(127, 255, 255, 0));
 
-        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 5, G_pGame->m_stMCursor.sY + 1), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX + 5, G_pGame->m_stMCursor.sY + 1), irr::video::SColor(127, 255, 255, 0));
-        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX + 1, G_pGame->m_stMCursor.sY - 5), irr::core::vector2d<s32>(G_pGame->m_stMCursor.sX + 1, G_pGame->m_stMCursor.sY + 5), irr::video::SColor(127, 255, 255, 0));
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX - 5, m_stMCursor.sY + 1), irr::core::vector2d<s32>(m_stMCursor.sX + 5, m_stMCursor.sY + 1), irr::video::SColor(127, 255, 255, 0));
+        driver->draw2DLine(irr::core::vector2d<s32>(m_stMCursor.sX + 1, m_stMCursor.sY - 5), irr::core::vector2d<s32>(m_stMCursor.sX + 1, m_stMCursor.sY + 5), irr::video::SColor(127, 255, 255, 0));
     }
-    //else m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY, m_stMCursor.sCursorFrame, dwTime);
-    else m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, unixseconds());
+    //else m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(m_stMCursor.sX, m_stMCursor.sY, m_stMCursor.sCursorFrame, dwTime);
+    else m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(mx, my, m_stMCursor.sCursorFrame, unixseconds());
 
 	m_stMCursor.sZ = 0;
 	driver->endScene();
@@ -2728,7 +2763,7 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 	int idelay = 75;
 	uint32_t groundPivotPoint = (m_bigItems) ? SPRID_ITEMPACK_PIVOTPOINT : SPRID_ITEMGROUND_PIVOTPOINT;
 
-	if( sDivY < 0 || sDivX < 0) return ;
+	//if( sDivY < 0 || sDivX < 0) return ;
 	m_sMCX = 0;
 	m_sMCY = 0;
 	memset(m_cMCName, 0, sizeof(m_cMCName));
@@ -4097,7 +4132,7 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
                     ChangeGameMode(GAMEMODE_ONCONNECTING);
                     m_dwConnectMode = MSGID_REQUEST_ENTERGAME;
                     m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
-                    ZeroMemory(m_cMsg, sizeof(G_pGame->m_cMsg));
+                    ZeroMemory(m_cMsg, sizeof(m_cMsg));
                     strcpy(m_cMsg, "33");
                     ZeroMemory(m_cMapName, sizeof(m_cMapName));
                     memcpy(m_cMapName, m_pCharList[m_cCurFocus]->m_cMapName.c_str(), 10);
@@ -4240,7 +4275,7 @@ bool CGame::_bCheckDraggingItemRelease(char dlgID)
 			return true;
 	}
 
-	bItemDrop_ExternalScreen((char)m_stMCursor.sSelectedObjectID, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+	bItemDrop_ExternalScreen((char)m_stMCursor.sSelectedObjectID, m_stMCursor.sX, m_stMCursor.sY);
 	return false;
 }
 
@@ -10468,8 +10503,8 @@ int CGame::_iCheckDlgBoxFocus(char cButtonSide)
 	int i;
 	char         cDlgID;
 	short        sX, sY;
-	short msX = G_pGame->m_stMCursor.sX;
-	short msY = G_pGame->m_stMCursor.sY;
+	short msX = m_stMCursor.sX;
+	short msY = m_stMCursor.sY;
     uint64_t		  dwTime = m_dwCurTime;
 	cDlgID = MouseOverDialog();
 
@@ -10543,7 +10578,7 @@ int CGame::_iCheckDlgBoxFocus(char cButtonSide)
 
 		if(cDlgID == DIALOG_GUIDEMAP && m_altPressed)
 		{
-			Point p = GetGuideMapPos( G_pGame->m_stMCursor.sX,  G_pGame->m_stMCursor.sY );
+			Point p = GetGuideMapPos( m_stMCursor.sX,  m_stMCursor.sY );
 			AddMapPing( MapPing(p.x, p.y) );
 			bSendCommand(MSGID_PINGMAP, PINGMAP_PARTY | PINGMAP_GUILD, 0, p.x, p.y);
 		} else if(cDlgID != 5 && cDlgID != 6 && cDlgID != 8 && cDlgID != 12 && 
@@ -13309,8 +13344,8 @@ void CGame::bItemDrop_ExchangeDialog()
 	if (m_cCommand < 0) return;
 	if (m_stDialogBoxExchangeInfo[3].sV1 != -1) return; //Do not accept item's drop if already 4 items.
 
-	short msY = G_pGame->m_stMCursor.sY;
-	short msX = G_pGame->m_stMCursor.sX;
+	short msY = m_stMCursor.sY;
+	short msX = m_stMCursor.sX;
 	cItemID = (char)m_stMCursor.sSelectedObjectID;
 
 	if (m_stDialogBoxExchangeInfo[0].sV1 == cItemID || m_stDialogBoxExchangeInfo[1].sV1 == cItemID || m_stDialogBoxExchangeInfo[2].sV1 == cItemID)
@@ -16085,6 +16120,13 @@ void CGame::OnKeyDown(WPARAM wParam)
     }
 	switch (wParam)
     {
+        case VK_F3:
+        {
+            StartLogin();
+            ChangeGameMode(GAMEMODE_ONCONNECTING);
+            m_dwConnectMode = MSGID_REQUEST_LOGIN;
+            break;
+        }
 //         case 39://right arrow
 //             m_pMapData->m_sPivotX += 1;
 //             break;
@@ -16138,7 +16180,7 @@ void CGame::OnKeyDown(WPARAM wParam)
 	    case VK_F1:
 		    break;
 	    case VK_F2:
-	    case VK_F3:
+	    //case VK_F3:
 	    case VK_F4:
 	    case VK_F5:
 	    case VK_F6:
@@ -20350,7 +20392,7 @@ EQUIPPOS_FULLBODY
 			str = G_cTxt;
 			lines.push_back(str);
 			str.clear();
-			//PutString(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY + 40, G_cTxt,video::SColor(255,150,150,150), FALSE, 1);
+			//PutString(m_stMCursor.sX, m_stMCursor.sY + 40, G_cTxt,video::SColor(255,150,150,150), FALSE, 1);
 		}
 	}
 	return &lines;
@@ -21795,19 +21837,19 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 						switch (sObjectType) { 	// CLEROTH - NPC TALK
 						case 15: // Jehovah - Changed so the shopkeeper reads case 8.
 							EnableDialogBox(20, 8, 0, 0);
-							//m_dialogBoxes[20].//CentreOverPoint(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+							//m_dialogBoxes[20].//CentreOverPoint(m_stMCursor.sX, m_stMCursor.sY);
 							m_dialogBoxes[20].sV3 = 15;
 							break;
 
 						case 19: // Gandlf
 							EnableDialogBox(20, 0, 16, 0);
-							//m_dialogBoxes[20].//CentreOverPoint(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+							//m_dialogBoxes[20].//CentreOverPoint(m_stMCursor.sX, m_stMCursor.sY);
 							m_dialogBoxes[20].sV3 = 19;
 							break;
 
 						case 20: // Howard
 							EnableDialogBox(20, 0, 14, 0);
-							//m_dialogBoxes[20].//CentreOverPoint(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+							//m_dialogBoxes[20].//CentreOverPoint(m_stMCursor.sX, m_stMCursor.sY);
 							m_dialogBoxes[20].sV3 = 20;
 							m_dialogBoxes[39].sV3 = 20;
 							m_dialogBoxes[39].sV4 = m_wCommObjectID;
@@ -21817,7 +21859,7 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 
 						case NPC_PRINCESS:
 							EnableDialogBox(20, 0, 56, 0);
-							//m_dialogBoxes[20].//CentreOverPoint(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+							//m_dialogBoxes[20].//CentreOverPoint(m_stMCursor.sX, m_stMCursor.sY);
 							m_dialogBoxes[20].sV3 = 20;
 							m_dialogBoxes[39].sV3 = 20;
 							m_dialogBoxes[39].sV4 = m_wCommObjectID;
@@ -21827,7 +21869,7 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 
 						case 24:
 							EnableDialogBox(20, 7, 0, 0);
-							//m_dialogBoxes[20].//CentreOverPoint(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+							//m_dialogBoxes[20].//CentreOverPoint(m_stMCursor.sX, m_stMCursor.sY);
 							m_dialogBoxes[20].sV3 = 24;
 							m_dialogBoxes[39].sV3 = 24;
 							m_dialogBoxes[39].sV4 = m_wCommObjectID;
@@ -21837,13 +21879,13 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 
 						case 25:
 							EnableDialogBox(20, 9, 0, 0);
-							//m_dialogBoxes[20].//CentreOverPoint(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+							//m_dialogBoxes[20].//CentreOverPoint(m_stMCursor.sX, m_stMCursor.sY);
 							m_dialogBoxes[20].sV3 = 25;
 							break;
 
 						case 26: // Kennedy
 							EnableDialogBox(20, 0, 7, 0);
-							//m_dialogBoxes[20].//CentreOverPoint(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+							//m_dialogBoxes[20].//CentreOverPoint(m_stMCursor.sX, m_stMCursor.sY);
 							m_dialogBoxes[20].sV3 = 26;
 							break;
 
@@ -21851,7 +21893,7 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 							if ((_iGetFOE(iObjectStatus)>=0) && (!m_bIsCombatMode))
 							{	
 								EnableDialogBox(20, 4, 0, 0);
-								//m_dialogBoxes[20].//CentreOverPoint(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+								//m_dialogBoxes[20].//CentreOverPoint(m_stMCursor.sX, m_stMCursor.sY);
 								m_dialogBoxes[20].sV3 = 21;
 							}
 							break;
@@ -21861,14 +21903,14 @@ CP_SKIPMOUSEBUTTONSTATUS:;
 							if (!m_bIsCombatMode)
 							{	
 								EnableDialogBox(20, 4, 0, 0);
-								//m_dialogBoxes[20].//CentreOverPoint(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+								//m_dialogBoxes[20].//CentreOverPoint(m_stMCursor.sX, m_stMCursor.sY);
 								m_dialogBoxes[20].sV3 = sObjectType;
 							}
 							break;
 
 						case 90: // Snoopy: Gail
 							EnableDialogBox(20, 6, 0, 0);
-							//m_dialogBoxes[20].//CentreOverPoint(G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+							//m_dialogBoxes[20].//CentreOverPoint(m_stMCursor.sX, m_stMCursor.sY);
 							m_dialogBoxes[20].sV3 = 90;
 							break;
 
@@ -22657,8 +22699,8 @@ void CGame::bItemDrop_Inventory()
 	if (m_bIsItemDisabled[m_stMCursor.sSelectedObjectID] == true) return;
 	sY = m_dialogBoxes[2].m_Y;
 	sX = m_dialogBoxes[2].m_X;
-	dX = G_pGame->m_stMCursor.sX - sX - 32 - m_stMCursor.sDistX;
-	dY = G_pGame->m_stMCursor.sY - sY - 44 - m_stMCursor.sDistY;
+	dX = m_stMCursor.sX - sX - 32 - m_stMCursor.sDistX;
+	dY = m_stMCursor.sY - sY - 44 - m_stMCursor.sDistY;
 	if (dY < -10) dY = -10;
 	if (dX < 0)   dX = 0;
 	if (dX > 170) dX = 170;
@@ -22756,8 +22798,8 @@ void CGame::bItemDrop_SellList()
 
 	if ( ((m_pItemList[cItemID]->m_cItemType == ITEMTYPE_CONSUME) || (m_pItemList[cItemID]->m_cItemType == ITEMTYPE_ARROW)) &&
 		 (m_pItemList[cItemID]->m_dwCount > 1) )
-	{	m_dialogBoxes[17].m_X  = G_pGame->m_stMCursor.sX - 140;
-		m_dialogBoxes[17].m_Y  = G_pGame->m_stMCursor.sY - 70;
+	{	m_dialogBoxes[17].m_X  = m_stMCursor.sX - 140;
+		m_dialogBoxes[17].m_Y  = m_stMCursor.sY - 70;
 		if (m_dialogBoxes[17].m_Y < 0) m_dialogBoxes[17].m_Y = 0;
 		m_dialogBoxes[17].sV1 = m_sPlayerX+1;
 		m_dialogBoxes[17].sV2 = m_sPlayerY+1;
@@ -22833,8 +22875,8 @@ void CGame::bItemDrop_Bank()
 		return;
 	}
 	if ( ((m_pItemList[m_dialogBoxes[39].sV1]->m_cItemType == ITEMTYPE_CONSUME) || (m_pItemList[m_dialogBoxes[39].sV1]->m_cItemType == ITEMTYPE_ARROW)) && (m_pItemList[m_dialogBoxes[39].sV1]->m_dwCount > 1) )
-	{	m_dialogBoxes[17].m_X  = G_pGame->m_stMCursor.sX - 140;
-		m_dialogBoxes[17].m_Y  = G_pGame->m_stMCursor.sY - 70;
+	{	m_dialogBoxes[17].m_X  = m_stMCursor.sX - 140;
+		m_dialogBoxes[17].m_Y  = m_stMCursor.sY - 70;
 		if (m_dialogBoxes[17].m_Y < 0) m_dialogBoxes[17].m_Y = 0;
 
 		m_dialogBoxes[17].sV1 = m_sPlayerX+1;
@@ -26596,8 +26638,8 @@ void CGame::ItemDrop_Mailbox()
 		m_pItemList[itemi]->m_cItemType == ITEMTYPE_ARROW) && 
 		m_pItemList[itemi]->m_dwCount > 1)
 	{
-		m_dialogBoxes[17].m_X  = G_pGame->m_stMCursor.sX - 140;
-		m_dialogBoxes[17].m_Y  = G_pGame->m_stMCursor.sY - 70;
+		m_dialogBoxes[17].m_X  = m_stMCursor.sX - 140;
+		m_dialogBoxes[17].m_Y  = m_stMCursor.sY - 70;
 		if (m_dialogBoxes[17].m_Y < 0) m_dialogBoxes[17].m_Y = 0;
 
 		m_dialogBoxes[17].sV1 = m_sPlayerX+1;
@@ -27422,8 +27464,8 @@ void CGame::bItemDrop_GuildBank()
 		m_pItemList[m_dialogBoxes[39].sV1]->m_cItemType == ITEMTYPE_ARROW) && 
 		m_pItemList[m_dialogBoxes[39].sV1]->m_dwCount > 1)
 	{
-		m_dialogBoxes[17].m_X  = G_pGame->m_stMCursor.sX - 140;
-		m_dialogBoxes[17].m_Y  = G_pGame->m_stMCursor.sY - 70;
+		m_dialogBoxes[17].m_X  = m_stMCursor.sX - 140;
+		m_dialogBoxes[17].m_Y  = m_stMCursor.sY - 70;
 		if (m_dialogBoxes[17].m_Y < 0) m_dialogBoxes[17].m_Y = 0;
 
 		m_dialogBoxes[17].sV1 = m_sPlayerX+1;
