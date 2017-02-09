@@ -7,7 +7,11 @@ extern CGame * G_pGame;
 
 HTMLUI::HTMLUI(class CGame * pGame)
 {
-	core = WebCore::Initialize(WebConfig());
+	WebConfig webConfig;
+	// webConfig.remote_debugging_host = WSLit("127.0.0.1");
+	// webConfig.remote_debugging_port = 9222;
+
+	core = WebCore::Initialize(webConfig);
 	view = this->core->CreateWebView(pGame->GetWidth(), pGame->GetHeight());
     game = pGame;
 
@@ -19,6 +23,7 @@ HTMLUI::HTMLUI(class CGame * pGame)
     jsData.SetCustomMethod(WSLit("entergame"), false);
 
 	mHandler = new HTMLUIMethodHandler(this);
+	lView = new HTMLUIViewListener(this);
 	view->set_js_method_handler(mHandler);
 	view->Focus();
     mHandler->htmlUI = this;
@@ -31,15 +36,15 @@ HTMLUI::~HTMLUI()
 
 void HTMLUI::Init()
 {
-	// WebURL url(WSLit("http://hbx.decouple.io/index.html"));
-	WebURL url(WSLit("file:///g:/projects/hbx-ui/public/index.html"));
+	WebURL url(WSLit("http://hbx.decouple.io/index.html"));
+	// WebURL url(WSLit("file:///g:/projects/hbx-ui/public/index.html"));
 	view->LoadURL(url);
 	view->SetTransparent(true);
 
 	while (view->IsLoading()) {
-		HTMLUI::Update(50);
+		HTMLUI::Update(100);
 	}
-	HTMLUI::Update(250);
+	HTMLUI::Update(1000);
 
 	JSValue uiValue = view->ExecuteJavascriptWithResult(WSLit("UI"), WSLit(""));
 	if (!uiValue.IsObject())
@@ -115,6 +120,51 @@ void HTMLUI::SetCharacters()
     }
 }
 
+HTMLUIViewListener::HTMLUIViewListener(HTMLUI * htmlUI)
+{
+
+}
+
+void HTMLUIViewListener::OnAddConsoleMessage(Awesomium::WebView* caller, const Awesomium::WebString& message, int line_number, const Awesomium::WebString& source)
+{
+	printf("[JS] > %s [%s:%d]\n", ToString(message), line_number, ToString(source));
+}
+
+void HTMLUIViewListener::OnChangeTitle(Awesomium::WebView* caller, const Awesomium::WebString& title)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void HTMLUIViewListener::OnChangeAddressBar(Awesomium::WebView* caller, const Awesomium::WebURL& url)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void HTMLUIViewListener::OnChangeTooltip(Awesomium::WebView* caller, const Awesomium::WebString& tooltip)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void HTMLUIViewListener::OnChangeTargetURL(Awesomium::WebView* caller, const Awesomium::WebURL& url)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void HTMLUIViewListener::OnChangeCursor(Awesomium::WebView* caller, Awesomium::Cursor cursor)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void HTMLUIViewListener::OnChangeFocus(Awesomium::WebView* caller, Awesomium::FocusedElementType focused_type)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void HTMLUIViewListener::OnShowCreatedWebView(Awesomium::WebView* caller, Awesomium::WebView* new_view, const Awesomium::WebURL& opener_url, const Awesomium::WebURL& target_url, const Awesomium::Rect& initial_pos, bool is_popup)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
 HTMLUIMethodHandler::HTMLUIMethodHandler(HTMLUI * htmlUI)
 {
 
@@ -129,91 +179,6 @@ void HTMLUIMethodHandler::OnMethodCall(WebView *caller, unsigned int remote_obje
     entry->obj = obj;
     htmlUI->game->PutUIMsgQueue(entry);
     return;
-/*
-	if (method_name == WSLit("log")) {
-		std::string buffer = "";
-		int i = 0;
-		while (i < args.size()) {
-			JSValue entry = args.At(i);
-			buffer = buffer + Awesomium::ToString(entry.ToString()) + " ";
-			i++;
-		}
-		printf("[JS] > %s\n", buffer.c_str());
-        return;
-	}
-    else if (method_name == WSLit("login"))
-    {
-        if (args.size() < 2)
-        {
-            Emit("login", false, "Invalid login information");
-            return;
-        }
-        else
-        {
-            WebString username = args.At(0).ToString();
-            WebString password = args.At(1).ToString();
-
-            if (username.IsEmpty() || password.IsEmpty())
-            {
-                Emit("login", false, "Username and password cannot be empty");
-                return;
-            }
-
-            G_pGame->m_cAccountName = ToString(username);
-            G_pGame->m_cAccountPassword = ToString(password);
-            G_pGame->StartLogin();
-            G_pGame->ChangeGameMode(GAMEMODE_ONCONNECTING);
-            G_pGame->m_dwConnectMode = MSGID_REQUEST_LOGIN;
-            return;
-        }
-    }
-    else if (method_name == WSLit("selectcharacter"))
-    {
-        if (args.size() == 0)
-        {
-            Emit("selectcharacter", false, "Invalid character");
-            return;
-        }
-        else
-        {
-            int16_t selectedchar = static_cast<int16_t>(args.At(0).ToInteger());
-
-            if (G_pGame->m_pCharList.size() > selectedchar)
-            {
-                G_pGame->m_cCurFocus = selectedchar;
-                Emit("selectcharacter", true, "");
-            }
-            return;
-        }
-    }
-    else if (method_name == WSLit("entergame"))
-    {
-        if (G_pGame->m_pCharList[G_pGame->m_cCurFocus] != 0)
-        {
-            if (G_pGame->m_pCharList[G_pGame->m_cCurFocus]->m_sSex != 0)
-            {
-                ZeroMemory(G_pGame->m_cPlayerName, sizeof(G_pGame->m_cPlayerName));
-                strcpy(G_pGame->m_cPlayerName, G_pGame->m_pCharList[G_pGame->m_cCurFocus]->m_cName.c_str());
-                G_pGame->m_iLevel = (int)G_pGame->m_pCharList[G_pGame->m_cCurFocus]->m_sLevel;
-                if (G_pGame->m_Misc.bCheckValidString(G_pGame->m_cPlayerName) == true)
-                {
-                    G_pGame->m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
-                    G_pGame->m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
-                    G_pGame->ChangeGameMode(GAMEMODE_ONCONNECTING);
-                    G_pGame->m_dwConnectMode = MSGID_REQUEST_ENTERGAME;
-                    G_pGame->m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
-                    ZeroMemory(G_pGame->m_cMsg, sizeof(G_pGame->m_cMsg));
-                    strcpy(G_pGame->m_cMsg, "33");
-                    ZeroMemory(G_pGame->m_cMapName, sizeof(G_pGame->m_cMapName));
-                    memcpy(G_pGame->m_cMapName, G_pGame->m_pCharList[G_pGame->m_cCurFocus]->m_cMapName.c_str(), 10);
-                    Emit("entergame", true, "");
-                    return;
-                }
-                Emit("entergame", false, "Invalid character name");
-                return;
-            }
-        }
-    }*/
 }
 
 JSValue HTMLUIMethodHandler::OnMethodCallWithReturnValue(WebView *caller, unsigned int remote_object_id, const WebString& method_name, const JSArray& args)
