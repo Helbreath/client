@@ -118,7 +118,7 @@ void HTMLUI::SetCharacters()
             properties.SetProperty(WSLit("mapname"), JSValue(ToWebString(character->m_cMapName)));
             args.Push(properties);
         }
-        EmitObject("setcharacters", true, JSValue(args));
+        EmitObject("setCharacters", true, JSValue(args));
     }
 }
 
