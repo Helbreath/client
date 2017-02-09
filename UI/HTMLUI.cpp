@@ -19,8 +19,10 @@ HTMLUI::HTMLUI(class CGame * pGame)
 	jsData = jsNamespace.ToObject();
     jsData.SetCustomMethod(WSLit("log"), false);
     jsData.SetCustomMethod(WSLit("login"), false);
-    jsData.SetCustomMethod(WSLit("selectcharacter"), false);
-    jsData.SetCustomMethod(WSLit("entergame"), false);
+    jsData.SetCustomMethod(WSLit("selectCharacter"), false);
+    jsData.SetCustomMethod(WSLit("enterGame"), false);
+    jsData.SetCustomMethod(WSLit("renderCharacter"), false);
+    jsData.SetCustomMethod(WSLit("cancelLogin"), false);
 
 	mHandler = new HTMLUIMethodHandler(this);
 	lView = new HTMLUIViewListener(this);

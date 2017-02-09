@@ -4059,11 +4059,11 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
             return;
         }
     }
-    else if (method_name == WSLit("selectcharacter"))
+    else if (method_name == WSLit("selectCharacter"))
     {
         if (args.size() == 0)
         {
-            htmlUI->Emit("selectcharacter", false, "Invalid character");
+            htmlUI->Emit("selectCharacter", false, "Invalid character");
             return;
         }
         else
@@ -4073,12 +4073,12 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
             if (m_pCharList.size() > selectedchar)
             {
                 m_cCurFocus = selectedchar;
-                htmlUI->Emit("selectcharacter", true, "");
+                htmlUI->Emit("selectCharacter", true, "");
             }
             return;
         }
     }
-    else if (method_name == WSLit("entergame"))
+    else if (method_name == WSLit("enterGame"))
     {
         if (m_pCharList[m_cCurFocus] != 0)
         {
@@ -4098,10 +4098,10 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
                     strcpy(m_cMsg, "33");
                     ZeroMemory(m_cMapName, sizeof(m_cMapName));
                     memcpy(m_cMapName, m_pCharList[m_cCurFocus]->m_cMapName.c_str(), 10);
-                    htmlUI->Emit("entergame", true, "");
+                    htmlUI->Emit("enterGame", true, "");
                     return;
                 }
-                htmlUI->Emit("entergame", false, "Invalid character name");
+                htmlUI->Emit("enterGame", false, "Invalid character name");
                 return;
             }
         }
