@@ -25923,6 +25923,57 @@ void CGame::InitDataResponseHandler(char * pData)
 	   ZeroMemory(m_stArenaPlayers[i].cCharName, sizeof(m_stArenaPlayers[i].cCharName)); 
 	}*/
 	// Gladiator Arena xRisenx
+
+
+
+    ///Send UI Data
+
+    JSValue res = htmlUI->view->CreateGlobalJavascriptObject(WSLit("client.game"));
+    JSObject game = res.ToObject();
+
+    game.SetProperty(WSLit("id"), JSValue(m_sPlayerObjectID));
+    game.SetProperty(WSLit("x"), JSValue(m_sPlayerX));
+    game.SetProperty(WSLit("y"), JSValue(m_sPlayerY));
+    game.SetProperty(WSLit("type"), JSValue(m_sPlayerType));
+    game.SetProperty(WSLit("playerAppr1"), JSValue(m_sPlayerAppr1));
+    game.SetProperty(WSLit("playerAppr2"), JSValue(m_sPlayerAppr2));
+    game.SetProperty(WSLit("playerAppr3"), JSValue(m_sPlayerAppr3));
+    game.SetProperty(WSLit("playerAppr4"), JSValue(m_sPlayerAppr4));
+    game.SetProperty(WSLit("playerApprColor"), JSValue(m_iPlayerApprColor));
+    game.SetProperty(WSLit("playerHeadApprValue"), JSValue(m_sPlayerHeadApprValue));
+    game.SetProperty(WSLit("playerBodyApprValue"), JSValue(m_sPlayerBodyApprValue));
+    game.SetProperty(WSLit("playerArmApprValue"), JSValue(m_sPlayerArmApprValue));
+    game.SetProperty(WSLit("playerLegApprValue"), JSValue(m_sPlayerLegApprValue));
+    game.SetProperty(WSLit("playerStatus"), JSValue(static_cast<int32_t>(m_iPlayerStatus)));
+    game.SetProperty(WSLit("mapName"), JSValue(WSLit(m_cMapName)));
+    game.SetProperty(WSLit("mapFaction"), JSValue(WSLit(m_cCurLocation)));
+    game.SetProperty(WSLit("spriteAlphaDegree"), JSValue(G_cSpriteAlphaDegree));
+    game.SetProperty(WSLit("contribution"), JSValue(m_iContribution));
+    game.SetProperty(WSLit("observerMode"), JSValue(bIsObserverMode));
+    game.SetProperty(WSLit("lucky"), JSValue(m_iLucky));
+    game.SetProperty(WSLit("discount"), JSValue(m_cDiscount));
+    game.SetProperty(WSLit("hp"), JSValue(m_iHP));
+    game.SetProperty(WSLit("mp"), JSValue(m_iMP));
+    game.SetProperty(WSLit("sp"), JSValue(m_iSP));
+    game.SetProperty(WSLit("defenseRatio"), JSValue(m_iDefenseRatio));
+    game.SetProperty(WSLit("toHitArmorClass0"), JSValue(m_iTHAC0));
+    game.SetProperty(WSLit("level"), JSValue(m_iLevel));
+    game.SetProperty(WSLit("str"), JSValue(m_stat[STAT_STR]));
+    game.SetProperty(WSLit("int"), JSValue(m_stat[STAT_INT]));
+    game.SetProperty(WSLit("vit"), JSValue(m_stat[STAT_VIT]));
+    game.SetProperty(WSLit("dex"), JSValue(m_stat[STAT_DEX]));
+    game.SetProperty(WSLit("mag"), JSValue(m_stat[STAT_MAG]));
+    game.SetProperty(WSLit("chr"), JSValue(m_stat[STAT_CHR]));
+    game.SetProperty(WSLit("exp"), JSValue(static_cast<double>(m_iExp)));
+    game.SetProperty(WSLit("enemyKillCount"), JSValue(m_iEnemyKillCount));
+    game.SetProperty(WSLit("playerKillCount"), JSValue(m_iPKCount));
+    game.SetProperty(WSLit("rewardGold"), JSValue(m_iRewardGold));
+    game.SetProperty(WSLit("faction"), JSValue(WSLit(m_cLocation)));
+    game.SetProperty(WSLit("guildName"), JSValue(WSLit(m_cGuildName)));
+    game.SetProperty(WSLit("guildRank"), JSValue(m_iGuildRank));
+    game.SetProperty(WSLit("superAttackLeft"), JSValue(m_iSuperAttackLeft));
+    game.SetProperty(WSLit("fightzoneNumber"), JSValue(m_iFightzoneNumber));
+    game.SetProperty(WSLit("enemyKillTotalCount"), JSValue(m_iEnemyKillTotalCount));
 }
 
 void CGame::MotionEventHandler(char * pData)
