@@ -2717,7 +2717,7 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 	bool bRet = false;
 	uint32_t dwItemAttribute, dwItemDropAttr[21+10][15+10]; // Show Item On Ground xRisenx
 	short sItemSprite, sItemSpriteFrame, sObjSpr, sObjSprFrame, sDynamicObject, sDynamicObjectFrame;
-	static uint32_t dwMCAnimTime = G_dwGlobalTime;
+	static uint64_t dwMCAnimTime = G_dwGlobalTime;
 	static short sMCAnimFrame = 1;
 	// Xmas
 	static int ix1[100];
@@ -10468,7 +10468,7 @@ int CGame::_iCheckDlgBoxFocus(char cButtonSide)
 	short        sX, sY;
 	short msX = G_pGame->m_stMCursor.sX;
 	short msY = G_pGame->m_stMCursor.sY;
-	uint32_t		  dwTime = m_dwCurTime;
+    uint64_t		  dwTime = m_dwCurTime;
 	cDlgID = MouseOverDialog();
 
 	if (cDlgID == 0) return 0;
@@ -11918,7 +11918,7 @@ void CGame::DrawAstoriaStats()
 
 	if(m_relicOwnedTime != 0)
 	{
-		uint32_t currTime = unixtime();
+        uint64_t currTime = unixtime();
 		wsprintfA( G_cTxt, "Time left for %s to win: %u:%.2u", sideName[m_relicOwnedSide],
 			((m_relicOwnedTime + RELICVICTORYTIME - currTime) / 1000) / 60,
 			((m_relicOwnedTime + RELICVICTORYTIME - currTime) / 1000) % 60
@@ -15448,7 +15448,7 @@ void CGame::OnKeyUp(WPARAM wParam)
 {
  int i=0;
  uint64_t dwTime = unixtime();
- static uint32_t dwPrevTabTime = 0;
+ static uint64_t dwPrevTabTime = 0;
 
 	switch (wParam) {
 	case VK_ADD:
@@ -16214,7 +16214,8 @@ void CGame::OnKeyDown(WPARAM wParam)
 
 void CGame::NotifyMsgHandler(char * pData)
 {
-	uint32_t * dwp, dwTime, dwTemp;
+    uint32_t * dwp;
+    uint64_t dwTime, dwTemp;
  uint16_t  * wp, wEventType;
  char  * cp, cTemp[510], cTxt[120], cTempName[21];
  short * sp, sX, sY, sV1 = 0, sV2, sV3, sV4, sV5, sV6, sV7, sV8, sV9;
@@ -18965,7 +18966,7 @@ void CGame::DrawObjectName(short sX, short sY, char * pName, int iStatus)
 bool CGame::FindGuildName(char* pName, int* ipIndex)
 {
 	int i, iRet = 0;
-	uint32_t dwTmpTime;
+    uint64_t dwTmpTime;
 	for( i=0 ; i < MAXGUILDNAMES ; i++ )
 	{
 		if( memcmp(m_stGuildName[i].cCharName, pName, 10) == 0 )
@@ -21202,8 +21203,8 @@ void CGame::CommandProcessor(short msX, short msY, short indexX, short indexY, c
 	short  sX, sY, sObjectType, tX, tY, dynObjectType;
 	int iObjectStatus;
 	int    iRet;
-	uint32_t  dwTime = unixtime();
-	static uint32_t lastPanTime = 0;
+    uint64_t  dwTime = unixtime();
+	static uint64_t lastPanTime = 0;
 	uint16_t   wType = 0;
 	int i;//, iFOE;
 	char   cTxt[120];
@@ -27953,7 +27954,7 @@ void CGame::DrawSoccerInfo()
 bool CGame::FindTitleName(char* pName, int* ipIndex)
 {
 	int i, iRet = 0;
-	//uint32_t dwTmpTime;// commented, not used
+	//uint64_t dwTmpTime;// commented, not used
 	for( i=0 ; i < MAXGUILDNAMES ; i++ )
 	{
 		if( memcmp(m_stTitles[i].cCharName, pName, 10) == 0 )

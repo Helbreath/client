@@ -99,7 +99,7 @@ public:
 	void _iCloseSprite() { /*OutputDebugStringW((L"Unloaded image: " + m_cPakFileName + L"\n").c_str()); if (_localimage) _localimage->drop(); m_bIsSurfaceEmpty = TRUE;*/ }
 
 	RECT	m_rcBound;
-	uint32_t	m_dwRefTime;
+    uint64_t	m_dwRefTime;
 	bool	m_bIsSurfaceEmpty;
 	bool	m_bOnCriticalSection;
 	bool	m_bAlphaEffect;

@@ -1054,7 +1054,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
     char  cLB, cRB, cMB, cTotalChar;
     char  cMIresult;
     uint64_t dwTime;
-    static uint32_t dwCTime;
+    static uint64_t dwCTime;
 
     int iMIbuttonNum;
 
@@ -1269,7 +1269,7 @@ void CGame::UpdateScreen_OnConnecting()
     short sX, sY, msX, msY, msZ;
     char cLB, cRB, cMB;
     uint64_t dwTime = unixtime();
-    static uint32_t dwMTime, dwCTime;
+    static uint64_t dwMTime, dwCTime;
 
     if (m_cGameModeCount == 0)
     {
@@ -1496,7 +1496,7 @@ void CGame::UpdateScreen_OnCreateNewCharacter()		// DrawCreateCharacter
     static char cPrevFocus;
     short msX, msY, msZ;
     bool bFlag;
-    static uint32_t dwMTime;
+    static uint64_t dwMTime;
     uint64_t dwTime = unixtime();
 
     msX = m_stMCursor.sX; msY = m_stMCursor.sY; msZ = m_stMCursor.sZ;
@@ -2931,7 +2931,7 @@ void CGame::UpdateScreen_OnQueryForceLogin()
     char cMIresult;
     int  iMIbuttonNum;
 
-    static uint32_t dwCTime;
+    static uint64_t dwCTime;
     uint64_t dwTime = unixtime();
 
     if (m_cGameModeCount == 0)
@@ -3167,7 +3167,7 @@ void CGame::UpdateScreen_OnWaitingResponse()
     char cLB, cRB, cMB;
 
     uint64_t dwTime = unixtime();
-    static uint32_t dwCTime;
+    static uint64_t dwCTime;
 
 
     if (m_cGameModeCount == 0)
@@ -3268,7 +3268,7 @@ void CGame::UpdateScreen_OnQueryDeleteCharacter()
     char cMIresult;
     int  iMIbuttonNum;
 
-    static uint32_t dwCTime;
+    static uint64_t dwCTime;
     uint64_t dwTime = unixtime();
 
 
@@ -3369,7 +3369,7 @@ void CGame::UpdateScreen_OnLogResMsg()
     short msX, msY, msZ, sX, sY;
     char  cLB, cRB, cMB;
     uint64_t dwTime = unixtime();
-    static uint32_t dwCTime;
+    static uint64_t dwCTime;
     int   iMIbuttonNum;
     char  cMIresult;
 
@@ -3708,7 +3708,7 @@ void CGame::UpdateScreen_OnChangePassword()
     char cMIresult;
     int  iMIbuttonNum;
     static char  cName[12], cPassword[12], cNewPassword[12], cNewPassConfirm[12], cPrevFocus;
-    static uint32_t dwCTime;
+    static uint64_t dwCTime;
     uint64_t dwTime = unixtime();
     bool bFlag = true;
 
@@ -4028,7 +4028,7 @@ void CGame::UpdateScreen_OnGame()
     uint32_t ItemColor;
     int  i, iAmount;
     uint64_t dwTime = unixtime();
-    static uint32_t dwPrevChatTime = 0;
+    static uint64_t dwPrevChatTime = 0;
     static int   imX = 0, imY = 0;
     iUpdateRet = 1;
     if (m_cGameModeCount == 0)

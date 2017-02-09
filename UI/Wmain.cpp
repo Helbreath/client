@@ -159,8 +159,8 @@ int main(int argc, char * argv[])
 
 	int grace = 0;
 
-	uint32_t frametime;
-	uint32_t fps;
+    uint64_t frametime;
+    uint64_t fps;
 	uint64_t & time1 = G_pGame->time1;
 	uint64_t & time2 = G_pGame->time2;
 
@@ -217,7 +217,7 @@ int main(int argc, char * argv[])
 		G_pGame->device->getTimer()->tick();
 
 
-		uint32_t time = G_pGame->device->getTimer()->getTime();
+        uint64_t time = G_pGame->device->getTimer()->getTime();
 		//Cursor clipping stuff
 		{
 			if (!G_pGame->device->isWindowActive() && G_pGame->isactive)
