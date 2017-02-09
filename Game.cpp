@@ -4068,11 +4068,12 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
         }
         else
         {
-            int16_t selectedchar = static_cast<int16_t>(args.At(0).ToInteger());
+            int16_t selectid = static_cast<int16_t>(args.At(0).ToInteger());
 
-            if (m_pCharList.size() > selectedchar)
+            if (m_pCharList.size() > selectid)
             {
-                m_cCurFocus = selectedchar;
+                m_cCurFocus = selectid;
+                selectedchar = m_pCharList[selectid];
                 htmlUI->Emit("selectCharacter", true, "");
             }
             return;
