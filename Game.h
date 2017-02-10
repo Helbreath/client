@@ -275,7 +275,8 @@ public:
     unsigned char* uibuffer;
     sf::Texture uitex;
     sf::Sprite uispr;
-    
+    char winName[256];
+
     bool CreateRenderer(bool fs = false)
 	{
 		fullscreen = fs;
@@ -290,10 +291,10 @@ public:
 // 		}
 		//device->setEventReceiver(this);
 
-        char winName[256];
         sprintf(winName, "Helbreath Xtreme %u.%u.%u Renderer: %s", HBF_MAJOR, HBF_MINOR, HBF_LOWER, _renderer.c_str());
 
-        window.create(sf::VideoMode(screenwidth, screenheight), winName);
+        //Style::Fullscreen
+        window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Resize | Style::Close)));
 
         if (vsync)
             window.setVerticalSyncEnabled(true);

@@ -117,8 +117,17 @@ int main(int argc, char * argv[])
                 case sf::Event::KeyPressed:
                     if (event.key.code == Keyboard::Key::Escape)
                     {
-                        G_pGame->clipmousegame = ~G_pGame->clipmousegame;
+                        G_pGame->clipmousegame = !G_pGame->clipmousegame;
                         G_pGame->window.setMouseCursorGrabbed(G_pGame->clipmousegame);
+                    }
+                    else if (event.key.code == Keyboard::Key::Return)
+                    {
+                        if (event.key.alt)
+                        {
+                            G_pGame->fullscreen = !G_pGame->fullscreen;
+                            G_pGame->window.close();
+                            G_pGame->window.create(sf::VideoMode(G_pGame->screenwidth, G_pGame->screenheight), G_pGame->winName, (G_pGame->fullscreen ? Style::Fullscreen : (Style::Resize | Style::Close)));
+                        }
                     }
                 {
                     WebKeyboardEvent keyEvent = WebKeyboardEvent();
