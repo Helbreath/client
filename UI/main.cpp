@@ -51,6 +51,29 @@ int main(int argc, char * argv[])
                 G_pGame->m_cAccountPassword = strtok_s(0, "=:", &ctx);//TODO: encode this when sent from launcher
                 G_pGame->autologin = true;
             }
+
+//debug only stuff
+            else if (!memcmp(argv[i], "-res=", 5))
+            {
+                char * ctx;
+                char * c = strtok_s(argv[i], "=x", &ctx);
+                G_pGame->screenwidth = atoi(strtok_s(0, "=x", &ctx));
+                G_pGame->screenheight = atoi(strtok_s(0, "=x", &ctx));
+                G_pGame->autoresolution = true;
+            }
+            else if (!memcmp(argv[i], "-vres=", 6))
+            {
+                char * ctx;
+                char * c = strtok_s(argv[i], "=x", &ctx);
+                G_pGame->screenwidth_v = atoi(strtok_s(0, "=x", &ctx));
+                G_pGame->screenheight_v = atoi(strtok_s(0, "=x", &ctx));
+                G_pGame->autovresolution = true;
+            }
+
+
+
+
+
 //             else if (!memcmp(argv[i], "-renderer=", 10))
 //             {
 //                 char * ctx;

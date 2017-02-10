@@ -494,24 +494,27 @@ CGame::CGame()
 	foregroundframetime = 1000 / foregroundfpstarget;
 	backgroundframetime = 1000 / backgroundfpstarget;
 
-
-//	screenwidth = 800;
-//	screenheight = 600;
-    //SetResolution(640, 480);
-	//SetResolution(800,600);
-	//SetResolution(1024,768);
-	//SetResolution(1280, 1024);
-    //SetResolution(1920, 1200);
+    if (!autoresolution)
+    {
+        //SetResolution(640, 480);
+    	//SetResolution(800, 600);
+    	//SetResolution(1024, 768);
+    	//SetResolution(1280, 1024);
+        //SetResolution(1920, 1200);
+        
+        //SetResolution(1280, 720);
+        //SetResolution(1366, 768);
+        //SetResolution(1600, 900);
+        //SetResolution(1920, 1080);
     
-    //SetResolution(1280, 720);
-    //SetResolution(1366, 768);
-    //SetResolution(1600, 900);
-    //SetResolution(1920, 1080);
-
-
-    //SetVirtualResolution(5120, 2160);
-    SetVirtualResolution(800, 600);
-    SetResolution(800, 600);
+    
+        //SetVirtualResolution(5120, 2160);
+        SetResolution(800, 600);
+    }
+    if (!autovresolution)
+    {
+        SetVirtualResolution(800, 600);
+    }
 
 #ifdef _DEBUG
 	m_bToggleScreen = true;

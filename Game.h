@@ -200,7 +200,9 @@ public:
 	void DrawStatusText(int sX, int sY);
     void StartLogin();
 
-	bool autologin;
+    bool autologin = false;
+    bool autoresolution = false;
+    bool autovresolution = false;
 
 	struct MsgQueueEntry
 	{
