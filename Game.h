@@ -52,11 +52,10 @@
 
 #include "titles\Title.h" // Titles xRisenx
 
-#include <irrlicht.h>
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
 
 #include "streams.h"
-
-#include <irrKlang.h>
 
 #define BTNSZX				74
 #define BTNSZY				20
@@ -158,12 +157,8 @@
 
 extern void * G_hWnd;
 
-extern irr::video::E_DRIVER_TYPE driverType;
-
 class connection;
 typedef boost::shared_ptr<connection> connection_ptr;
-using namespace irrklang;
-
 
 #define FONT_BUILTIN 0
 #define FONT_TREBMS6PX 1
@@ -174,13 +169,6 @@ using namespace irrklang;
 #define FONT_TREBMS16PX 6
 
 
-struct SAppContext
-{
-	IrrlichtDevice *device;
-	s32             counter;
-	irr::gui::IGUIListBox*    listbox;
-};
-
 enum
 {
 	GUI_ID_QUIT_BUTTON = 101,
@@ -189,7 +177,7 @@ enum
 	GUI_ID_TRANSPARENCY_SCROLL_BAR
 };
 
-class CGame : public irr::IEventReceiver
+class CGame
 {
 public:
 
@@ -208,15 +196,7 @@ public:
     int viewdstyvar = 0;
     int viewdstxcharvar = 0;
     int viewdstycharvar = 0;
-    static void setSkinTransparency(s32 alpha, irr::gui::IGUISkin * skin)
-	{
-		for (s32 i = 0; i < irr::gui::EGDC_COUNT; ++i)
-		{
-			video::SColor col = skin->getColor((irr::gui::EGUI_DEFAULT_COLOR)i);
-			col.setAlpha(alpha);
-			skin->setColor((irr::gui::EGUI_DEFAULT_COLOR)i, col);
-		}
-	};
+
 	void DrawStatusText(int sX, int sY);
     void StartLogin();
 
@@ -260,16 +240,10 @@ public:
 	boost::shared_ptr<boost::thread> socketthread;
 
 
-	irr::IrrlichtDevice * device;
-	irr::video::IVideoDriver * driver;
-	irr::scene::ISceneManager* smgr;
-	irr::gui::IGUIFont * font[100];
-	irr::gui::IGUIEnvironment* env;
-
-    irr::video::ITexture* visible;
-    irr::video::ITexture* bg;
-	irr::video::ITexture* charselect;
-	irr::video::ITexture* htmlRTT;
+    sf::RenderTexture visible;
+    sf::RenderTexture bg;
+    sf::RenderTexture charselect;
+    sf::RenderTexture htmlRTT;
 
 	HTMLUI* htmlUI;
 
@@ -291,77 +265,87 @@ public:
 	uint64_t time2;
 
 	bool wasinactive;
-	SAppContext context;
 
-    irr::gui::IGUISpriteBank * cursors;
-
-    wstring _renderer;
+    string _renderer;
 
     uint16_t charselectx = 0, charselecty = 0;
 
-	bool CreateRenderer(bool fs = false)
+    sf::RenderWindow window;
+
+    unsigned char* uibuffer;
+    sf::Texture uitex;
+    sf::Sprite uispr;
+    
+    bool CreateRenderer(bool fs = false)
 	{
 		fullscreen = fs;
 		//when streaming, vsync on = screen capture nogo
 		//has to use "game capture" (render hook)
 		//vsync better for production though - include option for players to choose                                    \/
-		device = createDevice(driverType,irr::core::dimension2d<uint32_t>(screenwidth, screenheight), 32, fullscreen, false, vsync, this);
-		if (device == 0)
-		{
-			MessageBox(0, L"Cannot create video device!", L"ERROR!", MB_OK);
-			return false; // could not create selected driver.
-		}
+// 		device = createDevice(driverType,irr::core::dimension2d<uint32_t>(screenwidth, screenheight), 32, fullscreen, false, vsync, this);
+// 		if (device == 0)
+// 		{
+// 			MessageBox(0, "Cannot create video device!", "ERROR!", MB_OK);
+// 			return false; // could not create selected driver.
+// 		}
 		//device->setEventReceiver(this);
 
+        char winName[256];
+        sprintf(winName, "Helbreath Xtreme %u.%u.%u Renderer: %s", HBF_MAJOR, HBF_MINOR, HBF_LOWER, _renderer.c_str());
 
+        window.create(sf::VideoMode(screenwidth, screenheight), winName);
 
-		wchar_t winName[256];
-		wsprintfW(winName, L"Helbreath Xtreme %u.%u.%u Renderer: %s", HBF_MAJOR, HBF_MINOR, HBF_LOWER, _renderer.c_str());
-		device->setWindowCaption(winName);
+        if (vsync)
+            window.setVerticalSyncEnabled(true);
+        else
+            window.setVerticalSyncEnabled(false);
 
-		driver = device->getVideoDriver();
-        driver->setTextureCreationFlag(video::ETCF_CREATE_MIP_MAPS, false);
-        driver->setTextureCreationFlag(video::ETCF_ALLOW_NON_POWER_2, true);
-        driver->setTextureCreationFlag(video::ETCF_ALWAYS_32_BIT, true);
-		smgr = device->getSceneManager();
-		env = device->getGUIEnvironment();
-
-        //io::IAttributes & a = driver->getDriverAttributes();
-
-        //driver->setViewPort(core::rect<s32>(0, 0, 1024, 1024));
+        visible.create(GetWidth(), GetHeight());
+        bg.create(GetWidth(), GetHeight());
+        charselect.create(GetWidth(), GetHeight());
+        htmlRTT.create(GetWidth(), GetHeight());
 
 		htmlUI = new HTMLUI(this);
 		htmlUI->Init();
 
-		irr::video::SExposedVideoData vdata = driver->getExposedVideoData();
-		G_hWnd = reinterpret_cast<HWND>(vdata.D3D9.HWnd);
-
-		driver->getMaterial2D().TextureLayer[0].BilinearFilter = true;
-		driver->getMaterial2D().AntiAliasing = video::EAAM_FULL_BASIC;
-
-		if (driver->queryFeature(video::EVDF_RENDER_TO_TARGET))
-		{
-            visible = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth(), GetHeight()), "game", ECF_A8R8G8B8);
-            bg = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(GetWidth() + 200, GetHeight() + 200), "RTT1", ECF_A8R8G8B8);
-			charselect = driver->addRenderTargetTexture(core::dimension2d<uint32_t>(256, 256), "RTT2", ECF_A8R8G8B8);
-		}
-		else
-		{
-			MessageBoxA(0, "Unable to RTT - background will not render", "RTT", MB_OK);
-		}
+        handle = window.getSystemHandle();
+        
 
 
-		return true;
+        //create some fonts
+
+        sf::Font s;
+        s.loadFromFile(workingdirectory + "fonts/Arya-Regular.ttf");
+        _font.insert(pair<string, sf::Font>("arya", s));
+
+        s.loadFromFile(workingdirectory + "fonts/OpenSans-Regular.ttf");
+        _font.insert(pair<string, sf::Font>("default", s));
+
+        s.loadFromFile(workingdirectory + "fonts/PoetsenOne-Regular.ttf");
+        _font.insert(pair<string, sf::Font>("test", s));
+
+        uibuffer = new unsigned char[screenwidth_v * screenheight_v * 4];
+        uitex.create(screenwidth_v, screenheight_v);
+        uispr.setTexture(uitex);
+        
+        return true;
 	}
-	virtual bool OnEvent(const irr::SEvent& event);
-	virtual bool IsKeyDown(irr::EKEY_CODE keyCode) const { return KeyIsDown[keyCode]; }
+    sf::WindowHandle handle;
 
-	bool KeyIsDown[irr::KEY_KEY_CODES_COUNT];
+    std::map<string, sf::Font> _font;
+    sf::Text _text;
+
+    string workingdirectory = "";
+
+
+	bool IsKeyDown(sf::Keyboard::Key keyCode) const { return KeyIsDown[keyCode]; }
+
+    bool KeyIsDown[sf::Keyboard::Key::KeyCount];
 
 	shared_ptr<CCharInfo> selectedchar;
 	
 	
-	bool clipmousegame;
+	bool clipmousegame = true;
 	bool clipmousewindow;
 	bool isactive;
 	uint16_t screenwidth;
@@ -375,7 +359,6 @@ public:
 
 	void DrawScene(uint64_t time);
 	//void DrawFPS2();//debug func
-	void DrawMouse();
 	void DrawVersion2();
 	uint64_t mtime;
 
@@ -388,8 +371,6 @@ public:
 	void DrawDialogBox_QuestList();
 	void DlgBoxClick_QuestList();
 
-	void TopsiteVote();
-	void OnVoteSocketEvent(WPARAM wParam, LPARAM lParam);
 	void NotifyMsg_Heldenian(char * pData);
 	void DrawHeldenianStats();
 	void TimeStamp(char * pString);
@@ -462,7 +443,8 @@ public:
 	void WriteSettings();
 	void WriteSettingsVar(const char * var, uint32_t val);
 
-	int  iGetManaCost(int iMagicNo);
+    void DrawNewDialogBox(char cType, int sX, int sY, int iFrame, bool bIsNoColorKey = false, bool bIsTrans = false);
+    int  iGetManaCost(int iMagicNo);
 	void UseMagic(int iMagicNo);
 	bool _bCheckMoveable( short sx, short sy );
 	bool FindGuildName(char* pName, int* ipIndex);
@@ -486,8 +468,6 @@ public:
 	void DrawObjectFOE(int ix, int iy, int iFrame);
 	void GrandMagicResult(char * pMapName, int iV1, int iV2, int iV3, int iV4, int iHP1, int iHP2, int iHP3, int iHP4) ;
 	void MeteorStrikeComing(int iCode);
-	void _Draw_OnLogin(char * pAccount, char * pPassword, int msX, int msY, int iFrame = 60000);
-	void DrawNewDialogBox(char cType, int sX, int sY, int iFrame, bool bIsNoColorKey = false, bool bIsTrans = false);
 	void AddMapStatusInfo(char * pData, bool bIsLastData);
 	void _RequestMapStatus(char * pMapName, int iMode);
 	int  GetCharKind(char *str, int index);
@@ -498,58 +478,6 @@ public:
 	bool GetText(HWND hWnd,UINT msg,WPARAM wparam, LPARAM lparam);
 	
 	bool bReadItemNameConfigFile();
-	void DrawDialogBoxes();
-	void DrawDialogBox_Character();//1
-	void DrawDialogBox_Inventory();//2
-	void DrawDialogBox_Magic();//3
-	void DrawDialogBox_GuildMenu();//7
-	void DrawDialogBox_GuildOperation();//8
-	void DrawDialogBox_GuideMap();//9
-	void DrawDialogBox_Chat();//10
-	void DrawDialogBox_Shop();//11
-	void DrawDialogBox_LevelUpSetting();//12
-	void DrawDialogBox_CityHallMenu();//13
-	void DrawDialogBox_Bank();//14
-	void DrawDialogBox_Skill();//15
-	void DrawDialogBox_MagicShop();//16
-	void DrawDialogBox_QueryDropItemAmount();//17
-	void DrawDialogBox_Text();//18
-	void DrawDialogBox_SysMenu();//19
-	void DrawDialogBox_NpcActionQuery();//20
-	void DrawDialogBox_NpcTalk();//21
-	void DrawDialogBox_Map();//22
-	void DrawDialogBox_SellorRepairItem();//23
-	void DrawDialogBox_Fishing();//24
-	void DrawDialogBox_ShutDownMsg();//25
-	void DrawDialogBox_SkillDlg();//26
-	void DrawDialogBox_Exchange();//27
-	void DrawDialogBox_Quest();//28
-	void DrawDialogBox_GaugePanel();//29
-	void DrawDialogBox_IconPanel();//30
-	void DrawDialogBox_SellList();//31
-	void DrawDialogBox_Party();//32
-	void DrawDialogBox_CrusadeJob();//33
-	void DrawDialogBox_ItemUpgrade();//34
-	void DrawDialogBox_Help();//35
-	void DrawDialogBox_Commander();//36
-	void DrawDialogBox_Constructor();//37
-	void DrawDialogBox_Soldier();//38
-   void DrawDialogBox_ItemDrop();//4
-	void DrawDialogBox_WarningMsg();//6
-	void DrawDialogBox_15AgeMsg();//5
-	void DrawDialogBox_FeedBackCard();//40
-	void DrawDialogBox_Guild();//57
-	void DlgBoxClick_Guild(); //57
-   void DrawDialogBox_GuildContribute();//58
-   void DlgBoxClick_GuildContribute();//58
-	void DrawDialogBox_ExtendedSysMenu();//59
-	void DlgBoxClick_ExtendedSysMenu();//59
-	void DrawDialogBox_MuteList();//60
-	void DlgBoxClick_MuteList();//60
-	void DrawDialogBox_TopPanel(); //62
-	void DrawDialogBox_Mailbox();
-	//void DrawDialogBox_Titles(/*char cLB*/); // [70] Titles xRisenx
-	//void DlgBoxClick_Titles(); // [70] Titles xRisenx
 
 	void DisplayCommaNumber_G_cTxt(int iGold);
 	
@@ -561,54 +489,10 @@ public:
 	void DrawDialogBox_DKMenuWeapons();// 53
 	void DlgBoxClick_DKMenuWeapons();
 
-	// Slates - Alastor
-	void bItemDrop_Slates();
-	void DlgBoxClick_Slates();
-	void DrawDialogBox_Slates();//40
+    void DrawDialogBox_Map();
 
-	void DlgBoxClick_WarningMsg();
-	void DlgBoxClick_15AgeMsg();
-	void DlgBoxClick_ItemDrop();
-	void DlgBoxClick_Character();
-	void DlgBoxClick_Inventory();
-	void DlgBoxClick_Chat();
-	void DlgBoxDoubleClick_Chat();
 
 	void EnableChat(ChatType t, bool enable);
-	void DlgBoxClick_Magic();
-	void DlgBoxClick_GuildMenu();
-	void DlgBoxClick_GuildOp();
-	void DlgBoxClick_GuideMap();
-	void DlgBoxClick_Shop();
-	void DlgBoxClick_LevelUpSettings();
-	void DlgBoxClick_CityhallMenu();
-	void DlgBoxClick_Bank();
-	void DlgBoxClick_Skill();
-	void DlgBoxClick_MagicShop();
-	void DlgBoxClick_FeedBackCard();
-	void DlgBoxClick_Text();
-	void DlgBoxClick_SysMenu();
-	void DlgBoxClick_NpcActionQuery();
-	void DlgBoxClick_NpcTalk();
-	void DlgBoxClick_ItemSellorRepair();
-	void DlgBoxClick_Fish();
-	void DlgBoxClick_ShutDownMsg();
-	void DlgBoxClick_SkillDlg();
-	void DlgBoxClick_Exchange();
-
-	void DlgBoxClick_Quest();
-	void DlgBoxClick_SellList();
-	void DlgBoxClick_IconPanel();
-	void DlgBoxClick_Party();
-	void DlgBoxClick_CrusadeJob();
-	void DlgBoxClick_ItemUpgrade();
-	void DlgBoxClick_Help();
-	void DlgBoxClick_Commander();
-	void DlgBoxClick_Constructor();
-	void DlgBoxClick_Soldier();
-	void DlgBoxClick_Mailbox();
-	void DlgBoxClick_TopPanel(); // New Top Bar xRisenx
-	void ItemDrop_Mailbox();
 	
 	void ReceiveGuildBoard(char * data);
 	void ReceiveGuildBoardPost(char * data);
@@ -698,7 +582,6 @@ public:
 	void NotifyMsg_RepairAllPrice(char * pData);
 
 	void ResponsePanningHandler(char * pData);
-	void _CalcSocketClosed();
 	void UpdateScreen_OnSelectServer();
 	void StartInputString(int left, int top, uint32_t len, char * pBuffer, bool bIsHide = false, int right = 0);
 	void _SetIlusionEffect(int iOwnerH);
@@ -753,14 +636,12 @@ public:
 	void NpcTalkHandler(char * pData);
 	int  _iGetWeaponSkillType();
 	void SetCameraShakingEffect(short sDist, int iMul = 0);
-	bool DlgBoxPress_SkillDlg();
-	bool DlgBoxPress_Inventory();
-	bool DlgBoxPress_Character();
 	void ClearSkillUsingStatus();
 	bool bCheckItemOperationEnabled(char cItemID);
 	void _DrawThunderEffect(int sX, int sY, int dX, int dY, int rX, int rY, char cType);
 	void DrawLine2(int x0, int y0, int x1, int y1, int iR, int iG, int iB);
-	void DrawLine(int x0, int y0, int x1, int y1, int iR, int iG, int iB);
+    void DrawLine(int x0, int y0, int x1, int y1, int iR, int iG, int iB, int iA);
+    void DrawLine(int x0, int y0, int x1, int y1, Color color = Color(255, 255, 255, 255));
 	void SetWeatherStatus(Weather type);
 	void WeatherObjectFrameCounter();
 	void DrawWeatherEffects();
@@ -794,7 +675,6 @@ public:
 	void ClearContents_OnSelectCharacter();
 	void ClearContents_OnCreateNewAccount();
 	void _Draw_UpdateScreen_OnCreateNewAccount();
-	bool _bDraw_OnCreateNewCharacter(char * pName, short msX, short msY, int iPoint);
 	bool _bGetIsStringIsNumber(char * pStr);
 	bool bInitMagicCfgList();
 	bool __bDecodeContentsAndBuildItemForSaleList(char * pBuffer);
@@ -846,31 +726,35 @@ public:
 	void ChatMsgHandler(char * pData);
 	void ReleaseUnusedSprites();
 	bool bReadIp();
-	void OnKeyUp(WPARAM wParam);
+	void OnKeyUp(uint32_t wParam);
 	void OnSysKeyDown(WPARAM wParam);
 	void OnSysKeyUp(WPARAM wParam);
 	void ChangeGameMode(char cMode);
-	void PutFontString(gui::IGUIFont * font, int iX, int iY, char * pString, video::SColor color);
-	void PutFontString(gui::IGUIFont * font, int iX, int iY, char const * pString, video::SColor color, bool bHide, char cBGtype, bool bIsPreDC = false);
-	void PutChatString(int iX, int iY, char * pString, video::SColor color);
-	void PutString(int iX, int iY, char const * pString, video::SColor color);
-	void PutString(int iX, int iY, char const * pString, video::SColor color, bool bHide, char cBGtype, bool bIsPreDC = false);
-	void PutString2(int iX, int iY, char * pString, short sR, short sG, short sB);
-	void PutString3(int iX, int iY, char const * pString, ::SColor color);
-	void PutAlignedString(int iX1, int iX2, int iY, char const * const pString, video::SColor color = video::SColor(255,255,255,255));
-	void PutAlignedString(int iX1, int iX2, int iY, char const * const pString, short sR, short sG, short sB)
-	{
-		//finish replacing eventually
-		PutAlignedString(iX1, iX2, iY, pString, video::SColor(255, sR, sG, sB));
-	}
-	//void ButtonString(CDialogBox & dlg, int button, char const * const pString, Alignment pos = POS_CENTER);
-	//void ButtonStringToggle(CDialogBox & dlg, int button, char const * const pString, bool enabled = true, Alignment pos = POS_CENTER);
+	void PutFontString(string fontname, int iX, int iY, string pString, Color color = Color(255, 255, 255, 255));
+	void PutChatString(int iX, int iY, char * pString, Color color = Color(255, 255, 255, 255));
+    void PutString(int iX, int iY, string pString, Color color = Color(255, 255, 255, 255), bool bHide = false, char cBGtype = 2);
+    void PutString2(int iX, int iY, string pString, int r = 255, int g = 255, int b = 255)
+    {//TODO: remove
+        PutString(iX, iY, pString, Color(r, g, b, 255));
+    }
+	void PutAlignedString(int iX1, int iX2, int iY, string text, Color color = Color(255,255,255,255));
+    __inline sf::Font & GetFont(string font = "default")
+    {
+        try
+        {
+            return _font.at(font);
+        }
+        catch (std::out_of_range & oor)
+        {
+            //TODO: error
+        }
+        return sf::Font();
+    }
 	void PutString_SprFont(int iX, int iY, char * pStr, short sR, short sG, short sB);
 	void PutString_SprFont2(int iX, int iY, char * pStr, short sR, short sG, short sB);
 	void PutString_SprFont3(int iX, int iY, char * pStr, short sR, short sG, short sB, bool bTrans = false, int iType = 0);
 	void PutString_SprNum(int iX, int iY, char * pStr, short sR, short sG, short sB);
 	void LogResponseHandler(uint32_t size, char * pData);
-	void OnLogSocketEvent(WPARAM wParam, LPARAM lParam);
 	void OnTimer();
 	void _ReadMapData(short sPivotX, short sPivotY, char * pData);
 	void MotionEventHandler(char * pData);
@@ -885,9 +769,8 @@ public:
 	char cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMoveCheck = false, bool isMIM = false);
 	void RestoreSprites();
 	void CommandProcessor(short msX, short msY, short indexX, short indexY, char cLB, char cRB, char cMB);
-	void OnGameSocketEvent(WPARAM wParam, LPARAM lParam);
 	void CalcViewPoint();
-	void OnKeyDown(WPARAM wParam);
+	void OnKeyDown(uint32_t wParam);
 	void Quit();
 	bool bInit(void * hWnd, void * hInst, char * pCmdLine);
 
@@ -907,14 +790,6 @@ public:
 	//int bHasHeroSet( short Appr3, short Appr4, char OwnerType);
 	int bHasHeroSet(short HeadApprValue, short BodyApprValue, short ArmApprValue, short LegApprValue, char OwnerType);
 	void ShowHeldenianVictory(short sSide);
-	void DrawDialogBox_Resurect();
-	void DlgBoxClick_Resurect();
-	void DrawDialogBox_GuildSummons();
-	void DlgBoxClick_GuildSummons();
-	void DrawDialogBox_GuildQuery();
-	void DlgBoxClick_GuildQuery();
-	void DrawDialogBox_CMDHallMenu();
-	void DlgBoxClick_CMDHallMenu();
 	void ResponseHeldenianTeleportList(char *pData);
 	void DKGlare(int iWeaponColor, int iWeaponIndex, int *iWeaponGlare);
 	void DrawDruncncity();
@@ -925,7 +800,6 @@ public:
 	void SaveMuteList();
 
 	char MouseOverDialog();
-	void SetupDialogBoxes();
 	void SetupDialogBox(int dialog,  short X, short Y, short background, int backFrame, int titleTxtFrame = -1, bool trans = false);
 
 	void ClearPartyMembers();
@@ -1066,11 +940,13 @@ public:
 	} m_stQuestList[50];
 
 //	class YWSound m_DSound;
-    ISoundEngine * klang;
- 	ISound *	m_pCSound[MAXSOUNDEFFECTS];
-    ISound *	m_pMSound[MAXSOUNDEFFECTS];
-    ISound *	m_pESound[MAXSOUNDEFFECTS];
-    ISound *    m_pBGM;
+    sf::Sound m_pCSound[30];
+    sf::Sound m_pMSound[160];
+    sf::Sound m_pESound[55];
+    sf::SoundBuffer CSoundBuffer[30];
+    sf::SoundBuffer MSoundBuffer[160];
+    sf::SoundBuffer ESoundBuffer[55];
+    sf::Sound m_pBGM;
 //	class DXC_ddraw  m_DDraw;
 //	class DXC_dinput m_DInput;
 	class CMisc      m_Misc;
@@ -1170,7 +1046,7 @@ public:
 	bool m_bInputStatus;
 	bool m_bToggleScreen;
 	bool m_bIsSpecial;
-	video::SColor m_itemColor;
+	Color m_itemColor;
 
 	bool m_bIsF1HelpWindowEnabled;
 	bool m_bIsTeleportRequested;//was BOOL

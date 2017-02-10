@@ -50,7 +50,7 @@ typedef struct tagBITMAPINFO {
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-CSprite::CSprite(std::ifstream & hPakFile, std::wstring & cPakFileName, short sNthFile, bool bAlphaEffect)
+CSprite::CSprite(std::ifstream & hPakFile, std::string & cPakFileName, short sNthFile, bool bAlphaEffect)
 {
 	int iASDstart;
 
@@ -60,7 +60,8 @@ CSprite::CSprite(std::ifstream & hPakFile, std::wstring & cPakFileName, short sN
 	m_cAlphaDegree = 1;
 	m_bOnCriticalSection = false;
 	m_iTotalFrame = 0;
-	_localimage = _localshadow = 0;
+
+    sprite = 0;
 
 	hPakFile.seekg (24 + sNthFile*8, std::ios::beg);
 	hPakFile.read ((char*)&iASDstart, 4);
@@ -78,39 +79,44 @@ CSprite::CSprite(std::ifstream & hPakFile, std::wstring & cPakFileName, short sN
 	m_cPakFileName = cPakFileName;
 	m_bAlphaEffect = bAlphaEffect;
 	wPageid = sNthFile;
-	subtextures = new ITexture *[m_iTotalFrame];
-	for (int i = 0; i < m_iTotalFrame; ++i)
-		subtextures[i] = 0;
+    sprite = new Sprite[m_iTotalFrame];
+ 	for (int i = 0; i < m_iTotalFrame; ++i)
+        sprite[i] = Sprite();
+// 	subtextures = new ITexture *[m_iTotalFrame];
+// 	for (int i = 0; i < m_iTotalFrame; ++i)
+// 		subtextures[i] = 0;
 	//_pMakeSpriteSurface();
 }
 
 CSprite::~CSprite(void)
 {
 	if (m_stBrush != 0) delete[] m_stBrush;
-	delete[] subtextures;
+/*	delete[] subtextures;*/
 	int test;
-	if (_localimage)
-		test = _localimage->getReferenceCount();
-	if (_localimage) _localimage->drop();
-	if (_localshadow) _localshadow->drop();
+// 	if (_localimage)
+// 		test = _localimage->getReferenceCount();
+// 	if (_localimage) _localimage->drop();
+// 	if (_localshadow) _localshadow->drop();
 }
 
-video::ITexture * CSprite::_pMakeSpriteSurface()
+bool CSprite::_pMakeSpriteSurface()
 {
-	if( m_stBrush == 0 ) return 0;
-	if (!m_bIsSurfaceEmpty) return 0;
+    if ((m_stBrush == 0) || (!m_bIsSurfaceEmpty))
+    {
+        return false;
+    }
 
 	//CMyDib mydib(m_cPakFileName, m_dwBitmapFileStartLoc);
 
 	BITMAPFILEHEADER fh;
 	char * m_lpDib;
-	std::wstringstream ss;
-	ss << L"sprites\\" << m_cPakFileName << L".pak";
+	std::stringstream ss;
+	ss << "sprites\\" << m_cPakFileName << ".pak";
 	std::ifstream szfile(ss.str().c_str(), std::ios::in | std::ios::binary);
 	if (!szfile.is_open())
 	{
-		//MessageBoxW(NULL, (std::wstring(L"Cannot open \"") + ss.str() + L"\"").c_str(), L"Error", MB_OK);
-		return 0;
+		//MessageBoxW(NULL, (std::wstring("Cannot open \"") + ss.str() + "\"").c_str(), "Error", MB_OK);
+		return false;
 	}
 
 	szfile.seekg(m_dwBitmapFileStartLoc, std::ios::beg);
@@ -128,84 +134,85 @@ video::ITexture * CSprite::_pMakeSpriteSurface()
 	m_wBitmapSizeX = (uint16_t)(bmpInfoHeader->biWidth);
 	m_wBitmapSizeY = (uint16_t)(bmpInfoHeader->biHeight);
 
-	
 	//ECF_A8R8G8B8 - desired
 	//ECF_R5G6B5 - most hb paks are
-	core::dimension2d<uint32_t> size;
-	ss.str(L"");
-	ss << m_cPakFileName << wPageid;
-	io::IReadFile * bmpfile = G_pGame->device->getFileSystem()->createMemoryReadFile(m_lpDib, fh.bfSize, ss.str().c_str(), false);
-	_localimage = G_pGame->driver->getTexture(bmpfile);
-	G_pGame->driver->makeColorKeyTexture(_localimage, core::position2d<s32>(0,0));
-	bmpfile->drop();
-	size = _localimage->getSize();
 
-// 	ss.str(L"");
-// 	ss << L"sprites\\raws\\" << m_cPakFileName << L"\\" << wPageid << L".bmp";
-// 
-// 	std::ofstream szfile2(ss.str().c_str(), std::ios::out | std::ios::binary);
-// 	szfile2.write(m_lpDib, fh.bfSize);
-// 	szfile2.close();
+    sf::Image img;
+    img.loadFromMemory(m_lpDib, fh.bfSize);
+    img.createMaskFromColor(img.getPixel(0, 0));
+    _localimage.loadFromImage(img);
 
+    for (int i = 0; i < m_iTotalFrame; ++i)
+    {
+        sprite[i].setTexture(_localimage);
+        sprite[i].setTextureRect(IntRect(m_stBrush[i].sx, m_stBrush[i].sy, m_stBrush[i].szx, m_stBrush[i].szy));
+    }
 
 	m_bIsSurfaceEmpty = false;
 
-	//CreateShadow();
+    //CreateShadow();
 
-	return _localimage;
+	return true;
 }
 
 #include "boost\filesystem.hpp"
 
-CSprite * CSprite::CreateSprite(wchar_t * cPakFileName, short sNthFile, bool bAlphaEffect)
+CSprite * CSprite::CreateSprite(char * cPakFileName, short sNthFile, bool bAlphaEffect)
 {
 	std::wstringstream ss;
-	ss << L"sprites\\" << cPakFileName << L".pak";
+	ss << "sprites\\" << cPakFileName << ".pak";
 	std::wstring str = ss.str();
 	std::ifstream szfile(str.c_str(),std::ios::in|std::ios::binary);
 
 	if (!szfile.is_open())
 	{
 		//error
-		//MessageBoxW(NULL, (L"Error loading pak: " + str).c_str(), L"ERROR", MB_OK);
+		//MessageBoxW(NULL, ("Error loading pak: " + str).c_str(), "ERROR", MB_OK);
 	}
 
-// 	ss.str(L"");
-// 	ss << L"sprites\\raws\\" << cPakFileName << "\\";
+// 	ss.str("");
+// 	ss << "sprites\\raws\\" << cPakFileName << "\\";
 // 	boost::filesystem::path dir(ss.str().c_str());
 // 	if (!boost::filesystem::exists(dir))
 // 		boost::filesystem::create_directory(dir);
 
-	return new CSprite(szfile,std::wstring(cPakFileName), sNthFile, bAlphaEffect);
+	return new CSprite(szfile,std::string(cPakFileName), sNthFile, bAlphaEffect);
 }
 
-void CSprite::DrawShadow(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
+void CSprite::DrawShadow(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
+{
+// 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+// 	G_pGame->driver->draw2DImage(_localshadow, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
+// 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
+// 		color, true);
+}
+
+void CSprite::DrawSubSprite(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
 {
 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
-	G_pGame->driver->draw2DImage(_localshadow, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
-		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
-		color, true);
+    sprite[sFrame].setColor(color);
+    sprite[sFrame].setPosition(sX, sY);
+    G_pGame->window.draw(sprite[sFrame]);
+// 	G_pGame->driver->draw2DImage(subtextures[sFrame], core::position2d<s32>(sX,sY),
+// 		core::rect<s32>(0,0,m_stBrush[sFrame].szx,m_stBrush[sFrame].szy), 0,
+// 		Color(255,255,255,255), true);
 }
 
-void CSprite::DrawSubSprite(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
-{
-	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
-	G_pGame->driver->draw2DImage(subtextures[sFrame], core::position2d<s32>(sX,sY),
-		core::rect<s32>(0,0,m_stBrush[sFrame].szx,m_stBrush[sFrame].szy), 0,
-		video::SColor(255,255,255,255), true);
-}
-
-void CSprite::DrawSpriteNCK(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
+void CSprite::DrawSpriteNCK(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
 {
 	DrawRGBNCK(sX, sY, sFrame, dwTime, color);
 }
 
-void CSprite::DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
+void CSprite::DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
 {
 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
-	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
-		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
-		color, false);
+    sprite[sFrame].setColor(color);
+    sprite[sFrame].setPosition(sX, sY);
+    G_pGame->window.draw(sprite[sFrame]);
+
+//     G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
+// 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
+// 		color, false);
 
 
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
@@ -226,17 +233,20 @@ void CSprite::DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, video::SCo
 	m_rcBound.bottom = dY + szy;
 }
 
-void CSprite::DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
+void CSprite::DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
 {
 	DrawRGB(sX, sY, sFrame, dwTime, color);
 }
 
-void CSprite::DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color)
+void CSprite::DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
 {
 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
-	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
-		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
-		color, true);
+    sprite[sFrame].setColor(color);
+    sprite[sFrame].setPosition(sX, sY);
+    G_pGame->window.draw(sprite[sFrame]);
+// 	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
+// 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
+// 		color, true);
 
 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
 
@@ -256,155 +266,163 @@ void CSprite::DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor
 	m_rcBound.bottom = dY + szy;
 }
 
-void CSprite::DrawScaledSprite(int sX, int sY, int sFrame, int sWidth, int sHeight, uint64_t dwTime, video::SColor color)
+void CSprite::DrawScaledSprite(int sX, int sY, int sFrame, int sWidth, int sHeight, uint64_t dwTime, Color color)
 {
     if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
-	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX,sY),
-		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+sWidth,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy+sHeight), 0,
-		color, true);
+    sprite[sFrame].setColor(color);
+    sprite[sFrame].setPosition(sX, sY);
+    G_pGame->window.draw(sprite[sFrame]);
+// 	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX,sY),
+// 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+sWidth,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy+sHeight), 0,
+// 		color, true);
 }
 
-void CSprite::DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, video::SColor color)
+void CSprite::DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, Color color)
 {
 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
-	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX,sY),
-		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+sWidth,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
-		color, true);
+    FloatRect f = sprite[sFrame].getLocalBounds();
+    sprite[sFrame].scale(float(sWidth) / f.width, 1.0);
+    sprite[sFrame].setColor(color);
+    sprite[sFrame].setPosition(sX, sY);
+    G_pGame->window.draw(sprite[sFrame]);
+// 	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX,sY),
+// 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+sWidth,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
+// 		color, true);
 }
 
 void CSprite::PutSpriteFast(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(255,255,255,255));
 	return;
 }
 
 void CSprite::PutSpriteFastNoColorKey(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(255,255,255,255));
 	return;
 }
 
 void CSprite::PutSpriteFastFrontBuffer(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(255,255,255,255));
 	return;
 }
 
 void CSprite::PutSpriteFastWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime)
 {
-	DrawWidth(sX, sY, sFrame, sWidth, dwTime, irr::video::SColor(255,255,255,255));
+	DrawWidth(sX, sY, sFrame, sWidth, dwTime, Color(255,255,255,255));
 	return;
 }
 
 void CSprite::PutShadowSprite(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(255,255,255,255));
 	return;
 }
 
 void CSprite::PutShadowSpriteClip(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(255,255,255,255));
 	return;
 }
 
 void CSprite::PutTransSprite(int sX, int sY, int sFrame, uint64_t dwTime, int alphaDepth)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(alphaDepth,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(alphaDepth,255,255,255));
 	return;
 }
 
 void CSprite::PutTransSprite_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime, int alphaDepth)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(alphaDepth,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(alphaDepth,255,255,255));
 	return;
 }
 
 void CSprite::PutTransSprite70(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(180,255,255,255));
 	return;
 }
 
 void CSprite::PutTransSprite70_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(180,255,255,255));
 	return;
 }
 
 void CSprite::PutTransSprite50(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(125,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(125,255,255,255));
 	return;
 }
 
 void CSprite::PutTransSprite50_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(125,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(125,255,255,255));
 	return;
 }
 
 void CSprite::PutTransSprite25(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(64,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(64,255,255,255));
 	return;
 }
 
 void CSprite::PutTransSprite25_NoColorKey(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(64,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(64,255,255,255));
 	return;
 }
 
 void CSprite::PutTransSprite2(int sX, int sY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(180,255,255,255));
 	return;
 }
 
 void CSprite::PutShiftTransSprite2(int sX, int sY, int shX, int shY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(255,255,255,255));
 	return;
 }
 
 void CSprite::PutFadeSprite(short sX, short sY, short sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(255,255,255,255));
 	return;
 }
 
 void CSprite::PutFadeSpriteDst(uint16_t * pDstAddr, short sPitch, short sX, short sY, short sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(255,255,255,255));
 	return;
 }
 
 void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(color));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(color));
 }
 
 void CSprite::PutSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,sRed,sGreen,sBlue));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(255,sRed,sGreen,sBlue));
 	return;
 }
 
 void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, uint32_t color, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(color));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(color));
 }
 
 void CSprite::PutTransSpriteRGB(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180, sRed, sGreen, sBlue));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(180, sRed, sGreen, sBlue));
 	return;
 }
 
 void CSprite::PutTransSpriteRGB_NoColorKey(int sX, int sY, int sFrame, int sRed, int sGreen, int sBlue, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(180,sRed,sGreen,sBlue));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(180,sRed,sGreen,sBlue));
 	return;
 }
 
@@ -476,123 +494,123 @@ void CSprite::_GetSpriteRect(int sX, int sY, int sFrame)
 
 bool CSprite::_bCheckCollison(int sX, int sY, short sFrame, int msX, int msY)
 {
-	short dX,dY,sx,sy,szx,szy,pvx,pvy;
-	int  ix, iy;
-	uint16_t * pSrc;
-	int  tX, tY;
-	
-	if( this == 0 ) return false;
-	if (m_stBrush == 0) return false;
-	if ((m_iTotalFrame - 1 < sFrame) || (sFrame < 0)) return false;
-	if (m_bIsSurfaceEmpty == true) return false;
-	if (msX < 0 + 3) return false;
-	if (msX > G_pGame->GetWidth() - 3) return false;
-	if (msY < 0 + 3) return false;
-	if (msY > G_pGame->GetHeight() - 3) return false;
-
-	sx  = m_stBrush[sFrame].sx;
-	sy  = m_stBrush[sFrame].sy;
-	szx = m_stBrush[sFrame].szx;
-	szy = m_stBrush[sFrame].szy;
-	pvx = m_stBrush[sFrame].pvx;
-	pvy = m_stBrush[sFrame].pvy;
-
-  	dX = sX + pvx;
-	dY = sY + pvy;
-
-	if (msX < dX) return false;
-	if (msX > dX + szx) return false;
-	if (msY < dY) return false;
-	if (msY > dY + szy) return false;
-
-	if (dX < 0+3)
-	{
-		sx = sx	+ (0+3 - dX);
-		szx = szx - (0+3 - dX);
-		if (szx < 0) {
-			m_rcBound.top = -1;
-			return false;
-		}
-		dX = (short)0+3;
-	}
-	else if (dX+szx > G_pGame->GetWidth()-3)
-	{
-		szx = szx - ((dX+szx) - (short)G_pGame->GetWidth()-3);
-		if (szx < 0) {
-			m_rcBound.top = -1;
-			return false;
-		}
-	}
-
-	if (dY < 0+3)
-	{
-		sy = sy	+ (0+3 - dY);
-		szy = szy - (0+3 - dY);
-		if (szy < 0) {
-			m_rcBound.top = -1;
-			return false;
-		}
-		dY = (short)0+3;
-	}
-	else if (dY+szy > G_pGame->GetHeight()-3)
-	{
-		szy = szy - ((dY+szy) - (short)G_pGame->GetHeight()-3);
-		if (szy < 0) {
-			m_rcBound.top = -1;
-			return false;
-		}
-	}
-	
-	SetRect(&m_rcBound, dX, dY, dX + szx, dY + szy);
-
-	pSrc = (uint16_t *)m_pSurfaceAddr + sx + ((sy)*m_sPitch);
-	tX = dX;
-	tY = dY;
-
-
-//	pSrc += m_sPitch * ( msY - tY );
-//	if( pSrc[msX-tX] != m_wColorKey ) return TRUE;
-//	else return FALSE;
-
-	if (msY < tY + 3) return false;
-	if (msX < tX + 3) return false;
-	ECOLOR_FORMAT fmt = _localimage->getColorFormat();
-	return true;
-	// 
-	if (fmt == ECF_A8R8G8B8)
-	{
-		//else fails
-		void * data = _localimage->lock();
-		uint32_t * pixel = (uint32_t*)data;
-		
-		_localimage->unlock();
-	}
-	return false;
-	//pSrc = (WORD*)data;
-	pSrc += m_sPitch * ( msY - tY - 3 );
-	for( iy=0 ; iy<=6 ; iy++ )
-	{
-		for( ix=msX-tX-3 ; ix<=msX-tX+3 ; ix++ )
-		{
-			if( pSrc[ix] != m_wColorKey )
-			{
-				return false;
-			}
-		}
-		pSrc += m_sPitch;
-	}
+// 	short dX,dY,sx,sy,szx,szy,pvx,pvy;
+// 	int  ix, iy;
+// 	uint16_t * pSrc;
+// 	int  tX, tY;
+// 	
+// 	if( this == 0 ) return false;
+// 	if (m_stBrush == 0) return false;
+// 	if ((m_iTotalFrame - 1 < sFrame) || (sFrame < 0)) return false;
+// 	if (m_bIsSurfaceEmpty == true) return false;
+// 	if (msX < 0 + 3) return false;
+// 	if (msX > G_pGame->GetWidth() - 3) return false;
+// 	if (msY < 0 + 3) return false;
+// 	if (msY > G_pGame->GetHeight() - 3) return false;
+// 
+// 	sx  = m_stBrush[sFrame].sx;
+// 	sy  = m_stBrush[sFrame].sy;
+// 	szx = m_stBrush[sFrame].szx;
+// 	szy = m_stBrush[sFrame].szy;
+// 	pvx = m_stBrush[sFrame].pvx;
+// 	pvy = m_stBrush[sFrame].pvy;
+// 
+//   	dX = sX + pvx;
+// 	dY = sY + pvy;
+// 
+// 	if (msX < dX) return false;
+// 	if (msX > dX + szx) return false;
+// 	if (msY < dY) return false;
+// 	if (msY > dY + szy) return false;
+// 
+// 	if (dX < 0+3)
+// 	{
+// 		sx = sx	+ (0+3 - dX);
+// 		szx = szx - (0+3 - dX);
+// 		if (szx < 0) {
+// 			m_rcBound.top = -1;
+// 			return false;
+// 		}
+// 		dX = (short)0+3;
+// 	}
+// 	else if (dX+szx > G_pGame->GetWidth()-3)
+// 	{
+// 		szx = szx - ((dX+szx) - (short)G_pGame->GetWidth()-3);
+// 		if (szx < 0) {
+// 			m_rcBound.top = -1;
+// 			return false;
+// 		}
+// 	}
+// 
+// 	if (dY < 0+3)
+// 	{
+// 		sy = sy	+ (0+3 - dY);
+// 		szy = szy - (0+3 - dY);
+// 		if (szy < 0) {
+// 			m_rcBound.top = -1;
+// 			return false;
+// 		}
+// 		dY = (short)0+3;
+// 	}
+// 	else if (dY+szy > G_pGame->GetHeight()-3)
+// 	{
+// 		szy = szy - ((dY+szy) - (short)G_pGame->GetHeight()-3);
+// 		if (szy < 0) {
+// 			m_rcBound.top = -1;
+// 			return false;
+// 		}
+// 	}
+// 	
+// 	SetRect(&m_rcBound, dX, dY, dX + szx, dY + szy);
+// 
+// 	pSrc = (uint16_t *)m_pSurfaceAddr + sx + ((sy)*m_sPitch);
+// 	tX = dX;
+// 	tY = dY;
+// 
+// 
+// //	pSrc += m_sPitch * ( msY - tY );
+// //	if( pSrc[msX-tX] != m_wColorKey ) return TRUE;
+// //	else return FALSE;
+// 
+// 	if (msY < tY + 3) return false;
+// 	if (msX < tX + 3) return false;
+// 	ECOLOR_FORMAT fmt = _localimage->getColorFormat();
+// 	return true;
+// 	// 
+// 	if (fmt == ECF_A8R8G8B8)
+// 	{
+// 		//else fails
+// 		void * data = _localimage->lock();
+// 		uint32_t * pixel = (uint32_t*)data;
+// 		
+// 		_localimage->unlock();
+// 	}
+// 	return false;
+// 	//pSrc = (WORD*)data;
+// 	pSrc += m_sPitch * ( msY - tY - 3 );
+// 	for( iy=0 ; iy<=6 ; iy++ )
+// 	{
+// 		for( ix=msX-tX-3 ; ix<=msX-tX+3 ; ix++ )
+// 		{
+// 			if( pSrc[ix] != m_wColorKey )
+// 			{
+// 				return false;
+// 			}
+// 		}
+// 		pSrc += m_sPitch;
+// 	}
 	return false;
 }
 
 void CSprite::PutShiftSpriteFast(int sX, int sY, int shX, int shY, int sFrame, uint64_t dwTime)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(255,255,255,255));
 	return;
 }
 
 void CSprite::PutRevTransSprite(int sX, int sY, int sFrame, uint64_t dwTime, int alphaDepth)
 {
-	DrawSprite(sX, sY, sFrame, dwTime, irr::video::SColor(255,255,255,255));
+	DrawSprite(sX, sY, sFrame, dwTime, Color(255,255,255,255));
 	return;
 }
 

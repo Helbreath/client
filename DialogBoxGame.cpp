@@ -11,11 +11,7 @@
 
 
 
-extern class CGame * G_pGame;
-
-extern IrrlichtDevice * device;
-extern video::IVideoDriver * driver;
-extern scene::ISceneManager* smgr;
+extern CGame * G_pGame;
 
 // extern bool CheckCheating();
 // extern bool CheckHackProgram();
@@ -77,12 +73,12 @@ void CGame::DrawDialogBox_Text()
             {
                 switch (m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg[0])
                 {
-                    case '_': PutAlignedString(sX + 24, sX + 236, sY + 50 + i * 13, (m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg + 1), video::SColor(255, 255, 255, 255)); break;
-                    case ';': PutAlignedString(sX + 24, sX + 236, sY + 50 + i * 13, (m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg + 1), video::SColor(255, 4, 0, 50)); break;
-                    default: PutAlignedString(sX + 24, sX + 236, sY + 50 + i * 13, m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg, video::SColor(255, 45, 25, 25)); break;
+                    case '_': PutAlignedString(sX + 24, sX + 236, sY + 50 + i * 13, (m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg + 1), Color(255, 255, 255, 255)); break;
+                    case ';': PutAlignedString(sX + 24, sX + 236, sY + 50 + i * 13, (m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg + 1), Color(4, 0, 50, 255)); break;
+                    default: PutAlignedString(sX + 24, sX + 236, sY + 50 + i * 13, m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg, Color(45, 25, 25, 255)); break;
                 }
             }
-            else PutAlignedString(sX + 24, sX + 236, sY + 50 + i * 13, m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg, video::SColor(255, 0, 0, 0));
+            else PutAlignedString(sX + 24, sX + 236, sY + 50 + i * 13, m_pMsgTextList[i + m_dialogBoxes[18].sView]->m_pMsg, Color(0, 0, 0, 255));
         }
 
     if (m_dialogBoxes[18].OnButton() == 1)
@@ -110,10 +106,10 @@ void CGame::DrawDialogBox_WarningMsg()
     //DrawNewDialogBox(SPRID_INTERFACE_ND_GAME4, sX, sY, 2);
 
     PutString2(sX + 72, sY + 32, MSG_WARNING1, 200, 200, 25);//" ** This is a battle area **"
-    PutString(sX + 30, sY + 55, MSG_WARNING2, video::SColor(255, 220, 130, 45));//"This is a dangerous area where you"
-    PutString(sX + 30, sY + 72, MSG_WARNING3, video::SColor(255, 220, 130, 45));//"cannot protected from others' attack."
-    PutString(sX + 30, sY + 90, MSG_WARNING4, video::SColor(255, 220, 130, 45));//"To play the game in safe, go to the"
-    PutString(sX + 30, sY + 108, MSG_WARNING5, video::SColor(255, 220, 130, 45));//" cityhall and change to civilian mode."
+    PutString(sX + 30, sY + 55, MSG_WARNING2, Color(220, 130, 45));//"This is a dangerous area where you"
+    PutString(sX + 30, sY + 72, MSG_WARNING3, Color(220, 130, 45));//"cannot protected from others' attack."
+    PutString(sX + 30, sY + 90, MSG_WARNING4, Color(220, 130, 45));//"To play the game in safe, go to the"
+    PutString(sX + 30, sY + 108, MSG_WARNING5, Color(220, 130, 45));//" cityhall and change to civilian mode."
 
     if (onButton == 1)
         DrawNewDialogBox(SPRID_INTERFACE_ND_BUTTON, sX + 122, sY + 127, 1);
@@ -138,34 +134,34 @@ void CGame::DrawDialogBox_ItemDrop()
 
     if (m_bIsSpecial)
     {
-        PutString3(sX + 35, sY + 20, cTxt, video::SColor(255, 0, 255, 0));
+        PutString(sX + 35, sY + 20, cTxt, Color(0, 255, 0));
     }
     else
     {
-        PutString3(sX + 35, sY + 20, cTxt, video::SColor(255, 4, 0, 50));
+        PutString(sX + 35, sY + 20, cTxt, Color(4, 0, 50));
     }
-    PutString3(sX + 35, sY + 36, DRAW_DIALOGBOX_ITEM_DROP1, video::SColor(255, 4, 0, 50));
+    PutString(sX + 35, sY + 36, DRAW_DIALOGBOX_ITEM_DROP1, Color(4, 0, 50));
 
     if (m_bItemDrop)
     {
         if (onButton == 3)
         {
-            PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP2, video::SColor(255, 255, 255, 255));
+            PutString(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP2, Color(255, 255, 255));
         }
         else
         {
-            PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP2, video::SColor(255, 4, 0, 50));
+            PutString(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP2, Color(4, 0, 50));
         }
     }
     else
     {
         if (onButton == 3)
         {
-            PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP3, video::SColor(255, 255, 255, 255));
+            PutString(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP3, Color(255, 255, 255));
         }
         else
         {
-            PutString3(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP3, video::SColor(255, 4, 0, 50));
+            PutString(sX + 35, sY + 80, DRAW_DIALOGBOX_ITEM_DROP3, Color(4, 0, 50));
         }
     }
 
@@ -217,7 +213,7 @@ void CGame::DrawDialogBox_NpcTalk()
     for (i = 0; i < 17; i++)
         if ((i < TEXTDLGMAXLINES) && (m_pMsgTextList2[i + m_dialogBoxes[21].sView] != 0))
         {
-            PutAlignedString(sX, sX + m_dialogBoxes[21].sSizeX, sY + 57 + i * 15, m_pMsgTextList2[i + m_dialogBoxes[21].sView]->m_pMsg, video::SColor(255, 45, 25, 25));
+            PutAlignedString(sX, sX + m_dialogBoxes[21].sSizeX, sY + 57 + i * 15, m_pMsgTextList2[i + m_dialogBoxes[21].sView]->m_pMsg, Color(45, 25, 25));
         }
 
     iTotalLines = 0;
@@ -294,8 +290,8 @@ void CGame::DrawDialogBox_Slates()
             m_pSprite[SPRID_INTERFACE_ND_INVENTORY]->PutSpriteFast(sX, sY, 4, dwTime);
             m_pSprite[SPRID_INTERFACE_ND_INVENTORY]->PutSpriteFast(sX + 22, sY + 14, 3, dwTime);
             //PutString_SprFont(sX + iAdjX + 170, sY + iAdjY + 170, "KURURURURURURURURU!!!", 20,6,6);
-            PutAlignedString(199, 438, 201, "KURURURURURURURURU!!!", video::SColor(255, 220, 140, 160));
-            PutAlignedString(200, 439, 200, "KURURURURURURURURU!!!", video::SColor(255, 90, 220, 200));
+            PutAlignedString(199, 438, 201, "KURURURURURURURURU!!!", Color(220, 140, 160));
+            PutAlignedString(200, 439, 200, "KURURURURURURURURU!!!", Color(90, 220, 200));
 
             if ((dwTime - m_dialogBoxes[40].dwT1) > 1000)
             {
@@ -438,7 +434,7 @@ void CGame::DrawDialogBox_Chat()
                 break;
         }
 
-        PutFontString(font[FONT_TREBMS8PX], sX + 25, sY + 130 - i * 13, msg->m_pMsg, video::SColor(255, r, g, b), false, 1);
+        PutString( sX + 25, sY + 130 - i * 13, msg->m_pMsg, Color(r, g, b), false, 1);
     }
 
 
@@ -988,9 +984,9 @@ void CGame::DrawDialogBox_GuildContribute()
             PutAlignedString(sX, sX + szX, sY + 35, DRAW_DIALOGBOX_GUILDCONTRIBUTE2);
 
             if (iGetTopDialogBoxIndex() != 58)
-                PutString(sX + 40, sY + 57, m_cAmountString, video::SColor(255, 255, 255, 255), false, 2);
+                PutString(sX + 40, sY + 57, m_cAmountString, Color(255, 255, 255), false, 2);
             wsprintfA(cTxt, "__________ (0 ~ %d)", GetGold());
-            PutString(sX + 38, sY + 62, cTxt, video::SColor(255, 25, 35, 25));
+            PutString(sX + 38, sY + 62, cTxt, Color(25, 35, 25));
             break;
 
         case 1: // Maj
@@ -998,9 +994,9 @@ void CGame::DrawDialogBox_GuildContribute()
             PutAlignedString(sX, sX + szX, sY + 35, DRAW_DIALOGBOX_GUILDCONTRIBUTE4);
 
             if (iGetTopDialogBoxIndex() != 58)
-                PutString(sX + 40, sY + 57, m_cAmountString, video::SColor(255, 255, 255, 255), false, 2);
+                PutString(sX + 40, sY + 57, m_cAmountString, Color(255, 255, 255), false, 2);
             wsprintfA(cTxt, "__________ (0 ~ %d)", m_iGizonItemUpgradeLeft);
-            PutString(sX + 38, sY + 62, cTxt, video::SColor(255, 25, 35, 25));
+            PutString(sX + 38, sY + 62, cTxt, Color(25, 35, 25));
             break;
 
         case 2: // Cont
@@ -1008,9 +1004,9 @@ void CGame::DrawDialogBox_GuildContribute()
             PutAlignedString(sX, sX + szX, sY + 35, DRAW_DIALOGBOX_GUILDCONTRIBUTE8);
 
             if (iGetTopDialogBoxIndex() != 58)
-                PutString(sX + 40, sY + 57, m_cAmountString, video::SColor(255, 255, 255, 255), false, 2);
+                PutString(sX + 40, sY + 57, m_cAmountString, Color(255, 255, 255), false, 2);
             wsprintfA(cTxt, "__________ (0 ~ %d)", m_iContribution);
-            PutString(sX + 38, sY + 62, cTxt, video::SColor(255, 25, 35, 25));
+            PutString(sX + 38, sY + 62, cTxt, Color(25, 35, 25));
             break;
     }
 
@@ -2082,8 +2078,8 @@ void CGame::DrawDialogBox_GuideMap()
         //if( sY > 213 ) shY = sY - 17;
         if (sY > 273) shY = sY - 17; // 800x600 Resolution xRisenx
         else shY = sY + szY + 4;
-        if (m_bZoomMap) PutString(sX, shY, MSG_GUIDEMAP_MIN, video::SColor(255, 200, 200, 120));//"(-)
-        else PutString(sX, shY, MSG_GUIDEMAP_MAX, video::SColor(255, 200, 200, 120));//"(+)
+        if (m_bZoomMap) PutString(sX, shY, MSG_GUIDEMAP_MIN, Color(200, 200, 120));//"(-)
+        else PutString(sX, shY, MSG_GUIDEMAP_MAX, Color(200, 200, 120));//"(+)
 
         if (m_bZoomMap)
         {
@@ -2212,7 +2208,7 @@ void CGame::DrawDialogBox_GuideMap()
             else if (shX > 60 && shX < 80 && shY > 20 && shY < 40)  strcpy(G_cTxt, "Elvine");
         }
 
-        PutString(G_pGame->m_stMCursor.sX - 10, G_pGame->m_stMCursor.sY - 13, G_cTxt, video::SColor(255, 200, 200, 120));
+        PutString(G_pGame->m_stMCursor.sX - 10, G_pGame->m_stMCursor.sY - 13, G_cTxt, Color(200, 200, 120));
     }
 }
 
@@ -2255,12 +2251,12 @@ void CGame::DrawDialogBoxes()
                 k = 1;
                 for (std::vector<RECT>::iterator j = rects.begin(); j != rects.end(); j++, k++)
                 {
-                    DrawLine(j->left, j->top - 1, j->left, j->bottom - 1, 255, 255, 255);
-                    DrawLine(j->left - 1, j->top, j->right - 1, j->top, 255, 255, 255);
-                    DrawLine(j->left, j->bottom, j->right - 1, j->bottom, 255, 255, 255);
-                    DrawLine(j->right, j->top, j->right, j->bottom - 1, 255, 255, 255);
+                    DrawLine(j->left, j->top - 1, j->left, j->bottom - 1, Color(255, 255, 255));
+                    DrawLine(j->left - 1, j->top, j->right - 1, j->top, Color(255, 255, 255));
+                    DrawLine(j->left, j->bottom, j->right - 1, j->bottom, Color(255, 255, 255));
+                    DrawLine(j->right, j->top, j->right, j->bottom - 1, Color(255, 255, 255));
                     wsprintfA(G_cTxt, "%d", k);
-                    PutAlignedString(j->left, j->right, j->top - 7 + (j->bottom - j->top) / 2, G_cTxt, video::SColor(255, 255, 255, 255));
+                    PutAlignedString(j->left, j->right, j->top - 7 + (j->bottom - j->top) / 2, G_cTxt, Color(255, 255, 255));
                 }
             }
 #endif
@@ -3006,7 +3002,7 @@ void CGame::DrawDialogBox_TopPanel()
                                                                                                        //else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(368+127, 440+120, 5, dwTime); // 800x600 Resolution xRisenx Right? +127 +120
         else m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(506 + 127, GetHeight() - 47, 46, dwTime); // Fixed xRisenx
     }
-    PutAlignedString(103 + 25, 245 + 25, GetHeight() - 24, G_cTxt, video::SColor(255, 250, 250, 220)); // Fixed xRisenx
+    PutAlignedString(103 + 25, 245 + 25, GetHeight() - 24, G_cTxt, Color(250, 250, 220)); // Fixed xRisenx
 }
 void CGame::DrawDialogBox_IconPanel()
 {
@@ -3027,10 +3023,10 @@ void CGame::DrawDialogBox_IconPanel()
     }
 
     wsprintfA(G_cTxt, "Contri Pts: %d - Majs Pts: %d", m_iContribution, m_iGizonItemUpgradeLeft);
-    PutAlignedString(188, 342, GetHeight() - 45, G_cTxt, video::SColor(255, 0, 20, 0));
+    PutAlignedString(188, 342, GetHeight() - 45, G_cTxt, Color(0, 20, 0));
     //wsprintfA(G_cTxt, "Def Ratio: %d - Hit Ratio: %d",m_iAC ,m_iTHAC0); // Armor Def dont show, Hitrate Only shows weaps. Fix later xRisenx
     wsprintfA(G_cTxt, "Def Ratio: %d - Hit Ratio: %d", m_iDefenseRatio, m_iTHAC0); // Hitrate Only shows weaps. Fix later xRisenx
-    PutAlignedString(188, 342, GetHeight() - 35, G_cTxt, video::SColor(255, 0, 20, 0));
+    PutAlignedString(188, 342, GetHeight() - 35, G_cTxt, Color(0, 20, 0));
 
     if ((m_bIsCrusadeMode) && (m_iCrusadeDuty != 0))
     {
@@ -3065,44 +3061,44 @@ void CGame::DrawDialogBox_IconPanel()
     { // Character    
         m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(573, GetHeight() - 45, 49, dwTime);
         wsprintfA(G_cTxt, "Character Menu");
-        PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
+        PutString(textX, textY, G_cTxt, Color(250, 250, 220));
     }
     else if (onButton == 4)
     { // Inventory
         m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(610, GetHeight() - 45, 50, dwTime);
         wsprintfA(G_cTxt, "Inventory");
-        PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
+        PutString(textX, textY, G_cTxt, Color(250, 250, 220));
     }
     else if (onButton == 5)
     { // Magic
         m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(647, GetHeight() - 45, 51, dwTime);
         wsprintfA(G_cTxt, "Spell Book");
-        PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
+        PutString(textX, textY, G_cTxt, Color(250, 250, 220));
     }
     else if (onButton == 6)
     { // Skill
         m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(684, GetHeight() - 45, 52, dwTime);
         wsprintfA(G_cTxt, "Title List"); // Titles xRisenx
-        PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
+        PutString(textX, textY, G_cTxt, Color(250, 250, 220));
     }
     else if (onButton == 7)
     { // History
         m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(721, GetHeight() - 45, 53, dwTime);
         wsprintfA(G_cTxt, "Chat History");
-        PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
+        PutString(textX, textY, G_cTxt, Color(250, 250, 220));
     }
     else if (onButton == 8)
     { // System Menu
         m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL]->PutSpriteFast(758, GetHeight() - 45, 54, dwTime);
         wsprintfA(G_cTxt, "Options");
-        PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
+        PutString(textX, textY, G_cTxt, Color(250, 250, 220));
     }
 
     // Experience Status Bar xRisenx
     if (onButton == 12)
     {
         wsprintfA(G_cTxt, MSG_EXP "%d / %d", m_iExp, iGetLevelExp(m_iLevel + 1));
-        PutString(textX, textY, G_cTxt, video::SColor(255, 250, 250, 220));
+        PutString(textX, textY, G_cTxt, Color(255, 250, 250, 220));
     }
 
     // Magic Icons xRisenx
@@ -6026,29 +6022,29 @@ void CGame::DrawDialogBox_LevelUpSetting()
     PutAlignedString(sX, sX + szX, sY + 65, DRAW_DIALOGBOX_LEVELUP_SETTING2);
 
     // Points Left - Display in green if > 0
-    PutString(sX + 20, sY + 85, DRAW_DIALOGBOX_LEVELUP_SETTING3, video::SColor(255, 0, 0, 0));
+    PutString(sX + 20, sY + 85, DRAW_DIALOGBOX_LEVELUP_SETTING3, Color(0, 0, 0));
     wsprintfA(cTxt, "%d", m_iLU_Point);
     if (m_iLU_Point > 0)
     {
-        PutString(sX + 73, sY + 102, cTxt, video::SColor(255, 0, 255, 0));
+        PutString(sX + 73, sY + 102, cTxt, Color(0, 255, 0));
     }
     else
     {
-        PutString(sX + 73, sY + 102, cTxt, video::SColor(255, 0, 0, 0));
+        PutString(sX + 73, sY + 102, cTxt, Color(0, 0, 0));
     }
     // Strength
-    PutString(sX + 24, sY + 125, DRAW_DIALOGBOX_LEVELUP_SETTING4, video::SColor(255, 5, 5, 5));
+    PutString(sX + 24, sY + 125, DRAW_DIALOGBOX_LEVELUP_SETTING4, Color(5, 5, 5));
     wsprintfA(cTxt, "%d", m_stat[STAT_STR] - m_angelStat[STAT_STR]);
-    PutString(sX + 109, sY + 125, cTxt, video::SColor(255, 0, 0, 0));
+    PutString(sX + 109, sY + 125, cTxt, Color(0, 0, 0));
     iStats = m_stat[STAT_STR] + m_luStat[STAT_STR] - m_angelStat[STAT_STR];
     wsprintfA(cTxt, "%d", iStats);
     if (iStats != m_stat[STAT_STR] - m_angelStat[STAT_STR])
     {
-        PutString(sX + 162, sY + 125, cTxt, video::SColor(255, 255, 0, 0));
+        PutString(sX + 162, sY + 125, cTxt, Color(255, 0, 0));
     }
     else
     {
-        PutString(sX + 162, sY + 125, cTxt, video::SColor(255, 0, 0, 0));
+        PutString(sX + 162, sY + 125, cTxt, Color(0, 0, 0));
     }
     if (onButton == 3 && (m_stat[STAT_STR] < Stats_Limit))
         //if (onButton == 3 && (m_stat[STAT_STR] < 450))
@@ -6057,18 +6053,18 @@ void CGame::DrawDialogBox_LevelUpSetting()
         m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 127, 6, dwTime);
 
 
-    PutString(sX + 24, sY + 144, DRAW_DIALOGBOX_LEVELUP_SETTING5, video::SColor(255, 5, 5, 5));
+    PutString(sX + 24, sY + 144, DRAW_DIALOGBOX_LEVELUP_SETTING5, Color(5, 5, 5));
     wsprintfA(cTxt, "%d", m_stat[STAT_VIT]);
-    PutString(sX + 109, sY + 144, cTxt, video::SColor(255, 0, 0, 0));
+    PutString(sX + 109, sY + 144, cTxt, Color(255, 0, 0, 0));
     iStats = m_stat[STAT_VIT] + m_luStat[STAT_VIT];
     wsprintfA(cTxt, "%d", iStats);
     if (iStats != m_stat[STAT_VIT])
     {
-        PutString(sX + 162, sY + 144, cTxt, video::SColor(255, 255, 0, 0));
+        PutString(sX + 162, sY + 144, cTxt, Color(255, 0, 0));
     }
     else
     {
-        PutString(sX + 162, sY + 144, cTxt, video::SColor(255, 0, 0, 0));
+        PutString(sX + 162, sY + 144, cTxt, Color(255, 0, 0));
     }
     if (onButton == 5 && (m_stat[STAT_VIT] < Stats_Limit))
         //if (onButton == 5 && (m_stat[STAT_VIT] < 450))
@@ -6077,18 +6073,18 @@ void CGame::DrawDialogBox_LevelUpSetting()
         m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 146, 6, dwTime);
 
     // Dexterity
-    PutString(sX + 24, sY + 163, DRAW_DIALOGBOX_LEVELUP_SETTING6, video::SColor(255, 5, 5, 5));
+    PutString(sX + 24, sY + 163, DRAW_DIALOGBOX_LEVELUP_SETTING6, Color( 5, 5, 5));
     wsprintfA(cTxt, "%d", m_stat[STAT_DEX] - m_angelStat[STAT_DEX]);
-    PutString(sX + 109, sY + 163, cTxt, video::SColor(255, 0, 0, 0));
+    PutString(sX + 109, sY + 163, cTxt, Color(0, 0, 0));
     iStats = m_stat[STAT_DEX] + m_luStat[STAT_DEX] - m_angelStat[STAT_DEX];
     wsprintfA(cTxt, "%d", iStats);
     if (iStats != m_stat[STAT_DEX] - m_angelStat[STAT_DEX])
     {
-        PutString(sX + 162, sY + 163, cTxt, video::SColor(255, 255, 0, 0));
+        PutString(sX + 162, sY + 163, cTxt, Color(255, 0, 0));
     }
     else
     {
-        PutString(sX + 162, sY + 163, cTxt, video::SColor(255, 0, 0, 0));
+        PutString(sX + 162, sY + 163, cTxt, Color(0, 0, 0));
     }
     if (onButton == 7 && (m_stat[STAT_DEX] < Stats_Limit))
         //if (onButton == 7 && (m_stat[STAT_DEX] < 450))
@@ -6097,18 +6093,18 @@ void CGame::DrawDialogBox_LevelUpSetting()
         m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 165, 6, dwTime);
 
     // Intelligence
-    PutString(sX + 24, sY + 182, DRAW_DIALOGBOX_LEVELUP_SETTING7, video::SColor(255, 5, 5, 5));
+    PutString(sX + 24, sY + 182, DRAW_DIALOGBOX_LEVELUP_SETTING7, Color(5, 5, 5));
     wsprintfA(cTxt, "%d", m_stat[STAT_INT] - m_angelStat[STAT_INT]);
-    PutString(sX + 109, sY + 182, cTxt, video::SColor(255, 0, 0, 0));
+    PutString(sX + 109, sY + 182, cTxt, Color(0, 0, 0));
     iStats = m_stat[STAT_INT] + m_luStat[STAT_INT] - m_angelStat[STAT_INT];
     wsprintfA(cTxt, "%d", iStats);
     if (iStats != m_stat[STAT_INT] - m_angelStat[STAT_INT])
     {
-        PutString(sX + 162, sY + 182, cTxt, video::SColor(255, 255, 0, 0));
+        PutString(sX + 162, sY + 182, cTxt, Color(255, 0, 0));
     }
     else
     {
-        PutString(sX + 162, sY + 182, cTxt, video::SColor(255, 0, 0, 0));
+        PutString(sX + 162, sY + 182, cTxt, Color(0, 0, 0));
     }
     if (onButton == 9 && (m_stat[STAT_INT] < Stats_Limit))
         //if (onButton == 9 && (m_stat[STAT_INT] < 450))
@@ -6117,18 +6113,18 @@ void CGame::DrawDialogBox_LevelUpSetting()
         m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 184, 6, dwTime);
 
     // Magic
-    PutString(sX + 24, sY + 201, DRAW_DIALOGBOX_LEVELUP_SETTING8, video::SColor(255, 5, 5, 5));
+    PutString(sX + 24, sY + 201, DRAW_DIALOGBOX_LEVELUP_SETTING8, Color(5, 5, 5));
     wsprintfA(cTxt, "%d", m_stat[STAT_MAG] - m_angelStat[STAT_MAG]);
-    PutString(sX + 109, sY + 201, cTxt, video::SColor(255, 0, 0, 0));
+    PutString(sX + 109, sY + 201, cTxt, Color(, 0, 0, 0));
     iStats = m_stat[STAT_MAG] + m_luStat[STAT_MAG] - m_angelStat[STAT_MAG];
     wsprintfA(cTxt, "%d", iStats);
     if (iStats != m_stat[STAT_MAG] - m_angelStat[STAT_MAG])
     {
-        PutString(sX + 162, sY + 201, cTxt, video::SColor(255, 255, 0, 0));
+        PutString(sX + 162, sY + 201, cTxt, Color(255, 0, 0));
     }
     else
     {
-        PutString(sX + 162, sY + 201, cTxt, video::SColor(255, 0, 0, 0));
+        PutString(sX + 162, sY + 201, cTxt, Color(0, 0, 0));
     }
     if (onButton == 11 && (m_stat[STAT_MAG] < Stats_Limit))
         //if (onButton == 11 && (m_stat[STAT_MAG] < 450))
@@ -6137,18 +6133,18 @@ void CGame::DrawDialogBox_LevelUpSetting()
         m_pSprite[SPRID_INTERFACE_ND_GAME4]->PutSpriteFast(sX + 210, sY + 203, 6, dwTime);
 
     // Charisma
-    PutString(sX + 24, sY + 220, DRAW_DIALOGBOX_LEVELUP_SETTING9, video::SColor(255, 5, 5, 5));
+    PutString(sX + 24, sY + 220, DRAW_DIALOGBOX_LEVELUP_SETTING9, Color(, 5, 5, 5));
     wsprintfA(cTxt, "%d", m_stat[STAT_CHR]);
-    PutString(sX + 109, sY + 220, cTxt, video::SColor(255, 0, 0, 0));
+    PutString(sX + 109, sY + 220, cTxt, Color(0, 0, 0));
     iStats = m_stat[STAT_CHR] + m_luStat[STAT_CHR];
     wsprintfA(cTxt, "%d", iStats);
     if (iStats != m_stat[STAT_CHR])
     {
-        PutString(sX + 162, sY + 220, cTxt, video::SColor(255, 255, 0, 0));
+        PutString(sX + 162, sY + 220, cTxt, Color(255, 0, 0));
     }
     else
     {
-        PutString(sX + 162, sY + 220, cTxt, video::SColor(255, 0, 0, 0));
+        PutString(sX + 162, sY + 220, cTxt, Color(0, 0, 0));
     }
     if (onButton == 13 && (m_stat[STAT_CHR] < Stats_Limit))
         //if (onButton == 13 && (m_stat[STAT_CHR] < 450))

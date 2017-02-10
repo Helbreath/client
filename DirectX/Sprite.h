@@ -15,13 +15,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <vector>
-#include <irrlicht.h>
+#include <SFML/Graphics.hpp>
 #include <sstream>
 #include <stdint.h>
 #include "common.h"
 
-using namespace irr;
-using namespace video;
+using namespace sf;
 
 //#include "DXC_ddraw.h"
 //#include "Mydib.h"
@@ -39,24 +38,23 @@ typedef struct stBrushtag
 class CSprite  
 {
 public:
-	video::ITexture * _pMakeSpriteSurface();
-	video::ITexture * _localimage;
-	video::ITexture * _localshadow;
-	video::ITexture ** subtextures;
+	bool _pMakeSpriteSurface();
+	sf::Texture _localimage;
+	//sf::Texture * _localshadow;
+	//sf::Texture ** subtextures;
 
-
-	CSprite(std::ifstream & hPakFile, std::wstring & cPakFileName, short sNthFile, bool bAlphaEffect = true);
+    CSprite(std::ifstream & hPakFile, std::string & cPakFileName, short sNthFile, bool bAlphaEffect = true);
 	//CSprite(HANDLE hPakFile, class DXC_ddraw * pDDraw, char * cPakFileName, short sNthFile, bool bAlphaEffect = TRUE, std::vector<int> * framePositions = NULL);
 	virtual ~CSprite();
-	static CSprite * CreateSprite(wchar_t * cPakFileName, short sNthFile, bool bAlphaEffect = true);
-	void DrawSubSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
-	void DrawSpriteNCK(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
-	void DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
-	void DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, video::SColor color = video::SColor(255,255,255,255));
-    void DrawScaledSprite(int sX, int sY, int sFrame, int sWidth, int sHeight, uint64_t dwTime = 0, video::SColor color = video::SColor(255, 255, 255, 255));
-	void DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
-	void DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
-	void DrawShadow(int sX, int sY, int sFrame, uint64_t dwTime, video::SColor color = video::SColor(255,255,255,255));
+	static CSprite * CreateSprite(char * cPakFileName, short sNthFile, bool bAlphaEffect = true);
+	void DrawSubSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, Color color = Color(255,255,255,255));
+	void DrawSpriteNCK(int sX, int sY, int sFrame, uint64_t dwTime = 0, Color color = Color(255,255,255,255));
+	void DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, Color color = Color(255,255,255,255));
+	void DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, Color color = Color(255,255,255,255));
+    void DrawScaledSprite(int sX, int sY, int sFrame, int sWidth, int sHeight, uint64_t dwTime = 0, Color color = Color(255, 255, 255, 255));
+	void DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, Color color = Color(255,255,255,255));
+	void DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, Color color = Color(255,255,255,255));
+	void DrawShadow(int sX, int sY, int sFrame, uint64_t dwTime, Color color = Color(255,255,255,255));
 	void CreateShadow();
 
 
@@ -95,8 +93,8 @@ public:
 
 	bool _bCheckCollison(int sX, int sY, short sFrame, int msX, int msY);
 	void _GetSpriteRect(int sX, int sY, int sFrame);
-	bool _iOpenSprite() { return _pMakeSpriteSurface() != 0; }
-	void _iCloseSprite() { /*OutputDebugStringW((L"Unloaded image: " + m_cPakFileName + L"\n").c_str()); if (_localimage) _localimage->drop(); m_bIsSurfaceEmpty = TRUE;*/ }
+	bool _iOpenSprite() { return _pMakeSpriteSurface(); }
+	void _iCloseSprite() { /*OutputDebugStringW(("Unloaded image: " + m_cPakFileName + "\n").c_str()); if (_localimage) _localimage->drop(); m_bIsSurfaceEmpty = TRUE;*/ }
 
 	RECT	m_rcBound;
     uint64_t	m_dwRefTime;
@@ -111,10 +109,13 @@ public:
 	char	m_cAlphaDegree;
 	uint16_t	m_wBitmapSizeX, m_wBitmapSizeY;
 	uint16_t	m_wColorKey;
-	std::wstring m_cPakFileName;
+	std::string m_cPakFileName;
 //	char	m_cPakFileName[16];
 	stBrush* m_stBrush;
 	uint16_t	wPageid;
+
+    Sprite * sprite;
+
 };
 
 #endif // !defined(AFX_SPRITE_H__0089D9E2_74E6_11D2_A8E6_00001C7030A6__INCLUDED_)

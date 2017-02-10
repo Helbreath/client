@@ -9,13 +9,7 @@
 #include "lan_eng.h"
 #include <boost/asio/ssl.hpp>
 
-
-
-extern class CGame * G_pGame;
-
-extern IrrlichtDevice * device;
-extern video::IVideoDriver * driver;
-extern scene::ISceneManager* smgr;
+extern CGame * G_pGame;
 
 // extern bool CheckCheating();
 // extern bool CheckHackProgram();

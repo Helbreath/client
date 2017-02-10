@@ -103,9 +103,6 @@
     <ClInclude Include="UI\DialogBox.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="UI\Winmain.h">
-      <Filter>ui</Filter>
-    </ClInclude>
     <ClInclude Include="Net\Msg.h">
       <Filter>net</Filter>
     </ClInclude>
@@ -138,6 +135,9 @@
       <Filter>net\packets</Filter>
     </ClInclude>
     <ClInclude Include="UI\HTMLUI.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="UI\main.h">
       <Filter>ui</Filter>
     </ClInclude>
   </ItemGroup>
@@ -189,9 +189,6 @@
     <ClCompile Include="UI\DialogBox.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="UI\Wmain.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
     <ClCompile Include="Net\Msg.cpp">
       <Filter>net</Filter>
     </ClCompile>
@@ -211,10 +208,10 @@
     <ClCompile Include="UpdateScreen.cpp">
       <Filter>char</Filter>
     </ClCompile>
-    <ClCompile Include="DialogBoxGame.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
     <ClCompile Include="UI\HTMLUI.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\main.cpp">
       <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>
