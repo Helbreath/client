@@ -336,94 +336,73 @@
     <ClInclude Include="..\x-server\src\protobuf\initdata.pb.h" />
     <ClInclude Include="..\x-server\src\protobuf\initplayer.pb.h" />
     <ClInclude Include="..\x-server\src\protobuf\item.pb.h" />
-    <ClInclude Include="char\mail.h" />
-    <ClInclude Include="newsocket.h" />
-    <ClInclude Include="request_handler.h" />
     <ClInclude Include="Res\resource.h" />
-    <ClInclude Include="char\ActionID.h" />
-    <ClInclude Include="char\CharInfo.h" />
-    <ClInclude Include="char\Curse.h" />
-    <ClInclude Include="char\DynamicObjectID.h" />
-    <ClInclude Include="char\Guild.h" />
-    <ClInclude Include="char\Magic.h" />
-    <ClInclude Include="char\Skill.h" />
-    <ClInclude Include="char\item\BuildItem.h" />
-    <ClInclude Include="char\item\Item.h" />
-    <ClInclude Include="char\item\ItemName.h" />
-    <ClInclude Include="DirectX\Effect.h" />
-    <ClInclude Include="DirectX\SoundID.h" />
-    <ClInclude Include="DirectX\Sprite.h" />
-    <ClInclude Include="DirectX\SpriteID.h" />
-    <ClInclude Include="DirectX\TileSpr.h" />
-    <ClInclude Include="Map\MapData.h" />
-    <ClInclude Include="Map\Tile.h" />
-    <ClInclude Include="Shared\buffer.h" />
-    <ClInclude Include="streams.h" />
-    <ClInclude Include="titles\Title.h" />
-    <ClInclude Include="UI\DialogBox.h" />
-    <ClInclude Include="UI\HTMLUI.h" />
-    <ClInclude Include="UI\main.h" />
-    <ClInclude Include="Net\Msg.h" />
-    <ClInclude Include="lan_eng.h" />
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="GlobalDef.h" />
-    <ClInclude Include="GlobalVal.h" />
-    <ClInclude Include="Misc.h" />
-    <ClInclude Include="StrTok.h" />
+    <ClInclude Include="src\char\ActionID.h" />
+    <ClInclude Include="src\char\CharInfo.h" />
+    <ClInclude Include="src\char\Curse.h" />
+    <ClInclude Include="src\char\DynamicObjectID.h" />
+    <ClInclude Include="src\char\Guild.h" />
+    <ClInclude Include="src\char\item\BuildItem.h" />
+    <ClInclude Include="src\char\item\Item.h" />
+    <ClInclude Include="src\char\item\ItemName.h" />
+    <ClInclude Include="src\char\Magic.h" />
+    <ClInclude Include="src\char\mail.h" />
+    <ClInclude Include="src\char\Skill.h" />
+    <ClInclude Include="src\char\Title.h" />
+    <ClInclude Include="src\engine\Effect.h" />
+    <ClInclude Include="src\engine\SoundID.h" />
+    <ClInclude Include="src\engine\Sprite.h" />
+    <ClInclude Include="src\engine\SpriteID.h" />
+    <ClInclude Include="src\engine\TileSpr.h" />
+    <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\GlobalDef.h" />
+    <ClInclude Include="src\GlobalVal.h" />
+    <ClInclude Include="src\language\lan_eng.h" />
+    <ClInclude Include="src\language\lan_spa.h" />
+    <ClInclude Include="src\map\MapData.h" />
+    <ClInclude Include="src\map\Tile.h" />
+    <ClInclude Include="src\Misc.h" />
+    <ClInclude Include="src\network\Msg.h" />
+    <ClInclude Include="src\network\newsocket.h" />
+    <ClInclude Include="src\network\request_handler.h" />
+    <ClInclude Include="src\network\streams.h" />
+    <ClInclude Include="src\Shared\buffer.h" />
+    <ClInclude Include="src\StrTok.h" />
+    <ClInclude Include="src\ui\DialogBox.h" />
+    <ClInclude Include="src\ui\HTMLUI.h" />
+    <ClInclude Include="src\ui\main.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Res\resource.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="char\CharInfo.cpp" />
-    <ClCompile Include="char\Curse.cpp" />
-    <ClCompile Include="char\Guild.cpp" />
-    <ClCompile Include="char\Magic.cpp" />
-    <ClCompile Include="char\mail.cpp" />
-    <ClCompile Include="char\Skill.cpp" />
-    <ClCompile Include="char\item\BuildItem.cpp" />
-    <ClCompile Include="char\item\Item.cpp" />
-    <ClCompile Include="char\item\ItemName.cpp" />
-    <ClCompile Include="DirectX\Effect.cpp" />
-    <ClCompile Include="DirectX\Sprite.cpp" />
-    <ClCompile Include="DirectX\TileSpr.cpp" />
-    <ClCompile Include="DrawObject.cpp" />
-    <ClCompile Include="Map\MapData.cpp" />
-    <ClCompile Include="Map\Tile.cpp" />
-    <ClCompile Include="newsocket.cpp" />
-    <ClCompile Include="request_handler.cpp" />
-    <ClCompile Include="Shared\buffer.cpp" />
-    <ClCompile Include="titles\Title.cpp" />
-    <ClCompile Include="UI\DialogBox.cpp" />
-    <ClCompile Include="UI\HTMLUI.cpp" />
-    <ClCompile Include="UI\main.cpp" />
-    <ClCompile Include="Net\Msg.cpp" />
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Misc.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</BrowseInformation>
-    </ClCompile>
-    <ClCompile Include="StrTok.cpp">
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Disabled</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Disabled</Optimization>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">EnableFastChecks</BasicRuntimeChecks>
-      <BasicRuntimeChecks Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">EnableFastChecks</BasicRuntimeChecks>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</BrowseInformation>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
-      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">MaxSpeed</Optimization>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</BrowseInformation>
-      <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</BrowseInformation>
-    </ClCompile>
-    <ClCompile Include="UpdateScreen.cpp" />
+    <ClCompile Include="src\char\CharInfo.cpp" />
+    <ClCompile Include="src\char\Curse.cpp" />
+    <ClCompile Include="src\char\Guild.cpp" />
+    <ClCompile Include="src\char\item\BuildItem.cpp" />
+    <ClCompile Include="src\char\item\Item.cpp" />
+    <ClCompile Include="src\char\item\ItemName.cpp" />
+    <ClCompile Include="src\char\Magic.cpp" />
+    <ClCompile Include="src\char\mail.cpp" />
+    <ClCompile Include="src\char\Skill.cpp" />
+    <ClCompile Include="src\char\Title.cpp" />
+    <ClCompile Include="src\engine\DrawObject.cpp" />
+    <ClCompile Include="src\engine\Effect.cpp" />
+    <ClCompile Include="src\engine\Sprite.cpp" />
+    <ClCompile Include="src\engine\TileSpr.cpp" />
+    <ClCompile Include="src\engine\UpdateScreen.cpp" />
+    <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\map\MapData.cpp" />
+    <ClCompile Include="src\map\Tile.cpp" />
+    <ClCompile Include="src\Misc.cpp" />
+    <ClCompile Include="src\network\Msg.cpp" />
+    <ClCompile Include="src\network\newsocket.cpp" />
+    <ClCompile Include="src\network\request_handler.cpp" />
+    <ClCompile Include="src\Shared\buffer.cpp" />
+    <ClCompile Include="src\StrTok.cpp" />
+    <ClCompile Include="src\ui\DialogBox.cpp" />
+    <ClCompile Include="src\ui\HTMLUI.cpp" />
+    <ClCompile Include="src\ui\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

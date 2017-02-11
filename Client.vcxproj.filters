@@ -10,9 +10,6 @@
     <Filter Include="char\item">
       <UniqueIdentifier>{18c15bca-c41f-472e-8272-8aaca1ad52ab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="directx">
-      <UniqueIdentifier>{3a499399-abc8-4898-9cbf-6b14da6a2472}</UniqueIdentifier>
-    </Filter>
     <Filter Include="map">
       <UniqueIdentifier>{1cb358df-06be-4f0d-8ec4-6cf443948e7c}</UniqueIdentifier>
     </Filter>
@@ -30,6 +27,9 @@
     </Filter>
     <Filter Include="net\packets">
       <UniqueIdentifier>{8ea15c90-250a-4a71-a6b7-9187a2aa6e40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="engine">
+      <UniqueIdentifier>{3a499399-abc8-4898-9cbf-6b14da6a2472}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -49,79 +49,6 @@
     <ClInclude Include="Res\resource.h">
       <Filter>res</Filter>
     </ClInclude>
-    <ClInclude Include="char\ActionID.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="char\CharInfo.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="char\Curse.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="char\DynamicObjectID.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="char\Guild.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="char\Magic.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="char\Skill.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="char\item\BuildItem.h">
-      <Filter>char\item</Filter>
-    </ClInclude>
-    <ClInclude Include="char\item\Item.h">
-      <Filter>char\item</Filter>
-    </ClInclude>
-    <ClInclude Include="char\item\ItemName.h">
-      <Filter>char\item</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\Effect.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\SoundID.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\Sprite.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\SpriteID.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="DirectX\TileSpr.h">
-      <Filter>directx</Filter>
-    </ClInclude>
-    <ClInclude Include="Map\MapData.h">
-      <Filter>map</Filter>
-    </ClInclude>
-    <ClInclude Include="Map\Tile.h">
-      <Filter>map</Filter>
-    </ClInclude>
-    <ClInclude Include="UI\DialogBox.h">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="Net\Msg.h">
-      <Filter>net</Filter>
-    </ClInclude>
-    <ClInclude Include="lan_eng.h">
-      <Filter>lang</Filter>
-    </ClInclude>
-    <ClInclude Include="Game.h" />
-    <ClInclude Include="GlobalDef.h" />
-    <ClInclude Include="GlobalVal.h" />
-    <ClInclude Include="Misc.h" />
-    <ClInclude Include="StrTok.h" />
-    <ClInclude Include="titles\Title.h" />
-    <ClInclude Include="char\mail.h" />
-    <ClInclude Include="streams.h" />
-    <ClInclude Include="newsocket.h" />
-    <ClInclude Include="request_handler.h" />
-    <ClInclude Include="Shared\buffer.h">
-      <Filter>shared</Filter>
-    </ClInclude>
     <ClInclude Include="..\x-server\src\protobuf\initdata.pb.h">
       <Filter>net\packets</Filter>
     </ClInclude>
@@ -134,12 +61,100 @@
     <ClInclude Include="..\x-server\src\netmessages.h">
       <Filter>net\packets</Filter>
     </ClInclude>
-    <ClInclude Include="UI\HTMLUI.h">
+    <ClInclude Include="src\char\item\BuildItem.h">
+      <Filter>char\item</Filter>
+    </ClInclude>
+    <ClInclude Include="src\char\item\Item.h">
+      <Filter>char\item</Filter>
+    </ClInclude>
+    <ClInclude Include="src\char\item\ItemName.h">
+      <Filter>char\item</Filter>
+    </ClInclude>
+    <ClInclude Include="src\char\ActionID.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\char\CharInfo.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\char\Curse.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\char\DynamicObjectID.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\char\Guild.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\char\Magic.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\char\mail.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\char\Skill.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine\Effect.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine\SoundID.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine\Sprite.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine\SpriteID.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine\TileSpr.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\language\lan_eng.h">
+      <Filter>lang</Filter>
+    </ClInclude>
+    <ClInclude Include="src\language\lan_spa.h">
+      <Filter>lang</Filter>
+    </ClInclude>
+    <ClInclude Include="src\map\MapData.h">
+      <Filter>map</Filter>
+    </ClInclude>
+    <ClInclude Include="src\map\Tile.h">
+      <Filter>map</Filter>
+    </ClInclude>
+    <ClInclude Include="src\network\Msg.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Shared\buffer.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\network\newsocket.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\network\request_handler.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\network\streams.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\DialogBox.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="UI\main.h">
+    <ClInclude Include="src\ui\HTMLUI.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="src\ui\main.h" />
+    <ClInclude Include="src\GlobalDef.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GlobalVal.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\char\Title.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Misc.h" />
+    <ClInclude Include="src\StrTok.h" />
+    <ClInclude Include="src\Game.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Res\resource.rc">
@@ -147,72 +162,78 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="char\CharInfo.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
-    <ClCompile Include="char\Curse.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
-    <ClCompile Include="char\Guild.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
-    <ClCompile Include="char\Magic.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
-    <ClCompile Include="char\Skill.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
-    <ClCompile Include="char\item\BuildItem.cpp">
+    <ClCompile Include="src\char\item\BuildItem.cpp">
       <Filter>char\item</Filter>
     </ClCompile>
-    <ClCompile Include="char\item\Item.cpp">
+    <ClCompile Include="src\char\item\Item.cpp">
       <Filter>char\item</Filter>
     </ClCompile>
-    <ClCompile Include="char\item\ItemName.cpp">
+    <ClCompile Include="src\char\item\ItemName.cpp">
       <Filter>char\item</Filter>
     </ClCompile>
-    <ClCompile Include="DirectX\Effect.cpp">
-      <Filter>directx</Filter>
+    <ClCompile Include="src\char\CharInfo.cpp">
+      <Filter>char</Filter>
     </ClCompile>
-    <ClCompile Include="DirectX\Sprite.cpp">
-      <Filter>directx</Filter>
+    <ClCompile Include="src\char\Curse.cpp">
+      <Filter>char</Filter>
     </ClCompile>
-    <ClCompile Include="DirectX\TileSpr.cpp">
-      <Filter>directx</Filter>
+    <ClCompile Include="src\char\Guild.cpp">
+      <Filter>char</Filter>
     </ClCompile>
-    <ClCompile Include="Map\MapData.cpp">
+    <ClCompile Include="src\char\Magic.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\char\mail.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\char\Skill.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\Effect.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\Sprite.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\TileSpr.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\map\MapData.cpp">
       <Filter>map</Filter>
     </ClCompile>
-    <ClCompile Include="Map\Tile.cpp">
+    <ClCompile Include="src\map\Tile.cpp">
       <Filter>map</Filter>
     </ClCompile>
-    <ClCompile Include="UI\DialogBox.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="Net\Msg.cpp">
+    <ClCompile Include="src\network\Msg.cpp">
       <Filter>net</Filter>
     </ClCompile>
-    <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Misc.cpp" />
-    <ClCompile Include="StrTok.cpp" />
-    <ClCompile Include="titles\Title.cpp" />
-    <ClCompile Include="char\mail.cpp" />
-    <ClCompile Include="newsocket.cpp" />
-    <ClCompile Include="request_handler.cpp" />
-    <ClCompile Include="Shared\buffer.cpp">
+    <ClCompile Include="src\Shared\buffer.cpp">
       <Filter>shared</Filter>
     </ClCompile>
-    <ClCompile Include="DrawObject.cpp">
-      <Filter>char</Filter>
+    <ClCompile Include="src\network\newsocket.cpp">
+      <Filter>net</Filter>
     </ClCompile>
-    <ClCompile Include="UpdateScreen.cpp">
-      <Filter>char</Filter>
+    <ClCompile Include="src\network\request_handler.cpp">
+      <Filter>net</Filter>
     </ClCompile>
-    <ClCompile Include="UI\HTMLUI.cpp">
+    <ClCompile Include="src\ui\DialogBox.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="UI\main.cpp">
+    <ClCompile Include="src\ui\HTMLUI.cpp">
       <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\main.cpp" />
+    <ClCompile Include="src\char\Title.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Misc.cpp" />
+    <ClCompile Include="src\StrTok.cpp" />
+    <ClCompile Include="src\engine\UpdateScreen.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\engine\DrawObject.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

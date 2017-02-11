@@ -50,8 +50,7 @@
       <LaunchMethod>Executable</LaunchMethod>
       <ExecutablePath>bin\bin\Client_d.exe</ExecutablePath>
       <StartupDirectory>bin\bin\</StartupDirectory>
-      <Arguments>
-      </Arguments>
+      <Arguments>-adata=Zero:zero -res=1024x768 -vres=1024x768</Arguments>
       <NetAppHost>IIS</NetAppHost>
       <NetBrowser>InternetExplorer</NetBrowser>
       <ExcludeSmallFuncs>true</ExcludeSmallFuncs>
@@ -67,11 +66,6 @@
       <ProjName>Client</ProjName>
     </ProjBinary>
   </Binaries>
-  <Reports>
-    <Report>
-      <Path>Client_d140120.vsp</Path>
-    </Report>
-  </Reports>
   <Launches>
     <ProjBinary>
       <Path>:PB:{B046891F-46C6-48B3-8BAC-777929D872EE}|Client.vcxproj</Path>

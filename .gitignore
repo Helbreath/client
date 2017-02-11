@@ -57,3 +57,5 @@ Client.VC.opendb
 Client.VC.db
 Client.VC.VC.opendb
 .vs/
+*.enc
+Win32/
