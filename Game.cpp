@@ -995,20 +995,6 @@ void CGame::UpdateScreen()
     G_dwGlobalTime = unixtime();
 
 	switch (m_cGameMode) {
-#ifdef MAKE_ACCOUNT
-	case GAMEMODE_ONAGREEMENT:
-		// UpdateScreen_OnAgreement(); //unused by HBx server..
-		break;
-
-	case GAMEMODE_ONCREATENEWACCOUNT:
-		UpdateScreen_OnCreateNewAccount();
-		break;
-#endif
-
-	case GAMEMODE_ONVERSIONNOTMATCH:
-		UpdateScreen_OnVersionNotMatch();
-		break;
-
 	case GAMEMODE_ONCONNECTING:
 		UpdateScreen_OnConnecting();
 		break;
@@ -1030,10 +1016,6 @@ void CGame::UpdateScreen()
 		UpdateScreen_OnWaitInitData();
 		break;
 
-	case GAMEMODE_ONCONNECTIONLOST:
-		UpdateScreen_OnConnectionLost();
-		break;
-
 	case GAMEMODE_ONMSG:
 		UpdateScreen_OnMsg();
 		break;
@@ -1042,16 +1024,8 @@ void CGame::UpdateScreen()
 		UpdateScreen_OnLogin();
 		break;
 
-	case GAMEMODE_ONSELECTSERVER:
-		UpdateScreen_OnSelectServer();
-		break;
-
 	case GAMEMODE_ONQUIT:
 		UpdateScreen_OnQuit();
-		break;
-
-	case GAMEMODE_ONQUERYFORCELOGIN:
-		UpdateScreen_OnQueryForceLogin();
 		break;
 
 	case GAMEMODE_ONSELECTCHARACTER:
@@ -1062,60 +1036,11 @@ void CGame::UpdateScreen()
 		UpdateScreen_OnSelectCharacter();
 		break;
 
-	case GAMEMODE_ONCREATENEWCHARACTER:
-		UpdateScreen_OnCreateNewCharacter();
-		break;
-
-	case GAMEMODE_ONWAITINGRESPONSE:
-		UpdateScreen_OnWaitingResponse();
-		break;
-
-	case GAMEMODE_ONQUERYDELETECHARACTER:
-		UpdateScreen_OnQueryDeleteCharacter();
-		break;
-
 	case GAMEMODE_ONLOGRESMSG:
 		UpdateScreen_OnLogResMsg();
 		break;
 
-	case GAMEMODE_ONCHANGEPASSWORD:
-		UpdateScreen_OnChangePassword();
-		break;
 	}
-
-#ifdef USING_WIN_IME
-
-	if (GetAsyncKeyState(VK_RETURN) != 0) m_cEnterCheck = 1;
-	if ((m_cEnterCheck == 1) && (GetAsyncKeyState(VK_RETURN) == 0))
-	{
-		m_bEnterPressed = true;
-		m_cEnterCheck = 0;
-	}
-	if (GetAsyncKeyState(VK_TAB) != 0) m_cTabCheck = 1;
-	if ((m_cTabCheck == 1) && (GetAsyncKeyState(VK_TAB) == 0))
-	{
-		m_cCurFocus++;
-		if (m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
-		if (m_cGameMode == GAMEMODE_ONMAINGAME) bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_TOGGLECOMBATMODE, 0, 0, 0, 0, 0);
-		m_cTabCheck = 0;
-	}
-	if (m_bInputStatus)
-	{
-		if (GetAsyncKeyState(VK_LEFT) != 0) m_cLeftArrowCheck = 1;
-		if ((m_cLeftArrowCheck == 1) && (GetAsyncKeyState(VK_LEFT) == 0))
-		{
-			m_cLeftArrowCheck = 0;
-			if (G_hEditWnd != 0)
-			{
-				int iStrLen = strlen(m_pInputBuffer);
-				SendMessage(G_hEditWnd, EM_SETSEL, iStrLen, iStrLen);
-			}
-		}
-	}
-#endif
-
-
-
 
     static uint64_t fpstime = unixtime();
 	static uint64_t uitime = unixtime();
@@ -1269,6 +1194,7 @@ void CGame::CalcViewPointOld()
 void CGame::CalcViewPoint(uint64_t dwTime)
 {
     //TODO: refine this, make sure it runs well on lesser hardware timers can be wonky vs how it used to be
+    //TODO: just calculate the time it'd take to finish a movement cycle from the mapdata struct and calculate based on last frame and time where new location should be
     if (m_bShiftPressed || m_bRunningMode)
     {
         if (dwTime - viewporttime < (8 / SPEEDHAX_RUN))
@@ -1407,38 +1333,68 @@ void CGame::OnEvent(sf::Event event)
     switch (event.type)
     {
         case sf::Event::KeyPressed:
-            if (event.key.code == Keyboard::Key::Escape)
+            switch (event.key.code)
             {
-                clipmousegame = !clipmousegame;
-                window.setMouseCursorGrabbed(clipmousegame);
+                case Keyboard::Escape:
+                    clipmousegame = !clipmousegame;
+                    window.setMouseCursorGrabbed(clipmousegame);
+                    break;
+                case Keyboard::LShift:
+                    m_bShiftPressed = true;
+                    break;
+                case Keyboard::LControl:
+                    m_bCtrlPressed = true;
+                    break;
+                case Keyboard::LAlt:
+                    m_altPressed = true;
+                case Keyboard::Tab:
+                    break;
+                case Keyboard::Return:
+                    if (event.key.alt)
+                    {
+                        fullscreen = !fullscreen;
+                        window.close();
+                        window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Resize | Style::Close)));
+                    }
+                    break;
+                case Keyboard::F12:
+                    CreateScreenShot();
+                    break;
+                case Keyboard::F5:
+                    calcoldviewport = !calcoldviewport;
+                    if (calcoldviewport)
+                    {
+                        AddEventList("Switched to new viewport code.");
+                    }
+                    else
+                    {
+                        AddEventList("Switched to old viewport code.");
+                    }
+                    break;
             }
-            else if (event.key.code == Keyboard::Key::LShift)
-            {
-                m_bShiftPressed = true;
-            }
-            else if (event.key.code == Keyboard::Key::Return && event.key.alt)
-            {
-                fullscreen = !fullscreen;
-                window.close();
-                window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Resize | Style::Close)));
-            }
-            else if (event.key.code == Keyboard::Key::F12)
-            {
-                CreateScreenShot();
-            }
-            else if (event.key.code == Keyboard::Key::F5)
-            {
-                calcoldviewport = !calcoldviewport;
-            }
-
-            OnKeyDown(event.key.code);
             break;
         case sf::Event::KeyReleased:
-            if (event.key.code == Keyboard::Key::LShift)
+            switch (event.key.code)
             {
-                m_bShiftPressed = false;
+                case Keyboard::Escape:
+                    break;
+                case Keyboard::LShift:
+                    m_bShiftPressed = false;
+                    break;
+                case Keyboard::LControl:
+                    m_bCtrlPressed = false;
+                    break;
+                case Keyboard::LAlt:
+                    m_altPressed = false;
+                case Keyboard::Tab:
+                    break;
+                case Keyboard::Return:
+                    break;
+                case Keyboard::F12:
+                    break;
+                case Keyboard::F5:
+                    break;
             }
-            OnKeyUp(event.key.code);
             break;
         case sf::Event::Resized:
             break;
@@ -3874,9 +3830,6 @@ void CGame::InitGameSettings()
 	m_bIllusionMVT = false;
 	m_bForceAttack = false;
 	m_dwCommandTime = 0;
-
-	m_bInputStatus = false;
-	m_pInputBuffer = 0;
 
 	m_iPDBGSdivX = 0;
 	m_iPDBGSdivY = 0;
@@ -10149,499 +10102,21 @@ void CGame::EnableDialogBox(int iBoxID, int cType, int sV1, int sV2, const char 
  int i;
  short sX, sY;
 
-	switch (iBoxID) {
-	case 11:
-		if (m_bIsDialogEnabled[11] == false) {
-			switch (cType) {
-			case 0:
-				break;
-			default:
-				_LoadShopMenuContents(cType);
-				m_dialogBoxes[11].sV1 = cType;
-				m_dialogBoxes[11].SetMode(0);
-				m_dialogBoxes[11].sView = 0;
-				m_dialogBoxes[11].bFlag = true;
-				m_dialogBoxes[11].sV3   = 1; 
-				break;
-			}
-		}
-		break;
-
-	case 12: // levelup diag
-		if (m_bIsDialogEnabled[12] == false)
-		{	m_dialogBoxes[12].m_X = m_dialogBoxes[1].m_X + 20;
-			m_dialogBoxes[12].m_Y = m_dialogBoxes[1].m_Y + 20;
-			//m_iLU_Point = m_iLevel*3 - (
-			m_iLU_Point = m_iLevel*7 - (
-				(m_stat[STAT_STR] + m_stat[STAT_VIT] + m_stat[STAT_DEX] + m_stat[STAT_INT] + m_stat[STAT_MAG] + m_stat[STAT_CHR])
-				- 70)
-				//- 3 + m_angelStat[STAT_STR] + m_angelStat[STAT_DEX] + m_angelStat[STAT_INT] + m_angelStat[STAT_MAG];
-				- 7 + m_angelStat[STAT_STR] + m_angelStat[STAT_DEX] + m_angelStat[STAT_INT] + m_angelStat[STAT_MAG];
-			m_dialogBoxes[12].sV1 = m_iLU_Point;
-		}
-		break;
-
-	case 3: // Magic Dialog
-		break;
-
-	case 4:
-		if (m_bIsDialogEnabled[4] == false) {
-			m_dialogBoxes[4].sView = cType;
-		}
-		break;
-
-	case 5:
-		if (m_bIsDialogEnabled[5] == false) {
-			m_dialogBoxes[5].sView = cType;
-		}
-		break;
-
-	case 6:
-		if (m_bIsDialogEnabled[6] == false) {
-			m_dialogBoxes[6].sView = cType;
-		}
-		break;
-
-	case 7:
-		if (m_dialogBoxes[7].GetMode() == 1) {
-			sX = m_dialogBoxes[7].m_X;
-			sY = m_dialogBoxes[7].m_Y;
-			EndInputString();
-			StartInputString(sX + 75, sY + 140, 21, m_cGuildName);
-		}
-		break;
-
-	case 17: // demande quantit�
-		if (m_bIsDialogEnabled[17] == false)
-		{	
-			m_dialogBoxes[iBoxID].SetMode(1);
-			m_dialogBoxes[17].sView	= cType;
-			EndInputString();
-			ZeroMemory(m_cAmountString, sizeof(m_cAmountString));
-			wsprintfA( m_cAmountString, "%d", sV1 );
-			sX = m_dialogBoxes[17].m_X;
-			sY = m_dialogBoxes[17].m_Y;
-			StartInputString(sX + 40, sY + 57, 11, m_cAmountString, false);
-		}else
-		{	if (m_dialogBoxes[17].GetMode() == 1)
-			{	sX = m_dialogBoxes[17].m_X;
-				sY = m_dialogBoxes[17].m_Y;
-				EndInputString();
-				StartInputString(sX + 40, sY + 57, 11, m_cAmountString, false);
-		}	}
-		break;
-
-	case 18:
-		if (m_bIsDialogEnabled[18] == false)
-		{	switch (cType) {
-			case 0:
-				m_dialogBoxes[18].SetMode(0);
-				m_dialogBoxes[18].sView = 0;
-				break;
-			default:
-				_LoadTextDlgContents(cType);
-				m_dialogBoxes[18].SetMode(0);
-				m_dialogBoxes[18].sView = 0;
-				break;
-		} 	}
-		break;
-
-	case 19:
-		break;
-
-	case 120:
-		break;
-
-	case 20: // Talk to npc or unicorn
-		m_bIsItemDisabled[m_dialogBoxes[20].sV1] = false;
-		if (m_bIsDialogEnabled[20] == false)
-		{	m_dialogBoxes[11].sV1 = m_dialogBoxes[11].sV2 = m_dialogBoxes[11].sV3 =
-			m_dialogBoxes[11].sV4 = m_dialogBoxes[11].sV5 = m_dialogBoxes[11].sV6 = 0;
-			m_dialogBoxes[20].SetMode(cType);
-			m_dialogBoxes[20].sView = 0;
-			m_dialogBoxes[20].sV1 = sV1;
-			m_dialogBoxes[20].sV2 = sV2;
-		}
-		break;
-
-	case 21:
-		if (m_bIsDialogEnabled[21] == false)
-		{	m_dialogBoxes[21].SetMode(cType);
-			m_dialogBoxes[21].sView = 0;
-			m_dialogBoxes[21].sV1 = _iLoadTextDlgContents2(sV1+20);
-			m_dialogBoxes[21].sV2 = sV1+20;
-		}
-		break;
-
-	case 22:
-		if (m_bIsDialogEnabled[22] == false) {
-			m_dialogBoxes[22].sV1 = sV1;
-			m_dialogBoxes[22].sV2 = sV2;
-
-			m_dialogBoxes[22].sSizeX = 290;
-			m_dialogBoxes[22].sSizeY = 290;
-		}
-		break;
-
-	case 23:
-		if (m_bIsDialogEnabled[23] == false) {
-			m_dialogBoxes[23].SetMode(cType);
-			m_dialogBoxes[23].sV1   = sV1;		// ItemID
-			m_dialogBoxes[23].sV2   = sV2;
-			if( cType == 2 ) {
-				m_dialogBoxes[23].m_X = m_dialogBoxes[11].m_X;
-				m_dialogBoxes[23].m_Y = m_dialogBoxes[11].m_Y;
-			}
-		}
-		break;
-
-	case 15:
-		break;
-
-	case 24:
-		if (m_bIsDialogEnabled[24] == false)
-		{	m_dialogBoxes[24].SetMode(cType);
-			m_dialogBoxes[24].sV1   = sV1;
-			m_dialogBoxes[24].sV2   = sV2;
-			m_bSkillUsingStatus = true;
-		}
-		break;
-
-	case 25:
-		if (m_bIsDialogEnabled[25] == false) {
-			m_dialogBoxes[25].SetMode(cType);
-			m_dialogBoxes[25].sV1   = sV1;
-			m_dialogBoxes[25].sV2   = sV2;
-		}
-		break;
-
-	case 26:
-		switch (cType) {
-		case 1:
-		case 2: //
-			if (m_bIsDialogEnabled[26] == false)
-			{	
-				m_dialogBoxes[26].sV1   = -1;
-				m_dialogBoxes[26].sV2   = -1;
-				m_dialogBoxes[26].sV3   = -1;
-				m_dialogBoxes[26].sV4   = -1;
-				m_dialogBoxes[26].sV5   = -1;
-				m_dialogBoxes[26].sV6   = -1;
-				m_dialogBoxes[26].cStr[0] = 0;
-				m_bSkillUsingStatus = true;
-				m_dialogBoxes[26].sSizeX = 195;
-				m_dialogBoxes[26].sSizeY = 215;
-				m_dialogBoxes[26].SetMode(cType);
-				DisableDialogBox(17);
-				DisableDialogBox(20);
-				DisableDialogBox(23);
-			}
-			break;
-
-		case 3:	//
-			if (m_bIsDialogEnabled[26] == false)
-			{	
-				m_dialogBoxes[26].sView = 0;
-				m_dialogBoxes[26].sV1   = -1;
-				m_dialogBoxes[26].sV2   = -1;
-				m_dialogBoxes[26].sV3   = -1;
-				m_dialogBoxes[26].sV4   = -1;
-				m_dialogBoxes[26].sV5   = -1;
-				m_dialogBoxes[26].sV6   = -1;
-				m_dialogBoxes[26].cStr[0] = 0;
-				m_dialogBoxes[26].cStr[1] = 0;
-				m_dialogBoxes[26].cStr[4] = 0;
-				m_bSkillUsingStatus = true;
-				_bCheckBuildItemStatus();
-				//m_stDialogBoxInfo[26].sX = 0;
-				//m_stDialogBoxInfo[26].sY = 0;
-				m_dialogBoxes[26].sSizeX = 270;
-				m_dialogBoxes[26].sSizeY = 381;
-				m_dialogBoxes[26].SetMode(cType);
-				DisableDialogBox(17);
-				DisableDialogBox(20);
-				DisableDialogBox(23);
-			}
-			break;
-
-		case 6:
-			if (m_bIsDialogEnabled[26] == false)
-			{	
-				m_dialogBoxes[26].cStr[2] = sV1;
-				m_dialogBoxes[26].cStr[3] = sV2;
-				m_dialogBoxes[26].sSizeX = 270;
-				m_dialogBoxes[26].sSizeY = 381;
-				m_dialogBoxes[26].SetMode(cType);
-				m_bSkillUsingStatus = true;
-				_bCheckBuildItemStatus();
-				DisableDialogBox(17);
-				DisableDialogBox(20);
-				DisableDialogBox(23);
-			}
-			break;
-		// Crafting
-		case 7:
-		case 8:
-			if (m_bIsDialogEnabled[26] == false)
-			{	
-				m_dialogBoxes[26].sV1   = -1;
-				m_dialogBoxes[26].sV2   = -1;
-				m_dialogBoxes[26].sV3   = -1;
-				m_dialogBoxes[26].sV4   = -1;
-				m_dialogBoxes[26].sV5   = -1;
-				m_dialogBoxes[26].sV6   = -1;
-				m_dialogBoxes[26].cStr[0] = 0;
-				m_dialogBoxes[26].cStr[1] = 0;
-				m_bSkillUsingStatus = true;
-				//_bCheckCraftItemStatus();
-				m_dialogBoxes[26].sSizeX = 195;
-				m_dialogBoxes[26].sSizeY = 215;
-				m_dialogBoxes[26].SetMode(cType);
-				DisableDialogBox(17);
-				DisableDialogBox(20);
-				DisableDialogBox(23);
-			}
-			break;
-		}
-		break;
-
-	case 27: // Snoopy: 7 mar 06 (multitrade) case rewriten
-		if (m_bIsDialogEnabled[27] == false)
-		{	m_dialogBoxes[27].SetMode(cType);
-			for (i=0; i<8;i++)
-			{	ZeroMemory(m_stDialogBoxExchangeInfo[i].cStr1, sizeof(m_stDialogBoxExchangeInfo[i].cStr1));
-				ZeroMemory(m_stDialogBoxExchangeInfo[i].cStr2, sizeof(m_stDialogBoxExchangeInfo[i].cStr2));
-				m_stDialogBoxExchangeInfo[i].sV1 = -1;
-				m_stDialogBoxExchangeInfo[i].sV2 = -1;
-				m_stDialogBoxExchangeInfo[i].sV3 = -1;
-				m_stDialogBoxExchangeInfo[i].sV4 = -1;
-				m_stDialogBoxExchangeInfo[i].sV5 = -1;
-				m_stDialogBoxExchangeInfo[i].sV6 = -1;
-				m_stDialogBoxExchangeInfo[i].sV7 = -1;
-				m_stDialogBoxExchangeInfo[i].dwV1 = 0;
-			}
-			DisableDialogBox(17);
-			DisableDialogBox(20);
-			DisableDialogBox(23);
-			DisableDialogBox(26);
-		}
-		break;
-
-	case 41: // Snoopy: 7 mar 06 (MultiTrade) Confirmation dialog
-		break;
-
-	case 28:
-		if (m_bIsDialogEnabled[28] == false) {
-			m_dialogBoxes[28].m_X = m_dialogBoxes[1].m_X + 20;
-			m_dialogBoxes[28].m_Y = m_dialogBoxes[1].m_Y + 20;
-			m_dialogBoxes[28].SetMode(cType);
-		}
-		break;
-
-	case 32:
-		if (m_bIsDialogEnabled[32] == false) {
-			m_dialogBoxes[32].m_X = m_dialogBoxes[1].m_X + 20;
-			m_dialogBoxes[32].m_Y = m_dialogBoxes[1].m_Y + 20;
-			m_dialogBoxes[32].SetMode(cType);
-		}
-		break;
-
-	case 33:
-		if ((m_iHP <= 0) || m_side == NEUTRAL) return;
-		if (m_bIsDialogEnabled[33] == false)
-		{	
-			m_dialogBoxes[33].m_X  = 360;
-			m_dialogBoxes[33].m_Y  = 65;
-			m_dialogBoxes[33].sV1 = sV1;
-			m_dialogBoxes[33].SetMode(cType);
-		}
-		break;
-
-	case 34:
-		if (m_bIsDialogEnabled[iBoxID] == false)
-		{
-			m_dialogBoxes[iBoxID].sV1  = -1;
-			m_dialogBoxes[iBoxID].dwV1 = 0;
-			m_dialogBoxes[iBoxID].SetMode(5);
-		}
-		break;
-
-	case 16:
-		if (m_bIsDialogEnabled[iBoxID]  == false) {
-			if (m_cSkillMastery[SKILL_MAGIC] == 0) {
-				 DisableDialogBox(16);
-				 EnableDialogBox(21, 0, 480, 0);
-				 return;
-			}
-			else {
-				m_dialogBoxes[iBoxID].SetMode(0);
-				m_dialogBoxes[iBoxID].sView = 0;
-			}
-		}
-		break;
-
-	case 14:
-		EndInputString();
-		if (m_bIsDialogEnabled[iBoxID]  == false) {
-			m_dialogBoxes[iBoxID].SetMode(0);
-			m_dialogBoxes[iBoxID].sView = 0;
-			EnableDialogBox(2);
-			DisableDialogBox(56);
-		}
-		break;
-
-	case 40: // Slates
-		if (m_bIsDialogEnabled[40] == false) {
-			m_dialogBoxes[40].sView = 0;
-			m_dialogBoxes[40].sV1   = -1;
-			m_dialogBoxes[40].sV2   = -1;
-			m_dialogBoxes[40].sV3   = -1;
-			m_dialogBoxes[40].sV4   = -1;
-			m_dialogBoxes[40].sV5   = -1;
-			m_dialogBoxes[40].sV6   = -1;
-			m_dialogBoxes[40].cStr[0] = 0;
-			m_dialogBoxes[40].cStr[1] = 0;
-			m_dialogBoxes[40].cStr[4] = 0;
-
-			m_dialogBoxes[40].sSizeX = 180;
-			m_dialogBoxes[40].sSizeY = 183;
-			m_dialogBoxes[40].SetMode(cType);
-			DisableDialogBox(17);
-			DisableDialogBox(20);
-			DisableDialogBox(23);
-			DisableDialogBox(26);
-		}
-		break;
-
-	case 42: // Diuuude: Change stats window
-		if (m_bIsDialogEnabled[42] == false) {
-			m_dialogBoxes[42].m_X = m_dialogBoxes[12].m_X+10;
-			m_dialogBoxes[42].m_Y = m_dialogBoxes[12].m_Y+10;
-			m_dialogBoxes[42].SetMode(0);
-			m_dialogBoxes[42].sView = 0;
-			m_bSkillUsingStatus = false;
-		}
-		break;
-
-	case 43:
-		if (m_bIsDialogEnabled[43] == false)
-		{
-			m_iFriendIndex = -1;
-			m_dialogBoxes[43].sV1= 0;
-		}
-		break;
-
-	case 44: // guildquery
-		if (m_bIsDialogEnabled[44])
-			break;
-		m_dialogBoxes[44].SetMode(cType);
-		m_dialogBoxes[44].sV1 = sV1; // current rank
-		if (pString)
-			strcpyn(m_dialogBoxes[44].cStr, pString);
-		break;
-
-	case 49: // guild teleport request
-		if(!m_bIsDialogEnabled[49])
-		{
-			m_dialogBoxes[49].m_X = 185;
-			m_dialogBoxes[49].m_Y = 20;
-			m_dialogBoxes[49].SetMode(0);
-			m_dialogBoxes[49].sView = 0;
-			GetOfficialMapName(GetMapName(sV1), m_dialogBoxes[49].cStr);
-		}
-		break;
-
-	case 50: // Resurection
-		if (m_bIsDialogEnabled[50] == false)
-		{
-			m_dialogBoxes[50].m_X = 185;
-			m_dialogBoxes[50].m_Y = 20;
-			m_dialogBoxes[50].SetMode(0);
-			m_dialogBoxes[50].sView = 0;
-			m_bSkillUsingStatus = false;
-		}
-		break;
-
-	case 52: //New Shop
-		break;
-	case 53: //new bsmith
-		break;
-
-	//GuildBank
-	case 56:
-		EndInputString();
-
-		if (m_bIsDialogEnabled[iBoxID]  == false) {
-			m_dialogBoxes[iBoxID].SetMode(0);
-			m_dialogBoxes[iBoxID].sView = 0;
-			if(m_guildBankVer == 0)
-				m_guildBankIt = m_guildBankMap.end();
-			else
-				m_guildBankIt = m_guildBankMap.begin();
-			EnableDialogBox(2);
-			bSendCommand(MSGID_REQUEST_GUILDBANK);
-			DisableDialogBox(14);
-		}
-		break;
-
-	case 58:
-		if(!m_bIsDialogEnabled[iBoxID])
-		{
-			m_dialogBoxes[iBoxID].SetMode(1);
-			m_dialogBoxes[iBoxID].sView	= cType;
-
-			EndInputString();
-			sX = m_dialogBoxes[iBoxID].m_X;
-			sY = m_dialogBoxes[iBoxID].m_Y;
-			ZeroMemory(m_cAmountString, sizeof(m_cAmountString));
-			StartInputString(sX + 40, sY + 57, 11, m_cAmountString);
-		}
-		else
-		{
-			// moving dialog
-			if (m_dialogBoxes[iBoxID].GetMode() == 1)
-			{
-				sX = m_dialogBoxes[iBoxID].m_X;
-				sY = m_dialogBoxes[iBoxID].m_Y;
-				EndInputString();
-				StartInputString(sX + 40, sY + 57, 11, m_cAmountString);
-			}
-		}
-		break;
-
-	case DIALOG_MAILBOX:
-		EndInputString();
-
-		if(!m_bIsDialogEnabled[iBoxID])
-		{
-			m_dialogBoxes[iBoxID].SetMode(0);
-			m_dialogBoxes[iBoxID].sView = 0;
-			bSendCommand(MSGID_REQ_MAILBOX);
-		}
-		break;
-
-	case DIALOG_YESNO:
-		if(!m_bIsDialogEnabled[iBoxID])
-			m_dialogBoxes[iBoxID].SetMode(cType);
-		break;
-
-	default:
-		EndInputString();
-		if (m_bIsDialogEnabled[iBoxID]  == false) {
-			m_dialogBoxes[iBoxID].SetMode(0);
-			m_dialogBoxes[iBoxID].sView = 0;
-		}
-		break;
+	if (m_bIsDialogEnabled[iBoxID]  == false) {
+		m_dialogBoxes[iBoxID].SetMode(0);
+		m_dialogBoxes[iBoxID].sView = 0;
 	}
-	if( iBoxID != 30 )
-	{	if (m_bIsDialogEnabled[iBoxID]  == false)
-		//{	if( m_dialogBoxes[iBoxID].m_Y > 400 ) m_dialogBoxes[iBoxID].m_Y = 410;
-		//	if( m_dialogBoxes[iBoxID].m_X > 620 ) m_dialogBoxes[iBoxID].m_X = 620;
-			{	if( m_dialogBoxes[iBoxID].m_Y > 520 ) m_dialogBoxes[iBoxID].m_Y = 530;
-			if( m_dialogBoxes[iBoxID].m_X > 780 ) m_dialogBoxes[iBoxID].m_X = 780;
+
+    if( iBoxID != 30 )
+	{
+        if (m_bIsDialogEnabled[iBoxID]  == false)
+		{
+            if( m_dialogBoxes[iBoxID].m_Y > GetHeight()-80 ) m_dialogBoxes[iBoxID].m_Y = GetHeight()-80;
+			if( m_dialogBoxes[iBoxID].m_X > GetWidth()-20 ) m_dialogBoxes[iBoxID].m_X = GetWidth()-20;
 			if( (m_dialogBoxes[iBoxID].m_X+m_dialogBoxes[iBoxID].sSizeX) < 10 ) m_dialogBoxes[iBoxID].m_X += 20;
 			if( (m_dialogBoxes[iBoxID].m_Y+m_dialogBoxes[iBoxID].sSizeY) < 10 ) m_dialogBoxes[iBoxID].m_Y += 20;
-	}	}
+	    }
+    }
 	m_bIsDialogEnabled[iBoxID] = true;
 	if (pString != 0) strcpy(m_dialogBoxes[iBoxID].cStr, pString);
 
@@ -10664,161 +10139,6 @@ void CGame::EnableDialogBox(int iBoxID, int cType, int sV1, int sV2, const char 
 void CGame::DisableDialogBox(int iBoxID)
 {
  int i;
-
-	switch (iBoxID) {
-	case 4:
-		m_bIsItemDisabled[m_dialogBoxes[4].sView] = false;
-		break;
-
-	case 5:
-		m_bIsItemDisabled[m_dialogBoxes[5].sView] = false;
-		break;
-
-	case 6:
-		m_bIsItemDisabled[m_dialogBoxes[6].sView] = false;
-		break;
-
-	case 7:
-		if (m_dialogBoxes[7].GetMode() == 1)
-			EndInputString();
-		m_dialogBoxes[7].SetMode(0);
-		break;
-
-	case 11:
-		for (i = 0; i < MAXMENUITEMS; i++)
-		if (m_pItemForSaleList[i] != 0) {
-			delete m_pItemForSaleList[i];
-			m_pItemForSaleList[i] = 0;
-		}
-		m_dialogBoxes[39].sV3 = 0;
-		m_dialogBoxes[39].sV4 = 0; 
-		m_dialogBoxes[39].sV5 = 0;
-		m_dialogBoxes[39].sV6 = 0;
-		break;
-
-	case 14:
-		if (m_dialogBoxes[14].GetMode() < 0) return;
-		break;
-
-	case 17:
-		if (m_dialogBoxes[17].GetMode() == 1) {
-			EndInputString();
-			if(m_dialogBoxes[17].sV3 != 1004) // leave item disabled if sending mail
-				m_bIsItemDisabled[m_dialogBoxes[17].sView] = false;
-		}
-		break;
-
-	case 20:
-		m_bIsItemDisabled[m_dialogBoxes[20].sV1] = false;
-		break;
-
-	case 21:
-		if (m_dialogBoxes[21].sV2 == 500)
-		{	bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_GETMAGICABILITY, 0, 0, 0, 0, 0);
-		}
-		break;
-
-	case 24:
-		m_bSkillUsingStatus = false;
-		break;
-
-	case 26:
-		if (m_dialogBoxes[26].sV1 != -1) m_bIsItemDisabled[m_dialogBoxes[26].sV1] = false;
-		if (m_dialogBoxes[26].sV2 != -1) m_bIsItemDisabled[m_dialogBoxes[26].sV2] = false;
-		if (m_dialogBoxes[26].sV3 != -1) m_bIsItemDisabled[m_dialogBoxes[26].sV3] = false;
-		if (m_dialogBoxes[26].sV4 != -1) m_bIsItemDisabled[m_dialogBoxes[26].sV4] = false;
-		if (m_dialogBoxes[26].sV5 != -1) m_bIsItemDisabled[m_dialogBoxes[26].sV5] = false;
-		if (m_dialogBoxes[26].sV6 != -1) m_bIsItemDisabled[m_dialogBoxes[26].sV6] = false;
-		m_bSkillUsingStatus = false;
-		break;
-
-	case 27: //Snoopy: 7 mar 06 (multiTrade) case rewriten
-		for (i=0; i<8;i++)
-		{	ZeroMemory(m_stDialogBoxExchangeInfo[i].cStr1, sizeof(m_stDialogBoxExchangeInfo[i].cStr1));
-			ZeroMemory(m_stDialogBoxExchangeInfo[i].cStr2, sizeof(m_stDialogBoxExchangeInfo[i].cStr2));
-			m_stDialogBoxExchangeInfo[i].sV1 = -1;
-			m_stDialogBoxExchangeInfo[i].sV2 = -1;
-			m_stDialogBoxExchangeInfo[i].sV3 = -1;
-			m_stDialogBoxExchangeInfo[i].sV4 = -1;
-			m_stDialogBoxExchangeInfo[i].sV5 = -1;
-			m_stDialogBoxExchangeInfo[i].sV6 = -1;
-			m_stDialogBoxExchangeInfo[i].sV7 = -1;
-			m_stDialogBoxExchangeInfo[i].dwV1 = 0;
-			if (m_bIsItemDisabled[m_stDialogBoxExchangeInfo[i].sItemID] == true)
-				m_bIsItemDisabled[m_stDialogBoxExchangeInfo[i].sItemID] = false;
-		}
-		break;
-
-
-	case 31:
-		for (i = 0; i < MAXSELLLIST; i++)
-		{	if (m_stSellItemList[i].iIndex != -1) m_bIsItemDisabled[m_stSellItemList[i].iIndex] = false;
-			m_stSellItemList[i].iIndex = -1;
-			m_stSellItemList[i].iAmount = 0;
-		}
-		break;
-
-	case 34:
-		if(m_dialogBoxes[34].sV1 != -1)
-		m_bIsItemDisabled[m_dialogBoxes[34].sV1] = false;
-		break;
-
-	case 40:
-		m_bIsItemDisabled[m_dialogBoxes[40].sV1] = false;
-		m_bIsItemDisabled[m_dialogBoxes[40].sV2] = false;
-		m_bIsItemDisabled[m_dialogBoxes[40].sV3] = false;
-		m_bIsItemDisabled[m_dialogBoxes[40].sV4] = false;
-
-		ZeroMemory(m_dialogBoxes[40].cStr, sizeof(m_dialogBoxes[40].cStr));
-		ZeroMemory(m_dialogBoxes[40].cStr2, sizeof(m_dialogBoxes[40].cStr2));
-		ZeroMemory(m_dialogBoxes[40].cStr3, sizeof(m_dialogBoxes[40].cStr3));
-		ZeroMemory(m_dialogBoxes[40].cStr4, sizeof(m_dialogBoxes[40].cStr4));
-		m_dialogBoxes[40].sV1   = -1;
-		m_dialogBoxes[40].sV2   = -1;
-		m_dialogBoxes[40].sV3   = -1;
-		m_dialogBoxes[40].sV4   = -1;
-		m_dialogBoxes[40].sV5   = -1;
-		m_dialogBoxes[40].sV6   = -1;
-		m_dialogBoxes[40].dwV1   = 0;
-		m_dialogBoxes[40].dwV2   = 0;
-		break;
-
-	case 42:
-		m_luStat[STAT_STR] = 0;
-		m_luStat[STAT_VIT] = 0;
-		m_luStat[STAT_DEX] = 0;
-		m_luStat[STAT_INT] = 0;
-		m_luStat[STAT_MAG] = 0;
-		m_luStat[STAT_CHR] = 0;
-		// Stats System xRisenx
-		/*for (int i=0; i<TOTALLEVELUPPOINT; i++) {
-			m_cStatChange[i] = 0;
-		}
-		break;*/
-	//GuildBank
-	case 56:
-		if (m_dialogBoxes[56].GetMode() < 0) return;
-		break;
-
-	case DIALOG_GUILD:
-		m_dialogBoxes[iBoxID].SetMode(0);
-		if (m_dialogBoxes[iBoxID].GetMode() == 10) {
-			EndInputString();
-		}
-		break;
-		
-	case DIALOG_GUILDCONTRIBUTE:
-		if (m_dialogBoxes[iBoxID].GetMode() == 1) {
-			EndInputString();
-		}
-		break;
-
-	case DIALOG_MAILBOX:
-		if (m_dialogBoxes[iBoxID].GetMode() == 1) {
-			EndInputString();
-		}
-		break;
- 	}
 
 	m_bIsDialogEnabled[iBoxID] = false;
 
@@ -10884,7 +10204,6 @@ void CGame::DrawChatMsgs(short sX, short sY, short dX, short dY)
 			break;
 		}
 	}
-	//DIRECTX m_DDraw._ReleaseBackBufferDC();
 }
 
 void CGame::_LoadTextDlgContents(int cType)
@@ -11031,72 +10350,6 @@ void CGame::AddMapStatusInfo(char * pData, bool bIsLastData)
 	}
 }
 
-bool CGame::GetText(HWND hWnd,UINT msg,WPARAM wparam, LPARAM lparam)
-{
-	int len;
-	HIMC hIMC=0;
-
-	if (m_pInputBuffer == 0) return false;
-	switch (msg)
-	{
-		/*case WM_IME_COMPOSITION:
-			ZeroMemory(m_cEdit, sizeof(m_cEdit));
-			if (lparam & GCS_RESULTSTR)
-			{
-				hIMC = ImmGetContext(hWnd);
-				len = ImmGetCompositionString(hIMC, GCS_RESULTSTR, NULL, 0);
-				if( len > 4 ) len = 4;
-				ImmGetCompositionString(hIMC, GCS_RESULTSTR, m_cEdit, len);
-				ImmReleaseContext(hWnd, hIMC);
-				len = strlen(m_pInputBuffer) + strlen(m_cEdit);
-				if (len < m_inputMaxLen) strcpy(m_pInputBuffer+strlen(m_pInputBuffer),m_cEdit);
-				ZeroMemory(m_cEdit, sizeof(m_cEdit));
-			}
-			else if (lparam & GCS_COMPSTR)
-			{
-				hIMC = ImmGetContext(hWnd);
-				len = ImmGetCompositionString(hIMC, GCS_COMPSTR, NULL, 0);
-				if( len > 4 ) len = 4;
-				ImmGetCompositionString(hIMC, GCS_COMPSTR, m_cEdit, len);
-				ImmReleaseContext(hWnd, hIMC);
-				len = strlen(m_pInputBuffer) + strlen(m_cEdit);
-				if (len >= m_inputMaxLen) ZeroMemory(m_cEdit, sizeof(m_cEdit));
-			}
-			return TRUE;*/
-
-		case WM_CHAR:
-			if(wparam == 8)
-			{
-				if(strlen(m_pInputBuffer) > 0)
-				{
-					len = strlen(m_pInputBuffer);
-
-					switch (GetCharKind(m_pInputBuffer, len-1))
-					{
-					case 1:
-						m_pInputBuffer[len-1] = 0;
-						break;
-					case 2:
-					case 3:
-						m_pInputBuffer[len-2]  = 0;
-						m_pInputBuffer[len-1]  = 0;
-						break;
-					}
-					ZeroMemory(m_cEdit, sizeof(m_cEdit));
-				}
-			}
-			else if ((wparam != 9) && (wparam != 13) && (wparam != 27)) {
-				len = strlen(m_pInputBuffer);
-				if (len >= m_inputMaxLen-1) return false;
-				m_pInputBuffer[len] = wparam & 0xff;
-				m_pInputBuffer[len+1] = 0;
-			}
-
-			return true;
-	}
-	return false;
-}
-
 int CGame::GetCharKind(char *str, int index)
 {	int kind=1;
     do
@@ -11110,107 +10363,6 @@ int CGame::GetCharKind(char *str, int index)
     }
 	while(index>=0);
     return kind;
-}
-
-void CGame::ShowReceivedString(bool bIsHide)
-{
-	ZeroMemory(G_cTxt2, sizeof(G_cTxt2));
-
-#ifdef USING_WIN_IME
-	if( G_hEditWnd != 0 ) GetWindowText(G_hEditWnd, m_pInputBuffer, (int)m_inputMaxLen);
-	strcpy(G_cTxt2, m_pInputBuffer);
-#else
-	strcpy(G_cTxt2, m_pInputBuffer);
-	if( (m_cEdit[0] != 0) && ( strlen(m_pInputBuffer)+strlen(m_cEdit)+1 <= m_inputMaxLen ) )
-	{
-		strcpy(G_cTxt2 + strlen(m_pInputBuffer), m_cEdit);
-	}
-#endif
-	if (bIsHide == true)
-	{
-		for (unsigned char i = 0; i < strlen(G_cTxt2); i++)
-			if (G_cTxt2[i] != 0) G_cTxt2[i] = '*';
-	}
-
-	if( (G_dwGlobalTime%400) < 210 ) 
-		G_cTxt2[strlen(G_cTxt2)] = '_';
-
-	if(m_iInputX2 == 0)
-	{
-		PutString(m_iInputX+1, m_iInputY+1, G_cTxt2,Color(255,0,0,0));
-		PutString(m_iInputX, m_iInputY+1, G_cTxt2,Color(255,0,0,0));
-		PutString(m_iInputX+1, m_iInputY, G_cTxt2,Color(255,0,0,0));
-		PutString(m_iInputX, m_iInputY, G_cTxt2,Color(255,255,255,255));
-	} else {
-		PutAlignedString(m_iInputX+1, m_iInputX2+1, m_iInputY+1, G_cTxt2,Color(255,0,0,0));
-		PutAlignedString(m_iInputX, m_iInputX2, m_iInputY+1, G_cTxt2,Color(255,0,0,0));
-		PutAlignedString(m_iInputX+1, m_iInputX2+1, m_iInputY, G_cTxt2,Color(255,0,0,0));
-		PutAlignedString(m_iInputX, m_iInputX2, m_iInputY, G_cTxt2,Color(255,255,255,255));
-	}
-}
-
-void CGame::ClearInputString()
-{
-	if (m_pInputBuffer != 0)	ZeroMemory(m_pInputBuffer, sizeof(m_pInputBuffer));
-	ZeroMemory(m_cEdit, sizeof(m_cEdit));
-#ifdef USING_WIN_IME
-	if (G_hEditWnd != 0)	SetWindowText(G_hEditWnd, "");
-#endif
-}
-
-void CGame::StartInputString(int left, int top, uint32_t len, char * pBuffer, bool bIsHide, int right)
-{
-	m_bInputStatus = true;
-	m_iInputX = left;
-	m_iInputY = top;
-	m_iInputX2 = right;
-	m_pInputBuffer = pBuffer;
-	ZeroMemory(m_cEdit, sizeof(m_cEdit));
-	m_inputMaxLen = len;
-#ifdef USING_WIN_IME
-	if (bIsHide == false) G_hEditWnd = CreateWindow( RICHEDIT_CLASS, 0, WS_POPUP | ES_SELFIME, sX-5 , sY -1, len*12, 16, G_hWnd, (HMENU)0, G_hInstance, 0);
-	else G_hEditWnd = CreateWindow( RICHEDIT_CLASS, 0, WS_POPUP | ES_PASSWORD | ES_SELFIME, sX-5 , sY -1, len*12, 16, G_hWnd, (HMENU)0, G_hInstance, 0);
-	SetWindowText(G_hEditWnd, m_pInputBuffer);
-	SendMessage(G_hEditWnd, EM_EXLIMITTEXT, 0, len-1 );
-	SendMessage(G_hEditWnd, EM_SETLANGOPTIONS, 0, ~IMF_AUTOFONT);
-	COMPOSITIONFORM composform;
-	composform.dwStyle = CFS_POINT;
-	composform.ptCurrentPos.x = sX;
-	composform.ptCurrentPos.y = sY;
-	HIMC hImc = ImmGetContext(G_hWnd);
-	ImmSetCompositionWindow( hImc, &composform );
-	int StrLen = strlen( m_pInputBuffer );
-	SendMessage(G_hEditWnd, EM_SETSEL, StrLen, StrLen);
-#endif
-}
-
-void CGame::EndInputString()
-{	m_bInputStatus = false;
-#ifdef USING_WIN_IME
-	if (G_hEditWnd != 0)
-	{	GetWindowText(G_hEditWnd, m_pInputBuffer, (int)m_inputMaxLen);
-		CANDIDATEFORM candiform;
-		SendMessage(G_hEditWnd, WM_IME_CONTROL, IMC_GETCANDIDATEPOS, (LPARAM)&candiform);
-		DestroyWindow(G_hEditWnd);
-		G_hEditWnd = 0;
-	}
-#else
-	int len = strlen(m_cEdit);
-	if (len > 0)
-	{	m_cEdit[len] = 0;
-		strcpy(m_pInputBuffer+strlen(m_pInputBuffer),m_cEdit);
-		ZeroMemory( m_cEdit, sizeof(m_cEdit) );
-	}
-#endif
-}
-
-void CGame::ReceiveString(char *pString)
-{
-	strcpy(pString, m_pInputBuffer);
-
-#ifdef USING_WIN_IME
-	if (G_hEditWnd != 0) GetWindowText(G_hEditWnd, pString, (int)m_inputMaxLen);
-#endif
 }
 
 void CGame::SetCameraShakingEffect(short sDist, int iMul)
@@ -14186,7 +13338,6 @@ void CGame::UpdateScreen_OnLogin()
         clipmousegame = false;
         window.setMouseCursorGrabbed(true);
         window.setMouseCursorVisible(false);
-        EndInputString();
 		m_stMCursor.sCursorFrame = 0;
 
 		if (_socket)
@@ -14201,1012 +13352,6 @@ void CGame::UpdateScreen_OnLogin()
 
 	m_cGameModeCount++;
 	if (m_cGameModeCount > 100) m_cGameModeCount = 100;
-	
-	/*
-	if (m_bEnterPressed == true)
-	{
-		m_bEnterPressed = false;
-		PlaySound('E', 14, 5);
-
-		switch (m_cCurFocus) {
-		case 1:
-			m_cCurFocus++;
-			if( m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
-			break;
-		case 2:
-		case 3:
-// 			if(CheckCheating()) {
-// 				MessageBoxA(*(HWND*)m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modification.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
-// 				exit(1600);
-// 			}
-			if ((strlen(cName) == 0) || (strlen(cPassword) == 0)) break;
-			ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
-			ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
-			ChangeGameMode(GAMEMODE_ONCONNECTING);
-			m_dwConnectMode = MSGID_REQUEST_LOGIN;
-			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "11");
-			delete pMI;
-			if (_socket == nullptr)
-			{
-				boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
-				new_connection_->socket().async_connect(endpoint,
-					boost::bind(&CGame::handle_connect, this,
-					boost::asio::placeholders::error));
-			}
-			else
-			{
-				ConnectionEstablishHandler(SERVERTYPE_LOG);
-			}
-			return;
-		case 4:	// Exit
-// #ifdef SELECTSERVER
-// 			ChangeGameMode(GAMEMODE_ONSELECTSERVER);
-// #else
-// 			ChangeGameMode(GAMEMODE_ONMAINMENU);
-// #endif
-// 			
-// 			delete pMI;
-// 			ChangeGameMode(GAMEMODE_ONQUIT);
-			return;
-		case 5: //Create Account Button
-			return;
-		case 6: // Forums Button
-			return;
-		case 7: // Website Button
-			return;
-		}
-	}
-
-	iMIbuttonNum = pMI->iGetStatus(msX, msY, cLB, &cMIresult);
-	if (cMIresult == MIRESULT_CLICK)
-	{
-		PlaySound('E', 14, 5);
-		switch (iMIbuttonNum) {
-		case 1:
-			m_cCurFocus = 1;
-			break;
-
-		case 2:
-			m_cCurFocus = 2;
-			break;
-
-		case 3:
-// 			if(CheckCheating()) {
-// 				MessageBoxA(*(HWND*)m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modification.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
-// 				exit(1600);
-// 			}
-			if ((strlen(cName) == 0) || (strlen(cPassword) == 0)) break;
-			EndInputString();
-			ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
-			ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-			strcpy(m_cAccountName, cName);
-			strcpy(m_cAccountPassword, cPassword);
-			ChangeGameMode(GAMEMODE_ONCONNECTING);
-			m_dwConnectMode = MSGID_REQUEST_LOGIN;
-			ZeroMemory(m_cMsg, sizeof(m_cMsg));
-			strcpy(m_cMsg, "11");
-			delete pMI;
-			if (_socket == nullptr)
-			{
-				boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
-				new_connection_->socket().async_connect(endpoint,
-					boost::bind(&CGame::handle_connect, this,
-					boost::asio::placeholders::error));
-			}
-			else
-			{
-				ConnectionEstablishHandler(SERVERTYPE_LOG);
-			}
-			return;
-
-		case 4: // Exit button
-/ *#ifdef SELECTSERVER
-			ChangeGameMode(GAMEMODE_ONSELECTSERVER); // ONMAINMENU
-#else
-			ChangeGameMode(GAMEMODE_ONMAINMENU);
-#endif* /
-			delete pMI;
-			ChangeGameMode(GAMEMODE_ONQUIT);
-			return;
-		case 5:	// Create Account Button
-		#ifdef MAKE_ACCOUNT
-			ClearContents_OnSelectCharacter();
-			delete pMI;
-			//ChangeGameMode(GAMEMODE_ONAGREEMENT);
-			ChangeGameMode(GAMEMODE_ONCREATENEWACCOUNT);
-		#else
-			GoHomepage();
-		#endif
-			return;
-		case 6:	// Forums Button
-			GoHomepage(false);
-			return;
-		case 7: // Website Button
-			GoHomepage(true);
-			return;
-		case 8:	// Check Button
-			if(b_cRemember == true)
-			{
-				b_cRemember = false;
-				WriteUsername(cName, true);
-				return;
-			} else {
-				b_cRemember = true;
-				if(sizeof(cName) > 0)
-				{
-					WriteUsername(cName, false);
-				}
-				return;
-			}
-			return;
-		}
-	}*/
-
-}
-
-void CGame::OnSysKeyDown(WPARAM wParam)
-{
-	switch( wParam )
-	{
-	case VK_SHIFT:
-		m_bShiftPressed = true;
-		break;
-	case VK_CONTROL:
-		m_bCtrlPressed = true;
-		break;
-	case VK_RETURN:
-		if (m_altPressed)
-		{
-/*
-			for (int i = 0; i < MAXSPRITES; ++i)
-			{
-				delete m_pSprite[i];
-				m_pSprite[i] = 0;
-			}
-			for (int i = 0; i < MAXTILES; ++i)
-			{
-				delete m_pTileSpr[i];
-				m_pTileSpr[i] = 0;
-			}
-			
-			for (int i = 0; i < MAXEFFECTSPR; ++i)
-			{
-				delete m_pEffectSpr[i];
-				m_pEffectSpr[i] = 0;
-			}
-
-			//fullscreen swap?
-			driver->endScene();
-			device->closeDevice();
-			if (fullscreen)
-			{
-				this->screenwidth = 800;
-				this->screenheight = 600;
-			}
-			else
-			{
-				this->screenwidth = 1920;
-				this->screenheight = 1080;
-			}
-			oldmode = m_cGameMode;
-			CreateRenderer(!fullscreen);
-			m_hWnd = G_hWnd;
-			//m_cGameMode = GAMEMODE_ONLOADING;
-			ChangeGameMode(GAMEMODE_ONLOADING);
-			fullscreenswap = true;
-			driver->beginScene();
-
-			m_pSprite[SPRID_INTERFACE_ND_LOADING] = CSprite::CreateSprite("New-Dialog", 0, false);
-			m_pSprite[SPRID_INTERFACE_ADDINTERFACE] = CSprite::CreateSprite("interface2", 0, false);
-			m_pSprite[SPRID_INTERFACE_CRAFTING] = CSprite::CreateSprite("interface2", 3, false);
-			m_pSprite[SPRID_INTERFACE_SPRFONTS2] = CSprite::CreateSprite("interface2", 1, false);
-			m_pSprite[SPRID_INTERFACE_F1HELPWINDOWS] = CSprite::CreateSprite("interface2", 2, false);
-			m_pSprite[SPRID_INTERFACE_FONT1] = CSprite::CreateSprite("sprfonts", 0, false);
-			m_pSprite[SPRID_INTERFACE_FONT2] = CSprite::CreateSprite("sprfonts", 1, false);
-
-			m_cLoading = 0;*/
-		}
-		m_bEnterPressed = true;
-		break;
-	case VK_MENU:
-		m_altPressed = true;
-		break;
-	case VK_F10:
-		if(!m_bIsDialogEnabled[57] && m_iGuildRank != GUILDRANK_NONE)
-			EnableDialogBox(57, 0, 0, 0);
-		else
-			DisableDialogBox(57);
-		break;
-	}
-}
-
-void CGame::OnSysKeyUp(WPARAM wParam)
-{
-	switch( wParam )
-	{
-	case VK_SHIFT:
-		m_bShiftPressed = false;
-		break;
-	case VK_CONTROL:
-		m_bCtrlPressed = false;
-		break;
-	case VK_RETURN:
-		m_bEnterPressed = false;
-		if( m_bToggleScreen == true )
-		{
-			m_bIsRedrawPDBGS = true;
-			////DIRECTX m_DDraw.ChangeDisplayMode(G_hWnd);
-		}
-		break;
-	case VK_ESCAPE:
-		m_bEscPressed = false;
-	case VK_MENU:
-		m_altPressed = false;
-		break;
-
-	}
-}
-
-void CGame::OnKeyUp(uint32_t wParam)
-{
- int i=0;
- uint64_t dwTime = unixtime();
- static uint64_t dwPrevTabTime = 0;
-
-	switch (wParam) {
-	case VK_ADD:
-		foregroundfpstarget++;
-		backgroundfpstarget++;
-		break;
-	case VK_SUBTRACT:
-		foregroundfpstarget--;
-		backgroundfpstarget--;
-		break;
-	case VK_MENU:
-		m_altPressed = false;
-		break;
-	case VK_SHIFT:
-	case 160://temporary (irrlicht shift code)
-		m_bShiftPressed = false;
-		break;
-	case VK_CONTROL:
-	case 162://temporary
-		m_bCtrlPressed = false;
-		break;
-
-	case 65://'A'
-		if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{	if( m_bForceAttack )
-			{	m_bForceAttack = false;
-				AddEventList( MSG_FORCEATTACK_OFF, 10 );
-			}else
-			{	m_bForceAttack = true;
-				AddEventList( MSG_FORCEATTACK_ON, 10 );
-		}	}
-		break;
-
-	case 67://'C' // Crit Command / CTRL + C xRisenx
-		if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{
-			bSendCommand(MSGID_REQUEST_CRITICALS, 0, 0, 0, 0, 0, 0, 0);
-		}
-		break;
-
-	case 68://'D'
-		if (m_bCtrlPressed == true && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{
-            m_cDetailLevel++;
-			if( m_cDetailLevel > 2 ) m_cDetailLevel = 0;
-			switch( m_cDetailLevel )
-            {
-			case 0:
-				AddEventList( NOTIFY_MSG_DETAIL_LEVEL_LOW, 10 );
-				break;
-			case 1:
-				AddEventList( NOTIFY_MSG_DETAIL_LEVEL_MEDIUM, 10 );
-				break;
-			case 2:
-				AddEventList( NOTIFY_MSG_DETAIL_LEVEL_HIGH, 10 );
-				break;
-		    }
-        }
-		break;
-
-	case 70: //'F'
-		if( m_bCtrlPressed )
-		{
-            LoadFriendList();
-			UpdateFriendsStatus();
-            EnableDialogBox(43, 0, 0, 0);
-        }
-        break;
-
-	case 72: // 'H' // Snoopy: Mimics VK_F1
-		if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{
-            if (m_bIsDialogEnabled[35] == false)
-				EnableDialogBox(35, 0, 0, 0);
-			else
-			{
-                DisableDialogBox(35);
-				DisableDialogBox(18);
-		    }
-        }
-		break;
-
-	case 87: // 'W' // Snoopy: mimics VK_F11 Togles transparency
-		if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{
-            m_bDialogTrans = !m_bDialogTrans;
-		}
-		break;
-
-	case 88: // 'X' // Snoopy: mimics VK_F12 Logout Window
-		if (m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{
-            if (m_bIsDialogEnabled[19] == false)
-				EnableDialogBox(19, 0, 0, 0);
-			else DisableDialogBox(19);
-		}
-		break;
-
-	case 77://'M'
-		if( m_cGameMode == GAMEMODE_ONMAINGAME )
-		{
-            if( m_bCtrlPressed )
-			{
-                if( m_bIsDialogEnabled[9] == true ) DisableDialogBox(9);
-				else EnableDialogBox(9, 0, 0, 0, 0);
-		    }
-        }
-		break;
-
-	case 78://'N'
-		if(m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && !m_bInputStatus ) {	
-			if( m_targetNeutral ) {	
-				m_targetNeutral = false;
-				AddEventList( MSG_TARGETNEUTRAL_OFF, 10 );
-			} else {	
-				m_targetNeutral = true;
-				AddEventList( MSG_TARGETNEUTRAL_ON, 10 );
-			}
-		}
-		break;
-
-	case 80://'P'
-		if( ( m_bCtrlPressed == true ) && ( m_cGameMode == GAMEMODE_ONMAINGAME ) && (!m_bInputStatus) )
-		{
-			if( _tmp_sOwnerType < 7 && (strlen(_tmp_cName)>0) && (m_iIlusionOwnerH==0)
-				&& (strcmp(m_cMCName, m_cPlayerName) != 0) && m_cMCName[0] != '_')
-            {
-                m_dialogBoxes[32].SetMode(3);
-                PlaySound('E', 14, 5);
-                ZeroMemory(m_dialogBoxes[32].cStr, sizeof(m_dialogBoxes[32].cStr));
-                strcpy(m_dialogBoxes[32].cStr, _tmp_cName);
-                bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQUEST_JOINPARTY, 0, 1, 0, 0, _tmp_cName);
-			}
-			else {
-				m_dialogBoxes[32].SetMode(0);
-				PlaySound('E', 14, 5);
-
-				AddEventList(POINT_COMMAND_HANDLER1, 10);
-			}
-		}
-		break;
-
-	case 82://'R'
-		if (m_bCtrlPressed == true && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{
-            if( m_bRunningMode )
-			{
-            m_bRunningMode = false;
-				AddEventList( NOTIFY_MSG_CONVERT_WALKING_MODE, 10 );
-			}
-            else
-			{
-            m_bRunningMode = true;
-				AddEventList( NOTIFY_MSG_CONVERT_RUNNING_MODE, 10 );
-		    }
-        }
-		break;
-
-	case 83://'S'
-		if (m_bCtrlPressed == true && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{
-			if (m_bMusicStat == true) // Music Off
-			{
-				m_bMusicStat = false;
-				if (m_bSoundFlag)
-				{
-					m_pBGM.stop();
-				}
-				AddEventList( NOTIFY_MSG_MUSIC_OFF, 10 );
-				break;
-			}
-			else if( m_bSoundStat == true )
-			{
-				m_pESound[38].stop();
-				m_bSoundStat = false;
-				AddEventList( NOTIFY_MSG_SOUND_OFF, 10 );
-				break;
-			}
-            else 	// Music On
-			{
-				if( m_bSoundFlag )
-				{
-					m_bMusicStat = true;
-					AddEventList( NOTIFY_MSG_MUSIC_ON, 10 );
-				}
-				if( m_bSoundFlag )
-				{
-					m_bSoundStat = true;
-					AddEventList( NOTIFY_MSG_SOUND_ON, 10 );
-				}
-				StartBGM();
-			}
-		}
-		break;
-
-	case 84: //'T'
-		if(m_bCtrlPressed && m_cGameMode == GAMEMODE_ONMAINGAME && (!m_bInputStatus) )
-		{	
-			char tempid[100];
-			uint8_t onButton = m_dialogBoxes[DIALOG_CHAT].OnButton();
-
-			ZeroMemory( tempid, sizeof( tempid ) );
-
-			if( m_bIsDialogEnabled[10] == true && onButton >= 10 &&  onButton <= 17)
-			{
-				CStrTok *pStrTok;
-				char   * token, cBuff[128];
-				char   seps[] = "]: ";
-
-				int i = abs(onButton - 17);
-				if( i + m_dialogBoxes[10].sView >= m_chatDisplay->size() ) return;
-				CMsg * msg = *(m_chatDisplay->rbegin() + m_dialogBoxes[10].sView + i);
-
-				if(msg->m_pMsg[0] == ' ' ) i++;
-				strcpy(cBuff, msg->m_pMsg);
-
-				pStrTok = new CStrTok(cBuff, seps);
-				token = pStrTok->pGet();
-				if(cBuff[0] == '[') // Time stamped msg
-				{
-					token = pStrTok->pGet();
-					token = pStrTok->pGet();
-					token = pStrTok->pGet();
-				}
-				if(token != 0){
-					wsprintfA( tempid, "/to %s", token );
-					bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, tempid);
-				}
-				delete pStrTok;
-			}
-            else if( _tmp_sOwnerType < 7 && (strlen(_tmp_cName)>0) && (m_iIlusionOwnerH==0)
-						&& ((m_bIsCrusadeMode == false) || _iGetFOE(_tmp_iStatus) >= 0))
-			{
-                wsprintfA( tempid, "/to %s", _tmp_cName );
-				bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, tempid);
-			}
-            else
-			{
-                EndInputString();
-				wsprintfA( m_cChatMsg, "/to " );
-				//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
-				StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
-		    }
-        }
-		break;
-// 	case 107: //'+'
-// 		if(m_bInputStatus == FALSE) m_bZoomMap = TRUE;
-// 		break;
-// 	case 109: //'-'
-// 		if(m_bInputStatus == FALSE) m_bZoomMap = FALSE;
-// 		break;
-
-	case VK_F2:
-		UseShortCut( 1 );
-		break;
-
-	case VK_F3:
-		UseShortCut( 2 );
-		break;
-
-	case VK_INSERT:
-		if (m_iHP <= 0) return;
-		if (m_bItemUsingStatus == true)
-		{
-            AddEventList(USE_RED_POTION1, 10);
-			return;
-		}
-		if (m_bIsDialogEnabled[27] == true)
-		{
-            AddEventList(USE_RED_POTION2, 10);
-			return;
-		}
-		for (i = 0; i < MAXITEMS; i++)
-		if ( (m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
-			 (m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 1))
-		{
-            bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
-			m_bIsItemDisabled[i] = true;
-			m_bItemUsingStatus = true;
-			return;
-		}
-
-		for (i = 0; i < MAXITEMS; i++)
-		if ( (m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
-			 (m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 2))
-		{
-            bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
-			m_bIsItemDisabled[i] = true;
-			m_bItemUsingStatus = true;
-			return;
-		}
-		break;
-
-	case VK_DELETE:
-		if (m_iHP <= 0) return;
-		if (m_bItemUsingStatus == true)
-		{
-            AddEventList(USE_BLUE_POTION1, 10);
-			return;
-		}
-		if (m_bIsDialogEnabled[27] == true)
-		{
-            AddEventList(USE_BLUE_POTION2, 10);
-			return;
-		}
-
-		for (i = 0; i < MAXITEMS; i++)
-		if ( (m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
-			 (m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 3))
-		{
-            bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
-			m_bIsItemDisabled[i] = true;
-			m_bItemUsingStatus = true;
-			return;
-		}
-
-		for (i = 0; i < MAXITEMS; i++)
-		if ( (m_pItemList[i] != 0) && (m_bIsItemDisabled[i] != true) &&
-			 (m_pItemList[i]->m_sSprite == 6) && (m_pItemList[i]->m_sSpriteFrame == 4))
-		{
-            bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQ_USEITEM, 0, i, 0, 0, 0);
-			m_bIsItemDisabled[i] = true;
-			m_bItemUsingStatus = true;
-			return;
-		}
-		break;
-
-	case VK_END:
-		if(!(m_bIsDialogEnabled[7] && m_dialogBoxes[7].GetMode() == 1 && iGetTopDialogBoxIndex() == 7) &&
-			!(m_bIsDialogEnabled[17] && m_dialogBoxes[17].GetMode() == 1 && iGetTopDialogBoxIndex() == 17) &&
-			!(m_bIsDialogEnabled[58] && m_dialogBoxes[58].GetMode() == 1 && iGetTopDialogBoxIndex() == 58) &&
-			!(m_bIsDialogEnabled[62] && m_dialogBoxes[62].GetMode() == 1 && iGetTopDialogBoxIndex() == 62) &&
-			!m_bInputStatus && m_cBackupChatMsg[0] != '!' && m_cBackupChatMsg[0] != '~' &&
-			m_cBackupChatMsg[0] != '^' && m_cBackupChatMsg[0] != '@')
-		{
-			ZeroMemory(m_cChatMsg, sizeof(m_cChatMsg));
-			strcpy(m_cChatMsg, m_cBackupChatMsg);
-			//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
-			StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
-		}
-		break;
-
-	case VK_F4:
-		if(m_cGameMode != GAMEMODE_ONMAINGAME) return;
-		UseMagic(m_sMagicShortCut);
-		break;
-
-	case VK_F5:
-		if (m_bIsDialogEnabled[1] == false)
-			EnableDialogBox(1, 0, 0, 0);
-		else DisableDialogBox(1);
-		break;
-
-	case VK_F6:
-		if (m_bIsDialogEnabled[2] == false)
-			EnableDialogBox(2, 0, 0, 0);
-		else DisableDialogBox(2);
-		break;
-
-	case VK_F7:
-		if (m_bIsDialogEnabled[3] == false)
-			EnableDialogBox(3, 0, 0, 0);
-		else DisableDialogBox(3);
-		break;
-//#ifdef TitleClient
-	/*case VK_F8:
-		if (m_bIsDialogEnabled[63] == FALSE)
-			EnableDialogBox(63, NULL, NULL, NULL);
-		else DisableDialogBox(63);
-		break;*/
-//#else
-		case VK_F8:
-		if (m_bIsDialogEnabled[15] == false)
-			EnableDialogBox(15, 0, 0, 0);
-		else DisableDialogBox(15);
-		break;
-//#endif
-	case VK_F9:
-		if (m_bIsDialogEnabled[10] == false)
-			EnableDialogBox(10, 0, 0, 0);
-		else DisableDialogBox(10);
-		break;
-
-	case VK_F11:
-		m_bDialogTrans = !m_bDialogTrans;
-		break;
-
-	case VK_F12:
-		if(m_bInputStatus) return;
-		if (m_bIsDialogEnabled[19] == false)
-			EnableDialogBox(19, 0, 0, 0);
-		else DisableDialogBox(19);
-		CreateScreenShot();
-		break;
-
-	case VK_F1:
-		if (m_bInputStatus) return;
-		if (m_bIsDialogEnabled[35] == false) // 35 CLEROTH
-			EnableDialogBox(35, 0, 0, 0);
-		else
-		{	DisableDialogBox(35);
-			DisableDialogBox(18);
-		}
-		break;
-
-	case VK_UP:
-		m_cArrowPressed	= 1;
-		if( m_cGameMode == GAMEMODE_ONMAINGAME )
-		{	int iTotalMsg=0;
-			for( int i=MAXWHISPERMSG-1 ; i>=0 ; i-- )
-			{	if( m_pWhisperMsg[i] != 0 )
-				{	iTotalMsg = i;
-					break;
-			}	}
-			m_cWhisperIndex ++;
-			if( m_cWhisperIndex > iTotalMsg ) m_cWhisperIndex = 0;
-			if( m_cWhisperIndex < 0 ) m_cWhisperIndex = iTotalMsg;
-			if( m_pWhisperMsg[m_cWhisperIndex] != 0 ) {
-			EndInputString();
-			wsprintfA( m_cChatMsg, "/to %s", m_pWhisperMsg[m_cWhisperIndex]->m_pMsg );
-			//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
-			StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
-		}	}
-		break;
-
-	case VK_RIGHT:
-		m_cArrowPressed	= 2;
-		break;
-
-	case VK_DOWN:
-		m_cArrowPressed	= 3;
-		if( m_cGameMode == GAMEMODE_ONMAINGAME )
-		{	int iTotalMsg=0;
-			for( int i=MAXWHISPERMSG-1 ; i>=0 ; i-- )
-			{	if( m_pWhisperMsg[i] != 0 )
-				{	iTotalMsg = i;
-					break;
-			}	}
-			m_cWhisperIndex --;
-			if( m_cWhisperIndex < 0 ) m_cWhisperIndex = iTotalMsg;
-			if( m_cWhisperIndex > iTotalMsg ) m_cWhisperIndex = 0;
-			if( m_pWhisperMsg[m_cWhisperIndex] != 0 ) {
-			EndInputString();
-			wsprintfA( m_cChatMsg, "/to %s", m_pWhisperMsg[m_cWhisperIndex]->m_pMsg );
-			//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
-			StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
-		}	}
-		break;
-
-	case VK_LEFT:
-		m_cArrowPressed	= 4;
-		break;
-
-	case VK_SNAPSHOT:
-		CreateScreenShot();
-		break;
-
-#ifndef USING_WIN_IME
-	case VK_TAB:
-		if( m_bShiftPressed )
-		{	m_cCurFocus--;
-			if( m_cCurFocus < 1 ) m_cCurFocus = m_cMaxFocus;
-		}else
-		{	m_cCurFocus++;
-			if( m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
-		}
-		if ((dwTime - dwPrevTabTime) > 500 && m_cGameMode == GAMEMODE_ONMAINGAME)
-		{
-			dwPrevTabTime = dwTime;
-			bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_TOGGLECOMBATMODE, 0, 0, 0, 0, 0);
-		}
-		break;
-
-	case VK_RETURN:
-		m_bEnterPressed = true;
-		//if (m_altPressed)
-			//change screen mode
-		break;
-#endif
-
-	case VK_HOME:
-		if (m_cGameMode == GAMEMODE_ONMAINGAME) {
-			bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_TOGGLESAFEATTACKMODE, 0, 0, 0, 0, 0);
-		}
-		break;
-
-	case VK_ESCAPE:
-		m_bEscPressed = true;
-		if (m_cGameMode == GAMEMODE_ONMAINGAME)
-		{
-			if ((m_bIsObserverMode == true) && (m_bShiftPressed))
-			{ //ObserverMode Shift+Esc
-				// Log Out
-				if (m_cLogOutCount == -1) m_cLogOutCount = 1;
-				DisableDialogBox(19);
-				PlaySound('E', 14, 5);
-			}
-			else if(m_cLogOutCount != -1)
-			{
-				if (m_bForceDisconn == false)
-				{ //Esc
-					m_cLogOutCount = -1;
-					AddEventList(DLGBOX_CLICK_SYSMENU2, 10);
-				}
-			}
-			if (m_bIsGetPointingMode == true)
-			{
-				m_bIsGetPointingMode = false;
-				AddEventList(COMMAND_PROCESSOR1, 10);
-			}
-			m_bIsF1HelpWindowEnabled = false;
-		}
-		break;
-
-	case 33:
-		if (m_cGameMode != GAMEMODE_ONMAINGAME) return;
-		if (m_bInputStatus) return;
-		if (m_bIsSpecialAbilityEnabled == true)
-		{	if (m_iSpecialAbilityType != 0) {
-				bSendCommand(MSGID_COMMAND_COMMON, COMMONTYPE_REQUEST_ACTIVATESPECABLTY, 0, 0, 0, 0, 0);
-				m_bIsSpecialAbilityEnabled = false;
-			}
-			else AddEventList(ON_KEY_UP26, 10);
-		}
-		else {
-			if (m_iSpecialAbilityType == 0) AddEventList(ON_KEY_UP26, 10);
-			else {
-				if ((m_sPlayerAppr4 & 0x00F0) != 0) {
-					AddEventList(ON_KEY_UP28, 10);
-					return;
-				}
-
-				i = (dwTime - m_dwSpecialAbilitySettingTime)/1000;
-				i = m_iSpecialAbilityTimeLeftSec - i;
-				if (i < 0) i = 0;
-
-				ZeroMemory(G_cTxt, sizeof(G_cTxt));
-				if (i < 60) {
-					switch (m_iSpecialAbilityType) {
-					case 1: wsprintfA(G_cTxt, ON_KEY_UP29, i); break;//"
-					case 2: wsprintfA(G_cTxt, ON_KEY_UP30, i); break;//"
-					case 3: wsprintfA(G_cTxt, ON_KEY_UP31, i); break;//"
-					case 4: wsprintfA(G_cTxt, ON_KEY_UP32, i); break;//"
-					case 5: wsprintfA(G_cTxt, ON_KEY_UP33, i); break;//"
-					case 50:wsprintfA(G_cTxt, ON_KEY_UP34, i); break;//"
-					case 51:wsprintfA(G_cTxt, ON_KEY_UP35, i); break;//"
-					case 52:wsprintfA(G_cTxt, ON_KEY_UP36, i); break;//"
-					}
-				}
-				else {
-					switch (m_iSpecialAbilityType) {
-					case 1: wsprintfA(G_cTxt, ON_KEY_UP37, i/60); break;//"
-					case 2: wsprintfA(G_cTxt, ON_KEY_UP38, i/60); break;//"
-					case 3: wsprintfA(G_cTxt, ON_KEY_UP39, i/60); break;//"
-					case 4: wsprintfA(G_cTxt, ON_KEY_UP40, i/60); break;//"
-					case 5: wsprintfA(G_cTxt, ON_KEY_UP41, i/60); break;//"
-					case 50:wsprintfA(G_cTxt, ON_KEY_UP42, i/60); break;//"
-					case 51:wsprintfA(G_cTxt, ON_KEY_UP43, i/60); break;//"
-					case 52:wsprintfA(G_cTxt, ON_KEY_UP44, i/60); break;//"
-					}
-				}
-				AddEventList(G_cTxt, 10);
-			}
-		}
-		break;
-	}
-}
-
-void CGame::OnKeyDown(uint32_t wParam)
-{
-    if (m_bShiftPressed)
-    {
-        switch (wParam)
-        {
-            case 39:
-                viewdstxvar--;
-                m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
-                m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-                break;
-            case 40:
-                viewdstyvar--;
-                m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
-                m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-                break;
-            case 37:
-                viewdstxvar++;
-                m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
-                m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-                break;
-            case 38:
-                viewdstyvar++;
-                m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
-                m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-                break;
-        }
-        return;
-    }
-    if (m_bCtrlPressed)
-    {
-        switch (wParam)
-        {
-            case 39:
-                viewdstxcharvar--;
-                break;
-            case 40:
-                viewdstycharvar--;
-                break;
-            case 37:
-                viewdstxcharvar++;
-                break;
-            case 38:
-                viewdstycharvar++;
-                break;
-        }
-        return;
-    }
-	switch (wParam)
-    {
-        case VK_F3:
-        {
-            StartLogin();
-            ChangeGameMode(GAMEMODE_ONCONNECTING);
-            m_dwConnectMode = MSGID_REQUEST_LOGIN;
-            break;
-        }
-//         case 39://right arrow
-//             m_pMapData->m_sPivotX += 1;
-//             break;
-//         case 40://down arrow
-//             m_pMapData->m_sPivotY += 1;
-//             break;
-//         case 37://left arrow
-//             m_pMapData->m_sPivotX -= 1;
-//             break;
-//         case 38://up arrow
-//             m_pMapData->m_sPivotY -= 1;
-//             break;
-        case 39:
-            viewdstxvar--;
-            m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
-            m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-            break;
-        case 40:
-            viewdstyvar--;
-            m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
-            m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-            break;
-        case 37:
-            viewdstxvar++;
-            m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
-            m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-            break;
-        case 38:
-            viewdstyvar++;
-            m_sViewDstX = (m_sPlayerX - viewdstxvar) * 32;
-            m_sViewDstY = (m_sPlayerY - viewdstyvar) * 32;
-            break;
-        case VK_CONTROL:
-	    case 162://temporary
-		    m_bCtrlPressed = true;
-		    break;
-	    case VK_SHIFT:
-	    case 160://temporary (irrlicht shift code)
-		    m_bShiftPressed = true;
-		    break;
-	    case VK_INSERT:
-	    case VK_DELETE:
-		    break;
-	    case VK_TAB:
-		    break;
-	    case VK_RETURN:
-	    case VK_ESCAPE:
-	    case VK_END:
-	    case VK_HOME:
-		    break;
-	    case VK_F1:
-		    break;
-	    case VK_F2:
-	    //case VK_F3:
-	    case VK_F4:
-	    case VK_F5:
-	    case VK_F6:
-	    case VK_F7:
-	    case VK_F8:
-	    case VK_F9:
-	    case VK_F10:
-	    case VK_F11:
-	    case VK_F12:
-	    case VK_PRIOR: // Page-Up
-	    case VK_NEXT: // Page-Down
-	    case VK_LWIN:
-	    case VK_RWIN:
-	    case VK_MULTIPLY:
-	    case VK_ADD: //'+'
-	    case VK_SEPARATOR:
-	    case VK_SUBTRACT: //'-'
-	    case VK_DECIMAL:
-	    case VK_DIVIDE:
-	    case VK_NUMLOCK:
-	    case VK_SCROLL:
-		    break;
-
-	    default:
-		    if (m_cGameMode == GAMEMODE_ONMAINGAME)
-		    {	if (m_bCtrlPressed)
-			    {	switch (wParam) {
-				    case 48: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 9; break; // 0
-				    case 49: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 0; break; // 1
-				    case 50: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 1; break; // 2
-				    case 51: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 2; break; // 3
-				    case 52: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 3; break; // 4
-				    case 53: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 4; break; // 5
-				    case 54: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 5; break; // 6
-				    case 55: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 6; break; // 7
-				    case 56: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 7; break; // 8
-				    case 57: EnableDialogBox(3, 0, 0, 0); m_dialogBoxes[3].sView = 8; break; // 9
-				    }
-			    }else if ((m_bInputStatus == false) && (GetAsyncKeyState(VK_MENU)>>15 == false))
-			    {	//StartInputString(10, 414, sizeof(m_cChatMsg), m_cChatMsg);
-				    StartInputString(10, 530, sizeof(m_cChatMsg), m_cChatMsg); // 800x600 Resolution xRisenx 534 is right / 530 fits?
-				    ClearInputString();
-			    }
-		    }
-		    break;
-	}
-// 	if (m_pInputBuffer == NULL) return;
-// 	if(wParam == 8)
-// 	{
-// 		if(strlen(m_pInputBuffer) > 0)
-// 		{
-// 			int len = strlen(m_pInputBuffer);
-// 
-// 			switch (GetCharKind(m_pInputBuffer, len-1))
-// 			{
-// 			case 1:
-// 				m_pInputBuffer[len-1] = NULL;
-// 				break;
-// 			case 2:
-// 			case 3:
-// 				m_pInputBuffer[len-2]  = NULL;
-// 				m_pInputBuffer[len-1]  = NULL;
-// 				break;
-// 			}
-// 			ZeroMemory(m_cEdit, sizeof(m_cEdit));
-// 		}
-// 	}
-// 	else if ((wParam != 9) && (wParam != 13) && (wParam != 27)) {
-// 		int len = strlen(m_pInputBuffer);
-// 		if (len >= m_inputMaxLen-1) return;
-// 		m_pInputBuffer[len] = wParam & 0xff;
-// 		m_pInputBuffer[len+1] = 0;
-// 	}
 }
 
 void CGame::NotifyMsgHandler(char * pData)
@@ -20318,21 +18463,20 @@ void CGame::CommandProcessor(short msX, short msY, short indexX, short indexY, c
 				}
 				if ((m_stMCursor.cSelectedObjectType == SELECTEDOBJTYPE_DLGBOX) &&
 					(m_stMCursor.sSelectedObjectID == 7) && (m_dialogBoxes[7].GetMode() == 1))
-				{	EndInputString();
+				{
 					m_dialogBoxes[7].SetMode(3);
 				}
 				// Query Drop Item Amount
 				if ((m_stMCursor.cSelectedObjectType == SELECTEDOBJTYPE_DLGBOX) &&
 					(m_stMCursor.sSelectedObjectID == 17) && (m_dialogBoxes[17].GetMode() == 1))
 					// Guild Menu
-				{	EndInputString();
+				{
 					m_dialogBoxes[17].SetMode(20);
 				}
 				// guild contribute amount
 				if(m_stMCursor.cSelectedObjectType == SELECTEDOBJTYPE_DLGBOX &&
 					m_stMCursor.sSelectedObjectID == 58 && m_dialogBoxes[58].GetMode() == 1)
 				{
-					EndInputString();
 					m_dialogBoxes[58].SetMode(20);
 				}
 				return;
@@ -20347,7 +18491,8 @@ void CGame::CommandProcessor(short msX, short msY, short indexX, short indexY, c
 			if ((m_pMapData->bIsTeleportLoc(m_sPlayerX, m_sPlayerY) == true) && (m_cCommandCount == 0)) goto CP_SKIPMOUSEBUTTONSTATUS;
 			
 			if (m_stMCursor.cSelectedObjectType == SELECTEDOBJTYPE_DLGBOX)
-			{	m_dialogBoxes[m_stMCursor.sSelectedObjectID].m_X = msX - m_stMCursor.sDistX;
+			{
+                m_dialogBoxes[m_stMCursor.sSelectedObjectID].m_X = msX - m_stMCursor.sDistX;
 				m_dialogBoxes[m_stMCursor.sSelectedObjectID].m_Y = msY - m_stMCursor.sDistY;
 			}
 			m_stMCursor.sPrevX = msX;
@@ -20361,18 +18506,18 @@ void CGame::CommandProcessor(short msX, short msY, short indexX, short indexY, c
 			case SELECTEDOBJTYPE_DLGBOX:
 				if ((m_stMCursor.cSelectedObjectType == SELECTEDOBJTYPE_DLGBOX) &&
 					(m_stMCursor.sSelectedObjectID == 7) && (m_dialogBoxes[7].GetMode() == 20))
-				{	sX = m_dialogBoxes[7].m_X;
+				{
+                    sX = m_dialogBoxes[7].m_X;
 					sY = m_dialogBoxes[7].m_Y;
-					StartInputString(sX + 75, sY + 140, 21, m_cGuildName);
 					m_dialogBoxes[7].SetMode(1);
 				}
 
 				if ((m_stMCursor.cSelectedObjectType == SELECTEDOBJTYPE_DLGBOX) &&
 					(m_stMCursor.sSelectedObjectID == 17) && (m_dialogBoxes[17].GetMode() == 20))
-				{	// Query Drop Item Amount
+				{
+                    // Query Drop Item Amount
 					sX = m_dialogBoxes[17].m_X;
 					sY = m_dialogBoxes[17].m_Y;
-					StartInputString(sX + 40, sY + 57, 11, m_cAmountString);
 					m_dialogBoxes[17].SetMode(1);
 				}
 
@@ -20382,7 +18527,6 @@ void CGame::CommandProcessor(short msX, short msY, short indexX, short indexY, c
 				{
 					sX = m_dialogBoxes[58].m_X;
 					sY = m_dialogBoxes[58].m_Y;
-					StartInputString(sX + 40, sY + 57, 11, m_cAmountString);
 					m_dialogBoxes[58].SetMode(1);
 				}
 
@@ -24345,7 +22489,7 @@ void CGame::ShowEventList(uint64_t dwTime)
 			PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, Color(255,225,225,225), false, 1);
 			break;
 		case 1:
-			PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, Color(255,130,255, 130), false, 1);
+			PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, Color(130,255,130,255), false, 1);
 			break;
 		case 2:
             PutString(10, 10 + i*15, m_stEventHistory[i].cTxt, Color(255,130,130,255), false, 1);
@@ -24379,25 +22523,25 @@ void CGame::ShowEventList(uint64_t dwTime)
 	{
 		switch (m_stEventHistory2[i].cColor) {
 		case 0:
-			PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, Color(255,225,225,225), false, 1);
+			PutString(10, GetHeight()-165 + i*15, m_stEventHistory2[i].cTxt, Color(255,225,225,225), false, 1);
 			break;
 		case 1:
-            PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, Color(130,255,130,255), false, 1);
+            PutString(10, GetHeight() - 165 + i*15, m_stEventHistory2[i].cTxt, Color(130,255,130,255), false, 1);
 			break;
 		case 2:
-            PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, Color(255,130,130,255), false, 1);
+            PutString(10, GetHeight() - 165 + i*15, m_stEventHistory2[i].cTxt, Color(255,130,130,255), false, 1);
 			break;
 		case 3:
-            PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, Color(130,130,255,255), false, 1);
+            PutString(10, GetHeight() - 165 + i*15, m_stEventHistory2[i].cTxt, Color(130,130,255,255), false, 1);
 			break;
 		case 4:
-            PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, Color(230, 230, 130,255), false, 1);
+            PutString(10, GetHeight() - 165 + i*15, m_stEventHistory2[i].cTxt, Color(230, 230, 130,255), false, 1);
 			break;
 		case 10:
-            PutString(10, 435 + i*15, m_stEventHistory2[i].cTxt, Color(180,255,180,255), false, 1);
+            PutString(10, GetHeight() - 165 + i*15, m_stEventHistory2[i].cTxt, Color(180,255,180,255), false, 1);
 			break;
 		case 20:
-            PutString(10, /*322*/435 + i*15, m_stEventHistory2[i].cTxt, Color(150,150,170,255), false, 1);
+            PutString(10, /*322*/GetHeight() - 165 + i*15, m_stEventHistory2[i].cTxt, Color(150,150,170,255), false, 1);
 			break;
 		//case 36: //besk: GM Helper chat (helper chatting in global)
 		//	PutString(10, 435 + i*15, m_stEventHistory[i].cTxt,video::SColor(255,255,153,0), FALSE, 1, TRUE);

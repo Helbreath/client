@@ -542,10 +542,6 @@ public:
 	void AddMapStatusInfo(char * pData, bool bIsLastData);
 	void _RequestMapStatus(char * pMapName, int iMode);
 	int  GetCharKind(char *str, int index);
-	void ReceiveString(char * pString);
-	void EndInputString();
-	void ClearInputString();
-	void ShowReceivedString(bool bIsHide = false);
 	bool GetText(HWND hWnd,UINT msg,WPARAM wparam, LPARAM lparam);
 	
 	bool bReadItemNameConfigFile();
@@ -654,7 +650,6 @@ public:
 
 	void ResponsePanningHandler(char * pData);
 	void UpdateScreen_OnSelectServer();
-	void StartInputString(int left, int top, uint32_t len, char * pBuffer, bool bIsHide = false, int right = 0);
 	void _SetIlusionEffect(int iOwnerH);
 	int _iGetFOE(int iStatus);
 	void NoticementHandler(char * pData);
@@ -1009,7 +1004,6 @@ public:
 		char TargetName[22];
 	} m_stQuestList[50];
 
-//	class YWSound m_DSound;
     sf::Sound m_pCSound[30];
     sf::Sound m_pMSound[160];
     sf::Sound m_pESound[55];
@@ -1018,15 +1012,11 @@ public:
     sf::SoundBuffer ESoundBuffer[55];
     sf::SoundBuffer bgmbuffer;
     sf::Sound m_pBGM;
-//	class DXC_ddraw  m_DDraw;
-//	class DXC_dinput m_DInput;
 	class CMisc      m_Misc;
 	class CSprite  * m_pSprite[MAXSPRITES];
 	class CSprite  * m_pTileSpr[MAXTILES];
 	class CSprite  * m_pEffectSpr[MAXEFFECTSPR];
 	class CMapData * m_pMapData;
-	//class XSocket * m_pGSock;
-	//class XSocket * m_pLSock;
 	class CMsg    * m_pChatMsgList[MAXCHATMSGS];
 
 	std::vector<CMsg*> * m_chatDisplay;
@@ -1053,8 +1043,6 @@ public:
 	//class CCharInfo * m_pCharList[10];
 	class CItemName * m_pItemNameList[MAXITEMNAMES];
 	class CCurse m_curse;
-
-	char * m_pInputBuffer;
 
     uint64_t G_dwGlobalTime;
     uint64_t m_dwCommandTime; //v2.15 SpeedHack
@@ -1115,7 +1103,6 @@ public:
 	uint64_t m_relicOwnedTime;
 	Side m_relicOwnedSide;
 	bool m_bIsSpecialAbilityEnabled;//was BOOL
-	bool m_bInputStatus;
 	bool m_bToggleScreen;
 	bool m_bIsSpecial;
 	Color m_itemColor;
@@ -1184,7 +1171,6 @@ public:
 
 	int m_iIlusionOwnerH;
 	int m_iApprColor_IE;
-	int m_iInputX, m_iInputY, m_iInputX2;
 	int m_iPDBGSdivX, m_iPDBGSdivY;			   // Pre-Draw Background Surface
 	short m_sRecentShortCut;
 	short m_sShortCut[6]; // Snoopy: 6 shortcuts
@@ -1241,7 +1227,6 @@ public:
 	uint16_t m_wR[16], m_wG[16], m_wB[16];
 	uint16_t m_wWR[16], m_wWG[16], m_wWB[16];
 #endif
-	uint32_t m_inputMaxLen;
 	char m_cEdit[4];
 	char G_cTxt[128];
 	char G_cTxt2[MAX_MAIL_MSG_LENGTH+1];
