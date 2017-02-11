@@ -223,6 +223,8 @@ public:
 	void DrawStatusText(int sX, int sY);
     void StartLogin();
     void OnEvent(sf::Event event);
+    void CalcViewPointOld();
+    bool calcoldviewport = true;
 
     bool autologin = false;
     bool autoresolution = false;
@@ -837,7 +839,7 @@ public:
 	bool SendLoginCommand(uint32_t dwMsgID); 
 	char cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMoveCheck = false, bool isMIM = false);
 	void CommandProcessor(short msX, short msY, short indexX, short indexY, char cLB, char cRB, char cMB);
-	void CalcViewPoint();
+	void CalcViewPoint(uint64_t dwTime);
 	void OnKeyDown(uint32_t wParam);
 	void Quit();
 	bool bInit(void * hWnd, void * hInst, char * pCmdLine);
@@ -1070,6 +1072,7 @@ public:
     uint64_t m_dwCommanderCommandRequestedTime;
     uint64_t m_dwTopMsgTime;
     uint64_t m_dwEnvEffectTime;
+    uint64_t viewporttime = 0;
 
 	//v2.2
     uint64_t m_dwMonsterEventTime;

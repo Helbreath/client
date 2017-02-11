@@ -1225,9 +1225,64 @@ void CGame::UpdateScreen()
 
     window.draw(sprite);
 }
-
-void CGame::CalcViewPoint()
+void CGame::CalcViewPointOld()
 {
+    short dX, dY;
+    dX = m_sViewPointX - m_sViewDstX;
+    dY = m_sViewPointY - m_sViewDstY;
+    if (abs(dX) < abs(m_sViewDX))
+    {
+        m_sViewPointX = m_sViewDstX;
+        m_sViewDX = 0;
+    }
+    else
+    {
+        if (dX > 0) m_sViewDX--;
+        if (dX < 0) m_sViewDX++;
+        if (dX == 0) m_sViewDX = 0;
+        if (abs(dX) < 40)
+        {
+            if (m_sViewDX > 4)  m_sViewDX = 4;
+            else if (m_sViewDX < -4) m_sViewDX = -4;
+        }
+        m_sViewPointX += m_sViewDX;
+    }
+
+    if (abs(dY) < abs(m_sViewDY))
+    {
+        m_sViewPointY = m_sViewDstY;
+        m_sViewDY = 0;
+    }
+    else
+    {
+        if (dY > 0) m_sViewDY--;
+        if (dY < 0) m_sViewDY++;
+        if (dY == 0) m_sViewDY = 0;
+        if (abs(dY) < 40)
+        {
+            if (m_sViewDY > 4)  m_sViewDY = 4;
+            else if (m_sViewDY < -4) m_sViewDY = -4;
+        }
+        m_sViewPointY += m_sViewDY;
+    }
+}
+void CGame::CalcViewPoint(uint64_t dwTime)
+{
+    //TODO: refine this, make sure it runs well on lesser hardware timers can be wonky vs how it used to be
+    if (m_bShiftPressed || m_bRunningMode)
+    {
+        if (dwTime - viewporttime < (8 / SPEEDHAX_RUN))
+            return;
+    }
+    else
+    {
+        if (dwTime - viewporttime < 18)
+            return;
+    }
+
+
+    viewporttime = dwTime;
+
 	short dX, dY;
 	dX = m_sViewPointX - m_sViewDstX;
 	dY = m_sViewPointY - m_sViewDstY;
@@ -1238,13 +1293,18 @@ void CGame::CalcViewPoint()
 	}
 	else
 	{
-		if (dX > 0) m_sViewDX--;
-		if (dX < 0) m_sViewDX++;
+		if (dX > 0) m_sViewDX = -1;
+		if (dX < 0) m_sViewDX = 1;
 		if (dX == 0) m_sViewDX = 0;
-		if (abs(dX) < 40) {
-			if (m_sViewDX > 4)  m_sViewDX = 4;
-			else if (m_sViewDX < -4) m_sViewDX = -4;
+		if (abs(dX) > 40) {
+			if (m_sViewDX > 0)  m_sViewDX = 2;
+			else if (m_sViewDX < 0) m_sViewDX = -2;
 		}
+        else if (abs(dX) > 40)
+        {
+            if (m_sViewDX > 0)  m_sViewDX = 4;
+            else if (m_sViewDX < 0) m_sViewDX = -4;
+        }
 		m_sViewPointX += m_sViewDX;
 	}
 
@@ -1255,13 +1315,18 @@ void CGame::CalcViewPoint()
 	}
 	else
 	{
-		if (dY > 0) m_sViewDY--;
-		if (dY < 0) m_sViewDY++;
+		if (dY > 0) m_sViewDY = -1;
+		if (dY < 0) m_sViewDY = 1;
 		if (dY == 0) m_sViewDY = 0;
-		if (abs(dY) < 40) {
-			if (m_sViewDY > 4)  m_sViewDY = 4;
-			else if (m_sViewDY < -4) m_sViewDY = -4;
+		if (abs(dY) > 40) {
+			if (m_sViewDY > 0)  m_sViewDY = 2;
+			else if (m_sViewDY < 0) m_sViewDY = -2;
 		}
+        else if (abs(dY) > 80)
+        {
+            if (m_sViewDY > 0)  m_sViewDY = 4;
+            else if (m_sViewDY < 0) m_sViewDY = -4;
+        }
 		m_sViewPointY += m_sViewDY;
 	}
 }

@@ -4689,15 +4689,21 @@ void CGame::UpdateScreen_OnGame()
 
     m_sViewPointX = sVPXsave;
     m_sViewPointY = sVPYsave;
-
-    if (iUpdateRet > 0) CalcViewPoint();
+     
+    if (calcoldviewport)
+    {
+        if (iUpdateRet > 0)
+            CalcViewPointOld();
+    }
+    else
+        CalcViewPoint(dwTime);
 
     if (m_bIsObserverMode)
     {
         if ((dwTime - m_dwObserverCamTime) > 25)
         {
             m_dwObserverCamTime = dwTime;
-            CalcViewPoint();
+            CalcViewPoint(dwTime);
             iUpdateRet = -1;
         }
     }
