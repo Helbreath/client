@@ -949,6 +949,7 @@ public:
     sf::SoundBuffer CSoundBuffer[30];
     sf::SoundBuffer MSoundBuffer[160];
     sf::SoundBuffer ESoundBuffer[55];
+    sf::SoundBuffer bgmbuffer;
     sf::Sound m_pBGM;
 //	class DXC_ddraw  m_DDraw;
 //	class DXC_dinput m_DInput;

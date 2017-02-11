@@ -87,7 +87,7 @@
     <OutDir>bin\bin\</OutDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>lib;..\irrlicht-1.8.4\lib\Win32-visualstudio;..\boost_1_63_0\stage\lib;$(AWE_DIR)build\lib;..\irrKlang-1.5.0\lib\Win32-visualStudio;$(LibraryPath)</LibraryPath>
+    <LibraryPath>lib;..\SFML-2.4.1-32\lib;..\boost_1_63_0\stage-32\lib;$(AWE_DIR)build\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
@@ -119,7 +119,7 @@
       <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Shared\;..\boost_1_63_0;G:\SFML-2.4.1\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Shared\;..\boost_1_63_0;..\SFML-2.4.1\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -216,7 +216,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SFML_STATIC;_WIN32_WINNT=0x0601;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -229,7 +229,7 @@
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WarningLevel>Level1</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalIncludeDirectories>..\irrKlang-1.5.0\include;Shared\;..\boost_1_63_0;..\irrlicht-1.8.4\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Shared\;..\boost_1_63_0;..\SFML-2.4.1\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MinimalRebuild>true</MinimalRebuild>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -250,7 +250,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>irrKlang.lib;libeay32.lib;ssleay32.lib;awesomium.lib;winmm.lib;libboost_chrono-vc140-mt-1_63.lib;libboost_date_time-vc140-mt-1_63.lib;libboost_regex-vc140-mt-1_63.lib;libboost_thread-vc140-mt-1_63.lib;libboost_filesystem-vc140-mt-1_63.lib;libboost_system-vc140-mt-1_63.lib;libboost_timer-vc140-mt-1_63.lib;Irrlicht.lib;netapi32.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;freetype.lib;jpeg.lib;ogg.lib;openal32.lib;sfml-audio-s.lib;sfml-graphics-s.lib;sfml-main.lib;sfml-system-s.lib;sfml-window-s.lib;libeay32.lib;ssleay32.lib;awesomium.lib;winmm.lib;libboost_chrono-vc140-mt-1_63.lib;libboost_date_time-vc140-mt-1_63.lib;libboost_regex-vc140-mt-1_63.lib;libboost_thread-vc140-mt-1_63.lib;libboost_filesystem-vc140-mt-1_63.lib;libboost_system-vc140-mt-1_63.lib;libboost_timer-vc140-mt-1_63.lib;netapi32.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EntryPointSymbol>

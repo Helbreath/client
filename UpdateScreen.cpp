@@ -3152,7 +3152,7 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
                 sprintf(G_cTxt, "Level: %d", _sLevel);
                 PutString(sX + 46 + 96, sY + 160 + 17, G_cTxt, Color(255, 255, 255)); //25,35,25);
 
-                sprintf(G_cTxt, "%d", selectedchar->m_iExp);
+                sprintf(G_cTxt, "%i64d", selectedchar->m_iExp);//TODO: won't be here for ui eventually
                 PutString(sX - 10 + 96, sY + 179 - 9 + 118 + 19 - 2, G_cTxt, Color(255, 255, 255)); //25,35,25);
             }
             iTemp2 = selectedchar->m_iYear * 1000000 + selectedchar->m_iMonth * 60000 + selectedchar->m_iDay * 1700 + selectedchar->m_iHour * 70 + selectedchar->m_iMinute;

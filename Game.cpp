@@ -1182,6 +1182,11 @@ void CGame::UpdateScreen()
     _text.setFillColor(Color(255, 255, 255, 255));
     window.draw(_text);
 
+    if (m_pBGM.Stopped || m_pBGM.getBuffer() == nullptr)
+    {
+        StartBGM();
+    }
+
     /*
 
     font[0]->draw("Arrow keys = Map Pivot Change - Shift = ViewDest Change - Control = Player Offset Change",
@@ -19867,6 +19872,8 @@ void CGame::StartBGM()
 	}
 
     m_pBGM.stop();
+    bgmbuffer.loadFromFile(cWavFileName);
+    m_pBGM.setBuffer(bgmbuffer);
 	int iVolume = (m_cMusicVolume - 100)*20;
 	if (iVolume > 0) iVolume = 0;
 	if (iVolume < -10000) iVolume = -10000; //iVolume == Volume
