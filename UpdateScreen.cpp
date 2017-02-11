@@ -122,10 +122,15 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
     //std::vector<int> framePositions;
     /*if( bActive )*/ UpdateScreen_OnLoading_Progress();
 
+	std::string progressLabel;
+	bool progressComplete = false;
+	int progress = 0;
+
     switch (m_cLoading)
     {
         case 0:
         {
+			progressLabel = "Loading interface";
             //m_hPakFile = CreateFileA("sprites\\interface.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
             if (m_hPakFile != INVALID_HANDLE_VALUE)
             {
@@ -216,11 +221,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("Telescope", SPRID_INTERFACE_GUIDEMAP, 34, false);	  // 32->34 xRisenx
             MakeSprite("Telescope2", SPRID_INTERFACE_GUIDEMAP + 35, 4, false); // Snoopy: Ajout.351 (heldenian maps)
             MakeSprite("monster", SPRID_INTERFACE_MONSTER, 1, false);
-            m_cLoading = 4;
+            m_cLoading = 2;
         }
         break;
-        case 4:
+        case 2:
         {
+			progressLabel = "Loading map data";
             MakeTileSpr("maptiles1", 0, 32, true);
             MakeTileSpr("structures1", 50, 20, true);
             MakeTileSpr("Sinside1", 70, 27, false);
@@ -230,11 +236,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeTileSpr("objects2", 211, 5, true);
             MakeTileSpr("objects3", 216, 4, true);
             MakeTileSpr("objects4", 220, 2, true); //snoopy: 1->2
-            m_cLoading = 8;
+            m_cLoading = 4;
         }
         break;
-        case 8:
+        case 4:
         {
+			progressLabel = "Loading map data.";
             MakeTileSpr("Tile223-225", 223, 3, true);
             MakeTileSpr("Tile226-229", 226, 4, true);
             MakeTileSpr("objects5", 230, 9, true);	// Snoopy
@@ -250,11 +257,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeTileSpr("Tile370-381", 370, 12, true);// Tile370~381
             MakeTileSpr("Tile382-387", 382, 6, true);
             MakeTileSpr("Tile388-402", 388, 15, true);
-            m_cLoading = 12;
+            m_cLoading = 6;
         }
         break;
-        case 12:
+        case 6:
         {
+			progressLabel = "Loading map data..";
             MakeTileSpr("Tile403-405", 403, 3, true);
             MakeTileSpr("Tile406-421", 406, 16, true);
             MakeTileSpr("Tile422-429", 422, 8, true);
@@ -296,11 +304,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
                                                                                                               //framePositions.clear();
             }
             MakeSprite("item-dynamic", SPRID_ITEMDYNAMIC_PIVOTPOINT, 3, false);
-            m_cLoading = 16;
+            m_cLoading = 8;
         }
         break;
-        case 16:
+        case 8:
         {
+			progressLabel = "Loading items";
             //m_hPakFile = CreateFileA("sprites\\itemequipM.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
             if (m_hPakFile != INVALID_HANDLE_VALUE)
             {
@@ -367,11 +376,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("Bm", 500 + 15 * 8 * 0, 96, true);// Black Man (Type: 1)
             MakeSprite("Wm", 500 + 15 * 8 * 1, 96, true);// White Man (Type: 2)
             MakeSprite("Ym", 500 + 15 * 8 * 2, 96, true);// Yellow Man (Type: 3)
-            m_cLoading = 20;
+            m_cLoading = 10;
         }
         break;
-        case 20:
+        case 10:
         {
+			progressLabel = "Loading player sprites";
             MakeSprite("TutelarAngel1", SPRID_TUTELARYANGELS_PIVOTPOINT + 50 * 0, 48, false);//(STR)
             MakeSprite("TutelarAngel2", SPRID_TUTELARYANGELS_PIVOTPOINT + 50 * 1, 48, false);//(DEX)
             MakeSprite("TutelarAngel3", SPRID_TUTELARYANGELS_PIVOTPOINT + 50 * 2, 48, false);//(INT)
@@ -379,11 +389,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("Bw", 500 + 15 * 8 * 3, 96, true);// Black Woman (Type: 4)
             MakeSprite("Ww", 500 + 15 * 8 * 4, 96, true);// White Woman (Type: 5)
             MakeSprite("Yw", 500 + 15 * 8 * 5, 96, true);// Yellow Woman (Type: 6)
-            m_cLoading = 24;
+            m_cLoading = 12;
         }
         break;
-        case 24:
+        case 12:
         {
+			progressLabel = "Loading NPC sprites";
             MakeSprite("slm", SPRID_MOB + 7 * 8 * 0, 40, true);// Slime (Type: 10)
             MakeSprite("ske", SPRID_MOB + 7 * 8 * 1, 40, true);// Skeleton (Type: 11)
             MakeSprite("Gol", SPRID_MOB + 7 * 8 * 2, 40, true);// Stone-Golem (Type: 12)
@@ -401,11 +412,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("Cla", SPRID_MOB + 7 * 8 * 13, 40, true);// Clay-Golem (Type: 23)
             MakeSprite("tom", SPRID_MOB + 7 * 8 * 14, 8, true);// Tom (Type: 24)
             MakeSprite("William", SPRID_MOB + 7 * 8 * 15, 8, true);// William (Type: 25)
-            m_cLoading = 28;
+            m_cLoading = 14;
         }
         break;
-        case 28:
+        case 14:
         {
+			progressLabel = "Loading NPC sprites.";
             MakeSprite("Kennedy", SPRID_MOB + 7 * 8 * 16, 8, true);// Kennedy (Type: 26)
             MakeSprite("Helb", SPRID_MOB + 7 * 8 * 17, 40, true);// Hellbound (Type: 27)
             MakeSprite("Troll", SPRID_MOB + 7 * 8 * 18, 40, true);// Troll (Type: 28)
@@ -428,11 +440,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
                 //CloseHandle(m_hPakFile);
                 //framePositions.clear();
             }
-            m_cLoading = 32;
+            m_cLoading = 16;
         }
         break;
-        case 32:
+        case 16:
         {
+			progressLabel = "Loading NPC sprites...";
             MakeSprite("GT-Arrow", SPRID_MOB + 7 * 8 * 26, 40, true);// Arrow-GuardTower (Type: 36)
             MakeSprite("GT-Cannon", SPRID_MOB + 7 * 8 * 27, 40, true);// Cannon-GuardTower (Type: 37)
             MakeSprite("ManaCollector", SPRID_MOB + 7 * 8 * 28, 40, true);// Mana Collector (Type: 38)
@@ -445,11 +458,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("GHKABS", SPRID_MOB + 7 * 8 * 35, 40, true);// God's Hand Knight with Armored Battle Steed (Type: 45)
             MakeSprite("TK", SPRID_MOB + 7 * 8 * 36, 40, true);// Temple Knight (Type: 46)
             MakeSprite("BG", SPRID_MOB + 7 * 8 * 37, 40, true);// Battle Golem (Type: 47)
-            m_cLoading = 36;
+            m_cLoading = 18;
         }
         break;
-        case 36:
+        case 18:
         {
+			progressLabel = "Loading NPC sprites";
             MakeSprite("Stalker", SPRID_MOB + 7 * 8 * 38, 40, true);// Stalker (Type: 48)
             MakeSprite("Hellclaw", SPRID_MOB + 7 * 8 * 39, 40, true);// Hellclaw (Type: 49)
             MakeSprite("Tigerworm", SPRID_MOB + 7 * 8 * 40, 40, true);// Tigerworm (Type: 50)
@@ -462,11 +476,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("Cat", SPRID_MOB + 7 * 8 * 46, 40, true);// Cat (Type: 56)
             MakeSprite("GiantFrog", SPRID_MOB + 7 * 8 * 47, 40, true);// GiantFrog (Type: 57)
             MakeSprite("MTGiant", SPRID_MOB + 7 * 8 * 48, 40, true);// Mountain Giant (Type: 58)
-            m_cLoading = 40;
+            m_cLoading = 20;
         }
         break;
-        case 40:
+        case 20:
         {
+			progressLabel = "Loading NPC sprites.";
             MakeSprite("Ettin", SPRID_MOB + 7 * 8 * 49, 40, true);// Ettin (Type: 59)
             MakeSprite("CanPlant", SPRID_MOB + 7 * 8 * 50, 40, true);// Cannibal Plant (Type: 60)
             MakeSprite("Rudolph", SPRID_MOB + 7 * 8 * 51, 40, true);// Rudolph (Type: 61)
@@ -495,8 +510,9 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             m_cLoading = 44;
         }
         break;
-        case 44:
+        case 22:
         {	// New NPCs - Diuuude - fixed by Snoopy
+			progressLabel = "Loading NPC sprites..";
             MakeSprite("GiantPlant", SPRID_MOB + 7 * 8 * 66, 40, true);// Giant-Plant (Type: 76)
             MakeSprite("MasterMageOrc", SPRID_MOB + 7 * 8 * 67, 40, true);// MasterMage-Orc (Type: 77)
             MakeSprite("Minotaurs", SPRID_MOB + 7 * 8 * 68, 40, true);// Minotaurs (Type: 78)
@@ -519,11 +535,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("EnragedStalker", SPRID_MOB + 7 * 8 * 114, 40, true);// Enraged Stalker (Type: 124)
             MakeSprite("EnragedHellclaw", SPRID_MOB + 7 * 8 * 116, 40, true);// Enraged Hellclaw (Type: 126)
             MakeSprite("EnragedTW", SPRID_MOB + 7 * 8 * 117, 40, true);// Enraged Tigerworm (Type: 127)
-            m_cLoading = 48;
+            m_cLoading = 24;
         }
         break;
-        case 48:
+        case 24:
         {
+			progressLabel = "Loading NPC sprites...";
             MakeSprite("Gail", SPRID_MOB + 7 * 8 * 80, 8, true); // Gail (Type: 90)
             MakeSprite("Gate", SPRID_MOB + 7 * 8 * 81, 24, true);// Heldenian Gate (Type: 91)/**/
             MakeSprite("Scarecrow", SPRID_MOB + 7 * 8 * 82, 40, true);
@@ -543,12 +560,13 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
                 //CloseHandle(m_hPakFile);
                 //framePositions.clear();
             }
-            m_cLoading = 52;
+            m_cLoading = 26;
         }
         break;
 
-        case 52:
+        case 26:
         {	//m_hPakFile = CreateFileA("sprites\\Mhr.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+			progressLabel = "Creating item sprites";
             if (m_hPakFile != INVALID_HANDLE_VALUE)
             {
                 //ReadFramePositions(m_hPakFile, framePositions, 96);
@@ -589,11 +607,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("AncHeroHauberkM", SPRID_BERK_M + 15 * 5, 12, true); // Black Ancient Hero Hauberk M
             MakeSprite("ALegHauberkM", SPRID_BERK_M + 15 * 6, 12, true); // Aresden Ancient Hero Hauberk M
             MakeSprite("ELegHauberkM", SPRID_BERK_M + 15 * 7, 12, true); // Elvine Ancient Hero Hauberk M
-            m_cLoading = 56;
+            m_cLoading = 28;
         }
         break;
-        case 56:
+        case 28:
         {
+			progressLabel = "Creating item sprites.";
             MakeSprite("MTrouser", SPRID_LEGG_M + 15 * 1, 12, true);
             MakeSprite("MHTrouser", SPRID_LEGG_M + 15 * 2, 12, true);
             MakeSprite("MCHoses", SPRID_LEGG_M + 15 * 3, 12, true);
@@ -625,11 +644,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
                 //CloseHandle(m_hPakFile);
                 //framePositions.clear();
             }
-            m_cLoading = 60;
+            m_cLoading = 30;
         }
         break;
-        case 60:
+        case 30:
         {
+			progressLabel = "Creating item sprites..";
             MakeSprite("Mswx", SPRID_WEAPON_M + 64 * 5, 56, true);
             MakeSprite("Msw2", SPRID_WEAPON_M + 64 * 13, 56, true);
             MakeSprite("Msw3", SPRID_WEAPON_M + 64 * 14, 56, true);
@@ -648,11 +668,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("Mhoe", SPRID_WEAPON_M + 64 * 27, 56, true);
             MakeSprite("MKlonessAxe", SPRID_WEAPON_M + 64 * 28, 56, true);
             MakeSprite("MLightBlade", SPRID_WEAPON_M + 64 * 29, 56, true);
-            m_cLoading = 64;
+            m_cLoading = 32;
         }
         break;
-        case 64:
+        case 32:
         {
+			progressLabel = "Creating item sprites...";
             MakeSprite("MHammer", SPRID_WEAPON_M + 64 * 30, 56, true);
             MakeSprite("MBHammer", SPRID_WEAPON_M + 64 * 31, 56, true);
             MakeSprite("MBabHammer", SPRID_WEAPON_M + 64 * 32, 56, true);
@@ -667,11 +688,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             // Bows 40 41 below
             MakeSprite("MDirectBow", SPRID_WEAPON_M + 64 * 43, 56, true);
             MakeSprite("MFireBow", SPRID_WEAPON_M + 64 * 44, 56, true);
-            m_cLoading = 68;
+            m_cLoading = 34;
         }
         break;
-        case 68:
+        case 34:
         {
+			progressLabel = "Creating item sprites";
             MakeSprite("Mbo", SPRID_WEAPON_M + 64 * 41, 56, true);
             //m_hPakFile = CreateFileA("sprites\\Mbo.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
             if (m_hPakFile != INVALID_HANDLE_VALUE)
@@ -697,11 +719,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
                 //CloseHandle(m_hPakFile);
                 //framePositions.clear();
             }
-            m_cLoading = 72;
+            m_cLoading = 36;
         }
         break;
-        case 72:
+        case 36:
         {
+			progressLabel = "Creating item sprites..";
             MakeSprite("Mmantle01", SPRID_MANTLE_M + 15 * 1, 12, true);
             MakeSprite("Mmantle02", SPRID_MANTLE_M + 15 * 2, 12, true);
             MakeSprite("Mmantle03", SPRID_MANTLE_M + 15 * 3, 12, true);
@@ -731,11 +754,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("ELegHelmM", SPRID_HEAD_M + 15 * 16, 12, true); // Elvine Ancient Helm M
             MakeSprite("ALegCapM", SPRID_HEAD_M + 15 * 17, 12, true); // Aresden Ancient Cap M
             MakeSprite("ELegCapM", SPRID_HEAD_M + 15 * 18, 12, true); // Elvine Ancient Cap M
-            m_cLoading = 76;
+            m_cLoading = 38;
         }
         break;
-        case 76:
+        case 38:
         {	//m_hPakFile = CreateFileA("sprites\\Wpt.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+			progressLabel = "Creating item sprites...";
             if (m_hPakFile != INVALID_HANDLE_VALUE)
             {
                 //ReadFramePositions(m_hPakFile, framePositions, 96);
@@ -766,11 +790,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
                 //CloseHandle(m_hPakFile);
                 //framePositions.clear();
             }
-            m_cLoading = 80;
+            m_cLoading = 40;
         }
         break;
-        case 80:
+        case 40:
         {
+			progressLabel = "Creating item sprites";
             MakeSprite("WBodice1", SPRID_BODYARMOR_W + 15 * 1, 12, true);
             MakeSprite("WBodice2", SPRID_BODYARMOR_W + 15 * 2, 12, true);
             MakeSprite("WLArmor", SPRID_BODYARMOR_W + 15 * 3, 12, true);
@@ -810,11 +835,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("ELegLeggingsW", SPRID_LEGG_W + 15 * 10, 12, true); // Elvine Ancient Leggings W
             MakeSprite("WShoes", SPRID_BOOT_W + 15 * 1, 12, true);
             MakeSprite("WLBoots", SPRID_BOOT_W + 15 * 2, 12, true);
-            m_cLoading = 84;
+            m_cLoading = 42;
         }
         break;
-        case 84:
+        case 42:
         {	//m_hPakFile = CreateFileA("sprites\\Wsw.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+			progressLabel = "Creating item sprites.";
             if (m_hPakFile != INVALID_HANDLE_VALUE)
             {
                 //ReadFramePositions(m_hPakFile, framePositions, 672);
@@ -840,11 +866,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("WKlonessBlade", SPRID_WEAPON_W + 64 * 17, 56, true);
             MakeSprite("WKlonessAstock", SPRID_WEAPON_W + 64 * 18, 56, true);
             MakeSprite("WDebastator", SPRID_WEAPON_W + 64 * 19, 56, true);
-            m_cLoading = 88;
+            m_cLoading = 44;
         }
         break;
-        case 88:
+        case 44:
         {
+			progressLabel = "Creating item sprites..";
             MakeSprite("WAxe1", SPRID_WEAPON_W + 64 * 20, 56, true);// Axe
             MakeSprite("WAxe2", SPRID_WEAPON_W + 64 * 21, 56, true);
             MakeSprite("WAxe3", SPRID_WEAPON_W + 64 * 22, 56, true);
@@ -869,11 +896,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             // bows 40 41 below
             MakeSprite("WDirectBow", SPRID_WEAPON_W + 64 * 43, 56, true);
             MakeSprite("WFireBow", SPRID_WEAPON_W + 64 * 44, 56, true);
-            m_cLoading = 92;
+            m_cLoading = 46;
         }
         break;
-        case 92:
+		case 46:
         {
+			progressLabel = "Creating item sprites...";
             MakeSprite("Wmantle01", SPRID_MANTLE_W + 15 * 1, 12, true);
             MakeSprite("Wmantle02", SPRID_MANTLE_W + 15 * 2, 12, true);
             MakeSprite("Wmantle03", SPRID_MANTLE_W + 15 * 3, 12, true);
@@ -900,11 +928,12 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("ELegHelmW", SPRID_HEAD_W + 15 * 16, 12, true); // Elvine Ancient Helm M
             MakeSprite("ALegCapW", SPRID_HEAD_W + 15 * 17, 12, true); // Aresden Ancient Cap M
             MakeSprite("ELegCapW", SPRID_HEAD_W + 15 * 18, 12, true); // Elvine Ancient Cap M
-            m_cLoading = 96;
+            m_cLoading = 48;
         }
         break;
-        case 96:
+        case 48:
         {
+			progressLabel = "Creating item sprites";
             MakeSprite("Wbo", SPRID_WEAPON_W + 64 * 41, 56, true);// Bow
                                                                    //m_hPakFile = CreateFileA("sprites\\Wbo.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
             if (m_hPakFile != INVALID_HANDLE_VALUE)
@@ -930,69 +959,102 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
                 //CloseHandle(m_hPakFile);
                 //framePositions.clear();
             }
-            m_cLoading = 100;
+            m_cLoading = 50;
         }
         break;
-        case 100:
-        {
-            MakeEffectSpr("effect", 0, 10, false);
-            MakeEffectSpr("effect2", 10, 3, false);
-            MakeEffectSpr("effect3", 13, 6, false);
-            MakeEffectSpr("effect4", 19, 5, false);
-            //m_hPakFile = CreateFileA("sprites\\effect5.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 8);
-                for (i = 0; i <= 6; i++)
-                    m_pEffectSpr[i + 24] = CSprite::CreateSprite("effect5", i + 1, false);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
-            MakeEffectSpr("CruEffect1", 31, 9, false);
-            MakeEffectSpr("effect6", 40, 5, false);
-            MakeEffectSpr("effect7", 45, 12, false);
-            MakeEffectSpr("effect8", 57, 9, false);
-            MakeEffectSpr("effect9", 66, 21, false);
+        case 50:
+		{
+			progressLabel = "Creating effects";
+			MakeEffectSpr("effect", 0, 10, false);
+			MakeEffectSpr("effect2", 10, 3, false);
+			MakeEffectSpr("effect3", 13, 6, false);
+			MakeEffectSpr("effect4", 19, 5, false);
+			//m_hPakFile = CreateFileA("sprites\\effect5.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+			if (m_hPakFile != INVALID_HANDLE_VALUE)
+			{
+				//ReadFramePositions(m_hPakFile, framePositions, 8);
+				for (i = 0; i <= 6; i++)
+					m_pEffectSpr[i + 24] = CSprite::CreateSprite("effect5", i + 1, false);
+				//CloseHandle(m_hPakFile);
+				//framePositions.clear();
+			}
+			MakeEffectSpr("CruEffect1", 31, 9, false);
+			MakeEffectSpr("effect6", 40, 5, false);
+			MakeEffectSpr("effect7", 45, 12, false);
+			MakeEffectSpr("effect8", 57, 9, false);
+			MakeEffectSpr("effect9", 66, 21, false);
 
-            MakeEffectSpr("effect10", 87, 2, false); // Effets Hero items
-            MakeEffectSpr("effect11", 89, 14, false); // Cancel, stormBlade, resu, GateHeldenian....etc
-                                                       //NB: Charge 15 du client 3.51, mais il n'y a que 14 ds le PAK
-            MakeEffectSpr("effect11s", 104, 1, false); // effet sort mais je ne sais pas lequel
-                                                        // Manque des effets ici .....
-                                                        // MakeEffectSpr( "effect13", 108, 2, FALSE); // not loaded by client 351 (Heldenian gates death)
-                                                        //MakeEffectSpr( "yseffect2", 141, 8, FALSE); // Wrong in 351 client...
-            MakeEffectSpr("yseffect2", 140, 8, false); // Abaddon's death
-            MakeEffectSpr("effect12", 148, 4, false); // Slates auras
-            MakeEffectSpr("yseffect3", 152, 16, false); // Fumerolles ou ame qui s'envole
-            MakeEffectSpr("yseffect4", 133, 7, false); // Abaddon's map thunder.
-            MakeEffectSpr("effects", 168, 1, false); // minimap ping
-                                                      //MakeLegionEffectSpr( "effects2", 169, 20); // New Magic Animations xRisenx
-
-            if (m_bSoundFlag) // Attention il y a un autre systeme de chargement ds la v351
-            {
-                for (i = 1; i <= 24; i++)
-                {
-                    sprintf(G_cTxt, "data\\sounds\\C%d.wav", i);
-                    CSoundBuffer[i].loadFromFile(G_cTxt);
-                    m_pCSound[i].setBuffer(CSoundBuffer[i]);
-                }
-
-                for (i = 1; i <= 156; i++)
-                {
-                    sprintf(G_cTxt, "data\\sounds\\M%d.wav", i);
-                    MSoundBuffer[i].loadFromFile(G_cTxt);
-                    m_pMSound[i].setBuffer(MSoundBuffer[i]);
-                }
-                for (i = 1; i <= 54; i++)
-                {
-                    sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
-                    ESoundBuffer[i].loadFromFile(G_cTxt);
-                    m_pESound[i].setBuffer(ESoundBuffer[i]);
-                }
-            }
+			MakeEffectSpr("effect10", 87, 2, false); // Effets Hero items
+			MakeEffectSpr("effect11", 89, 14, false); // Cancel, stormBlade, resu, GateHeldenian....etc
+													   //NB: Charge 15 du client 3.51, mais il n'y a que 14 ds le PAK
+			MakeEffectSpr("effect11s", 104, 1, false); // effet sort mais je ne sais pas lequel
+														// Manque des effets ici .....
+														// MakeEffectSpr( "effect13", 108, 2, FALSE); // not loaded by client 351 (Heldenian gates death)
+														//MakeEffectSpr( "yseffect2", 141, 8, FALSE); // Wrong in 351 client...
+			MakeEffectSpr("yseffect2", 140, 8, false); // Abaddon's death
+			MakeEffectSpr("effect12", 148, 4, false); // Slates auras
+			MakeEffectSpr("yseffect3", 152, 16, false); // Fumerolles ou ame qui s'envole
+			MakeEffectSpr("yseffect4", 133, 7, false); // Abaddon's map thunder.
+			MakeEffectSpr("effects", 168, 1, false); // minimap ping
+													  //MakeLegionEffectSpr( "effects2", 169, 20); // New Magic Animations xRisenx
+			m_cLoading = 52;
+		}
+		break;
+		case 52: 
+		{
+			progressLabel = "Loading sounds";
+			if (m_bSoundFlag)
+			{
+				for (i = 1; i <= 24; i++)
+				{
+					sprintf(G_cTxt, "data\\sounds\\C%d.wav", i);
+					CSoundBuffer[i].loadFromFile(G_cTxt);
+					m_pCSound[i].setBuffer(CSoundBuffer[i]);
+					progress = m_cLoading + (int)(i / 2);
+				}
+			}
+			m_cLoading = 60;
+		}
+		break;
+		case 60:
+		{
+			progressLabel = "Loading sounds.";
+			if (m_bSoundFlag)
+			{
+				for (i = 1; i <= 156; i++)
+				{
+					sprintf(G_cTxt, "data\\sounds\\M%d.wav", i);
+					MSoundBuffer[i].loadFromFile(G_cTxt);
+					m_pMSound[i].setBuffer(MSoundBuffer[i]);
+					progress = m_cLoading + (int)(i / 5);
+				}
+			}
+			m_cLoading = 90;
+		}
+		break;
+		case 90:
+		{
+			progressLabel = "Loading sounds..";
+			if (m_bSoundFlag)
+			{
+				for (i = 1; i <= 54; i++)
+				{
+					sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
+					ESoundBuffer[i].loadFromFile(G_cTxt);
+					m_pESound[i].setBuffer(ESoundBuffer[i]);
+					progress = m_cLoading + (int)(i / 5);
+				}
+			}
+			m_cLoading = 100;
+		}
+		break;
+		case 100:
+		{
+			progressLabel = "Finalizing";
             isItemLoaded = false;
             //ChangeGameMode(GAMEMODE_ONMAINMENU);
 
+			// Let the UI know we're done loading
             if (autologin)
             {
                 ChangeGameMode(GAMEMODE_ONCONNECTING);
@@ -1020,6 +1082,14 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
         }
         break;
     }
+
+	// Update the UI with the loading progress
+	JSObject obj;
+	progress = !progress ? m_cLoading : progress;
+	obj.SetProperty(WSLit("progress"), JSValue(progress));
+	obj.SetProperty(WSLit("progressLabel"), WSLit(progressLabel.c_str()));
+	obj.SetProperty(WSLit("complete"), JSValue(m_cLoading == 100 ? true : false));
+	htmlUI->EmitObject("progressUpdate", obj, true);
 
     //TODO: hardware cursors
     /*cursors = device->getGUIEnvironment()->addEmptySpriteBank("cursor");

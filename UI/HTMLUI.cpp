@@ -17,6 +17,8 @@ HTMLUI::HTMLUI(class CGame * pGame)
 
 	jsNamespace = view->CreateGlobalJavascriptObject(WSLit("client"));
 	jsData = jsNamespace.ToObject();
+	jsData.SetProperty(WSLit("loading"), JSValue(true));
+	jsData.SetProperty(WSLit("loadingPct"), JSValue(0.0f));
     jsData.SetCustomMethod(WSLit("log"), false);
     jsData.SetCustomMethod(WSLit("login"), false);
     jsData.SetCustomMethod(WSLit("selectCharacter"), false);
@@ -35,9 +37,89 @@ HTMLUI::HTMLUI(class CGame * pGame)
     mHandler->htmlUI = this;
 }
 
-
-HTMLUI::~HTMLUI()
+void HTMLUI::MouseMove(int x, int y)
 {
+	view->InjectMouseMove(x, y);
+}
+
+bool HTMLUI::CaptureEvent(sf::Event event)
+{
+	view->Focus();
+	jsData.SetProperty(WSLit("eventCaptured"), JSValue(false));
+	if (event.type == sf::Event::MouseButtonReleased || event.type == sf::Event::MouseButtonPressed) {
+		Awesomium::MouseButton button;
+		switch (event.mouseButton.button) {
+		case sf::Mouse::Button::Left:
+		default:
+			button = Awesomium::MouseButton::kMouseButton_Left;
+			break;
+
+		case sf::Mouse::Button::Right:
+			button = Awesomium::MouseButton::kMouseButton_Right;
+			break;
+
+		case sf::Mouse::Button::Middle:
+			button = Awesomium::MouseButton::kMouseButton_Middle;
+			break;
+		}
+
+		if (event.type == sf::Event::MouseButtonPressed) {
+			view->Focus();
+			view->InjectMouseDown(button);
+		}
+		else {
+			view->InjectMouseUp(button);
+		}
+	}
+	else if (event.type == sf::Event::TextEntered) {
+		Awesomium::WebKeyboardEvent keyEvent = Awesomium::WebKeyboardEvent();
+		keyEvent.type = Awesomium::WebKeyboardEvent::kTypeChar;
+		keyEvent.virtual_key_code = this->keyMap.find(event.key.code) != this->keyMap.end() ? this->keyMap.at(event.key.code) : event.key.code;
+		keyEvent.text[0] = static_cast<char>(event.text.unicode);
+
+		keyEvent.modifiers = 0;
+		if (event.key.control) {
+			keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModControlKey;
+		}
+		else if (event.key.shift) {
+			keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModShiftKey;
+		}
+		else if (event.key.alt) {
+			keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModAltKey;
+		}
+
+		view->InjectKeyboardEvent(keyEvent);
+	}
+	else {
+		Awesomium::WebKeyboardEvent keyEvent = Awesomium::WebKeyboardEvent();
+		keyEvent.type = (event.type == sf::Event::KeyPressed) ? Awesomium::WebKeyboardEvent::kTypeKeyDown : Awesomium::WebKeyboardEvent::kTypeKeyUp;
+		// keyEvent.native_key_code = event.key.code
+		if (this->keyMap.find(event.key.code) != this->keyMap.end()) {
+			keyEvent.virtual_key_code = this->keyMap.at(event.key.code);
+		}
+		else {
+			keyEvent.virtual_key_code = event.key.code;
+		}
+
+		char *buf = new char[20];
+		Awesomium::GetKeyIdentifierFromVirtualKeyCode(keyEvent.virtual_key_code, &buf);
+		strcpy_s(keyEvent.key_identifier, buf);
+		delete[] buf;
+
+		keyEvent.modifiers = 0;
+		if (event.key.control) {
+			keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModControlKey;
+		}
+		else if (event.key.shift) {
+			keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModShiftKey;
+		} 
+		else if (event.key.alt) {
+			keyEvent.modifiers |= Awesomium::WebKeyboardEvent::kModAltKey;
+		}
+
+		view->InjectKeyboardEvent(keyEvent);
+	}
+	return jsData.GetProperty(WSLit("eventCaptured")).ToBoolean();
 }
 
 void HTMLUI::Init()
@@ -122,8 +204,12 @@ void HTMLUI::SetCharacters()
             properties.SetProperty(WSLit("mapname"), JSValue(ToWebString(character->m_cMapName)));
             args.Push(properties);
         }
-        EmitObject("setCharacters", true, JSValue(args));
+        EmitObject("setCharacters", JSValue(args));
     }
+}
+
+HTMLUI::~HTMLUI()
+{
 }
 
 HTMLUIViewListener::HTMLUIViewListener(HTMLUI * htmlUI)
@@ -226,7 +312,7 @@ void HTMLUI::Emit(string event, bool result, string message)
         __asm int 3;//TODO: error handling
 }
 
-void HTMLUI::EmitObject(string event, bool result, JSValue obj)
+void HTMLUI::EmitObject(string event, JSValue obj, bool async)
 {
     JSValue ui = GetUI();
 
@@ -234,7 +320,12 @@ void HTMLUI::EmitObject(string event, bool result, JSValue obj)
     args.Push(ToWebString(event));
     args.Push(obj);
     if (ui.ToObject().HasMethod(WSLit("emit")))
-        ui.ToObject().Invoke(WSLit("emit"), args);
+		if (async) {
+			ui.ToObject().InvokeAsync(WSLit("emit"), args);
+		}
+		else {
+			ui.ToObject().Invoke(WSLit("emit"), args);
+		}
     else
         __asm int 3;//TODO: error handling
 }

@@ -119,7 +119,7 @@
       <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Shared\;..\boost_1_63_0;..\SFML-2.4.1-32\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Shared\;..\boost_1_63_0;G:\SFML-2.4.1\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -143,6 +143,7 @@
       <EntryPointSymbol>
       </EntryPointSymbol>
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+      <AdditionalLibraryDirectories>G:\SFML-2.4.1\lib;G:\projects\boost_1_63_0\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <OutputFile>$(IntDir)$(ProjectName).bsc</OutputFile>

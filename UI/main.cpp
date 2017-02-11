@@ -132,67 +132,31 @@ int main(int argc, char * argv[])
         while (window.pollEvent(event))
         {
             // "close requested" event: we close the window
+			if (event.type == sf::Event::Closed) {
+				window.close();
+				break;
+			}
+
+			// Give the UI a chance to claim the event
+			std::vector<sf::Event::EventType> captureEvents{ sf::Event::KeyPressed, sf::Event::KeyReleased, sf::Event::MouseButtonPressed, sf::Event::MouseButtonReleased, sf::Event::TextEntered };
+			if (std::find(captureEvents.begin(), captureEvents.end(), event.type) != captureEvents.end() && G_pGame->htmlUI->CaptureEvent(event)) {
+				break;
+			}
+
             switch (event.type)
             {
-                case sf::Event::Closed:
-                    window.close();
-                    break;
                 case sf::Event::KeyPressed:
                     if (event.key.code == Keyboard::Key::Escape)
                     {
                         G_pGame->clipmousegame = !G_pGame->clipmousegame;
                         G_pGame->window.setMouseCursorGrabbed(G_pGame->clipmousegame);
                     }
-                    else if (event.key.code == Keyboard::Key::Return)
+                    else if (event.key.code == Keyboard::Key::Return && event.key.alt)
                     {
-                        if (event.key.alt)
-                        {
-                            G_pGame->fullscreen = !G_pGame->fullscreen;
-                            G_pGame->window.close();
-                            G_pGame->window.create(sf::VideoMode(G_pGame->screenwidth, G_pGame->screenheight), G_pGame->winName, (G_pGame->fullscreen ? Style::Fullscreen : (Style::Resize | Style::Close)));
-                        }
+                        G_pGame->fullscreen = !G_pGame->fullscreen;
+                        G_pGame->window.close();
+                        G_pGame->window.create(sf::VideoMode(G_pGame->screenwidth, G_pGame->screenheight), G_pGame->winName, (G_pGame->fullscreen ? Style::Fullscreen : (Style::Resize | Style::Close)));
                     }
-                {
-                    WebKeyboardEvent keyEvent = WebKeyboardEvent();
-                    keyEvent.type = WebKeyboardEvent::kTypeKeyDown;
-                    keyEvent.virtual_key_code = event.key.code;
-                    keyEvent.native_key_code = event.key.code;
-
-                    char buf[20], * cp;
-                    cp = buf;
-                    GetKeyIdentifierFromVirtualKeyCode(keyEvent.virtual_key_code, &cp);
-                    strcpy(keyEvent.key_identifier, buf);
-
-                    if (event.key.control)
-                    {
-                        keyEvent.modifiers |= WebKeyboardEvent::kModControlKey;
-                    }
-                    else if (event.key.shift)
-                    {
-                        keyEvent.modifiers |= WebKeyboardEvent::kModShiftKey;
-                    }
-
-                    G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent);
-
-
-                    if (event.key.code && event.key.code != VK_TAB)
-                    {
-                        WebKeyboardEvent keyEvent2 = WebKeyboardEvent();
-                        keyEvent2.type = WebKeyboardEvent::kTypeChar;
-                        keyEvent2.text[0] = event.key.code;
-
-                        if (event.key.control)
-                        {
-                            keyEvent2.modifiers |= WebKeyboardEvent::kModControlKey;
-                        }
-                        else if (event.key.shift)
-                        {
-                            keyEvent2.modifiers |= WebKeyboardEvent::kModShiftKey;
-                        }
-
-                        G_pGame->htmlUI->view->InjectKeyboardEvent(keyEvent2);
-                    }
-                }
 
                     G_pGame->OnKeyDown(event.key.code);
                     break;
@@ -273,7 +237,7 @@ int main(int argc, char * argv[])
                     G_pGame->m_stMCursor.sX = x;
                     G_pGame->m_stMCursor.sY = y;
 
-                    G_pGame->htmlUI->view->InjectMouseMove(x, y);
+                    G_pGame->htmlUI->MouseMove(x, y);
                     break;
             }
         }
