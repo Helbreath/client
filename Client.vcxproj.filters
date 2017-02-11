@@ -61,100 +61,99 @@
     <ClInclude Include="..\x-server\src\netmessages.h">
       <Filter>net\packets</Filter>
     </ClInclude>
-    <ClInclude Include="src\char\item\BuildItem.h">
-      <Filter>char\item</Filter>
-    </ClInclude>
-    <ClInclude Include="src\char\item\Item.h">
-      <Filter>char\item</Filter>
-    </ClInclude>
-    <ClInclude Include="src\char\item\ItemName.h">
-      <Filter>char\item</Filter>
-    </ClInclude>
-    <ClInclude Include="src\char\ActionID.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="src\char\CharInfo.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="src\char\Curse.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="src\char\DynamicObjectID.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="src\char\Guild.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="src\char\Magic.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="src\char\mail.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="src\char\Skill.h">
-      <Filter>char</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\Effect.h">
-      <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\SoundID.h">
-      <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\Sprite.h">
-      <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\SpriteID.h">
-      <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\engine\TileSpr.h">
-      <Filter>engine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\language\lan_eng.h">
-      <Filter>lang</Filter>
-    </ClInclude>
-    <ClInclude Include="src\language\lan_spa.h">
-      <Filter>lang</Filter>
-    </ClInclude>
-    <ClInclude Include="src\map\MapData.h">
-      <Filter>map</Filter>
-    </ClInclude>
-    <ClInclude Include="src\map\Tile.h">
-      <Filter>map</Filter>
-    </ClInclude>
-    <ClInclude Include="src\network\Msg.h">
-      <Filter>net</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Shared\buffer.h">
-      <Filter>shared</Filter>
-    </ClInclude>
-    <ClInclude Include="src\network\newsocket.h">
-      <Filter>net</Filter>
-    </ClInclude>
-    <ClInclude Include="src\network\request_handler.h">
-      <Filter>net</Filter>
-    </ClInclude>
-    <ClInclude Include="src\network\streams.h">
-      <Filter>net</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui\DialogBox.h">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui\HTMLUI.h">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ui\main.h" />
     <ClInclude Include="src\GlobalDef.h">
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="src\GlobalVal.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="src\char\Title.h">
-      <Filter>char</Filter>
-    </ClInclude>
     <ClInclude Include="src\Misc.h" />
     <ClInclude Include="src\StrTok.h" />
     <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\BuildItem.h">
+      <Filter>char\item</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Item.h">
+      <Filter>char\item</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ItemName.h">
+      <Filter>char\item</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ActionID.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CharInfo.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Curse.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DynamicObjectID.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Guild.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Magic.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mail.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Skill.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Title.h">
+      <Filter>char</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effect.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SoundID.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Sprite.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SpriteID.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TileSpr.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lan_eng.h">
+      <Filter>lang</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lan_spa.h">
+      <Filter>lang</Filter>
+    </ClInclude>
+    <ClInclude Include="src\MapData.h">
+      <Filter>map</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tile.h">
+      <Filter>map</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Msg.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\newsocket.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\request_handler.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\streams.h">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="src\buffer.h">
+      <Filter>shared</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DialogBox.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HTMLUI.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Res\resource.rc">
@@ -162,78 +161,78 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\char\item\BuildItem.cpp">
-      <Filter>char\item</Filter>
-    </ClCompile>
-    <ClCompile Include="src\char\item\Item.cpp">
-      <Filter>char\item</Filter>
-    </ClCompile>
-    <ClCompile Include="src\char\item\ItemName.cpp">
-      <Filter>char\item</Filter>
-    </ClCompile>
-    <ClCompile Include="src\char\CharInfo.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
-    <ClCompile Include="src\char\Curse.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
-    <ClCompile Include="src\char\Guild.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
-    <ClCompile Include="src\char\Magic.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
-    <ClCompile Include="src\char\mail.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
-    <ClCompile Include="src\char\Skill.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\Effect.cpp">
-      <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\Sprite.cpp">
-      <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\engine\TileSpr.cpp">
-      <Filter>engine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\map\MapData.cpp">
-      <Filter>map</Filter>
-    </ClCompile>
-    <ClCompile Include="src\map\Tile.cpp">
-      <Filter>map</Filter>
-    </ClCompile>
-    <ClCompile Include="src\network\Msg.cpp">
-      <Filter>net</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Shared\buffer.cpp">
-      <Filter>shared</Filter>
-    </ClCompile>
-    <ClCompile Include="src\network\newsocket.cpp">
-      <Filter>net</Filter>
-    </ClCompile>
-    <ClCompile Include="src\network\request_handler.cpp">
-      <Filter>net</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui\DialogBox.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui\HTMLUI.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ui\main.cpp" />
-    <ClCompile Include="src\char\Title.cpp">
-      <Filter>char</Filter>
-    </ClCompile>
     <ClCompile Include="src\Misc.cpp" />
     <ClCompile Include="src\StrTok.cpp" />
-    <ClCompile Include="src\engine\UpdateScreen.cpp">
-      <Filter>engine</Filter>
-    </ClCompile>
     <ClCompile Include="src\Game.cpp" />
-    <ClCompile Include="src\engine\DrawObject.cpp">
+    <ClCompile Include="src\BuildItem.cpp">
+      <Filter>char\item</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Item.cpp">
+      <Filter>char\item</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ItemName.cpp">
+      <Filter>char\item</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CharInfo.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Curse.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Guild.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Magic.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mail.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Skill.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Title.cpp">
+      <Filter>char</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DrawObject.cpp">
       <Filter>engine</Filter>
     </ClCompile>
+    <ClCompile Include="src\Effect.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Sprite.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TileSpr.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UpdateScreen.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MapData.cpp">
+      <Filter>map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tile.cpp">
+      <Filter>map</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Msg.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\newsocket.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\request_handler.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="src\buffer.cpp">
+      <Filter>shared</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DialogBox.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HTMLUI.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
 </Project>

@@ -23,39 +23,39 @@
 #include <direct.h>
 #include <set>
 
-#include "shared/common.h"
-#include "shared/NetMessages.h"
-#include "shared/npcType.h"
-#include "shared/maths.h"
+#include "common.h"
+#include "NetMessages.h"
+#include "npcType.h"
+#include "maths.h"
 
 #include "GlobalDef.h"
-#include "engine/Sprite.h"
-#include "engine/SpriteID.h"
+#include "Sprite.h"
+#include "SpriteID.h"
 #include "Misc.h"
 #include "StrTok.h"
-#include "network/Msg.h"
-#include "engine/Effect.h"
-#include "map/MapData.h"
-#include "char/ActionID.h"
-#include "char/CharInfo.h"
-#include "char/item/Item.h"
-#include "char/Magic.h"
-#include "char/Skill.h"
-#include "char/DynamicObjectID.h"
-#include "char/item/BuildItem.h"
-#include "char/item/ItemName.h"
-#include "char/Curse.h"
-#include "char/guild.h"
-#include "char/mail.h"
-#include "ui/DialogBox.h"
-#include "ui/HTMLUI.h"
+#include "Msg.h"
+#include "Effect.h"
+#include "MapData.h"
+#include "ActionID.h"
+#include "CharInfo.h"
+#include "Item.h"
+#include "Magic.h"
+#include "Skill.h"
+#include "DynamicObjectID.h"
+#include "BuildItem.h"
+#include "ItemName.h"
+#include "Curse.h"
+#include "guild.h"
+#include "mail.h"
+#include "DialogBox.h"
+#include "HTMLUI.h"
 
-#include "char/Title.h" // Titles xRisenx
+#include "Title.h" // Titles xRisenx
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 
-#include "network/streams.h"
+#include "streams.h"
 
 #define BTNSZX				74
 #define BTNSZY				20

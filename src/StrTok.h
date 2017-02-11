@@ -9,7 +9,7 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include "shared/common.h"
+#include "common.h"
 
 class CStrTok  
 {

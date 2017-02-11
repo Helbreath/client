@@ -3,13 +3,13 @@
 //////////////////////////////////////////////////////////////////////
 
 
-#include "network/newsocket.h"
+#include "newsocket.h"
 #include "Game.h"
-#include "shared/buffer.h"
+#include "buffer.h"
 #include <algorithm>
 #include <iostream>
 
-#include "language/lan_eng.h"
+#include "lan_eng.h"
 #include <boost/asio/ssl.hpp>
 #include <Awesomium/WebKeyboardEvent.h>
 
