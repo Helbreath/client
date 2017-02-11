@@ -245,7 +245,7 @@ int main(int argc, char * argv[])
         }
 
         window.clear(sf::Color::Black);
-
+        //G_pGame->visible.clear(sf::Color::Black);
 
         G_pGame->UpdateScreen();
         //draw here

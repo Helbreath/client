@@ -22,6 +22,11 @@
 #define ENGLISH 0
 #define SPANISH 1
 
+#define DS_VISIBLE 0
+#define DS_BG 1
+#define DS_CS 2
+
+
 #define LANGUAGE	ENGLISH
 //#define LANGUAGE	SPANISH
 

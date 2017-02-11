@@ -191,8 +191,8 @@ void CSprite::DrawSubSprite(int sX, int sY, int sFrame, uint64_t dwTime, Color c
 {
 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
     sprite[sFrame].setColor(color);
-    sprite[sFrame].setPosition(sX, sY);
-    G_pGame->window.draw(sprite[sFrame]);
+    sprite[sFrame].setPosition(sX + m_stBrush[sFrame].pvx, sY + m_stBrush[sFrame].pvy);
+    G_pGame->draw(sprite[sFrame]);
 // 	G_pGame->driver->draw2DImage(subtextures[sFrame], core::position2d<s32>(sX,sY),
 // 		core::rect<s32>(0,0,m_stBrush[sFrame].szx,m_stBrush[sFrame].szy), 0,
 // 		Color(255,255,255,255), true);
@@ -207,8 +207,8 @@ void CSprite::DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, Color colo
 {
 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
     sprite[sFrame].setColor(color);
-    sprite[sFrame].setPosition(sX, sY);
-    G_pGame->window.draw(sprite[sFrame]);
+    sprite[sFrame].setPosition(sX + m_stBrush[sFrame].pvx, sY + m_stBrush[sFrame].pvy);
+    G_pGame->draw(sprite[sFrame]);
 
 //     G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
 // 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
@@ -242,8 +242,8 @@ void CSprite::DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
 {
 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
     sprite[sFrame].setColor(color);
-    sprite[sFrame].setPosition(sX, sY);
-    G_pGame->window.draw(sprite[sFrame]);
+    sprite[sFrame].setPosition(sX + m_stBrush[sFrame].pvx, sY + m_stBrush[sFrame].pvy);
+    G_pGame->draw(sprite[sFrame]);
 // 	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
 // 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
 // 		color, true);
@@ -269,9 +269,12 @@ void CSprite::DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
 void CSprite::DrawScaledSprite(int sX, int sY, int sFrame, int sWidth, int sHeight, uint64_t dwTime, Color color)
 {
     if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+    sf::FloatRect f = sprite[sFrame].getLocalBounds();
+    sprite[sFrame].setScale((sWidth / f.width)*100, (sHeight / f.height)*100);
     sprite[sFrame].setColor(color);
-    sprite[sFrame].setPosition(sX, sY);
-    G_pGame->window.draw(sprite[sFrame]);
+    sprite[sFrame].setPosition(sX + m_stBrush[sFrame].pvx, sY + m_stBrush[sFrame].pvy);
+    G_pGame->draw(sprite[sFrame]);
+    sprite[sFrame].setScale(1.0, 1.0);
 // 	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX,sY),
 // 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+sWidth,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy+sHeight), 0,
 // 		color, true);
@@ -280,12 +283,12 @@ void CSprite::DrawScaledSprite(int sX, int sY, int sFrame, int sWidth, int sHeig
 void CSprite::DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, Color color)
 {
 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
-    FloatRect f = sprite[sFrame].getLocalBounds();
-    sprite[sFrame].scale(float(sWidth) / f.width, 1.0);
+    sprite[sFrame].setTextureRect(IntRect(m_stBrush[sFrame].sx, m_stBrush[sFrame].sy, sWidth, m_stBrush[sFrame].szy));
     sprite[sFrame].setColor(color);
-    sprite[sFrame].setPosition(sX, sY);
-    G_pGame->window.draw(sprite[sFrame]);
-// 	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX,sY),
+    sprite[sFrame].setPosition(sX + m_stBrush[sFrame].pvx, sY + m_stBrush[sFrame].pvy);
+    G_pGame->draw(sprite[sFrame]);
+    sprite[sFrame].setTextureRect(IntRect(m_stBrush[sFrame].sx, m_stBrush[sFrame].sy, m_stBrush[sFrame].szx, m_stBrush[sFrame].szy));
+    // 	G_pGame->driver->draw2DImage(_localimage, core::position2d<s32>(sX,sY),
 // 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+sWidth,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
 // 		color, true);
 }

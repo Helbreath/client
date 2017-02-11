@@ -270,6 +270,47 @@ public:
     sf::RenderTexture charselect;
     sf::RenderTexture htmlRTT;
 
+    uint8_t drawState = 0;
+
+    void draw(const Drawable& drawable, const RenderStates& states = RenderStates::Default)
+    {
+        if (drawState == 0)
+        {
+            //render to visible
+            visible.draw(drawable, states);
+        }
+        else if (drawState == 1)
+        {
+            //render to bg
+            bg.draw(drawable, states);
+        }
+        else if (drawState == 2)
+        {
+            //render to charselect
+            charselect.draw(drawable, states);
+        }
+    }
+
+    void setRenderTarget(uint8_t s, bool clearbuffer = false, Color color = Color(0, 0, 0))
+    {
+        drawState = s;
+        if (s == DS_VISIBLE)
+        {
+            if (clearbuffer)
+                visible.clear(color);
+        }
+        else if (s == DS_BG)
+        {
+            if (clearbuffer)
+                bg.clear(color);
+        }
+        else if (s == DS_CS)
+        {
+            if (clearbuffer)
+                charselect.clear(color);
+        }
+    };
+
 	HTMLUI* htmlUI;
 
 	bool gamemode;
@@ -326,10 +367,10 @@ public:
         else
             window.setVerticalSyncEnabled(false);
 
-        visible.create(GetWidth(), GetHeight());
-        bg.create(GetWidth(), GetHeight());
-        charselect.create(GetWidth(), GetHeight());
-        htmlRTT.create(GetWidth(), GetHeight());
+        visible.create(screenwidth_v, screenheight_v);
+        bg.create(screenwidth_v + 300, screenheight_v + 300);
+        charselect.create(256, 256);
+        htmlRTT.create(screenwidth_v, screenheight_v);
 
 		htmlUI = new HTMLUI(this);
 		htmlUI->Init();
@@ -357,6 +398,7 @@ public:
         return true;
 	}
     sf::WindowHandle handle;
+    void PutFontStringSize(string fontname, int iX, int iY, string text, Color color, int size);
 
     std::map<string, sf::Font> _font;
     sf::Text _text;
@@ -793,7 +835,6 @@ public:
 	bool bSendCommand(uint32_t dwMsgID, uint16_t wCommand = 0, char cDir = 0, int iV1 = 0, int iV2 = 0, int iV3 = 0, char const * const pString = 0, int iV4 = 0); 
 	bool SendLoginCommand(uint32_t dwMsgID); 
 	char cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMoveCheck = false, bool isMIM = false);
-	void RestoreSprites();
 	void CommandProcessor(short msX, short msY, short indexX, short indexY, char cLB, char cRB, char cMB);
 	void CalcViewPoint();
 	void OnKeyDown(uint32_t wParam);

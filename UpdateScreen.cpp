@@ -119,8 +119,7 @@ void CGame::UpdateScreen_OnMainMenu()
 void CGame::UpdateScreen_OnLoading(bool bActive)
 {
     int i;
-    //std::vector<int> framePositions;
-    /*if( bActive )*/ UpdateScreen_OnLoading_Progress();
+    /*if( bActive )*/ //UpdateScreen_OnLoading_Progress();
 
 	std::string progressLabel;
 	bool progressComplete = false;
@@ -131,95 +130,36 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
         case 0:
         {
 			progressLabel = "Loading interface";
-            //m_hPakFile = CreateFileA("sprites\\interface.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 2);
-                m_pSprite[SPRID_MOUSECURSOR] = CSprite::CreateSprite("interface", 0, false);
-                m_pSprite[SPRID_INTERFACE_SPRFONTS] = CSprite::CreateSprite("interface", 1, false);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
+            m_pSprite[SPRID_MOUSECURSOR] = CSprite::CreateSprite("interface", 0, false);
+            m_pSprite[SPRID_INTERFACE_SPRFONTS] = CSprite::CreateSprite("interface", 1, false);
 
-            //m_hPakFile = CreateFileA("sprites\\Newmaps.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 5);
-                m_pSprite[SPRID_INTERFACE_NEWMAPS1] = CSprite::CreateSprite("Newmaps", 0, false);
-                m_pSprite[SPRID_INTERFACE_NEWMAPS2] = CSprite::CreateSprite("Newmaps", 1, false);
-                m_pSprite[SPRID_INTERFACE_NEWMAPS3] = CSprite::CreateSprite("Newmaps", 2, false);
-                m_pSprite[SPRID_INTERFACE_NEWMAPS4] = CSprite::CreateSprite("Newmaps", 3, false);
-                m_pSprite[SPRID_INTERFACE_NEWMAPS5] = CSprite::CreateSprite("Newmaps", 4, false);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
+            m_pSprite[SPRID_INTERFACE_NEWMAPS1] = CSprite::CreateSprite("Newmaps", 0, false);
+            m_pSprite[SPRID_INTERFACE_NEWMAPS2] = CSprite::CreateSprite("Newmaps", 1, false);
+            m_pSprite[SPRID_INTERFACE_NEWMAPS3] = CSprite::CreateSprite("Newmaps", 2, false);
+            m_pSprite[SPRID_INTERFACE_NEWMAPS4] = CSprite::CreateSprite("Newmaps", 3, false);
+            m_pSprite[SPRID_INTERFACE_NEWMAPS5] = CSprite::CreateSprite("Newmaps", 4, false);
 
-            //m_hPakFile = CreateFileA("sprites\\LoginDialog.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                m_pSprite[SPRID_INTERFACE_ND_LOGIN] = CSprite::CreateSprite("LoginDialog", 0, false);
-#ifdef MAKE_ACCOUNT
-                m_pSprite[SPRID_INTERFACE_ND_NEWACCOUNT] = CSprite::CreateSprite("LoginDialog", 1, false);
-                //m_pSprite[SPRID_INTERFACE_ND_AGREEMENT] = CSprite::CreateSprite("LoginDialog", 9, FALSE);
-#endif
-                //CloseHandle(m_hPakFile);
-            }
-            /*#ifdef MAKE_ACCOUNT			// CLEROTH - ACC - Snoopy: fixed to use without special pak
-            //m_hPakFile = CreateFileA("sprites\\CreateNewAcc.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if( m_hPakFile != INVALID_HANDLE_VALUE ) {
-            m_pSprite[SPRID_INTERFACE_ND_NEWACCOUNT] = CSprite::CreateSprite("CreateNewAcc", 0, FALSE);
-            //CloseHandle(m_hPakFile);
-            }else
-            {	//m_hPakFile = CreateFileA("sprites\\New-Dialog.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            m_pSprite[SPRID_INTERFACE_ND_NEWACCOUNT] = CSprite::CreateSprite("New-Dialog", 3, FALSE);
-            //CloseHandle(m_hPakFile);
-            }
-            #endif*/
+            m_pSprite[SPRID_INTERFACE_ND_LOGIN] = CSprite::CreateSprite("LoginDialog", 0, false);
+      
+            m_pSprite[SPRID_INTERFACE_ND_MAINMENU] = CSprite::CreateSprite("New-Dialog", 1, false);
+            m_pSprite[SPRID_INTERFACE_ND_QUIT] = CSprite::CreateSprite("New-Dialog", 2, false);
 
-            //MakeLegionSprite( "itempack", SPRID_ITEMPACK_PIVOTPOINT+1, 27, FALSE);
-            ////m_hPakFile = CreateFileA("sprites\\itempack.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            //if( m_hPakFile != INVALID_HANDLE_VALUE ) {
-            //	ReadFramePositions(m_hPakFile, framePositions, 20);
-            //	m_pSprite[SPRID_ITEMPACK_PIVOTPOINT+20] = CSprite::CreateSprite("itempack", 17, FALSE); //
-            //	m_pSprite[SPRID_ITEMPACK_PIVOTPOINT+21] = CSprite::CreateSprite("itempack", 18, FALSE); //
-            //	m_pSprite[SPRID_ITEMPACK_PIVOTPOINT+22] = CSprite::CreateSprite("itempack", 19, FALSE); // Angels
-            //	//CloseHandle(m_hPakFile);
-            //	framePositions.clear();
+            m_pSprite[SPRID_INTERFACE_ND_GAME1] = CSprite::CreateSprite("GameDialog", 0, false);
+            m_pSprite[SPRID_INTERFACE_ND_GAME2] = CSprite::CreateSprite("GameDialog", 1, false);
+            m_pSprite[SPRID_INTERFACE_ND_GAME3] = CSprite::CreateSprite("GameDialog", 2, false);
+            m_pSprite[SPRID_INTERFACE_ND_GAME4] = CSprite::CreateSprite("GameDialog", 3, false);
+            m_pSprite[SPRID_INTERFACE_ND_CRUSADE] = CSprite::CreateSprite("GameDialog", 4, false);
+            m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL] = CSprite::CreateSprite("GameDialog", 6, false);
+            m_pSprite[SPRID_INTERFACE_ND_INVENTORY] = CSprite::CreateSprite("GameDialog", 7, false);
+            m_pSprite[SPRID_INTERFACE_ND_SELECTCHAR] = CSprite::CreateSprite("GameDialog", 8, false);
+            m_pSprite[SPRID_INTERFACE_ND_NEWCHAR] = CSprite::CreateSprite("GameDialog", 9, false);
+            m_pSprite[SPRID_INTERFACE_ND_NEWEXCHANGE] = CSprite::CreateSprite("GameDialog", 10, false);
 
-            //m_hPakFile = CreateFileA("sprites\\New-Dialog.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                m_pSprite[SPRID_INTERFACE_ND_MAINMENU] = CSprite::CreateSprite("New-Dialog", 1, false);
-                m_pSprite[SPRID_INTERFACE_ND_QUIT] = CSprite::CreateSprite("New-Dialog", 2, false);
-                //CloseHandle(m_hPakFile);
-            }
-
-            //m_hPakFile = CreateFileA("sprites\\GameDialog.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                m_pSprite[SPRID_INTERFACE_ND_GAME1] = CSprite::CreateSprite("GameDialog", 0, false);
-                m_pSprite[SPRID_INTERFACE_ND_GAME2] = CSprite::CreateSprite("GameDialog", 1, false);
-                m_pSprite[SPRID_INTERFACE_ND_GAME3] = CSprite::CreateSprite("GameDialog", 2, false);
-                m_pSprite[SPRID_INTERFACE_ND_GAME4] = CSprite::CreateSprite("GameDialog", 3, false);
-                m_pSprite[SPRID_INTERFACE_ND_CRUSADE] = CSprite::CreateSprite("GameDialog", 4, false);
-                //m_pSprite[SPRID_INTERFACE_GUIDEMAP] =      CSprite::CreateSprite("GameDialog", 5, FALSE);
-                m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL] = CSprite::CreateSprite("GameDialog", 6, false);
-                m_pSprite[SPRID_INTERFACE_ND_INVENTORY] = CSprite::CreateSprite("GameDialog", 7, false);
-                m_pSprite[SPRID_INTERFACE_ND_SELECTCHAR] = CSprite::CreateSprite("GameDialog", 8, false);
-                m_pSprite[SPRID_INTERFACE_ND_NEWCHAR] = CSprite::CreateSprite("GameDialog", 9, false);
-                m_pSprite[SPRID_INTERFACE_ND_NEWEXCHANGE] = CSprite::CreateSprite("GameDialog", 10, false);
-                //CloseHandle(m_hPakFile);
-            }
-
-            //m_hPakFile = CreateFileA("sprites\\DialogText.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                m_pSprite[SPRID_INTERFACE_ND_TEXT] = CSprite::CreateSprite("DialogText", 0, false);
-                m_pSprite[SPRID_INTERFACE_ND_BUTTON] = CSprite::CreateSprite("DialogText", 1, false);
-                //CloseHandle(m_hPakFile);
-            }
-            MakeSprite("Telescope", SPRID_INTERFACE_GUIDEMAP, 34, false);	  // 32->34 xRisenx
-            MakeSprite("Telescope2", SPRID_INTERFACE_GUIDEMAP + 35, 4, false); // Snoopy: Ajout.351 (heldenian maps)
+            m_pSprite[SPRID_INTERFACE_ND_TEXT] = CSprite::CreateSprite("DialogText", 0, false);
+            m_pSprite[SPRID_INTERFACE_ND_BUTTON] = CSprite::CreateSprite("DialogText", 1, false);
+            
+            MakeSprite("Telescope", SPRID_INTERFACE_GUIDEMAP, 34, false);
+            MakeSprite("Telescope2", SPRID_INTERFACE_GUIDEMAP + 35, 4, false);
             MakeSprite("monster", SPRID_INTERFACE_MONSTER, 1, false);
             m_cLoading = 2;
         }
@@ -232,10 +172,10 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeTileSpr("Sinside1", 70, 27, false);
             MakeTileSpr("Trees1", 100, 46, true);
             MakeTileSpr("TreeShadows", 150, 46, true);
-            MakeTileSpr("objects1", 200, 10, true); // snoopy: 8->10
+            MakeTileSpr("objects1", 200, 10, true);
             MakeTileSpr("objects2", 211, 5, true);
             MakeTileSpr("objects3", 216, 4, true);
-            MakeTileSpr("objects4", 220, 2, true); //snoopy: 1->2
+            MakeTileSpr("objects4", 220, 2, true);
             m_cLoading = 4;
         }
         break;
@@ -244,16 +184,16 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 			progressLabel = "Loading map data.";
             MakeTileSpr("Tile223-225", 223, 3, true);
             MakeTileSpr("Tile226-229", 226, 4, true);
-            MakeTileSpr("objects5", 230, 9, true);	// Snoopy
-            MakeTileSpr("objects6", 238, 4, true);	// Snoopy
-            MakeTileSpr("objects7", 242, 7, true);	// Snoopy
-            MakeTileSpr("maptiles2", 300, 15, true);//- Index 300
+            MakeTileSpr("objects5", 230, 9, true);
+            MakeTileSpr("objects6", 238, 4, true);
+            MakeTileSpr("objects7", 242, 7, true);
+            MakeTileSpr("maptiles2", 300, 15, true);
             MakeTileSpr("maptiles4", 320, 10, true);
             MakeTileSpr("maptiles5", 330, 19, true);
             MakeTileSpr("maptiles6", 349, 4, true);
             MakeTileSpr("maptiles353-361", 353, 9, true);
             MakeTileSpr("Tile363-366", 363, 4, true);
-            MakeTileSpr("Tile367-367", 367, 1, true); // Add by Snoopy (fountains)
+            MakeTileSpr("Tile367-367", 367, 1, true);
             MakeTileSpr("Tile370-381", 370, 12, true);// Tile370~381
             MakeTileSpr("Tile382-387", 382, 6, true);
             MakeTileSpr("Tile388-402", 388, 15, true);
@@ -269,40 +209,23 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeTileSpr("Tile430-443", 430, 14, true);
             MakeTileSpr("Tile444-444", 444, 1, true);
             MakeTileSpr("Tile445-461", 445, 17, true);
-            MakeTileSpr("Tile462-473", 462, 12, true);	// Diuuude
-            MakeTileSpr("Tile474-478", 474, 5, true);	// Diuuude
-            MakeTileSpr("Tile479-488", 479, 10, true);	// Diuuude
-            MakeTileSpr("Tile489-522", 489, 34, true);	// Diuuude Drunken City
-            MakeTileSpr("Tile523-530", 523, 8, true);	// Diuuude Rampart
-            MakeTileSpr("Tile531-540", 531, 10, true);	// Diuuude GodH + Pont
-            MakeTileSpr("Tile541-545", 541, 5, true);	// Diuuude GodH
+            MakeTileSpr("Tile462-473", 462, 12, true);
+            MakeTileSpr("Tile474-478", 474, 5, true);
+            MakeTileSpr("Tile479-488", 479, 10, true);
+            MakeTileSpr("Tile489-522", 489, 34, true);	// Drunken City
+            MakeTileSpr("Tile523-530", 523, 8, true);	// Rampart
+            MakeTileSpr("Tile531-540", 531, 10, true);	// GodH + Pont
+            MakeTileSpr("Tile541-545", 541, 5, true);	// GodH
 
-                                                        // SPRID_ITEMPACK_PIVOTPOINT+0
             MakeSprite("itempack", SPRID_ITEMPACK_PIVOTPOINT + 1, 27, false);
-            //m_hPakFile = CreateFileA("sprites\\itempack.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 21);
-                m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + 20] = CSprite::CreateSprite("itempack", 17, false); //
-                m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + 21] = CSprite::CreateSprite("itempack", 18, false); //
-                m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + 22] = CSprite::CreateSprite("itempack", 19, false); // Angels
-                                                                                                           //m_pSprite[SPRID_ITEMPACK_PIVOTPOINT+23] = CSprite::CreateSprite("itempack", 20, FALSE); // Peices
-                                                                                                           //CloseHandle(m_hPakFile);
-                                                                                                           //framePositions.clear();
-            }
+            m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + 20] = CSprite::CreateSprite("itempack", 17, false);
+            m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + 21] = CSprite::CreateSprite("itempack", 18, false);
+            m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + 22] = CSprite::CreateSprite("itempack", 19, false); // Angels
 
-            // SPRID_ITEMGROUND_PIVOTPOINT+1
             MakeSprite("itemground", SPRID_ITEMGROUND_PIVOTPOINT + 1, 19, false);
-            //m_hPakFile = CreateFileA("sprites\\itemground.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 20);
-                m_pSprite[SPRID_ITEMGROUND_PIVOTPOINT + 20] = CSprite::CreateSprite("itemground", 17, false);
-                m_pSprite[SPRID_ITEMGROUND_PIVOTPOINT + 21] = CSprite::CreateSprite("itemground", 18, false);
-                m_pSprite[SPRID_ITEMGROUND_PIVOTPOINT + 22] = CSprite::CreateSprite("itemground", 19, false);//Angels
-                                                                                                              //CloseHandle(m_hPakFile);
-                                                                                                              //framePositions.clear();
-            }
+            m_pSprite[SPRID_ITEMGROUND_PIVOTPOINT + 20] = CSprite::CreateSprite("itemground", 17, false);
+            m_pSprite[SPRID_ITEMGROUND_PIVOTPOINT + 21] = CSprite::CreateSprite("itemground", 18, false);
+            m_pSprite[SPRID_ITEMGROUND_PIVOTPOINT + 22] = CSprite::CreateSprite("itemground", 19, false);//Angels
             MakeSprite("item-dynamic", SPRID_ITEMDYNAMIC_PIVOTPOINT, 3, false);
             m_cLoading = 8;
         }
@@ -310,69 +233,43 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
         case 8:
         {
 			progressLabel = "Loading items";
-            //m_hPakFile = CreateFileA("sprites\\itemequipM.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 15);
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 0] = CSprite::CreateSprite("itemequipM", 0, false);	// body
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 1] = CSprite::CreateSprite("itemequipM", 1, false);	// 1-swords
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 2] = CSprite::CreateSprite("itemequipM", 2, false);	// 2-bows
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 3] = CSprite::CreateSprite("itemequipM", 3, false);	// 3-shields
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 4] = CSprite::CreateSprite("itemequipM", 4, false);	// 4-tunics
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 5] = CSprite::CreateSprite("itemequipM", 5, false);	// 5-shoes
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 7] = CSprite::CreateSprite("itemequipM", 6, false);	// 6-berk
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 8] = CSprite::CreateSprite("itemequipM", 7, false);	// 7-hoses
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 9] = CSprite::CreateSprite("itemequipM", 8, false);	// 8-bodyarmor
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 15] = CSprite::CreateSprite("itemequipM", 11, false); // Axe hammer
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 17] = CSprite::CreateSprite("itemequipM", 12, false); // Wands
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 18] = CSprite::CreateSprite("itemequipM", 9, false);  // hair
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 19] = CSprite::CreateSprite("itemequipM", 10, false); // undies
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 20] = CSprite::CreateSprite("itemequipM", 13, false); // capes
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 21] = CSprite::CreateSprite("itemequipM", 14, false); // helm
-                                                                                                              //CloseHandle(m_hPakFile);
-                                                                                                              //framePositions.clear();
-            }
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 0] = CSprite::CreateSprite("itemequipM", 0, false);	// body
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 1] = CSprite::CreateSprite("itemequipM", 1, false);	// 1-swords
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 2] = CSprite::CreateSprite("itemequipM", 2, false);	// 2-bows
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 3] = CSprite::CreateSprite("itemequipM", 3, false);	// 3-shields
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 4] = CSprite::CreateSprite("itemequipM", 4, false);	// 4-tunics
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 5] = CSprite::CreateSprite("itemequipM", 5, false);	// 5-shoes
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 7] = CSprite::CreateSprite("itemequipM", 6, false);	// 6-berk
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 8] = CSprite::CreateSprite("itemequipM", 7, false);	// 7-hoses
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 9] = CSprite::CreateSprite("itemequipM", 8, false);	// 8-bodyarmor
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 15] = CSprite::CreateSprite("itemequipM", 11, false); // Axe hammer
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 17] = CSprite::CreateSprite("itemequipM", 12, false); // Wands
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 18] = CSprite::CreateSprite("itemequipM", 9, false);  // hair
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 19] = CSprite::CreateSprite("itemequipM", 10, false); // undies
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 20] = CSprite::CreateSprite("itemequipM", 13, false); // capes
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 21] = CSprite::CreateSprite("itemequipM", 14, false); // helm
 
-            //m_hPakFile = CreateFileA("sprites\\itempack.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 16] = CSprite::CreateSprite("itempack", 15); // Necks
-                                                                                                     //Snoopy: Angels pandents
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 22] = CSprite::CreateSprite("itempack", 19); // Angels
-                                                                                                     //CloseHandle(m_hPakFile);
-            }
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 16] = CSprite::CreateSprite("itempack", 15); // Necks, Angels, Pendants
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 22] = CSprite::CreateSprite("itempack", 19); // Angels
 
-            //m_hPakFile = CreateFileA("sprites\\itemequipW.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 15);
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 40] = CSprite::CreateSprite("itemequipW", 0, false); // body
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 41] = CSprite::CreateSprite("itemequipW", 1, false); // 1-swords
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 42] = CSprite::CreateSprite("itemequipW", 2, false); // 2-bows
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 43] = CSprite::CreateSprite("itemequipW", 3, false); // 3-shields
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 45] = CSprite::CreateSprite("itemequipW", 4, false); // 4-shoes
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 50] = CSprite::CreateSprite("itemequipW", 5, false); // 5-Soustif
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 51] = CSprite::CreateSprite("itemequipW", 6, false); // 6 berk
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 52] = CSprite::CreateSprite("itemequipW", 7, false); // 7 hose
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 53] = CSprite::CreateSprite("itemequipW", 8, false); // 8-hoses
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 55] = CSprite::CreateSprite("itemequipW", 11, false); // Axe hammer
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 57] = CSprite::CreateSprite("itemequipW", 12, false); // Wands
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 58] = CSprite::CreateSprite("itemequipW", 9, false); // hair
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 59] = CSprite::CreateSprite("itemequipW", 10, false);// undies
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 60] = CSprite::CreateSprite("itemequipW", 13, false);// capes
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 61] = CSprite::CreateSprite("itemequipW", 14, false);// helm
-                                                                                                             //CloseHandle(m_hPakFile);
-                                                                                                             //framePositions.clear();
-            }
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 40] = CSprite::CreateSprite("itemequipW", 0, false); // body
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 41] = CSprite::CreateSprite("itemequipW", 1, false); // 1-swords
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 42] = CSprite::CreateSprite("itemequipW", 2, false); // 2-bows
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 43] = CSprite::CreateSprite("itemequipW", 3, false); // 3-shields
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 45] = CSprite::CreateSprite("itemequipW", 4, false); // 4-shoes
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 50] = CSprite::CreateSprite("itemequipW", 5, false); // 5-Soustif
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 51] = CSprite::CreateSprite("itemequipW", 6, false); // 6 berk
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 52] = CSprite::CreateSprite("itemequipW", 7, false); // 7 hose
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 53] = CSprite::CreateSprite("itemequipW", 8, false); // 8-hoses
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 55] = CSprite::CreateSprite("itemequipW", 11, false); // Axe hammer
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 57] = CSprite::CreateSprite("itemequipW", 12, false); // Wands
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 58] = CSprite::CreateSprite("itemequipW", 9, false); // hair
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 59] = CSprite::CreateSprite("itemequipW", 10, false);// undies
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 60] = CSprite::CreateSprite("itemequipW", 13, false);// capes
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 61] = CSprite::CreateSprite("itemequipW", 14, false);// helm
 
-            //m_hPakFile = CreateFileA("sprites\\itempack.lpk", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 56] = CSprite::CreateSprite("itempack", 15);// necks
-                                                                                                    //Snoopy: Angels pandents
-                m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 62] = CSprite::CreateSprite("itempack", 19); // Angels
-                                                                                                     //CloseHandle(m_hPakFile);
-            }
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 56] = CSprite::CreateSprite("itempack", 15);// necks, angels, pendants
+            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 62] = CSprite::CreateSprite("itempack", 19); // Angels
             MakeSprite("Bm", 500 + 15 * 8 * 0, 96, true);// Black Man (Type: 1)
             MakeSprite("Wm", 500 + 15 * 8 * 1, 96, true);// White Man (Type: 2)
             MakeSprite("Ym", 500 + 15 * 8 * 2, 96, true);// Yellow Man (Type: 3)
@@ -400,7 +297,6 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("Gol", SPRID_MOB + 7 * 8 * 2, 40, true);// Stone-Golem (Type: 12)
             MakeSprite("Cyc", SPRID_MOB + 7 * 8 * 3, 40, true);// Cyclops (Type: 13)
             MakeSprite("Orc", SPRID_MOB + 7 * 8 * 4, 40, true);// Orc (Type: 14)
-                                                                //MakeSprite( "OrcLord",	  SPRID_MOB   + 7*8*93, 40, TRUE);// OrcLord (Type: 103)
             MakeSprite("Shopkpr", SPRID_MOB + 7 * 8 * 5, 8, true);		// ShopKeeper-Woman (Type: 15)
             MakeSprite("Ant", SPRID_MOB + 7 * 8 * 6, 40, true);//  Giant-Ant (Type: 16)
             MakeSprite("Scp", SPRID_MOB + 7 * 8 * 7, 40, true);//  Scorpion (Type: 17)
@@ -430,16 +326,9 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("DarkUnicorn", SPRID_MOB + 7 * 8 * 94, 40, true);// DarkUnicorn (Type: 104)
             MakeSprite("WereWolf", SPRID_MOB + 7 * 8 * 23, 40, true);// WereWolf (Type: 33)
             MakeSprite("Dummy", SPRID_MOB + 7 * 8 * 24, 40, true);// Dummy (Type: 34)
-                                                                   //m_hPakFile = CreateFileA("sprites\\Effect5.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL); // Energy-Ball (Type: 35)
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 1);
-                for (i = 0; i < 40; i++)
-                    m_pSprite[SPRID_MOB + i + 7 * 8 * 25] = CSprite::CreateSprite("Effect5", 0, true);
-
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
+            //m_hPakFile = CreateFileA("sprites\\Effect5.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL); // Energy-Ball (Type: 35)
+            for (i = 0; i < 40; i++)
+                m_pSprite[SPRID_MOB + i + 7 * 8 * 25] = CSprite::CreateSprite("Effect5", 0, true);
             m_cLoading = 16;
         }
         break;
@@ -507,11 +396,11 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("SkyWyvern", SPRID_MOB + 7 * 8 * 100, 24, true);// Sky-Wyvern (Type: 110)
             MakeSprite("VoidWyvern", SPRID_MOB + 7 * 8 * 103, 24, true);// Void-Wyvern (Type: 113)
             MakeSprite("WindWyvern", SPRID_MOB + 7 * 8 * 97, 24, true);// Wind-Wyvern (Type: 107)
-            m_cLoading = 44;
+            m_cLoading = 22;
         }
         break;
         case 22:
-        {	// New NPCs - Diuuude - fixed by Snoopy
+        {
 			progressLabel = "Loading NPC sprites..";
             MakeSprite("GiantPlant", SPRID_MOB + 7 * 8 * 66, 40, true);// Giant-Plant (Type: 76)
             MakeSprite("MasterMageOrc", SPRID_MOB + 7 * 8 * 67, 40, true);// MasterMage-Orc (Type: 77)
@@ -528,9 +417,6 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("Babarian", SPRID_MOB + 7 * 8 * 78, 40, true);// Babarian (Type: 88)
             MakeSprite("ACannon", SPRID_MOB + 7 * 8 * 79, 32, true);// ACannon (Type: 89)
             MakeSprite("EternalDragon", SPRID_MOB + 7 * 8 * 104, 32, true);// Eternal dragon (Type: 114) 
-                                                                            //MakeSprite( "ZombieKing",	  SPRID_MOB   + 7*8*109, 32, TRUE);// Zombie King (Type: 119)
-                                                                            //MakeSprite( "Puma",			  SPRID_MOB   + 7*8*108, 32, TRUE);// Puma (Type: 118)
-                                                                            //MakeSprite( "Alligator",	  SPRID_MOB   + 7*8*107, 32, TRUE);// Alligator (Type: 117)
             MakeSprite("EnragedCyclops", SPRID_MOB + 7 * 8 * 113, 40, true);// Enraged Cyclops (Type: 123)
             MakeSprite("EnragedStalker", SPRID_MOB + 7 * 8 * 114, 40, true);// Enraged Stalker (Type: 124)
             MakeSprite("EnragedHellclaw", SPRID_MOB + 7 * 8 * 116, 40, true);// Enraged Hellclaw (Type: 126)
@@ -545,42 +431,29 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             MakeSprite("Gate", SPRID_MOB + 7 * 8 * 81, 24, true);// Heldenian Gate (Type: 91)/**/
             MakeSprite("Scarecrow", SPRID_MOB + 7 * 8 * 82, 40, true);
             MakeSprite("Princess", SPRID_MOB + 7 * 8 * 92, 8, true);// Princess 102
-                                                                     //m_hPakFile = CreateFileA("sprites\\Mpt.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 96);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 0] = CSprite::CreateSprite("Mpt", i + 12 * 0, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 1] = CSprite::CreateSprite("Mpt", i + 12 * 1, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 2] = CSprite::CreateSprite("Mpt", i + 12 * 2, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 3] = CSprite::CreateSprite("Mpt", i + 12 * 3, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 4] = CSprite::CreateSprite("Mpt", i + 12 * 4, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 5] = CSprite::CreateSprite("Mpt", i + 12 * 5, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 6] = CSprite::CreateSprite("Mpt", i + 12 * 6, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 7] = CSprite::CreateSprite("Mpt", i + 12 * 7, true);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 0] = CSprite::CreateSprite("Mpt", i + 12 * 0, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 1] = CSprite::CreateSprite("Mpt", i + 12 * 1, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 2] = CSprite::CreateSprite("Mpt", i + 12 * 2, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 3] = CSprite::CreateSprite("Mpt", i + 12 * 3, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 4] = CSprite::CreateSprite("Mpt", i + 12 * 4, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 5] = CSprite::CreateSprite("Mpt", i + 12 * 5, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 6] = CSprite::CreateSprite("Mpt", i + 12 * 6, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 7] = CSprite::CreateSprite("Mpt", i + 12 * 7, true);
             m_cLoading = 26;
         }
         break;
 
         case 26:
-        {	//m_hPakFile = CreateFileA("sprites\\Mhr.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+        {
 			progressLabel = "Creating item sprites";
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 96);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 0] = CSprite::CreateSprite("Mhr", i + 12 * 0, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 1] = CSprite::CreateSprite("Mhr", i + 12 * 1, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 2] = CSprite::CreateSprite("Mhr", i + 12 * 2, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 3] = CSprite::CreateSprite("Mhr", i + 12 * 3, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 4] = CSprite::CreateSprite("Mhr", i + 12 * 4, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 5] = CSprite::CreateSprite("Mhr", i + 12 * 5, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 6] = CSprite::CreateSprite("Mhr", i + 12 * 6, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 7] = CSprite::CreateSprite("Mhr", i + 12 * 7, true);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 0] = CSprite::CreateSprite("Mhr", i + 12 * 0, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 1] = CSprite::CreateSprite("Mhr", i + 12 * 1, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 2] = CSprite::CreateSprite("Mhr", i + 12 * 2, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 3] = CSprite::CreateSprite("Mhr", i + 12 * 3, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 4] = CSprite::CreateSprite("Mhr", i + 12 * 4, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 5] = CSprite::CreateSprite("Mhr", i + 12 * 5, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 6] = CSprite::CreateSprite("Mhr", i + 12 * 6, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 7] = CSprite::CreateSprite("Mhr", i + 12 * 7, true);
             MakeSprite("MLArmor", SPRID_BODYARMOR_M + 15 * 1, 12, true);
             MakeSprite("MCMail", SPRID_BODYARMOR_M + 15 * 2, 12, true);
             MakeSprite("MSMail", SPRID_BODYARMOR_M + 15 * 3, 12, true);
@@ -626,24 +499,17 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 
             MakeSprite("MShoes", SPRID_BOOT_M + 15 * 1, 12, true);
             MakeSprite("MLBoots", SPRID_BOOT_M + 15 * 2, 12, true);
-            //m_hPakFile = CreateFileA("sprites\\Msw.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 672);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 1] = CSprite::CreateSprite("Msw", i + 56 * 0, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 2] = CSprite::CreateSprite("Msw", i + 56 * 1, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 3] = CSprite::CreateSprite("Msw", i + 56 * 2, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 4] = CSprite::CreateSprite("Msw", i + 56 * 3, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 6] = CSprite::CreateSprite("Msw", i + 56 * 5, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 7] = CSprite::CreateSprite("Msw", i + 56 * 6, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 8] = CSprite::CreateSprite("Msw", i + 56 * 7, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 9] = CSprite::CreateSprite("Msw", i + 56 * 8, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 10] = CSprite::CreateSprite("Msw", i + 56 * 9, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 11] = CSprite::CreateSprite("Msw", i + 56 * 10, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 12] = CSprite::CreateSprite("Msw", i + 56 * 11, true);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 1] = CSprite::CreateSprite("Msw", i + 56 * 0, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 2] = CSprite::CreateSprite("Msw", i + 56 * 1, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 3] = CSprite::CreateSprite("Msw", i + 56 * 2, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 4] = CSprite::CreateSprite("Msw", i + 56 * 3, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 6] = CSprite::CreateSprite("Msw", i + 56 * 5, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 7] = CSprite::CreateSprite("Msw", i + 56 * 6, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 8] = CSprite::CreateSprite("Msw", i + 56 * 7, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 9] = CSprite::CreateSprite("Msw", i + 56 * 8, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 10] = CSprite::CreateSprite("Msw", i + 56 * 9, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 11] = CSprite::CreateSprite("Msw", i + 56 * 10, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 12] = CSprite::CreateSprite("Msw", i + 56 * 11, true);
             m_cLoading = 30;
         }
         break;
@@ -695,30 +561,16 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
         {
 			progressLabel = "Creating item sprites";
             MakeSprite("Mbo", SPRID_WEAPON_M + 64 * 41, 56, true);
-            //m_hPakFile = CreateFileA("sprites\\Mbo.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 112);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 42] = CSprite::CreateSprite("Mbo", i + 56 * 1, true);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
-            //m_hPakFile = CreateFileA("sprites\\Msh.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 63);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 1] = CSprite::CreateSprite("Msh", i + 7 * 0, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 2] = CSprite::CreateSprite("Msh", i + 7 * 1, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 3] = CSprite::CreateSprite("Msh", i + 7 * 2, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 4] = CSprite::CreateSprite("Msh", i + 7 * 3, true);
-                for (i = 0; i < 7; i++)	m_pSprite[SPRID_SHIELD_M + i + 8 * 5] = CSprite::CreateSprite("Msh", i + 7 * 4, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 6] = CSprite::CreateSprite("Msh", i + 7 * 5, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 7] = CSprite::CreateSprite("Msh", i + 7 * 6, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 8] = CSprite::CreateSprite("Msh", i + 7 * 7, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 9] = CSprite::CreateSprite("Msh", i + 7 * 8, true);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 42] = CSprite::CreateSprite("Mbo", i + 56 * 1, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 1] = CSprite::CreateSprite("Msh", i + 7 * 0, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 2] = CSprite::CreateSprite("Msh", i + 7 * 1, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 3] = CSprite::CreateSprite("Msh", i + 7 * 2, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 4] = CSprite::CreateSprite("Msh", i + 7 * 3, true);
+            for (i = 0; i < 7; i++)	m_pSprite[SPRID_SHIELD_M + i + 8 * 5] = CSprite::CreateSprite("Msh", i + 7 * 4, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 6] = CSprite::CreateSprite("Msh", i + 7 * 5, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 7] = CSprite::CreateSprite("Msh", i + 7 * 6, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 8] = CSprite::CreateSprite("Msh", i + 7 * 7, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 9] = CSprite::CreateSprite("Msh", i + 7 * 8, true);
             m_cLoading = 36;
         }
         break;
@@ -758,38 +610,25 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
         }
         break;
         case 38:
-        {	//m_hPakFile = CreateFileA("sprites\\Wpt.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+        {
 			progressLabel = "Creating item sprites...";
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 96);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 0] = CSprite::CreateSprite("Wpt", i, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 1] = CSprite::CreateSprite("Wpt", i + 12, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 2] = CSprite::CreateSprite("Wpt", i + 12 * 2, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 3] = CSprite::CreateSprite("Wpt", i + 12 * 3, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 4] = CSprite::CreateSprite("Wpt", i + 12 * 4, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 5] = CSprite::CreateSprite("Wpt", i + 12 * 5, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 6] = CSprite::CreateSprite("Wpt", i + 12 * 6, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 7] = CSprite::CreateSprite("Wpt", i + 12 * 7, true);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 0] = CSprite::CreateSprite("Wpt", i, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 1] = CSprite::CreateSprite("Wpt", i + 12, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 2] = CSprite::CreateSprite("Wpt", i + 12 * 2, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 3] = CSprite::CreateSprite("Wpt", i + 12 * 3, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 4] = CSprite::CreateSprite("Wpt", i + 12 * 4, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 5] = CSprite::CreateSprite("Wpt", i + 12 * 5, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 6] = CSprite::CreateSprite("Wpt", i + 12 * 6, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 7] = CSprite::CreateSprite("Wpt", i + 12 * 7, true);
 
-            //m_hPakFile = CreateFileA("sprites\\Whr.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 96);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 0] = CSprite::CreateSprite("Whr", i + 0, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 1] = CSprite::CreateSprite("Whr", i + 12, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 2] = CSprite::CreateSprite("Whr", i + 12 * 2, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 3] = CSprite::CreateSprite("Whr", i + 12 * 3, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 4] = CSprite::CreateSprite("Whr", i + 12 * 4, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 5] = CSprite::CreateSprite("Whr", i + 12 * 5, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 6] = CSprite::CreateSprite("Whr", i + 12 * 6, true);
-                for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 7] = CSprite::CreateSprite("Whr", i + 12 * 7, true);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 0] = CSprite::CreateSprite("Whr", i + 0, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 1] = CSprite::CreateSprite("Whr", i + 12, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 2] = CSprite::CreateSprite("Whr", i + 12 * 2, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 3] = CSprite::CreateSprite("Whr", i + 12 * 3, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 4] = CSprite::CreateSprite("Whr", i + 12 * 4, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 5] = CSprite::CreateSprite("Whr", i + 12 * 5, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 6] = CSprite::CreateSprite("Whr", i + 12 * 6, true);
+            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 7] = CSprite::CreateSprite("Whr", i + 12 * 7, true);
             m_cLoading = 40;
         }
         break;
@@ -839,25 +678,19 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
         }
         break;
         case 42:
-        {	//m_hPakFile = CreateFileA("sprites\\Wsw.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
+        {
 			progressLabel = "Creating item sprites.";
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 672);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 1] = CSprite::CreateSprite("Wsw", i + 56 * 0, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 2] = CSprite::CreateSprite("Wsw", i + 56 * 1, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 3] = CSprite::CreateSprite("Wsw", i + 56 * 2, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 4] = CSprite::CreateSprite("Wsw", i + 56 * 3, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 6] = CSprite::CreateSprite("Wsw", i + 56 * 5, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 7] = CSprite::CreateSprite("Wsw", i + 56 * 6, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 8] = CSprite::CreateSprite("Wsw", i + 56 * 7, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 9] = CSprite::CreateSprite("Wsw", i + 56 * 8, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 10] = CSprite::CreateSprite("Wsw", i + 56 * 9, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 11] = CSprite::CreateSprite("Wsw", i + 56 * 10, true);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 12] = CSprite::CreateSprite("Wsw", i + 56 * 11, true);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 1] = CSprite::CreateSprite("Wsw", i + 56 * 0, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 2] = CSprite::CreateSprite("Wsw", i + 56 * 1, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 3] = CSprite::CreateSprite("Wsw", i + 56 * 2, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 4] = CSprite::CreateSprite("Wsw", i + 56 * 3, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 6] = CSprite::CreateSprite("Wsw", i + 56 * 5, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 7] = CSprite::CreateSprite("Wsw", i + 56 * 6, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 8] = CSprite::CreateSprite("Wsw", i + 56 * 7, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 9] = CSprite::CreateSprite("Wsw", i + 56 * 8, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 10] = CSprite::CreateSprite("Wsw", i + 56 * 9, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 11] = CSprite::CreateSprite("Wsw", i + 56 * 10, true);
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 12] = CSprite::CreateSprite("Wsw", i + 56 * 11, true);
             MakeSprite("Wswx", SPRID_WEAPON_W + 64 * 5, 56, true);
             MakeSprite("Wsw2", SPRID_WEAPON_W + 64 * 13, 56, true);
             MakeSprite("Wsw3", SPRID_WEAPON_W + 64 * 14, 56, true); // TheVampire
@@ -935,30 +768,17 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
         {
 			progressLabel = "Creating item sprites";
             MakeSprite("Wbo", SPRID_WEAPON_W + 64 * 41, 56, true);// Bow
-                                                                   //m_hPakFile = CreateFileA("sprites\\Wbo.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 112);
-                for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 42] = CSprite::CreateSprite("Wbo", i + 56 * 1, true);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
-            //m_hPakFile = CreateFileA("sprites\\Wsh.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-            if (m_hPakFile != INVALID_HANDLE_VALUE)
-            {
-                //ReadFramePositions(m_hPakFile, framePositions, 63);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 1] = CSprite::CreateSprite("Wsh", i + 7 * 0, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 2] = CSprite::CreateSprite("Wsh", i + 7 * 1, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 3] = CSprite::CreateSprite("Wsh", i + 7 * 2, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 4] = CSprite::CreateSprite("Wsh", i + 7 * 3, true);
-                for (i = 0; i < 7; i++)	m_pSprite[SPRID_SHIELD_W + i + 8 * 5] = CSprite::CreateSprite("Wsh", i + 7 * 4, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 6] = CSprite::CreateSprite("Wsh", i + 7 * 5, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 7] = CSprite::CreateSprite("Wsh", i + 7 * 6, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 8] = CSprite::CreateSprite("Wsh", i + 7 * 7, true);
-                for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 9] = CSprite::CreateSprite("Wsh", i + 7 * 8, true);
-                //CloseHandle(m_hPakFile);
-                //framePositions.clear();
-            }
+            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 42] = CSprite::CreateSprite("Wbo", i + 56 * 1, true);
+            
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 1] = CSprite::CreateSprite("Wsh", i + 7 * 0, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 2] = CSprite::CreateSprite("Wsh", i + 7 * 1, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 3] = CSprite::CreateSprite("Wsh", i + 7 * 2, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 4] = CSprite::CreateSprite("Wsh", i + 7 * 3, true);
+            for (i = 0; i < 7; i++)	m_pSprite[SPRID_SHIELD_W + i + 8 * 5] = CSprite::CreateSprite("Wsh", i + 7 * 4, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 6] = CSprite::CreateSprite("Wsh", i + 7 * 5, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 7] = CSprite::CreateSprite("Wsh", i + 7 * 6, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 8] = CSprite::CreateSprite("Wsh", i + 7 * 7, true);
+            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 9] = CSprite::CreateSprite("Wsh", i + 7 * 8, true);
             m_cLoading = 50;
         }
         break;
@@ -969,34 +789,22 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 			MakeEffectSpr("effect2", 10, 3, false);
 			MakeEffectSpr("effect3", 13, 6, false);
 			MakeEffectSpr("effect4", 19, 5, false);
-			//m_hPakFile = CreateFileA("sprites\\effect5.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-			if (m_hPakFile != INVALID_HANDLE_VALUE)
-			{
-				//ReadFramePositions(m_hPakFile, framePositions, 8);
-				for (i = 0; i <= 6; i++)
-					m_pEffectSpr[i + 24] = CSprite::CreateSprite("effect5", i + 1, false);
-				//CloseHandle(m_hPakFile);
-				//framePositions.clear();
-			}
+			for (i = 0; i <= 6; i++)
+				m_pEffectSpr[i + 24] = CSprite::CreateSprite("effect5", i + 1, false);
 			MakeEffectSpr("CruEffect1", 31, 9, false);
 			MakeEffectSpr("effect6", 40, 5, false);
 			MakeEffectSpr("effect7", 45, 12, false);
 			MakeEffectSpr("effect8", 57, 9, false);
 			MakeEffectSpr("effect9", 66, 21, false);
 
-			MakeEffectSpr("effect10", 87, 2, false); // Effets Hero items
+			MakeEffectSpr("effect10", 87, 2, false); // Effects Hero items
 			MakeEffectSpr("effect11", 89, 14, false); // Cancel, stormBlade, resu, GateHeldenian....etc
-													   //NB: Charge 15 du client 3.51, mais il n'y a que 14 ds le PAK
-			MakeEffectSpr("effect11s", 104, 1, false); // effet sort mais je ne sais pas lequel
-														// Manque des effets ici .....
-														// MakeEffectSpr( "effect13", 108, 2, FALSE); // not loaded by client 351 (Heldenian gates death)
-														//MakeEffectSpr( "yseffect2", 141, 8, FALSE); // Wrong in 351 client...
+			MakeEffectSpr("effect11s", 104, 1, false);
 			MakeEffectSpr("yseffect2", 140, 8, false); // Abaddon's death
 			MakeEffectSpr("effect12", 148, 4, false); // Slates auras
-			MakeEffectSpr("yseffect3", 152, 16, false); // Fumerolles ou ame qui s'envole
+			MakeEffectSpr("yseffect3", 152, 16, false);
 			MakeEffectSpr("yseffect4", 133, 7, false); // Abaddon's map thunder.
 			MakeEffectSpr("effects", 168, 1, false); // minimap ping
-													  //MakeLegionEffectSpr( "effects2", 169, 20); // New Magic Animations xRisenx
 			m_cLoading = 52;
 		}
 		break;
@@ -1078,7 +886,6 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
                 break;
             }
             ChangeGameMode(oldmode);
-            //TopsiteVote();
         }
         break;
     }
@@ -3141,10 +2948,11 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
             if (m_Misc.bCheckValidString(selectedchar->m_cName.c_str()) == true)
             {
                 m_pEffectSpr[0]->PutTransSprite(sX + 36, sY + 50 + 28, 1, dwTime);
-                //driver->setRenderTarget(charselect, true, true, video::SColor(0, 0, 0, 0));
+                setRenderTarget(DS_CS, true, Color(0, 0, 0, 0));
                 //DrawObject_OnMove_ForMenu(0, 0, sX + 156 + 36, sY + 138 + 118 + 28, false, dwTime, 0, 0);
                 DrawObject_OnMove_ForMenu(0, 0, sX + 36, sY + 50 + 28, false, dwTime, 0, 0);
-                //driver->setRenderTarget(visible);
+                charselect.display();
+                setRenderTarget(DS_VISIBLE);
                 int	_sLevel = selectedchar->m_sLevel;
                 sprintf(G_cTxt, "Name: %s", selectedchar->m_cName.c_str());
                 PutString(sX + 46 + 96, sY + 160, G_cTxt, Color(255, 255, 255));//25,35,25);	// sY = 14
@@ -3152,7 +2960,7 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
                 sprintf(G_cTxt, "Level: %d", _sLevel);
                 PutString(sX + 46 + 96, sY + 160 + 17, G_cTxt, Color(255, 255, 255)); //25,35,25);
 
-                sprintf(G_cTxt, "%i64d", selectedchar->m_iExp);//TODO: won't be here for ui eventually
+                sprintf(G_cTxt, "%I64d", selectedchar->m_iExp);//TODO: won't be here for ui eventually
                 PutString(sX - 10 + 96, sY + 179 - 9 + 118 + 19 - 2, G_cTxt, Color(255, 255, 255)); //25,35,25);
             }
             iTemp2 = selectedchar->m_iYear * 1000000 + selectedchar->m_iMonth * 60000 + selectedchar->m_iDay * 1700 + selectedchar->m_iHour * 70 + selectedchar->m_iMinute;
@@ -4461,10 +4269,59 @@ void CGame::UpdateScreen_OnGame()
     if (iUpdateRet != 0)
         DrawBackground(sDivX, sModX, sDivY, sModY);
 
+    bg.display();
+    const Texture & t = bg.getTexture();
+    sf::Sprite sprite = sf::Sprite(t);
+    sprite.setPosition(0 - sModX, 0 - sModY);
+    visible.draw(sprite);
+
+
+
     if (iUpdateRet != 0)
         DrawEffectLights();
     if (iUpdateRet != 0)
         DrawObjects(sPivotX, sPivotY, sDivX, sDivY, sModX, sModY, G_pGame->m_stMCursor.sX, G_pGame->m_stMCursor.sY);
+
+
+
+    if (m_showGrid)
+    {
+        int16_t ix, iy, iyMax;
+        int16_t indexY = sDivY + m_pMapData->m_sPivotY;
+        for (iy = -sModY; iy < GetHeight() + 32; iy += 32)
+        {
+            int16_t indexX = sDivX + m_pMapData->m_sPivotX;
+            for (ix = -sModX; ix < GetWidth() + 32; ix += 32)
+            {
+                {
+                    sf::Vertex line[] = {
+                        sf::Vertex(sf::Vector2f(ix - 16, iy - 16), Color(127, 127, 0, 127)),
+                        sf::Vertex(sf::Vector2f(ix - 16, iy + 16), Color(127, 127, 0, 127)) };
+                    visible.draw(line, 2, sf::Lines);
+                }
+                {
+                    sf::Vertex line[] = {
+                        sf::Vertex(sf::Vector2f(ix - 16, iy - 16), Color(127, 127, 0, 127)),
+                        sf::Vertex(sf::Vector2f(ix + 16, iy - 16), Color(127, 127, 0, 127)) };
+                    visible.draw(line, 2, sf::Lines);
+                }
+
+//                 char text[20];
+//                 sprintf(text, "(%d,%d)\n%d-%d", (m_sViewPointX + ix) / 32, (m_sViewPointY + iy) / 32, m_pMapData->m_tile[indexX][indexY].m_sObjectSprite, m_pMapData->m_tile[indexX][indexY].m_sObjectSpriteFrame);
+// 
+//                 _text.setFont(_font.at("default"));
+//                 _text.setString(text);
+//                 _text.setFillColor(Color(255, 0, 0, 180));
+//                 _text.setPosition(ix - 16, iy - 8);
+//                 _text.setOutlineColor(Color(0, 0, 0, 128));
+//                 _text.setOutlineThickness(1);
+//                 _text.setCharacterSize(10);
+//                 visible.draw(_text);
+                indexX++;
+            }
+            indexY++;
+        }
+    }
 
     if (iUpdateRet != 0)
     {

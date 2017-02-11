@@ -1143,13 +1143,14 @@ void CGame::UpdateScreen()
         uitex.update(uibuffer);
 	}
 
-    window.draw(uispr);
-	//driver->draw2DImage(htmlRTT, core::vector2d<s32>(0, 0), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, Color(255, 255, 255), true);
+    setRenderTarget(DS_VISIBLE);
+    
+    visible.draw(uispr);
+
+    visible.display();
 
 
 
-
-    //driver->setRenderTarget(0);
 
     //video::SColor col = video::SColor(255, 255, 255, 255);
     //driver->draw2DImage(visible, core::rect<s32>(0, 0, screenwidth, screenheight), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, &col, false);
@@ -1161,13 +1162,14 @@ void CGame::UpdateScreen()
 
     if (m_cGameMode == GAMEMODE_ONSELECTCHARACTER)
     {
-/*
-        auto size = charselect->getSize();
-        //driver->draw2DImage()
-        const SColor col = video::SColor(255, 255, 255, 255);
-        driver->draw2DImage(charselect, core::rect<s32>(charselectx, charselecty, charselectx + size.Width * 2, charselecty + size.Height * 2),
-                            core::rect<s32>(0, 0, size.Width, size.Height), 0,
-                            &col, true);*/
+
+        auto size = charselect.getSize();
+        const Color col = Color(255, 255, 255, 255);
+        const Texture & t = charselect.getTexture();
+        sf::Sprite sprite = sf::Sprite(t);
+        sprite.setPosition(charselectx, charselecty);
+        sprite.setScale(2, 2);
+        visible.draw(sprite);
     }
 
 
@@ -1178,119 +1180,27 @@ void CGame::UpdateScreen()
 
     //test code
 	char cfps[20];
-	sprintf(cfps, "FPS: %d", /*driver->getFPS()*/42);
+	sprintf(cfps, "FPS: %d", fps.getFPS());
 
-    sf::Font & f = GetFont("test");
+    sf::Font & f = GetFont("arya");
 
     _text.setString(cfps);
     _text.setPosition(5, 5);
     _text.setFillColor(Color(255, 255, 255, 255));
-    window.draw(_text);
+    _text.setCharacterSize(10);
+    visible.draw(_text);
+
+//     PutFontStringSize("test", 5, 5, "10", sf::Color::White, 10);
+//     PutFontStringSize("test", 5, 20, "12", sf::Color::White, 12);
+//     PutFontStringSize("test", 5, 40, "15", sf::Color::White, 15);
+//     PutFontStringSize("test", 5, 60, "18", sf::Color::White, 18);
+//     PutFontStringSize("test", 5, 90, "25", sf::Color::White, 25);
+//     PutFontStringSize("test", 5, 120, "30", sf::Color::White, 30);
 
     if (m_pBGM.Stopped || m_pBGM.getBuffer() == nullptr)
     {
-        StartBGM();
+        //StartBGM();
     }
-
-    /*
-
-    font[0]->draw("Arrow keys = Map Pivot Change - Shift = ViewDest Change - Control = Player Offset Change",
-                  core::rect<s32>(5, 15, 40, 10),
-                  video::SColor(255, 255, 255, 255));
-
-
-    char cdata[100];
-    sprintf(cdata, "m_cCommandCount: %d", (int)m_cCommandCount);
-
-    font[0]->draw(cdata,
-                  core::rect<s32>(5, 70, 40, 10),
-                  video::SColor(255, 255, 255, 255));
-
-
-
-	stringstream ts;
-	
-	ts << "Pivot: " << m_pMapData->m_sPivotX << " : " << m_pMapData->m_sPivotY << "\n"
-		<< "ViewPoint: " << m_sViewPointX << " : " << m_sViewPointY << "\n"
-		<< "ViewDst: " << m_sViewDstX << " : " << m_sViewDstY;
-
-	font[0]->draw(ts.str().c_str(),
-		core::rect<s32>(5, 25, 40, 10),
-		video::SColor(255, 255, 255, 255));
-
-
-    short sPivotX, sPivotY, sVal, sDivX, sModX, sDivY, sModY;
-    sPivotX = m_pMapData->m_sPivotX;
-    sPivotY = m_pMapData->m_sPivotY;
-    sVal = m_sViewPointX - (sPivotX * 32);
-    sDivX = sVal / 32;
-    sModX = sVal % 32;
-    sVal = m_sViewPointY - (sPivotY * 32);
-    sDivY = sVal / 32;
-    sModY = sVal % 32;
-
-    ts.str(string());
-
-    ts  << "sPivotX:sPivotY " << m_pMapData->m_sPivotX << " : " << m_pMapData->m_sPivotY << "\n"
-        << "sDivX:sModX     " << sDivX << " : " << sModX << "\n"
-        << "sDivY:sModY     " << sDivY << " : " << sModY;
-
-
-    font[0]->draw(ts.str().c_str(),
-                  core::rect<s32>(5, 80, 80, 10),
-                  video::SColor(255, 255, 255, 255));
-
-
-    char cdata2[500];
-    sprintf(cdata2, 
-            "DrawBackground(sDivX, sModX, sDivY, sModY)\n"
-            "DrawBackground(%d, %d, %d, %d)\n"
-            "DrawObjects(sPivotX, sPivotY, sDivX, sDivY, sModX, sModY, m_stMCursor.sX, m_stMCursor.sY)\n"
-            "DrawObjects(%d, %d, %d, %d, %d, %d, %d, %d)\n\n"
-            "m_sViewDstX = (m_sPlayerX - 24) * 32 | m_sViewDstY = (m_sPlayerY - 16) * 32\n"
-            "%d = (%d - %d) * 32 | %d = (%d - %d) * 32",
-        (int)sDivX, (int)sModX, (int)sDivY, (int)sModY, (int)sPivotX, (int)sPivotY, (int)sDivX, (int)sDivY, (int)sModX, (int)sModY, (int)m_stMCursor.sX, (int)m_stMCursor.sY,
-            (m_sPlayerX - viewdstxcharvar) * 32, m_sPlayerX, viewdstxcharvar, (m_sPlayerY - viewdstycharvar) * 32, m_sPlayerY, viewdstycharvar);
-    
-
-
-    font[0]->draw(cdata2,
-                  core::rect<s32>(5, 120, 80, 10),
-                  video::SColor(255, 255, 255, 255));
-
-                  */
-
-//     static uint64_t vptime = unixtime();
-//     if (G_dwGlobalTime - vptime > 100)
-//     {
-//         m_bIsRedrawPDBGS = true;
-//         CalcViewPoint();
-//         vptime = G_dwGlobalTime;
-//     }
-
-// 	sprintf(cfps, "Mouse: (%d,%d)", m_stMCursor.sX, m_stMCursor.sY);
-// 
-// 	font[0]->draw(cfps,
-// 		core::rect<s32>(5,15,40,20),
-// 		video::SColor(255,255,255,255));
-
-//	char text[200];
-
-// 	sprintf(text, "fgtargetfps: %d\nbgtargetfps: %d\ntime1: %I64d\ntime2: %I64d\nfgframetime: %d\nbgframetime: %d", foregroundfpstarget, backgroundfpstarget, time1, time2, foregroundframetime, backgroundframetime);
-// 	font[0]->draw(text,
-// 		core::rect<s32>(5, 35, 40, 60),
-// 		video::SColor(255, 255, 255, 255));
-
-// 	if (device->isWindowActive())
-// 	{
-// 		font[0]->draw("Active",
-// 			core::rect<s32>(5,25,40,30),
-// 			video::SColor(255,255,255,255));
-// 	}
-
-	//draw gui
-
-
 
     if (m_bIsObserverMode == true)
     {
@@ -1306,6 +1216,14 @@ void CGame::UpdateScreen()
     else m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(mx, my, m_stMCursor.sCursorFrame, unixseconds());
 
 	m_stMCursor.sZ = 0;
+
+
+
+    sf::Sprite sprite = sf::Sprite(visible.getTexture());
+    sprite.setPosition(0, 0);
+    sprite.setScale(static_cast<float>(screenwidth) / screenwidth_v, static_cast<float>(screenheight) / screenheight_v);
+
+    window.draw(sprite);
 }
 
 void CGame::CalcViewPoint()
@@ -1365,12 +1283,6 @@ void CGame::handle_connect(const boost::system::error_code& e)
 	    new_connection_.reset(new connection(io_service_, *this, request_handler_, ctx));
         _socket = nullptr;
 	}
-}
-
-void CGame::RestoreSprites()
-{
-	//for (int i = 0; i < MAXSPRITES; i++)
-	//if (m_pSprite[i] != 0) m_pSprite[i]->iRestore();
 }
 
 char _tmp_cTmpDirX[9] = { 0,0,1,1,1,0,-1,-1,-1 };
@@ -2079,6 +1991,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
 
 void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, short sModX, short sModY, short msX, short msY)
 {
+//    return;
 	//int ix, iy, indexX, indexY, dX, dY, iDvalue;
 	int ix, iy, indexX, indexY, dX, dY, iDvalue, iItemDropPosX[21+10][15+10], iItemDropPosY[21+10][15+10], iTempX = 0, iTempY = 0; // Show Item On Ground xRisenx
 	//char cItemColor;
@@ -2117,7 +2030,7 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 
 	indexY = sDivY + sPivotY - 7;//BESK TODO: keep this?
 	//for (iy = -sModY-224; iy <= 427+352; iy += 32)
-	for (iy = -sModY-224; iy <= GetHeight()+100; iy += 32) // 800x600 xRisenx
+	for (iy = -sModY-224; iy <= GetHeight()+300; iy += 32) // 800x600 xRisenx
 	{
 		indexX = sDivX + sPivotX-4;
 		//for (ix = -sModX-128 ; ix <= 640 + 128; ix += 32)
@@ -2126,7 +2039,7 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 			sDynamicObject = 0;
 			bRet = false;
 			//if ((ix >= -sModX) && (ix <= 640+16) && (iy >= -sModY) && (iy <= 427+32+16))
-			if ((ix >= -sModX) && (ix <= GetWidth()+16) && (iy >= -sModY) && (iy <= GetHeight()+100)) // 800x600 Resolution xRisenx
+			if ((ix >= -sModX) && (ix <= GetWidth()+16) && (iy >= -sModY) && (iy <= GetHeight()+200)) // 800x600 Resolution xRisenx
 			{
 				_tmp_wObjectID = _tmp_sOwnerType = _tmp_sAppr1 = _tmp_sAppr2 = _tmp_sAppr3 = _tmp_sAppr4 = _tmp_sHeadApprValue = _tmp_sBodyApprValue = _tmp_sArmApprValue = _tmp_sLegApprValue = _tmp_iStatus = 0;
 				_tmp_cDir = _tmp_cFrame = 0;
@@ -2304,7 +2217,7 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
                 }
 
 				//if ((bContact == TRUE) && (msY <= 431))
-				if ((bContact == true) && (msY <= GetHeight()-49)) // Resolution Limit, Decides how long Down(y) you can see npcs ( Fixed xRisenx )
+				if ((bContact == true) && (msY <= GetHeight()+100)) // entity drawing limits
 				{
                     m_sMCX = indexX;
 					m_sMCY = indexY;
@@ -2449,7 +2362,7 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 					}
 
 					//if(bContact && msY <= 431)
-					if(bContact && msY <= GetHeight()-49/*551*/) // Resolution Limit, Decides how long Down(y) you can see npcs ( Fixed xRisenx )
+					if(bContact && msY <= GetHeight()+100) // entity drawing limit
 					{
 						m_sMCX = indexX;
 						m_sMCY = indexY;
@@ -2483,17 +2396,8 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 					{
 						if (m_bIsObserverMode == false)
 						{
-							//m_sViewDstX = (indexX*32) - 288 - 32;
-							//m_sViewDstY = (indexY*32) - 224;
-							//m_sViewDstX = (indexX*32) - 288 - 32-32-32; // 800x600 Resolution xRisenx Center Char
-							//m_sViewDstY = (indexY*32) - 224-32-32; // 800x600 Resolution xRisenx Center Char
-                             m_sViewDstX = (m_sPlayerX - viewdstxcharvar) * 32; // 800x600 Resolution xRisenx Center Char
-                             m_sViewDstY = (m_sPlayerY - viewdstycharvar) * 32; // 800x600 Resolution xRisenx Center Char
-
                              m_sViewDstX = (m_sPlayerX - (GetWidth() / 32) / 2) * 32;
                              m_sViewDstY = (m_sPlayerY - ((GetHeight() - 60) / 32) / 2) * 32;
-
-
                         }
 						SetRect(&m_rcPlayerRect, m_rcBodyRect.left, m_rcBodyRect.top, m_rcBodyRect.right, m_rcBodyRect.bottom);
 						bIsPlayerDrawed = true;
@@ -2501,9 +2405,11 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 				}
 			}
 
-			// CLEROTH
 			sObjSpr      = m_pMapData->m_tile[indexX][indexY].m_sObjectSprite;
 			sObjSprFrame = m_pMapData->m_tile[indexX][indexY].m_sObjectSpriteFrame;
+
+//             if ((indexX == 44) && (indexY == 81))
+//                 __asm int 3;
 
 			if (sObjSpr != 0)
 			{
@@ -3367,8 +3273,6 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
 {
     WebString method_name = msg->obj.ToObject().GetProperty(WSLit("method_name")).ToString();
     JSArray args = msg->obj.ToObject().GetProperty(WSLit("args")).ToArray();
-
-
 
     if (method_name == WSLit("log"))
     {
@@ -7145,6 +7049,24 @@ void CGame::PutChatString(int iX, int iY, char * pString, Color color)
 {
     PutFontString("default", iX, iY, pString, color);//TODO: make 'chat' font?
 }
+void CGame::PutFontStringSize(string fontname, int iX, int iY, string text, Color color, int size)
+{
+    try
+    {
+        _text.setFont(_font.at(fontname));
+        _text.setString(text);
+        _text.setFillColor(color);
+        _text.setPosition(iX, iY);
+        _text.setCharacterSize(size);
+        visible.draw(_text);
+    }
+    catch (const out_of_range & oor)
+    {
+        //error
+        __asm int 3;
+    }
+}
+
 void CGame::PutFontString(string fontname, int iX, int iY, string text, Color color)
 {
     try
@@ -7153,7 +7075,8 @@ void CGame::PutFontString(string fontname, int iX, int iY, string text, Color co
         _text.setString(text);
         _text.setFillColor(color);
         _text.setPosition(iX, iY);
-        window.draw(_text);
+        _text.setCharacterSize(12);
+        visible.draw(_text);
     }
     catch (const out_of_range & oor)
     {
@@ -7171,8 +7094,9 @@ void CGame::PutAlignedString(int iX1, int iX2, int iY, string text, Color color)
         _text.setFillColor(color);
         FloatRect bounds = _text.getLocalBounds();
         _text.setPosition(((iX2 - iX1)/2 + bounds.width) , iY);
+        _text.setCharacterSize(12);
 
-        window.draw(_text);
+        visible.draw(_text);
     }
     catch (const out_of_range & oor)
     {
@@ -8398,17 +8322,13 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 		m_bIsRedrawPDBGS = false;
 		m_iPDBGSdivX = sDivX;
 		m_iPDBGSdivY = sDivY;
-		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, GetHeight()+32, 480+32);
-		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, GetWidth()+32, 600+32); // 800x600 Resolution xRisenx
 		indexY = sDivY+m_pMapData->m_sPivotY;
 		//for (iy = -sModY; iy < 427+48 ; iy += 32)
-		//driver->setRenderTarget(bg, true, true, video::SColor(0,0,0,0));
-		for (iy = -sModY; iy < GetHeight()-3 +32; iy += 32) // 800x600 xRisenx
-		//for (iy = -sModY; iy < iyMax ; iy += 32) Resolution Need to check? Core code changed?
+		setRenderTarget(DS_BG, true, Color(0,0,0,0));
+		for (iy = -sModY; iy < GetHeight()+100; iy += 32) // 800x600 xRisenx
 		{
 			indexX = sDivX+m_pMapData->m_sPivotX;
-			//for (ix = -sModX; ix < 640+48 ; ix += 32)
-			for (ix = -sModX; ix < GetWidth()+48 +32; ix += 32) // 800x600 Resolution xRisenx
+			for (ix = -sModX; ix < GetWidth()+100; ix += 32) // 800x600 Resolution xRisenx
 			{
                 if (indexX >= 0 && indexY >= 0)
                 {
@@ -8427,48 +8347,47 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 			}
 			indexY++;
 		}
-		//driver->setRenderTarget(0);
-		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, GetHeight(), 480);
-		//SetRect(&//DIRECTX m_DDraw.m_rcClipArea, 0,0, GetWidth(), 600); // 800x600 Resolution xRisenx
+
+        //if (m_showGrid)
+        /*{
+            indexY = sDivY + m_pMapData->m_sPivotY;
+            for (iy = -sModY; iy < GetHeight()+32; iy += 32)
+            {
+                indexX = sDivX + m_pMapData->m_sPivotX;
+                //for (ix = -sModX; ix < 640+48 ; ix += 32)
+                for (ix = -sModX; ix < GetWidth()+32; ix += 32) // 800x600 Resolution xRisenx
+                {
+                    {
+                        sf::Vertex line[] = {
+                            sf::Vertex(sf::Vector2f(ix - 16, iy - 16), Color(127, 127, 0, 127)),
+                            sf::Vertex(sf::Vector2f(ix - 16, iy + 16), Color(127, 127, 0, 127)) };
+                        bg.draw(line, 2, sf::Lines);
+                    }
+                    {
+                        sf::Vertex line[] = {
+                            sf::Vertex(sf::Vector2f(ix - 16, iy - 16), Color(127, 127, 0, 127)),
+                            sf::Vertex(sf::Vector2f(ix + 16, iy - 16), Color(127, 127, 0, 127)) };
+                        bg.draw(line, 2, sf::Lines);
+                    }
+
+                    char text[20];
+                    sprintf(text, "(%d,%d)", (m_sViewPointX + ix) / 32, (m_sViewPointY + iy) / 32);
+
+                    _text.setFont(_font.at("test"));
+                    _text.setString(text);
+                    _text.setFillColor(Color(255, 255, 255, 128));
+                    _text.setPosition(ix - 16, iy);
+                    _text.setCharacterSize(8);
+                    bg.draw(_text);
+                    indexX++;
+                }
+                indexY++;
+            }
+        }*/
+        setRenderTarget(DS_VISIBLE);
 	}
 	RECT rcRect;
-	//SetRect(&rcRect, sModX, sModY, 640+sModX, 480+sModY); // our fictitious sprite bitmap is
-	SetRect(&rcRect, sModX, sModY, GetWidth()+sModX, GetHeight()+sModY); // 800x600 Resolution xRisenx
-	//DIRECTX m_DDraw.m_lpBackB4->BltFast( 0, 0, //DIRECTX m_DDraw.m_lpPDBGS, &rcRect, DDBLTFAST_NOCOLORKEY | DDBLTFAST_WAIT);
-
-	//driver->draw2DImage(bg, core::vector2d<s32>(0 - sModX, 0 - sModY));
-
-// 
-// 	char cfps[20];
-// 	sprintf(cfps, "sModX: %d sModY: %d", sModX, sModY);
-// 
-// 	font[0]->draw(cfps,
-// 		core::rect<s32>(5,100,40,110),
-// 		video::SColor(255,255,255,255));
-
-
-
-	if (m_showGrid)
-	{
-		indexY = sDivY+m_pMapData->m_sPivotY;
-		for (iy = -sModY; iy < iyMax ; iy += 32)
-		{
-			indexX = sDivX+m_pMapData->m_sPivotX;
-			//for (ix = -sModX; ix < 640+48 ; ix += 32)
-			for (ix = -sModX; ix < GetWidth()+48 ; ix += 32) // 800x600 Resolution xRisenx
-			{
-				DrawLine(ix - 16 , iy - 16 , ix + 16 , iy - 16 , Color(127, 127, 0, 127));
-				DrawLine(ix - 16 , iy - 16 , ix - 16 , iy + 16 , Color(127, 127, 0, 127));
-
-                char cfps[20];
-                sprintf(cfps, "(%d,%d)", (m_sViewPointX+ix)/32, (m_sViewPointY+iy)/32);
-
-                PutString(ix - 16, iy, cfps, Color(255, 255, 255, 128));
-				indexX++;
-			}
-			indexY++;
-		}
-	}
+	//SetRect(&rcRect, sModX, sModY, GetWidth()+sModX, GetHeight()+sModY); // 800x600 Resolution xRisenx
 
 	if( m_bIsCrusadeMode )
 	{
@@ -12159,7 +12078,7 @@ void CGame::DrawLine(int x0, int y0, int x1, int y1, int iR, int iG, int iB, int
         sf::Vertex(sf::Vector2f(x0, y0), Color(iR, iG, iB, iA)),
         sf::Vertex(sf::Vector2f(x1, y1), Color(iR, iG, iB, iA))
     };
-    window.draw(line, 2, sf::Lines);
+    visible.draw(line, 2, sf::Lines);
 }
 
 
@@ -13926,9 +13845,7 @@ void CGame::CreateScreenShot()
 	GetLocalTime(&SysTime);
 	ZeroMemory(ServerName, sizeof(ServerName));
 	ZeroMemory(SStime, sizeof(SStime));
-    stringstream ss;
-    ss << "Helbreath Xtreme" << SysTime.wMonth << " / " << SysTime.wDay << " / "
-       << SysTime.wYear << SysTime.wHour << " : " << SysTime.wMinute << " : " << SysTime.wSecond;
+
 	sprintf(SStime, "Helbreath Xtreme");
 	sprintf(SStime2, "%02d / %02d / %02d", SysTime.wMonth, SysTime.wDay, SysTime.wYear);
 	sprintf(SStime3, "%02d : %02d : %02d", SysTime.wHour, SysTime.wMinute, SysTime.wSecond);
@@ -13940,7 +13857,32 @@ void CGame::CreateScreenShot()
 // 	PutAlignedString(GetWidth()-180, GetWidth(), 10, SStime, Color(255,255, 255, 255)); //ScreenShot time
 // 	PutAlignedString(GetWidth()-180, GetWidth(), 30, SStime2, Color(255,255, 255, 255)); //ScreenShot time
 // 	PutAlignedString(GetWidth()-180, GetWidth(), 50, SStime3, Color(255,255, 255, 255)); //ScreenShot time
-    PutAlignedString(GetWidth() - 180, GetWidth(), GetHeight()-50, ss.str(), Color(255, 255, 255, 255)); //ScreenShot time
+    _text.setFont(_font.at("default"));
+    _text.setString(SStime);
+    _text.setFillColor(sf::Color::White);
+    FloatRect bounds = _text.getLocalBounds();
+    _text.setPosition(GetWidth() - 180, 10);
+    _text.setCharacterSize(12);
+
+    sf::Texture tex;
+    sf::RenderTexture rtex;
+    tex.create(window.getSize().x, window.getSize().y);
+    rtex.create(window.getSize().x, window.getSize().y);
+    tex.update(window);
+
+    sf::Sprite sprite;
+    sprite.setTexture(tex);
+
+    rtex.draw(sprite);
+    rtex.draw(_text);
+    _text.setString(SStime2);
+    _text.setPosition(GetWidth() - 180, 30);
+    rtex.draw(_text);
+    _text.setString(SStime3);
+    _text.setPosition(GetWidth() - 180, 50);
+    rtex.draw(_text);
+
+    //PutAlignedString(GetWidth() - 180, GetWidth(), GetHeight()-50, ss.str(), Color(255, 255, 255, 255)); //ScreenShot time
 	//driver->endScene();
 	//IImage * screenshot = driver->createScreenShot();
 
@@ -13959,23 +13901,11 @@ void CGame::CreateScreenShot()
 
 		if(_access(cFn, 0 ) == -1){
 
-			//driver->writeImageToFile(screenshot, tempstr);
-
-// 			video::IImage* image = driver->createImageFromData (
-// 				bg->getColorFormat(),
-// 				bg->getSize(),
-// 				bg->lock(),
-// 				false  //copy mem
-// 				);
-// 
-// 			bg->unlock();
-// 
-// 			driver->writeImageToFile(image, "drawbackground.png");
-			//screenshot->drop();
-			//				pFile = fopen(cFn, "rb");
-			//				//DIRECTX m_DDraw.Screenshot(cFn, //DIRECTX m_DDraw.m_lpBackB4);
-
-			wsprintfA(G_cTxt, NOTIFYMSG_CREATE_SCREENSHOT1, cFn);
+            sf::Image img = rtex.getTexture().copyToImage();
+            img.flipVertically();
+            img.saveToFile(tempstr);
+            
+			sprintf(G_cTxt, NOTIFYMSG_CREATE_SCREENSHOT1, cFn);
 			AddEventList(G_cTxt, 10);
 			return;
 		}
@@ -14071,7 +14001,10 @@ void CGame::UpdateScreen_OnLogin()
 	sY = 114;
 	if (m_cGameModeCount == 0)
 	{
-		EndInputString();
+        clipmousegame = false;
+        window.setMouseCursorGrabbed(true);
+        window.setMouseCursorVisible(false);
+        EndInputString();
 		m_stMCursor.sCursorFrame = 0;
 
 		if (_socket)
@@ -19865,7 +19798,6 @@ void CGame::StartBGM()
 		else if (memcmp(m_cCurLocation, "dglv", 4) == 0) strcpy( cWavFileName, "data\\music\\dungeon.wav" );
 		else if (memcmp(m_cCurLocation, "middled1", 8) == 0) strcpy( cWavFileName, "data\\music\\dungeon.wav" );
 		else if (memcmp(m_cCurLocation, "middleland", 10) == 0) strcpy( cWavFileName, "data\\music\\middleland.wav" );
-		// Snoopy: new musics
 		else if (memcmp(m_cCurLocation, "druncncity", 10) == 0) strcpy( cWavFileName, "data\\music\\druncncity.wav" );
 		else if (memcmp(m_cCurLocation, "inferniaA", 9) == 0) strcpy( cWavFileName, "data\\music\\middleland.wav" );
 		else if (memcmp(m_cCurLocation, "inferniaB", 9) == 0) strcpy( cWavFileName, "data\\music\\middleland.wav" );
@@ -19882,6 +19814,7 @@ void CGame::StartBGM()
 	int iVolume = (m_cMusicVolume - 100)*20;
 	if (iVolume > 0) iVolume = 0;
 	if (iVolume < -10000) iVolume = -10000; //iVolume == Volume
+    m_pBGM.setVolume(10);//TODO: update in game later
     m_pBGM.play();
 }
 
@@ -19931,15 +19864,9 @@ void CGame::MotionResponseHandler(char * pData)
 										  OBJECTSTOP, 0, 0, 0, 0, 5);
 		m_cCommandCount = 0;
 		m_bIsGetPointingMode = false;
-		//m_sViewDstX = m_sViewPointX = (m_sPlayerX-10)*32;
-		//m_sViewDstY = m_sViewPointY = (m_sPlayerY-7)*32;
-        m_sViewDstX = m_sViewPointX = (m_sPlayerX-12)*32; // 800x600 Resolution xRisenx Center Char xRisenx
-        m_sViewDstY = m_sViewPointY = (m_sPlayerY-9)*32; // 800x600 Resolution xRisenx Center Char xRisenx
 
         m_sViewDstX = m_sViewPointX = (m_sPlayerX - (GetWidth() / 32) / 2) * 32;
         m_sViewDstY = m_sViewPointY = (m_sPlayerY - ((GetHeight() - 60) / 32) / 2) * 32;
-        //m_sViewDstX = m_sViewPointX = (m_sPlayerX-24)*32; // 800x600 Resolution xRisenx Center Char xRisenx
-        //m_sViewDstY = m_sViewPointY = (m_sPlayerY-18)*32; // 800x600 Resolution xRisenx Center Char xRisenx
 
 		m_bIsRedrawPDBGS = true;
 		break;
@@ -20040,13 +19967,6 @@ void CGame::MotionResponseHandler(char * pData)
 										  0, 11);
 		m_cCommandCount = 0;
 		m_bIsGetPointingMode = false;
-		//m_sViewDstX = m_sViewPointX = (m_sPlayerX-10)*32;
-		//m_sViewDstY = m_sViewPointY = (m_sPlayerY-7)*32;
-		//m_sViewDstX = m_sViewPointX = (m_sPlayerX-12)*32; // 800x600 Resolution xRisenx Center Char xRisenx
-		//m_sViewDstY = m_sViewPointY = (m_sPlayerY-9)*32; // 800x600 Resolution xRisenx Center Char xRisenx
-
-        m_sViewDstX = m_sViewPointX = (m_sPlayerX - 24) * 32; // 800x600 Resolution xRisenx Center Char xRisenx
-        m_sViewDstY = m_sViewPointY = (m_sPlayerY - 18) * 32; // 800x600 Resolution xRisenx Center Char xRisenx
 
         m_sViewDstX = m_sViewPointX = (m_sPlayerX - (GetWidth() / 32) / 2) * 32;
         m_sViewDstY = m_sViewPointY = (m_sPlayerY - ((GetHeight() - 60) / 32) / 2) * 32;
@@ -20092,7 +20012,6 @@ void CGame::CommandProcessor(short msX, short msY, short indexX, short indexY, c
 	dwDamage = 0;
 	#endif
 	bool  bGORet;
- // Fixed by Snoopy
 	if ((m_bIsObserverCommanded == false) && (m_bIsObserverMode == true) && (dwTime - lastPanTime) > 100 )
 	{	
 		if ((msX == 0) && (msY == 0) && (m_sViewDstX > 32*21) && (m_sViewDstY > 32*16)) bSendCommand(MSGID_REQUEST_PANNING, 0, 8, 0, 0, 0, 0);
@@ -24549,21 +24468,10 @@ void CGame::InitDataResponseHandler(char * pData)
 	{
         m_pMapData->bSetOwner(m_sPlayerObjectID, m_sPlayerX, m_sPlayerY, m_sPlayerType, m_cPlayerDir,
 							                  m_sPlayerAppr1, m_sPlayerAppr2, m_sPlayerAppr3, m_sPlayerAppr4, m_iPlayerApprColor,
-											  m_sPlayerHeadApprValue, m_sPlayerBodyApprValue, m_sPlayerArmApprValue, m_sPlayerLegApprValue, // Re-Coding Sprite xRisenx
+											  m_sPlayerHeadApprValue, m_sPlayerBodyApprValue, m_sPlayerArmApprValue, m_sPlayerLegApprValue,
 											  m_iPlayerStatus, m_cPlayerName,
 											  OBJECTSTOP, 0, 0, 0);
 	}
-
-	//m_sViewDstX = m_sViewPointX = (sX+4+5)*32;
-	//m_sViewDstY = m_sViewPointY = (sY+5+5)*32;
-	//m_sViewDstX = m_sViewPointX = (sX+7)*32; // 800x600 Resolution xRisenx Center Char xRisenx
-	//m_sViewDstY = m_sViewPointY = (sY+8)*32; // 800x600 Resolution xRisenx Center Char xRisenx
-
-    //m_sViewDstX = m_sViewPointX = (sX ) * 32; // 800x600 Resolution xRisenx Center Char xRisenx
-    //m_sViewDstY = m_sViewPointY = (sY ) * 32; // 800x600 Resolution xRisenx Center Char xRisenx
-
-    m_sViewDstX = m_sViewPointX = (sX) * 32 - GetWidth()/2;// ((GetWidth() / 32 /*tiles across*/) / 2);
-    m_sViewDstY = m_sViewPointY = (sY) * 32 - (GetHeight()-60)/2;// (((GetHeight() - 60) / 32 /*tiles across*/) / 2);
 
     viewdstxvar = (GetWidth() / 32) / 2;
     viewdstyvar = ((GetHeight()-60) / 32) / 2;
@@ -24572,10 +24480,7 @@ void CGame::InitDataResponseHandler(char * pData)
     m_sViewDstY = m_sViewPointY = (sY - ((GetHeight() - 60) / 32) / 2) * 32;
 
     cout << "viewpoint " << m_sViewPointX << ":" << m_sViewPointY << endl;
-	//_ReadMapData(sX + 4 + 5, sY + 5 + 5, cp);
-	//_ReadMapData(sX + 7, sY + 8, cp); // 800x600 Resolution xRisenx Center Char xRisenx
     _ReadMapData(sX, sY, cp);
-	//_ReadMapData(sX + 4 + 5 - 2, sY + 5 + 5 - 2, cp); // Maybe this insted ? xRisenx
 	m_bIsRedrawPDBGS = true;
     // ------------------------------------------------------------------------+
 	wsprintfA(cTxt, INITDATA_RESPONSE_HANDLER1, m_cMapMessage);
