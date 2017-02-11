@@ -222,6 +222,7 @@ public:
 
 	void DrawStatusText(int sX, int sY);
     void StartLogin();
+    void OnEvent(sf::Event event);
 
     bool autologin = false;
     bool autoresolution = false;

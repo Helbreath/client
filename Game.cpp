@@ -1337,6 +1337,123 @@ char CGame::cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMo
 	return 0;
 }
 
+void CGame::OnEvent(sf::Event event)
+{
+    switch (event.type)
+    {
+        case sf::Event::KeyPressed:
+            if (event.key.code == Keyboard::Key::Escape)
+            {
+                clipmousegame = !clipmousegame;
+                window.setMouseCursorGrabbed(clipmousegame);
+            }
+            else if (event.key.code == Keyboard::Key::LShift)
+            {
+                m_bShiftPressed = true;
+            }
+            else if (event.key.code == Keyboard::Key::Return && event.key.alt)
+            {
+                fullscreen = !fullscreen;
+                window.close();
+                window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Resize | Style::Close)));
+            }
+            else if (event.key.code == Keyboard::Key::F12)
+            {
+                CreateScreenShot();
+            }
+            else if (event.key.code == Keyboard::Key::F5)
+            {
+                calcoldviewport = !calcoldviewport;
+            }
+
+            OnKeyDown(event.key.code);
+            break;
+        case sf::Event::KeyReleased:
+            if (event.key.code == Keyboard::Key::LShift)
+            {
+                m_bShiftPressed = false;
+            }
+            OnKeyUp(event.key.code);
+            break;
+        case sf::Event::Resized:
+            break;
+        case sf::Event::LostFocus:
+            window.setFramerateLimit(45);//set to var
+            break;
+        case sf::Event::GainedFocus:
+            window.setFramerateLimit(0);
+            break;
+        case sf::Event::MouseWheelScrolled:
+            if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
+            {
+                if (event.mouseWheelScroll.delta > 0)
+                    m_stMCursor.sZ = 1;
+                else
+                    m_stMCursor.sZ = -1;
+            }
+            else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel)
+            {
+
+            }
+            else
+            {
+
+            }
+            break;
+        case sf::Event::MouseButtonPressed:
+            if (event.mouseButton.button == sf::Mouse::Right)
+            {
+                m_stMCursor.RB = true;
+                htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
+            }
+            else if (event.mouseButton.button == sf::Mouse::Left)
+            {
+                m_stMCursor.LB = true;
+                htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Left);
+            }
+            else if (event.mouseButton.button == sf::Mouse::Middle)
+            {
+                m_stMCursor.MB = true;
+                htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
+            }
+
+            if (wasinactive)
+            {
+                wasinactive = false;
+            }
+
+            break;
+        case sf::Event::MouseButtonReleased:
+            if (event.mouseButton.button == sf::Mouse::Right)
+            {
+                m_stMCursor.RB = false;
+                htmlUI->view->InjectMouseUp(Awesomium::MouseButton::kMouseButton_Right);
+            }
+            else if (event.mouseButton.button == sf::Mouse::Left)
+            {
+                m_stMCursor.LB = false;
+                htmlUI->view->InjectMouseUp(Awesomium::MouseButton::kMouseButton_Left);
+            }
+            else if (event.mouseButton.button == sf::Mouse::Middle)
+            {
+                m_stMCursor.MB = false;
+                htmlUI->view->InjectMouseUp(Awesomium::MouseButton::kMouseButton_Middle);
+            }
+            break;
+        case sf::Event::MouseMoved:
+            float diffx = static_cast<float>(screenwidth_v) / screenwidth;
+            float diffy = static_cast<float>(screenheight_v) / screenheight;
+            uint16_t x = event.mouseMove.x * diffx;
+            uint16_t y = event.mouseMove.y * diffy;
+
+            m_stMCursor.sX = x;
+            m_stMCursor.sY = y;
+
+            htmlUI->MouseMove(x, y);
+            break;
+    }
+}
+
 bool CGame::_bCheckMoveable( short sx, short sy )
 {	// Snoopy: This function prevents the client from asking at TP from some maps to
 	// ML or PL if not citizen
