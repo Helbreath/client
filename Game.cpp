@@ -1362,7 +1362,7 @@ void CGame::OnEvent(sf::Event event)
                     break;
                 case Keyboard::F5:
                     calcoldviewport = !calcoldviewport;
-                    if (calcoldviewport)
+                    if (!calcoldviewport)
                     {
                         AddEventList("Switched to new viewport code.");
                     }
