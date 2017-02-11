@@ -1042,7 +1042,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 					sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
 					ESoundBuffer[i].loadFromFile(G_cTxt);
 					m_pESound[i].setBuffer(ESoundBuffer[i]);
-					progress = m_cLoading + (int)(i / 5);
+					progress = m_cLoading + (int)(i / 6);
 				}
 			}
 			m_cLoading = 100;
@@ -1086,10 +1086,11 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 	// Update the UI with the loading progress
 	JSObject obj;
 	progress = !progress ? m_cLoading : progress;
+	bool async = !(m_cLoading == 52 || m_cLoading == 60 || m_cLoading == 90 || m_cLoading == 100);
 	obj.SetProperty(WSLit("progress"), JSValue(progress));
 	obj.SetProperty(WSLit("progressLabel"), WSLit(progressLabel.c_str()));
 	obj.SetProperty(WSLit("complete"), JSValue(m_cLoading == 100 ? true : false));
-	htmlUI->EmitObject("progressUpdate", obj, true);
+	htmlUI->EmitObject("progressUpdate", obj, async);
 
     //TODO: hardware cursors
     /*cursors = device->getGUIEnvironment()->addEmptySpriteBank("cursor");
