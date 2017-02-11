@@ -674,17 +674,17 @@ bool CGame::bInit(void * hWnd, void * hInst, char * pCmdLine)
 		m_bIsXmas = true;
 	else m_bIsXmas = false;
 
-	if (bCheckImportantFile() == false)
-	{
-//fix windows
-		MessageBoxA(*(HWND*)m_hWnd, MSG_NOTIFY_CHECKSUM, "ERROR1", MB_ICONEXCLAMATION | MB_OK);
-		return false;
-	}
+// 	if (bCheckImportantFile() == false)
+// 	{
+// //fix windows
+// 		MessageBoxA(handle, MSG_NOTIFY_CHECKSUM, "ERROR1", MB_ICONEXCLAMATION | MB_OK);
+// 		return false;
+// 	}
 
 	if (_bDecodeBuildItemContents() == false)
 	{
 //fix windows
-		MessageBoxA(*(HWND*)m_hWnd, MSG_NOTIFY_CHECKSUM, "ERROR2", MB_ICONEXCLAMATION | MB_OK);
+		MessageBoxA(handle, MSG_NOTIFY_CHECKSUM, "ERROR2", MB_ICONEXCLAMATION | MB_OK);
 		return false;
 	}
 
@@ -692,7 +692,7 @@ bool CGame::bInit(void * hWnd, void * hInst, char * pCmdLine)
 	if(bReadItemNameConfigFile() == false)
 	{
 //fix windows
-		MessageBoxA(*(HWND*)m_hWnd, MSG_NOTIFY_ITEMNAME, "ERROR", MB_ICONEXCLAMATION | MB_OK);
+		MessageBoxA(handle, MSG_NOTIFY_ITEMNAME, "ERROR", MB_ICONEXCLAMATION | MB_OK);
 		return false;
 	}
 
@@ -704,14 +704,14 @@ bool CGame::bInit(void * hWnd, void * hInst, char * pCmdLine)
 	if (bInitMagicCfgList() == false)
 	{
 //fix windows
-		MessageBoxA(*(HWND*)m_hWnd, MSG_NOTIFY_MAGICCFG, "ERROR", MB_ICONEXCLAMATION | MB_OK);
+		MessageBoxA(handle, MSG_NOTIFY_MAGICCFG, "ERROR", MB_ICONEXCLAMATION | MB_OK);
 		return false;
 	}
 	// Skill
 	if (bInitSkillCfgList() == false)
 	{
 //fix windows
-		MessageBoxA(*(HWND*)m_hWnd, MSG_NOTIFY_SKILLCFG, "ERROR", MB_ICONEXCLAMATION | MB_OK);
+		MessageBoxA(handle, MSG_NOTIFY_SKILLCFG, "ERROR", MB_ICONEXCLAMATION | MB_OK);
 		return false;
 	}
 
