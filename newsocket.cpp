@@ -16,19 +16,9 @@ connection::connection(boost::asio::io_service& io_service,
     handshake_complete = false;
 }
 
-/*boost::asio::ssl::stream<boost::asio::ip::tcp::socket>& connection::socket()
-{
-	return socket_;
-}*/
-
 void connection::start()
 {
     client.m_dwCheckSprTime = unixtime() + 1000;
-/*
-    socket_.async_handshake(boost::asio::ssl::stream_base::client,
-                            boost::bind(&connection::handle_handshake, this,
-                                        boost::asio::placeholders::error));
-*/
 
     boost::system::error_code ec;
     socket_.handshake(boost::asio::ssl::stream_base::client, ec);
@@ -38,8 +28,8 @@ void connection::start()
     if (!ec)
     {
         boost::asio::async_read(socket_, boost::asio::buffer(buffer_, 2), boost::bind(&connection::handle_read_header, shared_from_this(),
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
+                                                                                      boost::asio::placeholders::error,
+                                                                                      boost::asio::placeholders::bytes_transferred));
     }
     else
     {
@@ -47,10 +37,6 @@ void connection::start()
         printf("connection exception: %s\n", ec.message().c_str());
         stop();
     }
-
-	/*boost::asio::async_read(socket_, boost::asio::buffer(buffer_, 3), boost::bind(&connection::handle_read_header, shared_from_this(),
-		boost::asio::placeholders::error,
-		boost::asio::placeholders::bytes_transferred));*/
 }
 
 void connection::handle_handshake(const boost::system::error_code& error)
@@ -72,6 +58,7 @@ void connection::stop()
 	try
 	{
 		socket_.lowest_layer().close();
+        client.ChangeGameMode(GAMEMODE_ONMAINMENU);
 		//client._socket.reset();
 	}
 	catch (std::exception& e)

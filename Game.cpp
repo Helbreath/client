@@ -388,7 +388,8 @@ void CGame::stop(connection_ptr c)
 	try
 	{
 		c->stop();
-		ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
+        ChangeGameMode(GAMEMODE_ONMAINMENU);
+        //ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
         _socket.reset();
         gamemode = 0;
 		//post socket closing
@@ -1349,7 +1350,7 @@ void CGame::CalcViewPoint()
 
 void CGame::handle_connect(const boost::system::error_code& e)
 {
-	if (!e)
+	if (!e)//TODO: see why boost no longer likes quick connects
 	{
 		_socket = new_connection_;
 
@@ -1359,14 +1360,10 @@ void CGame::handle_connect(const boost::system::error_code& e)
 	}
 	else
 	{
+        printf("%s\n", e.message().c_str());
 		new_connection_->stop();
 	    new_connection_.reset(new connection(io_service_, *this, request_handler_, ctx));
         _socket = nullptr;
-/*
-		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
-		new_connection_->socket().async_connect(endpoint,
-			boost::bind(&CGame::handle_connect, this,
-			boost::asio::placeholders::error));*/
 	}
 }
 
@@ -14043,9 +14040,13 @@ void CGame::_LoadAgreementTextContents(char cType)
 
 void CGame::StartLogin()
 {
-    CreateSocket();
     if (_socket == nullptr)
     {
+        loggedin = false;
+        new_connection_ = boost::make_shared<connection>(io_service_, *this, request_handler_, ctx);
+
+        Sleep(100);//TODO: on socket fail, tell ui so it can let you login again // also fix socket fail
+
         boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
         new_connection_->socket().async_connect(endpoint,
                                                 boost::bind(&CGame::handle_connect, this,
