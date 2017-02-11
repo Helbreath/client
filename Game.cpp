@@ -1112,6 +1112,10 @@ void CGame::UpdateScreen()
 		}
 	}
 #endif
+
+
+
+
     static uint64_t fpstime = unixtime();
 	static uint64_t uitime = unixtime();
 	if (htmlUI->surface && G_dwGlobalTime - uitime > 50)
@@ -1119,7 +1123,7 @@ void CGame::UpdateScreen()
         if (G_dwGlobalTime - fpstime > 1000)
         {
             char cfps[20];
-            sprintf(cfps, "%d", /*driver->getFPS()*/42);
+            sprintf(cfps, "%d", fps.getFPS());
             htmlUI->jsData.SetProperty(WSLit("fps"), WSLit(cfps));
             fpstime = G_dwGlobalTime;
             htmlUI->surface->set_is_dirty(true);

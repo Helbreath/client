@@ -177,10 +177,33 @@ enum
 	GUI_ID_TRANSPARENCY_SCROLL_BAR
 };
 
+class FPS
+{
+public:
+    FPS() : mFrame(0), mFps(0) {}
+    void update()
+    {
+        if (mClock.getElapsedTime().asSeconds() >= 1.f)
+        {
+            mFps = mFrame;
+            mFrame = 0;
+            mClock.restart();
+        }
+
+        ++mFrame;
+    }
+    const unsigned int getFPS() const { return mFps; }
+
+private:
+    unsigned int mFrame;
+    unsigned int mFps;
+    sf::Clock mClock;
+};
+
 class CGame
 {
 public:
-
+    FPS fps;
     struct UIMsgQueueEntry
     {
         JSValue obj;

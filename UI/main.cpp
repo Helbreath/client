@@ -124,10 +124,12 @@ int main(int argc, char * argv[])
 
     sf::Event event;
     sf::RenderWindow & window = G_pGame->window;
+ 
     while (window.isOpen())
 	{
         //timers first
         G_pGame->OnTimer();
+        G_pGame->fps.getFPS();
 
         while (window.pollEvent(event))
         {
