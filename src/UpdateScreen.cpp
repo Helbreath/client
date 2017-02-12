@@ -128,6 +128,8 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
     {
         case 0:
         {
+            new_connection_ = boost::make_shared<connection>(io_service_, *this, request_handler_, ctx);
+
 			progressLabel = "Loading interface";
             m_pSprite[SPRID_MOUSECURSOR] = CSprite::CreateSprite("interface", 0, false);
             m_pSprite[SPRID_INTERFACE_SPRFONTS] = CSprite::CreateSprite("interface", 1, false);
@@ -812,7 +814,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 			progressLabel = "Loading sounds";
 			if (m_bSoundFlag)
 			{
-				for (i = 1; i <= 24; i++)
+				for (i = 1; i <= 8; i++)
 				{
 					sprintf(G_cTxt, "data\\sounds\\C%d.wav", i);
 					CSoundBuffer[i].loadFromFile(G_cTxt);
@@ -828,7 +830,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 			progressLabel = "Loading sounds.";
 			if (m_bSoundFlag)
 			{
-				for (i = 1; i <= 156; i++)
+				for (i = 1; i <= 50; i++)
 				{
 					sprintf(G_cTxt, "data\\sounds\\M%d.wav", i);
 					MSoundBuffer[i].loadFromFile(G_cTxt);
@@ -836,15 +838,15 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 					progress = m_cLoading + (int)(i / 5);
 				}
 			}
-			m_cLoading = 90;
+			m_cLoading = 68;
 		}
 		break;
-		case 90:
+		case 68:
 		{
 			progressLabel = "Loading sounds..";
 			if (m_bSoundFlag)
 			{
-				for (i = 1; i <= 54; i++)
+				for (i = 1; i <= 15; i++)
 				{
 					sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
 					ESoundBuffer[i].loadFromFile(G_cTxt);
@@ -852,9 +854,105 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 					progress = m_cLoading + (int)(i / 6);
 				}
 			}
-			m_cLoading = 100;
+            m_cLoading = 76;
 		}
 		break;
+        case 76:
+        {
+            progressLabel = "Loading sounds";
+            if (m_bSoundFlag)
+            {
+                for (i = 9; i <= 16; i++)
+                {
+                    sprintf(G_cTxt, "data\\sounds\\C%d.wav", i);
+                    CSoundBuffer[i].loadFromFile(G_cTxt);
+                    m_pCSound[i].setBuffer(CSoundBuffer[i]);
+                    progress = m_cLoading + (int)(i / 2);
+                }
+            }
+            m_cLoading = 84;
+        }
+        break;
+        case 84:
+        {
+            progressLabel = "Loading sounds.";
+            if (m_bSoundFlag)
+            {
+                for (i = 51; i <= 100; i++)
+                {
+                    sprintf(G_cTxt, "data\\sounds\\M%d.wav", i);
+                    MSoundBuffer[i].loadFromFile(G_cTxt);
+                    m_pMSound[i].setBuffer(MSoundBuffer[i]);
+                    progress = m_cLoading + (int)(i / 5);
+                }
+            }
+            m_cLoading = 88;
+        }
+        break;
+        case 88:
+        {
+            progressLabel = "Loading sounds..";
+            if (m_bSoundFlag)
+            {
+                for (i = 16; i <= 30; i++)
+                {
+                    sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
+                    ESoundBuffer[i].loadFromFile(G_cTxt);
+                    m_pESound[i].setBuffer(ESoundBuffer[i]);
+                    progress = m_cLoading + (int)(i / 6);
+                }
+            }
+            m_cLoading = 92;
+        }
+        break;
+        case 92:
+        {
+            progressLabel = "Loading sounds";
+            if (m_bSoundFlag)
+            {
+                for (i = 17; i <= 24; i++)
+                {
+                    sprintf(G_cTxt, "data\\sounds\\C%d.wav", i);
+                    CSoundBuffer[i].loadFromFile(G_cTxt);
+                    m_pCSound[i].setBuffer(CSoundBuffer[i]);
+                    progress = m_cLoading + (int)(i / 2);
+                }
+            }
+            m_cLoading = 95;
+        }
+        break;
+        case 95:
+        {
+            progressLabel = "Loading sounds.";
+            if (m_bSoundFlag)
+            {
+                for (i = 101; i <= 156; i++)
+                {
+                    sprintf(G_cTxt, "data\\sounds\\M%d.wav", i);
+                    MSoundBuffer[i].loadFromFile(G_cTxt);
+                    m_pMSound[i].setBuffer(MSoundBuffer[i]);
+                    progress = m_cLoading + (int)(i / 5);
+                }
+            }
+            m_cLoading = 98;
+        }
+        break;
+        case 98:
+        {
+            progressLabel = "Loading sounds..";
+            if (m_bSoundFlag)
+            {
+                for (i = 31; i <= 54; i++)
+                {
+                    sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
+                    ESoundBuffer[i].loadFromFile(G_cTxt);
+                    m_pESound[i].setBuffer(ESoundBuffer[i]);
+                    progress = m_cLoading + (int)(i / 6);
+                }
+            }
+            m_cLoading = 100;
+        }
+        break;
 		case 100:
 		{
 			progressLabel = "Finalizing";
@@ -868,16 +966,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
                 m_dwConnectMode = MSGID_REQUEST_LOGIN;
                 ZeroMemory(m_cMsg, sizeof(m_cMsg));
                 strcpy(m_cMsg, "11");
-                if (_socket != nullptr)
-                {
-                    _socket->stop();
-                }
-                if (new_connection_ != nullptr)
-                {
-                    new_connection_->stop();
-                }
 
-                CreateSocket();
                 boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
                 new_connection_->socket().async_connect(endpoint,
                                                         boost::bind(&CGame::handle_connect, this,
@@ -892,7 +981,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 	// Update the UI with the loading progress
 	JSObject obj;
 	progress = !progress ? m_cLoading : progress;
-	bool async = !(m_cLoading == 52 || m_cLoading == 60 || m_cLoading == 90 || m_cLoading == 100);
+	bool async = !(m_cLoading == 52 || m_cLoading == 60 || m_cLoading == 92 || m_cLoading == 100);
 	obj.SetProperty(WSLit("progress"), JSValue(progress));
 	obj.SetProperty(WSLit("progressLabel"), WSLit(progressLabel.c_str()));
 	obj.SetProperty(WSLit("complete"), JSValue(m_cLoading == 100 ? true : false));
@@ -1147,18 +1236,10 @@ void CGame::UpdateScreen_OnConnecting()
         m_bEscPressed = false;
         dwCTime = dwMTime = unixtime();
 
-        if (_socket == nullptr)
+        if ((_socket != nullptr) && (_socket->handshake_complete))
         {
-            boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
-            CreateSocket();
-            new_connection_->socket().async_connect(endpoint,
-                                                    boost::bind(&CGame::handle_connect, this,
-                                                                boost::asio::placeholders::error));
-        }
-        else
-        {
-            if (_socket->handshake_complete)
-                ConnectionEstablishHandler(SERVERTYPE_LOG);
+            printf("UpdateScreen_OnConnecting()");
+            ConnectionEstablishHandler(SERVERTYPE_LOG);
         }
     }
     m_cGameModeCount++;

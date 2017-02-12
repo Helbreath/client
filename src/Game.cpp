@@ -354,7 +354,8 @@ void CGame::PutMsgQueue(MsgQueue & q, char * data, uint32_t size)
 	//poco_information(*logger, "PutMsgQueue()");
 	shared_ptr<MsgQueueEntry> msg(new MsgQueueEntry);
 
-	msg->data = data;
+    msg->data = new char[size];
+    memcpy(msg->data, data, size);
 	msg->size = size;
 
 	q.push_back(msg);
@@ -391,12 +392,13 @@ void CGame::stop(connection_ptr c)
         ChangeGameMode(GAMEMODE_ONMAINMENU);
         //ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
         _socket.reset();
+        new_connection_ = boost::make_shared<connection>(io_service_, *this, request_handler_, ctx);
         gamemode = 0;
 		//post socket closing
 	}
 	catch (std::exception& e)
 	{
-		printf("exception: %s", e.what());
+		printf("exception: %s\n", e.what());
 	}
 }
 
@@ -447,13 +449,6 @@ char itoh(int num)
     }
     return 0;
 }*/
-
-void CGame::CreateSocket()
-{
-    loggedin = false;
-    new_connection_ = boost::make_shared<connection>(io_service_, *this, request_handler_, ctx);
-}
-
 
 CGame::CGame()
 	: io_service_(),
@@ -1264,6 +1259,7 @@ void CGame::handle_connect(const boost::system::error_code& e)
 
 		start(new_connection_);
 		new_connection_.reset(new connection(io_service_, *this, request_handler_, ctx));
+        printf("handle_connect()\n");
 		ConnectionEstablishHandler(SERVERTYPE_LOG);
 	}
 	else
@@ -1271,6 +1267,8 @@ void CGame::handle_connect(const boost::system::error_code& e)
         printf("%s\n", e.message().c_str());
 		new_connection_->stop();
 	    new_connection_.reset(new connection(io_service_, *this, request_handler_, ctx));
+        loggedin = false;
+        new_connection_ = boost::make_shared<connection>(io_service_, *this, request_handler_, ctx);
         _socket = nullptr;
 	}
 }
@@ -1576,6 +1574,8 @@ bool CGame::SendLoginCommand(uint32_t dwMsgID)
 
 bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1, int iV2, int iV3, char const * const pString, int iV4)
 {
+    printf("bSendCommand(%d, %d)\n", dwMsgID, wCommand);
+
 	char  * cp, cMsg[300 + MAX_MAIL_MSG_LENGTH], cTxt[256], cKey;
     uint32_t * dwp;
     uint64_t dwTime;
@@ -3010,22 +3010,26 @@ void CGame::DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, 
 
 void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
 {
-	uint32_t * dwpMsgID;
-	dwpMsgID = (uint32_t *)(pData + INDEX4_MSGID);
+	uint32_t dwpMsgID;
 
-	if(*dwpMsgID & MSGIDTYPE_MOTION)
+    StreamRead sr = StreamRead(pData, dwMsgSize);
+
+    dwpMsgID = sr.ReadInt();
+    sr.ReadShort();
+
+    if (dwpMsgID & MSGIDTYPE_MOTION)
 	{
 		MotionEventHandler(pData);
 		return;
 	}
 
-
 	uint8_t v;
 
-	switch (*dwpMsgID)
+	switch (dwpMsgID)
 	{
 	case MSGID_MODIFYTILE:
-		ReceiveModifyTile(pData);
+        printf("ReceiveModifyTile\n");
+        ReceiveModifyTile(pData);
 		break;
 
 	case MSGID_RESPONSE_CHARGED_TELEPORT:
@@ -3049,27 +3053,33 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
 		break;
 
 	case MSGID_RESPONSE_INITPLAYER:
-		InitPlayerResponseHandler(pData);
+        printf("InitPlayerResponseHandler\n");
+        InitPlayerResponseHandler(pData);
 		break;
 
 	case MSGID_RESPONSE_INITDATA:
+        printf("InitDataResponseHandler\n");
 		InitDataResponseHandler(pData);
 		break;
 
 	case MSGID_RESPONSE_MOTION:
-		MotionResponseHandler(pData);
+        printf("MotionResponseHandler\n");
+        MotionResponseHandler(pData);
 		break;
 
 	case MSGID_EVENT_COMMON:
-		CommonEventHandler(pData, dwMsgSize);
+        printf("CommonEventHandler\n");
+        CommonEventHandler(pData, dwMsgSize);
 		break;
 		
 	case MSGID_COMMAND_CHATMSG:
-		ChatMsgHandler(pData);
+        printf("ChatMsgHandler\n");
+        ChatMsgHandler(pData);
 		break;
 
 	case MSGID_PLAYERITEMLISTCONTENTS:
-		InitItemList(pData);
+        printf("InitItemList\n");
+        InitItemList(sr);
 		break;
 
 	case MSGID_GUILDINFO:
@@ -3155,7 +3165,8 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
 		break;
 
 	case MSGID_NOTIFY:
-		NotifyMsgHandler(pData);
+        //printf("NotifyMsgHandler\n");
+        NotifyMsgHandler(pData);
 		break;
 
 	case MSGID_RESPONSE_CREATENEWGUILD:
@@ -3167,7 +3178,8 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
 		break;
 
 	case MSGID_PLAYERCHARACTERCONTENTS:
-		InitPlayerCharacteristics(pData);
+        printf("InitPlayerCharacteristics\n");
+        InitPlayerCharacteristics(pData);
 		break;
 
 	case MSGID_RESPONSE_CIVILRIGHT:
@@ -3175,7 +3187,8 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
 		break;
 
 	case MSGID_RESPONSE_RETRIEVEITEM:
-		RetrieveItemHandler(pData);
+        printf("RetrieveItemHandler\n");
+        RetrieveItemHandler(pData);
 		break;
 
 	case MSGID_RESPONSE_RETRIEVEITEM_GUILDBANK:
@@ -3198,6 +3211,7 @@ void CGame::ConnectionEstablishHandler(char cWhere)
 
 	switch (cWhere) {
 	case SERVERTYPE_GAME:
+        printf("MSGID_REQUEST_INITPLAYER\n");
 		bSendCommand(MSGID_REQUEST_INITPLAYER);
 		break;
 
@@ -8047,7 +8061,8 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 			string gameservername= sr.ReadString(20);
 			memcpy(m_cGameServerName, gameservername.c_str(), (gameservername.length() < 20) ? gameservername.length() : 20);
 			gamemode = 1;
-			ConnectionEstablishHandler(SERVERTYPE_GAME);
+            printf("ENTERGAMERESTYPE_CONFIRM\n");
+            ConnectionEstablishHandler(SERVERTYPE_GAME);
 		}
 		break;
 
@@ -13262,17 +13277,13 @@ void CGame::StartLogin()
     if (_socket == nullptr)
     {
         loggedin = false;
-        new_connection_ = boost::make_shared<connection>(io_service_, *this, request_handler_, ctx);
-
-        Sleep(100);//TODO: on socket fail, tell ui so it can let you login again // also fix socket fail
 
         boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
-        new_connection_->socket().async_connect(endpoint,
-                                                boost::bind(&CGame::handle_connect, this,
-                                                            boost::asio::placeholders::error));
+        new_connection_->socket().async_connect(endpoint, boost::bind(&CGame::handle_connect, this, boost::asio::placeholders::error));
     }
     else
     {
+        printf("StartLogin()\n");
         ConnectionEstablishHandler(SERVERTYPE_LOG);
     }
 }
@@ -13298,10 +13309,6 @@ void CGame::UpdateScreen_OnLogin()
 		if (_socket)
 		{
 			_socket->stop();
-		}
-		if (new_connection_)
-		{
-			new_connection_->stop();
 		}
 	}
 
