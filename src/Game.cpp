@@ -10016,11 +10016,11 @@ void CGame::InitItemList(StreamRead & sr)
         for (int k = 0; k < cTotalItems; ++k)
         {
             shared_ptr<CItem> item = readitem(sr);
-            bag[k] = JSValue(jsitem(item));
+            bag.Insert(JSValue(jsitem(item)), k);
             ib.itemList.push_back(item);
         }
         bagList.push_back(ib);
-        bags[i] = JSValue(bag);
+        bags.Insert(JSValue(bag), i);
     }
 
 
@@ -10036,11 +10036,11 @@ void CGame::InitItemList(StreamRead & sr)
         for (int k = 0; k < cTotalItems; ++k)
         {
             shared_ptr<CItem> item = readitem(sr);
-            bag[k] = JSValue(jsitem(item));
+            bag.Insert(JSValue(jsitem(item)), k);
             ib.itemList.push_back(item);
         }
         bagBankList.push_back(ib);
-        bankbags[i] = JSValue(bag);
+        bankbags.Insert(JSValue(bag), i);
     }
 
     game.SetProperty(WSLit("bags"), JSValue(bags));
