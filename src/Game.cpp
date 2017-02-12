@@ -10053,13 +10053,13 @@ void CGame::InitItemList(StreamRead & sr)
 	for (int i = 0; i < MAXMAGICTYPE; i++)
 	{
         m_cMagicMastery[i] = sr.ReadByte();
-        magic[i] = JSValue(m_cMagicMastery[i]);
+        magic.Insert(JSValue((int)m_cMagicMastery[i]), i);
 	}
 
 	for (int i = 0; i < MAXSKILLTYPE; i++)
 	{
         m_cSkillMastery[i] = sr.ReadByte();
-        magic[i] = JSValue(m_cSkillMastery[i]);
+        skill.Insert(JSValue((int)m_cSkillMastery[i]), i);
     }
 
     game.SetProperty(WSLit("magic"), JSValue(magic));
