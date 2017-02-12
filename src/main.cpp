@@ -128,7 +128,7 @@ int main(int argc, char * argv[])
 	{
         //timers first
         G_pGame->OnTimer();
-        G_pGame->fps.getFPS();
+        G_pGame->fps.update();
 
         while (window.pollEvent(event))
         {

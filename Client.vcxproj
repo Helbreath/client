@@ -344,6 +344,7 @@
     <ClInclude Include="src\Guild.h" />
     <ClInclude Include="src\BuildItem.h" />
     <ClInclude Include="src\Item.h" />
+    <ClInclude Include="src\ItemBag.h" />
     <ClInclude Include="src\ItemName.h" />
     <ClInclude Include="src\Magic.h" />
     <ClInclude Include="src\mail.h" />
@@ -358,7 +359,6 @@
     <ClInclude Include="src\GlobalDef.h" />
     <ClInclude Include="src\GlobalVal.h" />
     <ClInclude Include="src\lan_eng.h" />
-    <ClInclude Include="src\lan_spa.h" />
     <ClInclude Include="src\MapData.h" />
     <ClInclude Include="src\Tile.h" />
     <ClInclude Include="src\Misc.h" />
@@ -380,6 +380,7 @@
     <ClCompile Include="src\Guild.cpp" />
     <ClCompile Include="src\BuildItem.cpp" />
     <ClCompile Include="src\Item.cpp" />
+    <ClCompile Include="src\ItemBag.cpp" />
     <ClCompile Include="src\ItemName.cpp" />
     <ClCompile Include="src\Magic.cpp" />
     <ClCompile Include="src\mail.cpp" />

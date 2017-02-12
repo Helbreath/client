@@ -1000,8 +1000,7 @@ void CGame::UpdateScreen()
 		break;
 
 	case GAMEMODE_ONMAINMENU:
-		//UpdateScreen_OnMainMenu();
-		UpdateScreen_OnLogin();	// ShadowEvil - Added a skip main menu
+		UpdateScreen_OnLogin();
 		break;
 
 	case GAMEMODE_ONLOADING:
@@ -9907,193 +9906,138 @@ char CGame::MouseOverDialog()
 	return onDialog;
 }
 
-void CGame::InitItemList(char * pData)
+void CGame::InitItemList(StreamRead & sr)
 {
-char    cTotalItems;
- int     i, iAngelValue;
- short * sp;
- uint32_t * dwp;
- uint16_t  * wp;
- char  * cp;
+    int     iAngelValue;
+    short * sp;
+    uint32_t * dwp;
+    uint16_t  * wp;
+    char  * cp;
 
 	m_weight = 0;
 
-	for (i = 0; i < MAXITEMS; i++)
-		m_cItemOrder[i] = -1;
+    bagList.clear();
+    bagBankList.clear();
 
-	for (i = 0; i < MAXITEMEQUIPPOS; i++)
-		m_sItemEquipmentStatus[i] = -1;
+    //JSObject game = res.ToObject();
 
-	for (i = 0; i < MAXITEMS; i++)
-		m_bIsItemDisabled[i] = false;
+    int totalBags = sr.ReadByte();
 
-	cp = (char *)(pData + INDEX2_MSGTYPE + 2);
+    auto readitem = [](StreamRead & sr) -> shared_ptr<CItem>
+    {
+        shared_ptr<CItem> item = make_shared<CItem>();
 
-	cTotalItems = *cp;
-	cp++;
+        if (sr.ReadByte() == 0)
+        {
+            return nullptr;
+        }
+        item->name = sr.ReadString();
+        item->m_dwCount = sr.ReadShort();
+        item->m_cItemType = sr.ReadByte();
+        item->m_ItemColor = sr.ReadInt();
+        item->m_wMaxLifeSpan = sr.ReadShort();
+        item->m_wCurLifeSpan = sr.ReadInt();
+        item->m_sItemSpecEffectValue1 = sr.ReadShort();
+        item->m_sItemSpecEffectValue2 = sr.ReadShort();
+        item->m_sItemSpecEffectValue3 = sr.ReadShort();
+        item->m_cGenderLimit = sr.ReadByte();
+        item->m_sItemEffectValue1 = sr.ReadShort();
+        item->m_sItemEffectValue2 = sr.ReadShort();
+        item->m_sItemEffectValue3 = sr.ReadShort();
+        item->m_sItemEffectValue4 = sr.ReadShort();
+        item->m_sItemEffectValue5 = sr.ReadShort();
+        item->m_sItemEffectValue6 = sr.ReadShort();
+        item->m_sLevelLimit = sr.ReadShort();
+        item->m_dwAttribute = sr.ReadInt();
+        item->m_wWeight = sr.ReadShort();
+        item->m_sSpriteFrame = sr.ReadShort();
+        item->m_sSprite = sr.ReadShort();
+        item->ItemUniqueID = sr.ReadInt64();
+        //TODO: sockets
+        return item;
+    };
 
-	for (i = 0; i < MAXITEMS; i++)
-	if (m_pItemList[i] != 0)
-	{	delete m_pItemList[i];
-		m_pItemList[i] = 0;
-	}
+    auto jsitem = [](shared_ptr<CItem> item)
+    {
+        JSObject obj;
+        obj.SetProperty(WSLit("name"), JSValue(ToWebString(item->name)));
+        obj.SetProperty(WSLit("count"), JSValue((int)item->m_dwCount));
+        obj.SetProperty(WSLit("type"), JSValue(item->m_cItemType));
+        obj.SetProperty(WSLit("color"), JSValue((double)item->m_ItemColor));
+        obj.SetProperty(WSLit("currentDurability"), JSValue(item->m_wMaxLifeSpan));
+        obj.SetProperty(WSLit("maxDurability"), JSValue(item->m_wCurLifeSpan));
+        obj.SetProperty(WSLit("special1"), JSValue(item->m_sItemSpecEffectValue1));
+        obj.SetProperty(WSLit("special2"), JSValue(item->m_sItemSpecEffectValue2));
+        obj.SetProperty(WSLit("special3"), JSValue(item->m_sItemSpecEffectValue3));
+        obj.SetProperty(WSLit("gender"), JSValue(item->m_cGenderLimit));
+        obj.SetProperty(WSLit("effect1"), JSValue(item->m_sItemEffectValue1));
+        obj.SetProperty(WSLit("effect2"), JSValue(item->m_sItemEffectValue2));
+        obj.SetProperty(WSLit("effect3"), JSValue(item->m_sItemEffectValue3));
+        obj.SetProperty(WSLit("effect4"), JSValue(item->m_sItemEffectValue4));
+        obj.SetProperty(WSLit("effect5"), JSValue(item->m_sItemEffectValue5));
+        obj.SetProperty(WSLit("effect6"), JSValue(item->m_sItemEffectValue6));
+        obj.SetProperty(WSLit("level"), JSValue(item->m_sLevelLimit));
+        obj.SetProperty(WSLit("attribute"), JSValue((double)item->m_dwAttribute));
+        obj.SetProperty(WSLit("weight"), JSValue(item->m_wWeight));
+        obj.SetProperty(WSLit("spriteFrame"), JSValue(item->m_sSpriteFrame));
+        obj.SetProperty(WSLit("sprite"), JSValue(item->m_sSprite));
+        obj.SetProperty(WSLit("uniqueId"), JSValue((double)item->ItemUniqueID));
+        return obj;
+    };
 
-	for (i = 0; i < MAXBANKITEMS; i++)
-	if (m_pBankList[i] != 0)
-	{	delete m_pBankList[i];
-		m_pBankList[i] = 0;
-	}
+    JSValue res = htmlUI->view->ExecuteJavascriptWithResult(WSLit("client.game"), WSLit(""));
+    JSObject game = res.ToObject();
+    JSArray bags;
 
-	for (i = 0; i < cTotalItems; i++)
-	{
-		m_pItemList[i] = new class CItem;
-		memcpy(m_pItemList[i]->m_cName, cp, 20);
-		cp += 20;
-		dwp = (uint32_t *)cp;
-		m_pItemList[i]->m_dwCount = *dwp;
-		m_pItemList[i]->m_sX      =	40;
-		m_pItemList[i]->m_sY      =	30;
-		cp += 4;
-		m_pItemList[i]->m_cItemType = *cp;
-		cp++;
-		m_pItemList[i]->m_cEquipPos = *cp;
-		cp++;
-		if( *cp == 0 ) m_bIsItemEquipped[i] = false;
-		else m_bIsItemEquipped[i] = true;
-		cp++;
-		if (m_bIsItemEquipped[i] == true)
-		{	m_sItemEquipmentStatus[m_pItemList[i]->m_cEquipPos] = i;
-		}
-		sp = (short *)cp;
-		m_pItemList[i]->m_sLevelLimit = *sp;
-		cp += 2;
-		m_pItemList[i]->m_cGenderLimit = *cp;
-		cp++;
-		wp =(uint16_t *)cp;
-		m_pItemList[i]->m_wCurLifeSpan = *wp;
-		cp += 2;
-		wp =(uint16_t *)cp;
-		m_pItemList[i]->m_wWeight = *wp;
-		cp += 2;
-		sp = (short *)cp;
-		m_pItemList[i]->m_sSprite = *sp;
-		cp += 2;
-		sp = (short *)cp;
-		m_pItemList[i]->m_sSpriteFrame = *sp;
-		cp += 2;
-		dwp = (uint32_t *)cp;
-		m_pItemList[i]->m_ItemColor = *dwp;
-		cp += 4;
-		m_pItemList[i]->m_sItemSpecEffectValue2 = (short)*cp;
-		cp++;
-		dwp = (uint32_t *)cp;
-		m_pItemList[i]->m_dwAttribute = *dwp;
-		cp += 4;
-		for(int j = 0; j < MAXITEMSOCKETS; j++)
-		{
-			Pop(cp, m_pItemList[i]->m_sockets[j]);
-		}
-		m_cItemOrder[i] = i;
-		// Snoopy: Add Angelic Stats
-		if (   (m_pItemList[i]->m_cItemType == 1)
-			&& (m_bIsItemEquipped[i] == true)
-			&& (m_pItemList[i]->m_cEquipPos >= 11))
-		{	if(memcmp(m_pItemList[i]->m_cName, "AngelicPendant(STR)", 19) == 0)
-			{	iAngelValue = (m_pItemList[i]->m_dwAttribute & 0xF0000000) >> 28;
-				//m_angelStat[STAT_STR] = 1 + iAngelValue;
-				m_angelStat[STAT_STR] = 12 * iAngelValue; // Angel Stats xRisenx
-			}else if(memcmp(m_pItemList[i]->m_cName, "AngelicPendant(DEX)", 19) == 0)
-			{	iAngelValue = (m_pItemList[i]->m_dwAttribute & 0xF0000000) >> 28;
-				//m_angelStat[STAT_DEX] = 1 + iAngelValue;
-				m_angelStat[STAT_DEX] = 12 * iAngelValue; // Angel Stats xRisenx
-			}else if(memcmp(m_pItemList[i]->m_cName, "AngelicPendant(INT)", 19) == 0)
-			{	iAngelValue = (m_pItemList[i]->m_dwAttribute & 0xF0000000) >> 28;
-				//m_angelStat[STAT_INT] = 1 + iAngelValue;
-				m_angelStat[STAT_INT] = 12 * iAngelValue; // Angel Stats xRisenx
-			}else if(memcmp(m_pItemList[i]->m_cName, "AngelicPendant(MAG)", 19) == 0)
-			{	iAngelValue = (m_pItemList[i]->m_dwAttribute & 0xF0000000) >> 28;
-				//m_angelStat[STAT_MAG] = 1 + iAngelValue;
-				m_angelStat[STAT_MAG] = 12 * iAngelValue; // Angel Stats xRisenx
-	}	}	}
+    for (int i = 0; i < totalBags; ++i)
+    {
+        ItemBag ib;
+        int cTotalItems = sr.ReadByte();
+        JSArray bag;
+        for (int k = 0; k < cTotalItems; ++k)
+        {
+            shared_ptr<CItem> item = readitem(sr);
+            bag.Insert(jsitem(item), k);
+            ib.itemList.push_back(item);
+        }
+        bagList.push_back(ib);
+        bags.Insert(bag, i);
+    }
 
-	cTotalItems = *cp;
-	_iCalcTotalWeight();
-	cp++;
 
-	for (i = 0; i < MAXBANKITEMS; i++)
-	if (m_pBankList[i] != 0)
-	{	delete m_pBankList[i];
-		m_pBankList[i] = 0;
-	}
+    totalBags = sr.ReadByte();
 
-	for (i = 0; i < cTotalItems; i++)
-	{	m_pBankList[i] = new class CItem;
-		memcpy(m_pBankList[i]->m_cName, cp, 20);
-		cp += 20;
+    JSArray bankbags = res.ToArray();
 
-		dwp = (uint32_t *)cp;
-		m_pBankList[i]->m_dwCount = *dwp;
-		cp += 4;
+    for (int i = 0; i < totalBags; ++i)
+    {
+        ItemBag ib;
+        int cTotalItems = sr.ReadByte();
+        JSArray bag;
+        for (int k = 0; k < cTotalItems; ++k)
+        {
+            shared_ptr<CItem> item = readitem(sr);
+            bag.Insert(jsitem(item), k);
+            ib.itemList.push_back(item);
+        }
+        bagBankList.push_back(ib);
+        bankbags.Insert(bag, i);
+    }
 
-		m_pBankList[i]->m_sX = 40;
-		m_pBankList[i]->m_sY = 30;
-
-		m_pBankList[i]->m_cItemType = *cp;
-		cp++;
-
-		m_pBankList[i]->m_cEquipPos = *cp;
-		cp++;
-
-		sp = (short *)cp;
-		m_pBankList[i]->m_sLevelLimit = *sp;
-		cp += 2;
-
-		m_pBankList[i]->m_cGenderLimit = *cp;
-		cp++;
-
-		wp =(uint16_t *)cp;
-		m_pBankList[i]->m_wCurLifeSpan = *wp;
-		cp += 2;
-
-		wp =(uint16_t *)cp;
-		m_pBankList[i]->m_wWeight = *wp;
-		cp += 2;
-
-		sp = (short *)cp;
-		m_pBankList[i]->m_sSprite = *sp;
-		cp += 2;
-
-		sp = (short *)cp;
-		m_pBankList[i]->m_sSpriteFrame = *sp;
-		cp += 2;
-
-		dwp = (uint32_t*)cp;
-		m_pBankList[i]->m_ItemColor = *dwp;
-		cp += 4;
-
-		m_pBankList[i]->m_sItemSpecEffectValue2 = (short)*cp;
-		cp++;
-
-		dwp = (uint32_t *)cp;
-		m_pBankList[i]->m_dwAttribute = *dwp;
-		cp += 4;
-		for(int j = 0; j < MAXITEMSOCKETS; j++)
-		{
-			Pop(cp, m_pBankList[i]->m_sockets[j]);
-		}
-	}
+    game.SetProperty(WSLit("bags"), bags);
+    game.SetProperty(WSLit("bagsBank"), bankbags);
+    
+    _iCalcTotalWeight();
 
 	// Magic, Skill Mastery
-	for (i = 0; i < MAXMAGICTYPE; i++)
-	{	m_cMagicMastery[i] = *cp;
-		cp++;
+	for (int i = 0; i < MAXMAGICTYPE; i++)
+	{
+        m_cMagicMastery[i] = sr.ReadByte();
 	}
 
-	for (i = 0; i < MAXSKILLTYPE; i++)
-	{	m_cSkillMastery[i] = (unsigned char)*cp;
-		if (m_pSkillCfgList[i] != 0)
-			m_pSkillCfgList[i]->m_iLevel = (int)*cp;
-		cp++;
+	for (int i = 0; i < MAXSKILLTYPE; i++)
+	{
+        m_cSkillMastery[i] = sr.ReadByte();
 	}
 }
 
@@ -15074,10 +15018,6 @@ void CGame::NotifyMsgHandler(char * pData)
 
 	case NOTIFY_CANNOTITEMTOBANK:
 		AddEventList(NOTIFY_MSG_HANDLER63, 10);
-		break;
-
-	case NOTIFY_SERVERCHANGE:
-		NotifyMsg_ServerChange(pData);
 		break;
 
 	case NOTIFY_SKILL:
@@ -22054,59 +21994,14 @@ void CGame::NotifyMsg_RatingPlayer(char * pData)
 	AddEventList(G_cTxt, 10);
 }
 
-
-void CGame::NotifyMsg_ServerChange(char * pData)
-{
- char * cp, cWorldServerAddr[16];	//Snoopy: change names for better readability
- int * ip, iWorldServerPort;		//Snoopy: change names for better readability
-
-	ZeroMemory(m_cMapName, sizeof(m_cMapName));
-	ZeroMemory(m_cMapMessage, sizeof(m_cMapMessage));
-	ZeroMemory(cWorldServerAddr, sizeof(cWorldServerAddr));
-
-
-	cp = (char *)(pData + INDEX2_MSGTYPE + 2);
-    memcpy(m_cMapName, cp, 10);
-
-//	m_cMapIndex = GetOfficialMapName(m_cMapName, m_cMapMessage);
-	cp += 10;
-
-	memcpy(cWorldServerAddr, cp, 15);
-	cp += 15;
-	ip = (int *)cp;
-	iWorldServerPort = *ip;
-	cp += 4;
-	gamemode = 0;
-	if (_socket)
-	{
-		_socket->stop();
-	}
-	if (_socket == nullptr)
-	{
-		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
-        CreateSocket();
-        new_connection_->socket().async_connect(endpoint,
-			boost::bind(&CGame::handle_connect, this,
-			boost::asio::placeholders::error));
-	}
-
-	m_bIsPoisoned = false;
-
-	ChangeGameMode(GAMEMODE_ONCONNECTING);
-	m_dwConnectMode  = MSGID_REQUEST_ENTERGAME;
-	//m_wEnterGameType = ENTERGAMEMSGTYPE_NEW; //Gateway
-		m_wEnterGameType = ENTERGAMEMSGTYPE_CHANGINGSERVER;
-		ZeroMemory(m_cMsg, sizeof(m_cMsg));
-	strcpy(m_cMsg,"55");
-}
-
 void CGame::NotifyMsg_SetItemCount(char * pData)
-{char  * cp;
- uint16_t  * wp;
- uint32_t * dwp;
- short  sItemIndex;
- uint32_t  dwCount;
- bool   bIsItemUseResponse;
+{
+    char  * cp;
+    uint16_t  * wp;
+    uint32_t * dwp;
+    short  sItemIndex;
+    uint32_t  dwCount;
+    bool   bIsItemUseResponse;
 	cp = (char *)(pData + INDEX2_MSGTYPE + 2);
 	wp = (uint16_t *)cp;
 	sItemIndex = *wp;
@@ -22805,7 +22700,7 @@ void CGame::InitDataResponseHandler(char * pData)
     m_sViewDstX = m_sViewPointX = (sX - (GetWidth() / 32) / 2) * 32;
     m_sViewDstY = m_sViewPointY = (sY - ((GetHeight() - 60) / 32) / 2) * 32;
 
-    cout << "viewpoint " << m_sViewPointX << ":" << m_sViewPointY << endl;
+    //cout << "viewpoint " << m_sViewPointX << ":" << m_sViewPointY << endl;
     _ReadMapData(sX, sY, cp);
 	m_bIsRedrawPDBGS = true;
     // ------------------------------------------------------------------------+
@@ -22817,8 +22712,7 @@ void CGame::InitDataResponseHandler(char * pData)
 		|| ( memcmp( m_cCurLocation, "middled1n"	, 9 ) == 0 ))
     	EnableDialogBox(6, NULL,NULL, NULL);*/
 
-// Snoopy: removed for v351 compatibility. Maybe usefull later...
-/*	bool bPrevSafe, bNowSafe;
+	bool bPrevSafe, bNowSafe;
 	if( memcmp( cPreCurLocation, m_cLocation, 3 ) == 0 )
 		bPrevSafe = TRUE;
 	else bPrevSafe = FALSE;
@@ -22831,42 +22725,31 @@ void CGame::InitDataResponseHandler(char * pData)
 	if( m_iPKCount != 0 ) bNowSafe = FALSE;
 
 	if( bPrevSafe )
-	{	if( bNowSafe == FALSE ) SetTopMsg(MSG_DANGERZONE, 5);
-	}else
-	{	if( bNowSafe ) SetTopMsg(MSG_SAFEZONE, 5);
-	}*/
+	{
+        if( bNowSafe == FALSE ) SetTopMsg(MSG_DANGERZONE, 5);
+	}
+    else
+	{
+        if( bNowSafe ) SetTopMsg(MSG_SAFEZONE, 5);
+	}
 
     // ------------------------------------------------------------------------+
 
 	ChangeGameMode(GAMEMODE_ONMAINGAME);
-	//DIRECTX m_DDraw.ClearBackB4();
 
 	//v1.41
 	if ((m_sPlayerAppr2 & 0xF000) != 0)
 		 m_bIsCombatMode = true;
 	else m_bIsCombatMode = false;
 
-	//v1.42
-	//if (m_bIsFirstConn == TRUE)
-	//{	m_bIsFirstConn = FALSE;
-	//	/*hFile = CreateFileA("contents\\contents1000.txt", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-	//	hFile = CreateFileA("contents\\contents1000.txt", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);*/
-	//	if (hFile == INVALID_HANDLE_VALUE)
-	//		dwFileSize = 0;
-	//	else
-	//	{	dwFileSize = GetFileSize(hFile, NULL);
-	//		CloseHandle(hFile);
-	//	}
-	//	bSendCommand(MSGID_REQUEST_NOTICEMENT, NULL, NULL, (int)dwFileSize, NULL, NULL, NULL);
-	//}
-	//cp += 2;
+	//bSendCommand(MSGID_REQUEST_NOTICEMENT, NULL, NULL, (int)dwFileSize, NULL, NULL, NULL);
 
 #ifdef TitleClient
 	bSendCommand(MSGID_REQUEST_TITLES, 0, 0, 0, 0, 0, 0);
 	m_cCommandCount--;
 	m_dwReqTitlesTime = m_dwCurTime;
 #endif
-	// Gladiator Arena xRisenx
+
 	// clear list if relog or log new char
 	/*for (i = 0; i < MAXARENAPLAYERS; i++) 
 	{ 
@@ -22874,13 +22757,12 @@ void CGame::InitDataResponseHandler(char * pData)
 	   m_stArenaPlayers[i].iDeaths = 0; 
 	   ZeroMemory(m_stArenaPlayers[i].cCharName, sizeof(m_stArenaPlayers[i].cCharName)); 
 	}*/
-	// Gladiator Arena xRisenx
 
 
 
     ///Send UI Data
 
-    JSValue res = htmlUI->view->CreateGlobalJavascriptObject(WSLit("client.game"));
+    JSValue res = htmlUI->view->ExecuteJavascriptWithResult(WSLit("client.game"), WSLit(""));
     JSObject game = res.ToObject();
 
     game.SetProperty(WSLit("id"), JSValue(m_sPlayerObjectID));

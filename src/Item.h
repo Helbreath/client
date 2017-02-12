@@ -147,6 +147,7 @@ public:
 	void GetGemAttr(char * txt) const;
 
 	char  m_cName[21];
+    string name;
 	char  m_cItemType;
 	char  m_cEquipPos;
 	uint32_t m_ItemColor;
@@ -166,7 +167,7 @@ public:
 	uint32_t m_dwCount;
 	uint32_t m_dwAttribute;
 	uint8_t m_sockets[MAXITEMSOCKETS];
-	ItemUID ItemUniqueID;
+    uint64_t ItemUniqueID;
 	uint32_t m_serverPtr;
 
 	const struct ItemMapComp

@@ -49,6 +49,7 @@
 #include "mail.h"
 #include "DialogBox.h"
 #include "HTMLUI.h"
+#include "ItemBag.h"
 
 #include "Title.h" // Titles xRisenx
 
@@ -232,6 +233,8 @@ public:
 
 	struct MsgQueueEntry
 	{
+        MsgQueueEntry() { data = 0; size = 0; }
+        ~MsgQueueEntry() { delete[] data; }
 		char * data;
 		uint32_t size;
 	};
@@ -260,8 +263,6 @@ public:
 	std::mutex screenupdate;
     std::mutex socketmut;
     std::mutex uimut;
-
-    void CreateSocket();
 
     void ProcessUI(shared_ptr<UIMsgQueueEntry>);
 
@@ -363,7 +364,7 @@ public:
         sprintf(winName, "Helbreath Xtreme %u.%u.%u Renderer: %s", HBF_MAJOR, HBF_MINOR, HBF_LOWER, _renderer.c_str());
 
         //Style::Fullscreen
-        window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Resize | Style::Close)));
+        window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Close)));
 
         if (vsync)
             window.setVerticalSyncEnabled(true);
@@ -612,7 +613,6 @@ public:
 	void NotifyMsg_MagicEffectOn(char * pData);
 	void NotifyMsg_SetItemCount(char * pData);
 	void NotifyMsg_ItemDepleted_EraseItem(char * pData);
-	void NotifyMsg_ServerChange(char * pData);
 	void NotifyMsg_Skill(char * pData);
 	void NotifyMsg_DropItemFin_EraseItem(char * pData);
 	void NotifyMsg_GiveItemFin_EraseItem(char * pData);
@@ -769,7 +769,7 @@ public:
 	void DisableDialogBox(int iBoxID);
 	void EnableDialogBox(int iBoxID, int cType = 0, int sV1 = 0, int sV2 = 0, const char * pString = 0);
 
-	void InitItemList(char * pData);
+	void InitItemList(StreamRead & sr);
 	int _iCheckDlgBoxFocus(char cButtonSide);
 	void GetPlayerTurn();
 	bool __fastcall DrawObject_OnDead(int indexX, int indexY, int sX, int sY, bool bTrans, uint64_t dwTime, int msX, int msY);
@@ -1025,6 +1025,12 @@ public:
 
 	class CMsg    * m_pWhisperMsg[MAXWHISPERMSG];
 	class CEffect * m_pEffectList[MAXEFFECTS];
+    std::vector<ItemBag> bagList;
+    std::vector<ItemBag> bagBankList;
+
+
+    std::vector<CItem> itemList;
+    std::vector<CItem> bankList;
 	class CItem   * m_pItemList[MAXITEMS];
 	class CItem   * m_pBankList[MAXBANKITEMS];
 	ItemMap m_guildBankMap;

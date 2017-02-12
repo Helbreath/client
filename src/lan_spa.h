@@ -1,3 +1,4 @@
+#ifdef LANG_SPANISH
 //Translation starts. Aphro~ 07/06/2010
 static const char * guildRankName[GUILDRANK_MAX] = {
 	"Jefe del Gremio",
@@ -2353,3 +2354,4 @@ static const char * guildRankName[GUILDRANK_MAX] = {
 
 #define DRAW_MUTELIST "lista de callados esta"
 #define DRAW_MUTELIST1 "Remover"
+#endif
