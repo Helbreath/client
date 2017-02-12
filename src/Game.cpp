@@ -1866,13 +1866,12 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
 		case MSGID_COMMAND_CHATMSG:
 			if (m_bIsTeleportRequested == true) return false;
 
+            if (bCheckLocalChatCommand(pString) == true) return false;
+
 			sw.WriteShort(m_sPlayerX);
 			sw.WriteShort(m_sPlayerY);
-			sw.WriteString(m_cPlayerName, 10);//TODO: fix potential bugs (make std::string)
-			sw.WriteByte(iV1);
-
-			if (bCheckLocalChatCommand(pString) == true) return false;
-			sw.WriteString(pString, strlen(pString));//TODO: fix potential bugs (make std::string)
+            sw.WriteString(string(m_cPlayerName));
+			sw.WriteString(string(pString));
 
 			_socket->write(sw);
 			break;
@@ -3437,6 +3436,18 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
         }
         printf("[JS] > %s\n", buffer.c_str());
         return;
+    }
+    else if (method_name == WSLit("chatMessage"))
+    {
+        if (msg->obj.IsString())
+        {
+            string chatmessage = ToString(msg->obj.ToString());
+            bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, chatmessage.c_str(), 0);
+        }
+        else
+        {
+            __debugbreak();
+        }
     }
     else if (method_name == WSLit("renderCharacter"))
     {
