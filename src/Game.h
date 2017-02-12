@@ -231,6 +231,8 @@ public:
     bool autoresolution = false;
     bool autovresolution = false;
 
+    vector<sf::Rect<int16_t>> dialogs;
+
 	struct MsgQueueEntry
 	{
         MsgQueueEntry() { data = 0; size = 0; }

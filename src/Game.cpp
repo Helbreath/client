@@ -1419,25 +1419,44 @@ void CGame::OnEvent(sf::Event event)
             }
             break;
         case sf::Event::MouseButtonPressed:
-            if (event.mouseButton.button == sf::Mouse::Right)
-            {
-                m_stMCursor.RB = true;
-                htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
-            }
-            else if (event.mouseButton.button == sf::Mouse::Left)
-            {
-                m_stMCursor.LB = true;
-                htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Left);
-            }
-            else if (event.mouseButton.button == sf::Mouse::Middle)
-            {
-                m_stMCursor.MB = true;
-                htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
-            }
 
             if (wasinactive)
             {
                 wasinactive = false;
+            }
+
+            for (auto rect : dialogs)
+            {
+                if (rect.contains(m_stMCursor.sX, m_stMCursor.sY))
+                {
+
+                    if (event.mouseButton.button == sf::Mouse::Right)
+                    {
+                        htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
+                    }
+                    else if (event.mouseButton.button == sf::Mouse::Left)
+                    {
+                        htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Left);
+                    }
+                    else if (event.mouseButton.button == sf::Mouse::Middle)
+                    {
+                        htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
+                    }
+                    break;
+                }
+            }
+
+            if (event.mouseButton.button == sf::Mouse::Right)
+            {
+                m_stMCursor.RB = true;
+            }
+            else if (event.mouseButton.button == sf::Mouse::Left)
+            {
+                m_stMCursor.LB = true;
+            }
+            else if (event.mouseButton.button == sf::Mouse::Middle)
+            {
+                m_stMCursor.MB = true;
             }
 
             break;
@@ -3441,7 +3460,7 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
     {
         if (msg->obj.IsString())
         {
-            string chatmessage = ToString(msg->obj.ToString());
+            string chatmessage = ToString(args.At(0).ToString());
             bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, chatmessage.c_str(), 0);
         }
         else
@@ -3469,6 +3488,27 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
             _socket->stop();
             _socket = nullptr;
             ChangeGameMode(GAMEMODE_ONLOGIN);
+        }
+    }
+    else if (method_name == WSLit("dialogRects"))
+    {
+        if (args.size() > 0)
+        {
+            dialogs.clear();
+            for (int i = 0; i < args.size(); ++i)
+            {
+                JSObject obj = args.At(i).ToObject();
+                int x1 = obj.GetProperty(WSLit("x1")).ToInteger();
+                int y1 = obj.GetProperty(WSLit("y1")).ToInteger();
+                int x2 = obj.GetProperty(WSLit("x2")).ToInteger();
+                int y2 = obj.GetProperty(WSLit("y2")).ToInteger();
+
+                dialogs.push_back(sf::Rect<int16_t>({ x1, y1, x2, y2 }));
+            }
+        }
+        else
+        {
+            printf("Invalid dialogRects params");
         }
     }
     else if (method_name == WSLit("login"))
@@ -10027,11 +10067,11 @@ void CGame::InitItemList(StreamRead & sr)
         for (int k = 0; k < cTotalItems; ++k)
         {
             shared_ptr<CItem> item = readitem(sr);
-            bag.Insert(JSValue(jsitem(item)), k);
+            bag.Push(JSValue(jsitem(item)));
             ib.itemList.push_back(item);
         }
         bagList.push_back(ib);
-        bags.Insert(JSValue(bag), i);
+        bags.Push(JSValue(bag));
     }
 
 
@@ -10047,11 +10087,11 @@ void CGame::InitItemList(StreamRead & sr)
         for (int k = 0; k < cTotalItems; ++k)
         {
             shared_ptr<CItem> item = readitem(sr);
-            bag.Insert(JSValue(jsitem(item)), k);
+            bag.Push(JSValue(jsitem(item)));
             ib.itemList.push_back(item);
         }
         bagBankList.push_back(ib);
-        bankbags.Insert(JSValue(bag), i);
+        bankbags.Push(JSValue(bag));
     }
 
     game.SetProperty(WSLit("bags"), JSValue(bags));
