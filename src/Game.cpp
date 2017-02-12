@@ -7816,6 +7816,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 
 	case LOGRESMSGTYPE_CONFIRM:
         htmlUI->Emit("login", true, "");
+        {JSValue res = htmlUI->view->CreateGlobalJavascriptObject(WSLit("client.game"));}
         loggedin = true;
 		wServerUpperVersion = sr.ReadShort();
 		wServerLowerVersion = sr.ReadShort();
@@ -9919,8 +9920,6 @@ void CGame::InitItemList(StreamRead & sr)
     bagList.clear();
     bagBankList.clear();
 
-    //JSObject game = res.ToObject();
-
     int totalBags = sr.ReadByte();
 
     auto readitem = [](StreamRead & sr) -> shared_ptr<CItem>
@@ -9986,6 +9985,11 @@ void CGame::InitItemList(StreamRead & sr)
     };
 
     JSValue res = htmlUI->view->ExecuteJavascriptWithResult(WSLit("client.game"), WSLit(""));
+    if (!res.IsObject())
+    {
+        printf("(!) client.game is not an object\n");
+        return;
+    }
     JSObject game = res.ToObject();
     JSArray bags;
 
@@ -9997,17 +10001,17 @@ void CGame::InitItemList(StreamRead & sr)
         for (int k = 0; k < cTotalItems; ++k)
         {
             shared_ptr<CItem> item = readitem(sr);
-            bag.Insert(jsitem(item), k);
+            bag[k] = JSValue(jsitem(item));
             ib.itemList.push_back(item);
         }
         bagList.push_back(ib);
-        bags.Insert(bag, i);
+        bags[i] = JSValue(bag);
     }
 
 
     totalBags = sr.ReadByte();
 
-    JSArray bankbags = res.ToArray();
+    JSArray bankbags;
 
     for (int i = 0; i < totalBags; ++i)
     {
@@ -10017,28 +10021,35 @@ void CGame::InitItemList(StreamRead & sr)
         for (int k = 0; k < cTotalItems; ++k)
         {
             shared_ptr<CItem> item = readitem(sr);
-            bag.Insert(jsitem(item), k);
+            bag[k] = JSValue(jsitem(item));
             ib.itemList.push_back(item);
         }
         bagBankList.push_back(ib);
-        bankbags.Insert(bag, i);
+        bankbags[i] = JSValue(bag);
     }
 
-    game.SetProperty(WSLit("bags"), bags);
-    game.SetProperty(WSLit("bagsBank"), bankbags);
+    game.SetProperty(WSLit("bags"), JSValue(bags));
+    game.SetProperty(WSLit("bagsBank"), JSValue(bankbags));
     
     _iCalcTotalWeight();
 
 	// Magic, Skill Mastery
+    JSArray magic, skill;
 	for (int i = 0; i < MAXMAGICTYPE; i++)
 	{
         m_cMagicMastery[i] = sr.ReadByte();
+        magic[i] = JSValue(m_cMagicMastery[i]);
 	}
 
 	for (int i = 0; i < MAXSKILLTYPE; i++)
 	{
         m_cSkillMastery[i] = sr.ReadByte();
-	}
+        magic[i] = JSValue(m_cSkillMastery[i]);
+    }
+
+    game.SetProperty(WSLit("magic"), JSValue(magic));
+    game.SetProperty(WSLit("skill"), JSValue(skill));
+
 }
 
 void CGame::EnableDialogBox(int iBoxID, int cType, int sV1, int sV2, const char * pString)
