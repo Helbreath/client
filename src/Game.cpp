@@ -1573,6 +1573,10 @@ bool CGame::SendLoginCommand(uint32_t dwMsgID)
 	case MSGID_GETMINIMUMLOADGATEWAY:
 	case MSGID_REQUEST_LOGIN:
 		sw.WriteString(m_cWorldServerName, 30);
+        sw.WriteInt(screenwidth_v);
+        sw.WriteInt(screenheight_v);
+        sw.WriteInt(screenwidth);
+        sw.WriteInt(screenheight);
 		break;
 
 	case MSGID_REQUEST_ENTERGAME:
@@ -3078,7 +3082,7 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
 	{
 	case MSGID_MODIFYTILE:
         printf("ReceiveModifyTile\n");
-        ReceiveModifyTile(pData);
+        ReceiveModifyTile(sr);
 		break;
 
 	case MSGID_RESPONSE_CHARGED_TELEPORT:
@@ -20184,11 +20188,91 @@ void CGame::bItemDrop_SkillDialog()
 	}
 }
 
-void CGame::ReceiveModifyTile(char * pData)
+void CGame::ReceiveModifyTile(StreamRead & sr)
 {
-	//StreamRead sr(pData,);
+    short appr1, appr2, appr3, appr4, apprcolor, headappr, bodyappr, armappr, legappr;
+    int status;
+    short objectid, objecttype;
+    string name;
 
+    sr.ReadShort();
 
+    int x = sr.ReadShort();
+    int y = sr.ReadShort();
+    int ucHeader = sr.ReadByte();
+    if (ucHeader & 0x01) // object ID
+    {
+        objectid = sr.ReadShort();
+        objecttype = sr.ReadShort();
+        int8_t direction = sr.ReadByte();
+        if (objectid < 10000)
+        {
+            appr1 = sr.ReadShort();
+            appr2 = sr.ReadShort();
+            appr3 = sr.ReadShort();
+            appr4 = sr.ReadShort();
+            apprcolor = sr.ReadShort();
+            headappr = sr.ReadShort();
+            bodyappr = sr.ReadShort();
+            armappr = sr.ReadShort();
+            legappr = sr.ReadShort();
+            status = sr.ReadInt();
+
+            string name = sr.ReadString(10);
+        }
+        else // NPC
+        {
+            appr1 = appr3 = appr4 = apprcolor = headappr = bodyappr = armappr = legappr = 0;
+            appr2 = sr.ReadShort();
+            status = sr.ReadInt();
+            stringstream ss; ss << "npc" << objectid-10000;
+            name = ss.str();
+        }
+        m_pMapData->bSetOwner(objectid, x, y, objecttype, direction, appr1, appr2, appr3, appr4, apprcolor, headappr, bodyappr, armappr, legappr, status, (char*)name.c_str(), OBJECTSTOP, 0, 0, 0);
+    }
+    if (ucHeader & 0x02) // object ID
+    {
+        objectid = sr.ReadShort();
+        objecttype = sr.ReadShort();
+        int8_t direction = sr.ReadByte();
+        if (objectid < 10000)
+        {
+            appr1 = sr.ReadShort();
+            appr2 = sr.ReadShort();
+            appr3 = sr.ReadShort();
+            appr4 = sr.ReadShort();
+            apprcolor = sr.ReadShort();
+            headappr = sr.ReadShort();
+            bodyappr = sr.ReadShort();
+            armappr = sr.ReadShort();
+            legappr = sr.ReadShort();
+            status = sr.ReadInt();
+
+            string name = sr.ReadString(10);
+        }
+        else 	// NPC
+        {
+            appr1 = appr3 = appr4 = apprcolor = headappr = bodyappr = armappr = legappr = 0;
+            appr2 = sr.ReadShort();
+            status = sr.ReadInt();
+            stringstream ss; ss << "npc" << objectid-10000;
+            name = ss.str();
+        }
+        m_pMapData->bSetDeadOwner(objectid, x, y, objecttype, direction, appr1, appr2, appr3, appr4, apprcolor, headappr, bodyappr, armappr, legappr, status, (char*)name.c_str());
+    }
+    if (ucHeader & 0x04)
+    {
+        short itemsprite = sr.ReadShort();
+        short itemspriteframe = sr.ReadShort();
+        int itemcolor = sr.ReadInt();
+        m_pMapData->bSetItem(x, y, itemsprite, itemspriteframe, itemcolor, false);
+    }
+    if (ucHeader & 0x08) // Dynamic object
+    {
+        short dynobjectid = sr.ReadShort();
+        short dynobjecttype = sr.ReadShort();
+        m_pMapData->bSetDynamicObject(x, y, dynobjectid, dynobjecttype, false);
+    }
 }
 
 void CGame::ResponseTeleportList(char *pData)
@@ -22801,7 +22885,7 @@ void CGame::InitDataResponseHandler(char * pData)
     m_sViewDstY = m_sViewPointY = (sY - ((GetHeight() - 60) / 32) / 2) * 32;
 
     //cout << "viewpoint " << m_sViewPointX << ":" << m_sViewPointY << endl;
-    _ReadMapData(sX, sY, cp);
+    //_ReadMapData(sX, sY, cp);
 	m_bIsRedrawPDBGS = true;
     // ------------------------------------------------------------------------+
 	wsprintfA(cTxt, INITDATA_RESPONSE_HANDLER1, m_cMapMessage);
