@@ -1358,6 +1358,37 @@ void CGame::OnEvent(sf::Event event)
                     CreateScreenShot();
                     break;
                 case Keyboard::F5:
+                {
+                    delete htmlUI->iResource;
+                    delete htmlUI->lView;
+                    delete htmlUI->mHandler;
+                    htmlUI->view->Destroy();
+
+                    htmlUI->view = htmlUI->core->CreateWebView(GetWidth(), GetHeight());
+
+                    htmlUI->jsNamespace = htmlUI->view->CreateGlobalJavascriptObject(WSLit("client"));
+                    htmlUI->jsData = htmlUI->jsNamespace.ToObject();
+                    htmlUI->jsData.SetProperty(WSLit("loading"), JSValue(true));
+                    htmlUI->jsData.SetProperty(WSLit("loadingPct"), JSValue(0.0f));
+                    htmlUI->jsData.SetCustomMethod(WSLit("log"), false);
+                    htmlUI->jsData.SetCustomMethod(WSLit("login"), false);
+                    htmlUI->jsData.SetCustomMethod(WSLit("selectCharacter"), false);
+                    htmlUI->jsData.SetCustomMethod(WSLit("enterGame"), false);
+                    htmlUI->jsData.SetCustomMethod(WSLit("renderCharacter"), false);
+                    htmlUI->jsData.SetCustomMethod(WSLit("cancelLogin"), false);
+
+                    htmlUI->mHandler = new HTMLUIMethodHandler(htmlUI);
+                    htmlUI->lView = new HTMLUIViewListener(htmlUI);
+                    htmlUI->iResource = new HTMLUIResourceInterceptor(htmlUI);
+
+                    htmlUI->core->set_resource_interceptor(htmlUI->iResource);
+                    // view->set_view_listener(lView);
+                    htmlUI->view->set_js_method_handler(htmlUI->mHandler);
+                    htmlUI->view->Focus();
+                    htmlUI->mHandler->htmlUI = htmlUI;
+                }
+                    break;
+                case Keyboard::F6:
                     calcoldviewport = !calcoldviewport;
                     if (!calcoldviewport)
                     {
