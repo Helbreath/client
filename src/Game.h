@@ -494,7 +494,7 @@ public:
 	int m_iTeleportMapCount;
 	void ResponseTeleportList(char * pData);
 	void ResponseChargedTeleport(char * pData);
-	void ReceiveModifyTile(char * pData);
+	void ReceiveModifyTile(StreamRead & sr);
 
 	int m_iQuestCount;
 	void ResponseQuestList(char * pData);
