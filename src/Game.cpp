@@ -3533,10 +3533,10 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
             for (int i = 0; i < args.size(); ++i)
             {
                 JSObject obj = args.At(i).ToObject();
-                int x1 = obj.GetProperty(WSLit("x1")).ToInteger();
-                int y1 = obj.GetProperty(WSLit("y1")).ToInteger();
-                int x2 = obj.GetProperty(WSLit("x2")).ToInteger();
-                int y2 = obj.GetProperty(WSLit("y2")).ToInteger();
+                int16_t x1 = obj.GetProperty(WSLit("x1")).ToInteger();
+                int16_t y1 = obj.GetProperty(WSLit("y1")).ToInteger();
+                int16_t x2 = obj.GetProperty(WSLit("x2")).ToInteger();
+                int16_t y2 = obj.GetProperty(WSLit("y2")).ToInteger();
 
                 dialogs.push_back(sf::Rect<int16_t>({ x1, y1, x2, y2 }));
             }
@@ -20195,8 +20195,6 @@ void CGame::ReceiveModifyTile(StreamRead & sr)
     short objectid, objecttype;
     string name;
 
-    sr.ReadShort();
-
     int x = sr.ReadShort();
     int y = sr.ReadShort();
     int ucHeader = sr.ReadByte();
@@ -20211,14 +20209,14 @@ void CGame::ReceiveModifyTile(StreamRead & sr)
             appr2 = sr.ReadShort();
             appr3 = sr.ReadShort();
             appr4 = sr.ReadShort();
-            apprcolor = sr.ReadShort();
+            apprcolor = sr.ReadInt();
             headappr = sr.ReadShort();
             bodyappr = sr.ReadShort();
             armappr = sr.ReadShort();
             legappr = sr.ReadShort();
             status = sr.ReadInt();
 
-            string name = sr.ReadString(10);
+            name = sr.ReadString(10);
         }
         else // NPC
         {
@@ -20241,14 +20239,14 @@ void CGame::ReceiveModifyTile(StreamRead & sr)
             appr2 = sr.ReadShort();
             appr3 = sr.ReadShort();
             appr4 = sr.ReadShort();
-            apprcolor = sr.ReadShort();
+            apprcolor = sr.ReadInt();
             headappr = sr.ReadShort();
             bodyappr = sr.ReadShort();
             armappr = sr.ReadShort();
             legappr = sr.ReadShort();
             status = sr.ReadInt();
 
-            string name = sr.ReadString(10);
+            name = sr.ReadString(10);
         }
         else 	// NPC
         {
