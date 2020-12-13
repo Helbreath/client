@@ -147,7 +147,7 @@ public:
 	void GetGemAttr(char * txt) const;
 
 	char  m_cName[21];
-    string name;
+	std::string name;
 	char  m_cItemType;
 	char  m_cEquipPos;
 	uint32_t m_ItemColor;

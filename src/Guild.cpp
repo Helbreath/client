@@ -19,17 +19,17 @@ void CGuild::Reset()
 		m_upgrades[i] = -1;
 }
 
-void CGuild::AddMember(GuildMember member, string name)
+void CGuild::AddMember(GuildMember member, std::string name)
 {
 	m_onlineList[name] = member;
 }
 
-void CGuild::RemoveMember(string name)
+void CGuild::RemoveMember(std::string name)
 {
 	m_onlineList.erase( name );
 }
 
-uint32_t CGuild::CanSummon(string map) const
+uint32_t CGuild::CanSummon(std::string map) const
 {
 	if(m_gold < GUILDSUMMONSGOLDCOST)
 		return CANSUMMON_GOLD;

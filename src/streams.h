@@ -74,7 +74,7 @@ public:
 		file.write(ic, 4);
 	};
 
-	void WriteString(string value)
+	void WriteString(std::string value)
 	{
 		WriteInt(uint32_t(value.length()));
 		file.write(value.c_str(), value.length());

@@ -28,11 +28,11 @@ public:
 	CGuild();
 	~CGuild();
 	void Reset();
-	
-	void AddMember(GuildMember member, string name);
-	void RemoveMember(string name);
+
+	void AddMember(GuildMember member, std::string name);
+	void RemoveMember(std::string name);
 	uint32_t GetOnlineCnt()	const { return m_onlineList.size(); }
-	uint32_t CanSummon(string map) const;
+	uint32_t CanSummon(std::string map) const;
 		
 	uint8_t m_upgrades[GU_MAX];
 	uint32_t m_gold;

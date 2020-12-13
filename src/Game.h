@@ -340,7 +340,7 @@ public:
 
 	bool wasinactive;
 
-    string _renderer;
+	std::string _renderer;
 
     uint16_t charselectx = 0, charselecty = 0;
 
@@ -406,12 +406,12 @@ public:
         return true;
 	}
     sf::WindowHandle handle;
-    void PutFontStringSize(string fontname, int iX, int iY, string text, Color color, int size);
+    void PutFontStringSize(std::string fontname, int iX, int iY, std::string text, Color color, int size);
 
     std::map<string, sf::Font> _font;
     sf::Text _text;
 
-    string workingdirectory = "";
+	std::string workingdirectory = "";
 
 
 	bool IsKeyDown(sf::Keyboard::Key keyCode) const { return KeyIsDown[keyCode]; }
@@ -800,14 +800,14 @@ public:
 	void OnSysKeyDown(WPARAM wParam);
 	void OnSysKeyUp(WPARAM wParam);
 	void ChangeGameMode(char cMode);
-	void PutFontString(string fontname, int iX, int iY, string pString, Color color = Color(255, 255, 255, 255));
+	void PutFontString(std::string fontname, int iX, int iY, std::string pString, Color color = Color(255, 255, 255, 255));
 	void PutChatString(int iX, int iY, char * pString, Color color = Color(255, 255, 255, 255));
-    void PutString(int iX, int iY, string pString, Color color = Color(255, 255, 255, 255), bool bHide = false, char cBGtype = 2);
-    void PutString2(int iX, int iY, string pString, int r = 255, int g = 255, int b = 255)
+    void PutString(int iX, int iY, std::string pString, Color color = Color(255, 255, 255, 255), bool bHide = false, char cBGtype = 2);
+    void PutString2(int iX, int iY, std::string pString, int r = 255, int g = 255, int b = 255)
     {//TODO: remove
         PutString(iX, iY, pString, Color(r, g, b, 255));
     }
-	void PutAlignedString(int iX1, int iX2, int iY, string text, Color color = Color(255,255,255,255));
+	void PutAlignedString(int iX1, int iX2, int iY, std::string text, Color color = Color(255,255,255,255));
     __inline sf::Font & GetFont(std::string font = "default")
     {
         auto it = _font.find(font);

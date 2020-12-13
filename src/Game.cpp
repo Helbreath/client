@@ -461,8 +461,8 @@ CGame::CGame()
     SSL_DECODE(cert);
     SSL_DECODE(dh);
 
-    string str = cert;
-    string dhstr = dh;
+	std::string str = cert;
+	std::string dhstr = dh;
     asio::const_buffer buffer_(str.c_str(), str.length());
     asio::const_buffer dh_buff(dhstr.c_str(), dhstr.length());
     ctx.set_options(
@@ -7241,7 +7241,7 @@ void CGame::PutString_SprNum(int iX, int iY, char * pStr, short sR, short sG, sh
 	}
 }
 
-void CGame::PutString(int iX, int iY, string pString, Color color, bool bHide, char cBGtype)
+void CGame::PutString(int iX, int iY, std::string pString, Color color, bool bHide, char cBGtype)
 {
     int i;
 	if (pString.length() == 0) return;
@@ -7283,7 +7283,7 @@ void CGame::PutChatString(int iX, int iY, char * pString, Color color)
 {
     PutFontString("default", iX, iY, pString, color);//TODO: make 'chat' font?
 }
-void CGame::PutFontStringSize(string fontname, int iX, int iY, string text, Color color, int size)
+void CGame::PutFontStringSize(std::string fontname, int iX, int iY, std::string text, Color color, int size)
 {
     try
     {
@@ -7301,7 +7301,7 @@ void CGame::PutFontStringSize(string fontname, int iX, int iY, string text, Colo
     }
 }
 
-void CGame::PutFontString(string fontname, int iX, int iY, string text, Color color)
+void CGame::PutFontString(std::string fontname, int iX, int iY, std::string text, Color color)
 {
     try
     {
@@ -7319,7 +7319,7 @@ void CGame::PutFontString(string fontname, int iX, int iY, string text, Color co
     }
 }
 
-void CGame::PutAlignedString(int iX1, int iX2, int iY, string text, Color color)
+void CGame::PutAlignedString(int iX1, int iX2, int iY, std::string text, Color color)
 {
     try
     {
@@ -13406,11 +13406,11 @@ void CGame::NotifyMsgHandler(char * pData)
 {
     uint32_t * dwp;
     uint64_t dwTime, dwTemp;
- uint16_t  * wp, wEventType;
- char  * cp, cTemp[510], cTxt[120], cTempName[21];
- short * sp, sX, sY, sV1 = 0, sV2, sV3, sV4, sV5, sV6, sV7, sV8, sV9;
- int   * ip, i, iV1, iV2, iV3, iV4;
- string str;
+    uint16_t* wp, wEventType;
+    char* cp, cTemp[510], cTxt[120], cTempName[21];
+    short* sp, sX, sY, sV1 = 0, sV2, sV3, sV4, sV5, sV6, sV7, sV8, sV9;
+    int* ip, i, iV1, iV2, iV3, iV4;
+    std::string str;
 
 	dwTime = unixtime();
 
@@ -20193,7 +20193,7 @@ void CGame::ReceiveModifyTile(StreamRead & sr)
     short appr1, appr2, appr3, appr4, apprcolor, headappr, bodyappr, armappr, legappr;
     int status;
     short objectid, objecttype;
-    string name;
+    std::string name;
 
     int x = sr.ReadShort();
     int y = sr.ReadShort();
