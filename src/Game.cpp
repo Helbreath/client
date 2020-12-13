@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include "lan_eng.h"
-#include <boost/asio/ssl.hpp>
+#include <asio/ssl.hpp>
 #include <Awesomium/WebKeyboardEvent.h>
 
 using namespace Awesomium;
@@ -392,7 +392,7 @@ void CGame::stop(connection_ptr c)
         ChangeGameMode(GAMEMODE_ONMAINMENU);
         //ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
         _socket.reset();
-        new_connection_ = boost::make_shared<connection>(io_service_, *this, request_handler_, ctx);
+        new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
         gamemode = 0;
 		//post socket closing
 	}
@@ -453,7 +453,7 @@ char itoh(int num)
 CGame::CGame()
 	: io_service_(),
 	signals_(io_service_),
-    ctx(io_service_, boost::asio::ssl::context::sslv23)
+    ctx(asio::ssl::context::sslv23)
 {
     char cert[] = SSL_CERT;
     char dh[] = SSL_DH_PARAM;
@@ -463,13 +463,13 @@ CGame::CGame()
 
     string str = cert;
     string dhstr = dh;
-    boost::asio::const_buffer buffer_(str.c_str(), str.length());
-    boost::asio::const_buffer dh_buff(dhstr.c_str(), dhstr.length());
+    asio::const_buffer buffer_(str.c_str(), str.length());
+    asio::const_buffer dh_buff(dhstr.c_str(), dhstr.length());
     ctx.set_options(
-        boost::asio::ssl::context::default_workarounds
-        | boost::asio::ssl::context::no_sslv2
-        | boost::asio::ssl::context::single_dh_use);
-    ctx.set_verify_mode(boost::asio::ssl::verify_peer);
+        asio::ssl::context::default_workarounds
+        | asio::ssl::context::no_sslv2
+        | asio::ssl::context::single_dh_use);
+    ctx.set_verify_mode(asio::ssl::verify_peer);
     ctx.add_certificate_authority(buffer_);
     ctx.use_tmp_dh(dh_buff);
 
@@ -619,7 +619,7 @@ CGame::CGame()
 #if defined(SIGQUIT)
 	signals_.add(SIGQUIT);
 #endif // defined(SIGQUIT)
-	signals_.async_wait(boost::bind(&CGame::handle_stop, this));
+	signals_.async_wait(std::bind(&CGame::handle_stop, this));
 }
 
 CGame::~CGame()
@@ -895,7 +895,7 @@ bool CGame::bInit(void * hWnd, void * hInst, char * pCmdLine)
 	//m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  12,   20,   30),  &m_wR[15], &m_wG[15], &m_wB[15]); // Black
 
 	memset(m_cWorldServerName, 0, sizeof(m_cWorldServerName));
-	socketthread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&boost::asio::io_service::run, &io_service_)));
+	socketthread = std::shared_ptr<std::thread>(new std::thread(std::bind(&asio::io_context::run, &io_service_)));
 
 	return true;
 }
@@ -1251,7 +1251,7 @@ void CGame::CalcViewPoint(uint64_t dwTime)
 	}
 }
 
-void CGame::handle_connect(const boost::system::error_code& e)
+void CGame::handle_connect(const asio::error_code& e)
 {
 	if (!e)//TODO: see why boost no longer likes quick connects
 	{
@@ -1268,7 +1268,7 @@ void CGame::handle_connect(const boost::system::error_code& e)
 		new_connection_->stop();
 	    new_connection_.reset(new connection(io_service_, *this, request_handler_, ctx));
         loggedin = false;
-        new_connection_ = boost::make_shared<connection>(io_service_, *this, request_handler_, ctx);
+        new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
         _socket = nullptr;
 	}
 }
@@ -7937,7 +7937,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 
 		for (int i = 0; i < m_iTotalChar; i++)
 		{
-			shared_ptr<CCharInfo> character(new CCharInfo());
+			std::shared_ptr<CCharInfo> character(new CCharInfo());
 			character->m_cName = sr.ReadString(10);
 			if (sr.ReadByte() == 0)
 			{
@@ -10023,9 +10023,9 @@ void CGame::InitItemList(StreamRead & sr)
 
     int totalBags = sr.ReadByte();
 
-    auto readitem = [](StreamRead & sr) -> shared_ptr<CItem>
+    auto readitem = [](StreamRead & sr) -> std::shared_ptr<CItem>
     {
-        shared_ptr<CItem> item = make_shared<CItem>();
+        std::shared_ptr<CItem> item = make_shared<CItem>();
 
         if (sr.ReadByte() == 0)
         {
@@ -13364,8 +13364,8 @@ void CGame::StartLogin()
     {
         loggedin = false;
 
-        boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
-        new_connection_->socket().async_connect(endpoint, boost::bind(&CGame::handle_connect, this, boost::asio::placeholders::error));
+        asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
+        new_connection_->socket().async_connect(endpoint, std::bind(&CGame::handle_connect, this, std::placeholders::_1));
     }
     else
     {

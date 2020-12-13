@@ -155,8 +155,6 @@ bool CSprite::_pMakeSpriteSurface()
 	return true;
 }
 
-#include "boost\filesystem.hpp"
-
 CSprite * CSprite::CreateSprite(char * cPakFileName, short sNthFile, bool bAlphaEffect)
 {
 	std::wstringstream ss;
@@ -169,12 +167,6 @@ CSprite * CSprite::CreateSprite(char * cPakFileName, short sNthFile, bool bAlpha
 		//error
 		//MessageBoxW(NULL, ("Error loading pak: " + str).c_str(), "ERROR", MB_OK);
 	}
-
-// 	ss.str("");
-// 	ss << "sprites\\raws\\" << cPakFileName << "\\";
-// 	boost::filesystem::path dir(ss.str().c_str());
-// 	if (!boost::filesystem::exists(dir))
-// 		boost::filesystem::create_directory(dir);
 
 	return new CSprite(szfile,std::string(cPakFileName), sNthFile, bAlphaEffect);
 }

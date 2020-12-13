@@ -1,13 +1,17 @@
 
 #include "newsocket.h"
 #include <vector>
-#include <boost/bind.hpp>
+#include <functional>
+//#include <boost/bind.hpp>
+#include <asio/io_context.hpp>
 #include "Game.h"
 #include "request_handler.h"
 #include "streams.h"
+#include <asio/placeholders.hpp>
+#include <asio/read.hpp>
 
-connection::connection(boost::asio::io_service& io_service,
-	CGame& client, request_handler& handler, boost::asio::ssl::context& context)
+connection::connection(asio::io_context& io_service,
+	CGame& client, request_handler& handler, asio::ssl::context& context)
 	: socket_(io_service, context),
 	client(client),
 	request_handler_(handler)
@@ -20,16 +24,16 @@ void connection::start()
 {
     client.m_dwCheckSprTime = unixtime() + 1000;
 
-    boost::system::error_code ec;
-    socket_.handshake(boost::asio::ssl::stream_base::client, ec);
+    asio::error_code ec;
+    socket_.handshake(asio::ssl::stream_base::client, ec);
 
     handshake_complete = true;
 
     if (!ec)
     {
-        boost::asio::async_read(socket_, boost::asio::buffer(buffer_, 2), boost::bind(&connection::handle_read_header, shared_from_this(),
-                                                                                      boost::asio::placeholders::error,
-                                                                                      boost::asio::placeholders::bytes_transferred));
+        asio::async_read(socket_, asio::buffer(buffer_, 2), std::bind(&connection::handle_read_header, shared_from_this(),
+                                                                                      std::placeholders::_1,
+                                                                                      std::placeholders::_2));
     }
     else
     {
@@ -39,13 +43,13 @@ void connection::start()
     }
 }
 
-void connection::handle_handshake(const boost::system::error_code& error)
+void connection::handle_handshake(const asio::error_code& error)
 {
     if (!error)
     {
-        boost::asio::async_read(socket_, boost::asio::buffer(buffer_, 2), boost::bind(&connection::handle_read_header, shared_from_this(),
-                                                                                      boost::asio::placeholders::error,
-                                                                                      boost::asio::placeholders::bytes_transferred));
+        asio::async_read(socket_, asio::buffer(buffer_, 2), std::bind(&connection::handle_read_header, shared_from_this(),
+                                                                                      std::placeholders::_1,
+                                                                                      std::placeholders::_2));
     }
     else
     {
@@ -73,11 +77,11 @@ void connection::write(const char * data, const uint64_t size)
 	try {
 		uint16_t tsize = uint16_t(size);
 		*(uint16_t*)csize = tsize;
-		std::array<boost::asio::const_buffer, 2> buffers = {
-			boost::asio::buffer(csize, 2),
-			boost::asio::buffer(data, size)
+		std::array<asio::const_buffer, 2> buffers = {
+			asio::buffer(csize, 2),
+			asio::buffer(data, size)
 		};
-		boost::asio::async_write(socket_, buffers, [this](boost::system::error_code ec, std::size_t){
+		asio::async_write(socket_, buffers, [this](asio::error_code ec, std::size_t){
 			if (ec)
 			{
 				//error
@@ -111,12 +115,12 @@ void connection::write(StreamWrite & sw)
 				//error
 			}
 		});*/
-        std::array<boost::asio::const_buffer, 2> buffers = {
-            boost::asio::buffer(csize, 2),
-            boost::asio::buffer(sw.data, sw.position)
+        std::array<asio::const_buffer, 2> buffers = {
+            asio::buffer(csize, 2),
+            asio::buffer(sw.data, sw.position)
         };
         if (socket_.lowest_layer().is_open())
-            boost::asio::write(socket_, buffers);
+            asio::write(socket_, buffers);
 	}
 	catch (std::exception& e)
 	{
@@ -124,7 +128,7 @@ void connection::write(StreamWrite & sw)
 	}
 }
 
-void connection::handle_read_header(const boost::system::error_code& e,
+void connection::handle_read_header(const asio::error_code& e,
 	std::size_t bytes_transferred)
 {
 	if (!e)
@@ -138,12 +142,12 @@ void connection::handle_read_header(const boost::system::error_code& e,
 				client.stop(shared_from_this());
 				return;
 			}
-			boost::asio::async_read(socket_, boost::asio::buffer(buffer_, size), boost::bind(&connection::handle_read, shared_from_this(),
-				boost::asio::placeholders::error,
-				boost::asio::placeholders::bytes_transferred));
+			asio::async_read(socket_, asio::buffer(buffer_, size), std::bind(&connection::handle_read, shared_from_this(),
+                                                                                      std::placeholders::_1,
+                                                                                      std::placeholders::_2));
 		}
 	}
-	else if (e != boost::asio::error::operation_aborted)
+	else if (e != asio::error::operation_aborted)
 	{
 		client.stop(shared_from_this());
 		return;
@@ -151,7 +155,7 @@ void connection::handle_read_header(const boost::system::error_code& e,
 
 }
 
-void connection::handle_read(const boost::system::error_code& e,
+void connection::handle_read(const asio::error_code& e,
 	std::size_t bytes_transferred)
 {
 	if (!e)
@@ -178,18 +182,18 @@ void connection::handle_read(const boost::system::error_code& e,
 		request_.connection = this;
 		request_handler_.handle_request(request_);
 
-		boost::asio::async_read(socket_, boost::asio::buffer(buffer_, 2), boost::bind(&connection::handle_read_header, shared_from_this(),
-			boost::asio::placeholders::error,
-			boost::asio::placeholders::bytes_transferred));
+		asio::async_read(socket_, asio::buffer(buffer_, 2), std::bind(&connection::handle_read_header, shared_from_this(),
+                                                                                      std::placeholders::_1,
+                                                                                      std::placeholders::_2));
 	}
-	else if (e != boost::asio::error::operation_aborted)
+	else if (e != asio::error::operation_aborted)
 	{
 		client.stop(shared_from_this());
 		return;
 	}
 }
 
-void connection::handle_write(const boost::system::error_code& e)
+void connection::handle_write(const asio::error_code& e)
 {
 	if (!e)
 	{
@@ -198,7 +202,7 @@ void connection::handle_write(const boost::system::error_code& e)
 		// 		socket_.shutdown(asio::ip::tcp::socket::shutdown_both, ignored_ec);
 	}
 
-	if (e != boost::asio::error::operation_aborted)
+	if (e != asio::error::operation_aborted)
 	{
 		client.stop(shared_from_this());
 	}

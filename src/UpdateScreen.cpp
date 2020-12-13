@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "lan_eng.h"
-#include <boost/asio/ssl.hpp>
+#include <asio/ssl.hpp>
 
 extern void MakeSprite(char * FileName, int iStart, short sCount, bool bAlphaEffect);
 extern void MakeTileSpr(char * FileName, short sStart, short sCount, bool bAlphaEffect);
@@ -128,7 +128,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
     {
         case 0:
         {
-            new_connection_ = boost::make_shared<connection>(io_service_, *this, request_handler_, ctx);
+            new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
 
 			progressLabel = "Loading interface";
             m_pSprite[SPRID_MOUSECURSOR] = CSprite::CreateSprite("interface", 0, false);
@@ -967,10 +967,10 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
                 ZeroMemory(m_cMsg, sizeof(m_cMsg));
                 strcpy(m_cMsg, "11");
 
-                boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+                asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
                 new_connection_->socket().async_connect(endpoint,
-                                                        boost::bind(&CGame::handle_connect, this,
-                                                                    boost::asio::placeholders::error));
+                                                        std::bind(&CGame::handle_connect, this,
+                                                                    std::placeholders::_1));
                 break;
             }
             ChangeGameMode(oldmode);

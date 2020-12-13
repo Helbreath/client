@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "lan_eng.h"
-#include <boost/asio/ssl.hpp>
+#include <asio/ssl.hpp>
 
 extern CGame * G_pGame;
 

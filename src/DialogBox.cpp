@@ -36,10 +36,10 @@ void CDialogBox::SetupDialog(char dialogID, short X, short Y, short sizeX, short
 
 	sV1= sV2= sV3= sV4= sV5= sV6= sV7= sV8 = 0;
 	dwV1= dwV2= dwT1= 0;
-	bFlag= 0;
+	bFlag= false;
 	sView= 0;
 	_mode= 1; //To bypass mode check for default button setup
-	bIsScrollSelected= 0;
+	bIsScrollSelected = false;
 }
 
 void CDialogBox::SetupHandlers(HandlerFunct draw, HandlerFunct click, HandlerFunct dblClick, HandlerFunct dropItem)
@@ -288,10 +288,10 @@ void CDialogBox::MoveOnScreen(short X, short Y)
 	if (m_Y + sSizeY > 599) m_Y = 599 - sSizeY; // 800x600 Resolution xRisenx
 }
 
-void CDialogBox::CentreOverPoint(short X, short Y)
+void CDialogBox::CenterOverPoint(short X, short Y)
 {
 	m_X = X - sSizeX/2;
-	m_Y = Y - sSizeY/2;	
+	m_Y = Y - sSizeY/2;
 	MoveOnScreen();
 }
 

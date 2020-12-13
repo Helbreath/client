@@ -18,6 +18,7 @@
 #include <vector>
 #include <functional>
 #include <mutex>
+#include <asio/signal_set.hpp>
 
 #include <process.h>
 #include <direct.h>
@@ -50,6 +51,7 @@
 #include "DialogBox.h"
 #include "HTMLUI.h"
 #include "ItemBag.h"
+#include <deque>
 
 #include "Title.h" // Titles xRisenx
 
@@ -159,7 +161,7 @@
 extern void * G_hWnd;
 
 class connection;
-typedef boost::shared_ptr<connection> connection_ptr;
+using connection_ptr = std::shared_ptr<connection>;
 
 #define FONT_BUILTIN 0
 #define FONT_TREBMS6PX 1
@@ -240,7 +242,7 @@ public:
 		char * data;
 		uint32_t size;
 	};
-	typedef std::list<std::shared_ptr<MsgQueueEntry>> MsgQueue;
+	using MsgQueue = std::list<std::shared_ptr<MsgQueueEntry>>;
 	MsgQueue socketpipe;
 	void PutMsgQueue(MsgQueue & q, char * data, uint32_t size);
 	void PutMsgQueue(std::shared_ptr<MsgQueueEntry>, MsgQueue & q);
@@ -254,9 +256,9 @@ public:
 	void start(connection_ptr c);
 	void stop(connection_ptr c);
 	void handle_stop();
-	void handle_connect(const boost::system::error_code& e);
-	boost::asio::io_service io_service_;
-	boost::asio::signal_set signals_;
+	void handle_connect(const asio::error_code& e);
+	asio::io_context io_service_;
+	asio::signal_set signals_;
 	connection_ptr new_connection_;
 	request_handler request_handler_;
     bool loggedin;
@@ -266,9 +268,9 @@ public:
     std::mutex socketmut;
     std::mutex uimut;
 
-    void ProcessUI(shared_ptr<UIMsgQueueEntry>);
+    void ProcessUI(std::shared_ptr<UIMsgQueueEntry>);
 
-	boost::shared_ptr<boost::thread> socketthread;
+	std::shared_ptr<std::thread> socketthread;
 
 
     sf::RenderTexture visible;
@@ -794,7 +796,7 @@ public:
 	void ChatMsgHandler(char * pData);
 	void ReleaseUnusedSprites();
 	bool bReadIp();
-	void OnKeyUp(uint32_t wParam);
+	void OnKeyUp(WPARAM wParam);
 	void OnSysKeyDown(WPARAM wParam);
 	void OnSysKeyUp(WPARAM wParam);
 	void ChangeGameMode(char cMode);
@@ -806,17 +808,17 @@ public:
         PutString(iX, iY, pString, Color(r, g, b, 255));
     }
 	void PutAlignedString(int iX1, int iX2, int iY, string text, Color color = Color(255,255,255,255));
-    __inline sf::Font & GetFont(string font = "default")
+    __inline sf::Font & GetFont(std::string font = "default")
     {
-        try
-        {
-            return _font.at(font);
-        }
-        catch (std::out_of_range & oor)
-        {
-            //TODO: error
-        }
-        return sf::Font();
+        auto it = _font.find(font);
+        if (it != _font.end())
+            return it->second;
+
+        it = _font.find("default");
+        if (it != _font.end())
+            return it->second;
+
+        throw std::out_of_range("Font not found");
     }
 	void PutString_SprFont(int iX, int iY, char * pStr, short sR, short sG, short sB);
 	void PutString_SprFont2(int iX, int iY, char * pStr, short sR, short sG, short sB);
@@ -1360,7 +1362,7 @@ public:
 
 	bool m_partyAutoAccept;
 
-    boost::asio::ssl::context ctx;
+    asio::ssl::context ctx;
 
 	bool m_ekScreenshot;
 	uint64_t m_ekSSTime;

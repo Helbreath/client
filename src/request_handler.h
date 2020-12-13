@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
-#include <boost/noncopyable.hpp>
 
 struct request
 {
@@ -17,7 +16,6 @@ struct request
 
 /// The common handler for all incoming requests.
 class request_handler
-	: private boost::noncopyable
 {
 public:
 	/// Construct with a directory containing files to be served.

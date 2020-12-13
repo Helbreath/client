@@ -86,7 +86,7 @@ struct MailItemSend{
 
 class CDialogBox
 {
-	typedef std::function<void (void)> HandlerFunct;
+	using HandlerFunct = std::function<void(void)>;
 	HandlerFunct _clickHandler;
 	HandlerFunct _drawHandler;
 	HandlerFunct _dblClickHandler;
@@ -120,7 +120,7 @@ class CDialogBox
 
 public:
 	CDialogBox();
-	~CDialogBox(void);
+	~CDialogBox();
 
 	void SetupDialog(char dialogID, short X, short Y,  short sizeX, short sizeY, short background = -1, int backFrame = -1, int titleTxtFrame = -1, bool trans = false);
 	void SetupHandlers(HandlerFunct draw , HandlerFunct click , HandlerFunct dblClick , HandlerFunct dropItem );
@@ -141,7 +141,7 @@ public:
 	void SetTop(bool isTop) { _isTopDialog = isTop; }
 
 	void MoveOnScreen(short X = -1, short Y = -1);
-	void CentreOverPoint(short X, short Y);
+	void CenterOverPoint(short X, short Y);
 
 	char OnButton() const;
 	bool OnDialogBox() const;
