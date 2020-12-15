@@ -135,10 +135,41 @@ bool CSprite::_pMakeSpriteSurface()
 	m_wBitmapSizeY = (uint16_t)(bmpInfoHeader->biHeight);
 
 	//ECF_A8R8G8B8 - desired
-	//ECF_R5G6B5 - most hb paks are
+    //ECF_R5G6B5 - most hb paks are
+
+
+
+	//////////////////////////////////////////////////////////////////////////
+
+/*
+    mkdir("dump");
+    mkdir(fmt::format("dump/{}", spriteid).c_str());
+    //for (int x = 0; x < m_iTotalFrame; ++x)
+    {
+        std::string save = fmt::format("dump/{}/master.png", spriteid);
+        std::ofstream ofile(save, std::ios::out | std::ios::binary);
+		ofile.write(m_lpDib, fh.bfSize);
+
+		
+		/ *sf::RenderTexture temp;
+        temp.create(m_stBrush[x].szx, m_stBrush[x].szy);
+        sprite[x].setPosition(m_stBrush[x].pvx, m_stBrush[x].pvy);
+        temp.draw(sprite[x]);
+        temp.display();
+        std::cout << fmt::format("{} Size: {} x {} - Pivot: ({}, {}) - Source: ({}, {})\n", save, m_stBrush[x].szx, m_stBrush[x].szy, m_stBrush[x].pvx, m_stBrush[x].pvy, m_stBrush[x].sx, m_stBrush[x].sy);
+        temp.getTexture().copyToImage().saveToFile(save);* /
+    }
+    _localimage.copyToImage().saveToFile(fmt::format("dump/{}/master.png", spriteid));*/
+
+	//////////////////////////////////////////////////////////////////////////
+
 
     sf::Image img;
-    img.loadFromMemory(m_lpDib, fh.bfSize);
+	if (!img.loadFromMemory(m_lpDib, fh.bfSize))
+	{
+		std::cout << "Failed to load " << m_cPakFileName << "\n";
+		return false;
+	}
     img.createMaskFromColor(img.getPixel(0, 0));
     _localimage.loadFromImage(img);
 

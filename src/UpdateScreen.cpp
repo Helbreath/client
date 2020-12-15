@@ -13,6 +13,8 @@ extern void MakeSprite(char * FileName, int iStart, short sCount, bool bAlphaEff
 extern void MakeTileSpr(char * FileName, short sStart, short sCount, bool bAlphaEffect);
 extern void MakeEffectSpr(char * FileName, short sStart, short sCount, bool bAlphaEffect);
 
+extern ultralight::RefPtr<ultralight::View> view;
+
 extern CGame * G_pGame;
 
 // extern bool CheckCheating();
@@ -75,6 +77,24 @@ void CGame::UpdateScreen_OnMainMenu()
     m_stMCursor.sCursorFrame = 0;
     //m_pSprite[SPRID_INTERFACE_ADDINTERFACE]->PutTransSpriteRGB(msX, msY, 1, 0, 0, 0, dwTime);
 
+/*
+    if ((m_stMCursor.sX >= 384 && m_stMCursor.sY >= 177) && (m_stMCursor.sX <= 548 && m_stMCursor.sY <= 198)) m_cCurFocus = 1;
+    if ((m_stMCursor.sX >= 384 && m_stMCursor.sY >= 215) && (m_stMCursor.sX <= 548 && m_stMCursor.sY <= 236)) m_cCurFocus = 2;
+    if ((m_stMCursor.sX >= 384 && m_stMCursor.sY >= 254) && (m_stMCursor.sX <= 548 && m_stMCursor.sY <= 275)) m_cCurFocus = 3;
+
+    switch (m_cCurFocus)
+    {
+        case 1:
+            m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->DrawSprite(384, 177, 1, dwTime);
+            break;
+        case 2:
+            m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->DrawSprite(384, 215, 2, dwTime);
+            break;
+        case 3:
+            m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->DrawSprite(384, 254, 3, dwTime);
+            break;
+    }
+
     if (m_bEnterPressed == true)
     {
         // Enter
@@ -83,7 +103,8 @@ void CGame::UpdateScreen_OnMainMenu()
         switch (m_cCurFocus)
         {
             case 1:
-                ChangeGameMode(GAMEMODE_ONSELECTSERVER);
+                //ChangeGameMode(GAMEMODE_ONSELECTSERVER);
+                ChangeGameMode(GAMEMODE_ONLOGIN);
                 return;
             case 2:
 #ifdef MAKE_ACCOUNT
@@ -94,10 +115,10 @@ void CGame::UpdateScreen_OnMainMenu()
                 GoHomepage();
 #endif
                 return;
-                /*case 3:
+                / *case 3:
                 delete pMI;
                 ChangeGameMode(GAMEMODE_ONQUIT);
-                return;*/
+                return;* /
             case 3:
                 GoHomepage(true);
                 return;
@@ -112,13 +133,13 @@ void CGame::UpdateScreen_OnMainMenu()
         }
     }
 
-    DrawVersion();
+    DrawVersion();*/
 }
 
 void CGame::UpdateScreen_OnLoading(bool bActive)
 {
     int i;
-    /*if( bActive )*/ //UpdateScreen_OnLoading_Progress();
+    /*if( bActive )*/ UpdateScreen_OnLoading_Progress();
 
 	std::string progressLabel;
 	bool progressComplete = false;
@@ -959,6 +980,40 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             isItemLoaded = false;
             //ChangeGameMode(GAMEMODE_ONMAINMENU);
 
+
+            // mass convert
+
+
+/*
+            mkdir("dump");
+            for (int i = 0; i < MAXSPRITES; ++i)
+            {
+                if (m_pSprite[i])
+                {
+                    m_pSprite[i]->_iOpenSprite();
+                    if (m_pSprite[i]->_localimage.getSize().x == 0)
+                    {
+                        std::cout << fmt::format("Failed to load: {} - {}\n", i, m_pSprite[i]->m_cPakFileName);
+                    }
+                    mkdir(fmt::format("dump/{}", i).c_str());
+                    for (int x = 0; x < m_pSprite[i]->m_iTotalFrame; ++x)
+                    {
+                        //mkdir(fmt::format("dump/{}/{}", i, x).c_str());
+                        std::string save = fmt::format("dump/{}/{}.png", i, x);
+                        //IntRect(m_stBrush[i].sx, m_stBrush[i].sy, m_stBrush[i].szx, m_stBrush[i].szy)
+                        sf::RenderTexture temp;
+                        temp.create(m_pSprite[i]->m_stBrush[x].szx, m_pSprite[i]->m_stBrush[x].szy);
+                        m_pSprite[i]->sprite[x].setPosition(m_pSprite[i]->m_stBrush[x].pvx, m_pSprite[i]->m_stBrush[x].pvy);
+                        temp.draw(m_pSprite[i]->sprite[x]);
+                        temp.display();
+                        //std::cout << fmt::format("{} Size: {} x {} - Pivot: ({}, {}) - Source: ({}, {})\n", save, m_pSprite[i]->m_stBrush[x].szx, m_pSprite[i]->m_stBrush[x].szy, m_pSprite[i]->m_stBrush[x].pvx, m_pSprite[i]->m_stBrush[x].pvy, m_pSprite[i]->m_stBrush[x].sx, m_pSprite[i]->m_stBrush[x].sy);
+                        temp.getTexture().copyToImage().saveToFile(save);
+                    }
+                    m_pSprite[i]->_localimage.copyToImage().saveToFile(fmt::format("dump/{}/master.png", i));
+                }
+            }*/
+
+
 			// Let the UI know we're done loading
             if (autologin)
             {
@@ -978,14 +1033,30 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
         break;
     }
 
+    G_pGame->send_message_to_ui([&]()
+    {
+        ultralight::Ref<ultralight::JSContext> context = view->LockJSContext();
+        ultralight::SetJSContext(context.get());
+        ultralight::JSObject global = ultralight::JSGlobalObject();
+        ultralight::JSFunction LoadingProgress = global["LoadingProgress"];
+        if (LoadingProgress.IsValid())
+        {
+            ultralight::JSValue v(m_cLoading);
+            ultralight::JSArgs args;
+            args.push_back(v);
+            LoadingProgress(args);
+        }
+    });
+
 	// Update the UI with the loading progress
+/*
 	JSObject obj;
 	progress = !progress ? m_cLoading : progress;
 	bool async = !(m_cLoading == 52 || m_cLoading == 60 || m_cLoading == 92 || m_cLoading == 100);
 	obj.SetProperty(WSLit("progress"), JSValue(progress));
 	obj.SetProperty(WSLit("progressLabel"), WSLit(progressLabel.c_str()));
 	obj.SetProperty(WSLit("complete"), JSValue(m_cLoading == 100 ? true : false));
-	htmlUI->EmitObject("progressUpdate", obj, async);
+	htmlUI->EmitObject("progressUpdate", obj, async);*/
 
     //TODO: hardware cursors
     /*cursors = device->getGUIEnvironment()->addEmptySpriteBank("cursor");
@@ -1319,9 +1390,10 @@ void CGame::UpdateScreen_OnConnecting()
 
     ////DIRECTX m_DDraw.DrawShadowBox(0,0,639,479);
     ////DIRECTX m_DDraw.DrawShadowBox(0,0,799,599); // 800x600 Resolution xRisenx//DIRECTX
-    //DrawNewDialogBox(SPRID_INTERFACE_ND_GAME4, 162+80,125+80,2); // xRisenx added x+80 and y+80
+    DrawNewDialogBox(SPRID_INTERFACE_ND_GAME4, 162+80,125+80,2); // xRisenx added x+80 and y+80
     wsprintfA(G_cTxt, "Connecting to Server... (%d)", (dwTime - m_dwTime) / 1000);
     //PutString_SprFont(172 + 35 + 80, 190 + 80, G_cTxt, 7,0,0); // xRisenx added x+80 and y+80
+    PutString(172 + 35 + 80, 190 + 80, G_cTxt, sf::Color::White);
 
 
     // 	if ((dwTime - m_dwTime) > 7000)
@@ -1430,6 +1502,673 @@ void CGame::UpdateScreen_OnConnectionLost()
         ChangeGameMode(GAMEMODE_ONMAINMENU);
     }
 }
+
+/*void CGame::UpdateScreen_OnCreateNewCharacter()		// DrawCreateCharacter
+{
+    int i = 0;
+    int iMIbuttonNum;
+    static int iPoint;
+    char cLB, cRB, cMB, cMIresult;
+    static char cName[12];
+    static char cPrevFocus;
+    short msX, msY, msZ;
+    bool bFlag;
+    static uint32_t dwMTime;
+    uint32_t dwTime = unixtime();
+
+    msX = m_stMCursor.sX; msY = m_stMCursor.sY; msZ = m_stMCursor.sZ;
+    cLB = (m_stMCursor.LB == true) ? 1 : 0; cRB = (m_stMCursor.RB == true) ? 1 : 0; cMB = (m_stMCursor.MB == true) ? 1 : 0;
+
+
+    if (m_cGameModeCount == 0)
+    {
+        iPoint = m_createStat[STAT_STR] + m_createStat[STAT_VIT] + m_createStat[STAT_DEX] + m_createStat[STAT_INT] + m_createStat[STAT_MAG] + m_createStat[STAT_CHR];
+        iPoint = 70 - iPoint;
+        cPrevFocus = 1;
+        m_cCurFocus = 1;
+        m_cMaxFocus = 6;
+        m_bEnterPressed = false;
+        m_cArrowPressed = 0;
+        dwMTime = unixtime();
+        StartInputString(239 + 3, 153 + 3, 11, cName);
+        ClearInputString();
+    }
+    m_cGameModeCount++;
+    if (m_cGameModeCount > 100) m_cGameModeCount = 100;
+
+    if (m_cArrowPressed != 0)
+    {
+        switch (m_cArrowPressed)
+        {
+            case 1:
+                m_cCurFocus--;
+                if (m_cCurFocus <= 0) m_cCurFocus = m_cMaxFocus;
+                break;
+
+            case 3:
+                m_cCurFocus++;
+                if (m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
+                break;
+        }
+        m_cArrowPressed = 0;
+    }
+
+    if (cPrevFocus != m_cCurFocus)
+    {
+        EndInputString();
+        switch (m_cCurFocus)
+        {
+            case 1:
+                StartInputString(239 + 3, 153 + 3, 11, cName);
+                break;
+        }
+        cPrevFocus = m_cCurFocus;
+    }
+
+    if (m_bEscPressed == true)
+    {
+        ChangeGameMode(GAMEMODE_ONSELECTCHARACTER);
+        m_bEscPressed = false;
+        return;
+    }
+
+    ////DIRECTX m_dInput.UpdateMouseState(&msX, &msY, &msZ, &cLB, &cRB, &cMB);//DIRECTX
+    bFlag = _bDraw_OnCreateNewCharacter(cName, msX, msY, iPoint);
+
+    if ((dwTime - dwMTime) > 100)
+    {
+        m_cMenuFrame++;
+        dwMTime = dwTime;
+    }
+    if (m_cMenuFrame >= 8)
+    {
+        m_cMenuDirCnt++;
+        if (m_cMenuDirCnt > 8)
+        {
+            m_cMenuDir++;
+            m_cMenuDirCnt = 1;
+        }
+        m_cMenuFrame = 0;
+    }
+    if (m_cMenuDir > 8) m_cMenuDir = 1;
+
+    DrawVersion();
+    //m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(msX, msY, 0, dwTime);
+    m_stMCursor.sCursorFrame = 0;
+    if (cMIresult)
+    {
+        PlaySound('E', 14, 5);
+        switch (iMIbuttonNum)
+        {
+            case 1:
+                m_cCurFocus = 1;
+                break;
+            case 2:
+                m_cGender = 2;			// Female
+                break;
+            case 3:
+                m_cGender = 1;			// Male
+                break;
+            case 4:
+                m_cSkinCol--;
+                if (m_cSkinCol < 1) m_cSkinCol = 3;
+                break;
+            case 5:
+                m_cSkinCol++;
+                if (m_cSkinCol > 3) m_cSkinCol = 1;
+                break;
+            case 6:
+                m_cHairStyle--;
+                if (m_cHairStyle < 0) m_cHairStyle = 7;
+                break;
+            case 7:
+                m_cHairStyle++;
+                if (m_cHairStyle > 7) m_cHairStyle = 0;
+                break;
+            case 8:
+                m_cHairCol--;
+                if (m_cHairCol < 0) m_cHairCol = 15;
+                break;
+            case 9:
+                m_cHairCol++;
+                if (m_cHairCol > 15) m_cHairCol = 0;
+                break;
+            case 10:
+                m_cUnderCol--;
+                if (m_cUnderCol < 0) m_cUnderCol = 7;
+                break;
+            case 11:
+                m_cUnderCol++;
+                if (m_cUnderCol > 7) m_cUnderCol = 0;
+                break;
+            case 12:
+                if (iPoint > 0)
+                {
+                    if (m_createStat[STAT_STR] < 14)
+                    {
+                        m_createStat[STAT_STR]++;
+                        iPoint--;
+                    }
+                }
+                break;
+            case 13:
+                if (m_createStat[STAT_STR] > 10)
+                {
+                    m_createStat[STAT_STR]--;
+                    iPoint++;
+                }
+                break;
+            case 14:
+                if (iPoint > 0)
+                {
+                    if (m_createStat[STAT_VIT] < 14)
+                    {
+                        m_createStat[STAT_VIT]++;
+                        iPoint--;
+                    }
+                }
+                break;
+            case 15:
+                if (m_createStat[STAT_VIT] > 10)
+                {
+                    m_createStat[STAT_VIT]--;
+                    iPoint++;
+                }
+                break;
+            case 16:
+                if (iPoint > 0)
+                {
+                    if (m_createStat[STAT_DEX] < 14)
+                    {
+                        m_createStat[STAT_DEX]++;
+                        iPoint--;
+                    }
+                }
+                break;
+            case 17:
+                if (m_createStat[STAT_DEX] > 10)
+                {
+                    m_createStat[STAT_DEX]--;
+                    iPoint++;
+                }
+                break;
+            case 18:
+                if (iPoint > 0)
+                {
+                    if (m_createStat[STAT_INT] < 14)
+                    {
+                        m_createStat[STAT_INT]++;
+                        iPoint--;
+                    }
+                }
+                break;
+            case 19:
+                if (m_createStat[STAT_INT] > 10)
+                {
+                    m_createStat[STAT_INT]--;
+                    iPoint++;
+                }
+                break;
+            case 20:
+                if (iPoint > 0)
+                {
+                    if (m_createStat[STAT_MAG] < 14)
+                    {
+                        m_createStat[STAT_MAG]++;
+                        iPoint--;
+                    }
+                }
+                break;
+            case 21:
+                if (m_createStat[STAT_MAG] > 10)
+                {
+                    m_createStat[STAT_MAG]--;
+                    iPoint++;
+                }
+                break;
+            case 22:
+                if (iPoint > 0)
+                {
+                    if (m_createStat[STAT_CHR] < 14)
+                    {
+                        m_createStat[STAT_CHR]++;
+                        iPoint--;
+                    }
+                }
+                break;
+            case 23:
+                if (m_createStat[STAT_CHR] > 10)
+                {
+                    m_createStat[STAT_CHR]--;
+                    iPoint++;
+                }
+                break;
+
+            case 24:
+                if (m_cCurFocus != 2)
+                {
+                    m_cCurFocus = 2;
+                    return;
+                }
+                if (bFlag == false) return;
+                //if (m_Misc.bCheckValidName(m_cPlayerName) == FALSE) break;
+                if (m_Misc.bCheckValidName(cName) == false) break;
+                ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
+                strcpy(m_cPlayerName, cName);
+                ChangeGameMode(GAMEMODE_ONCONNECTING);
+                m_dwConnectMode = MSGID_REQUEST_CREATENEWCHARACTER;
+                ZeroMemory(m_cMsg, sizeof(m_cMsg));
+                strcpy(m_cMsg, "22");
+                return;
+
+
+            case 25:
+                if (m_cCurFocus != 3)
+                {
+                    m_cCurFocus = 3;
+                    return;
+                }
+                ChangeGameMode(GAMEMODE_ONSELECTCHARACTER);
+                return;
+
+
+            case 26: // WARRIOR
+                if (m_cCurFocus != 4)
+                {
+                    m_cCurFocus = 4;
+                    return;
+                }
+                b_cWarrior = true;
+                b_cMage = false;
+                b_cBattleMage = false;
+                b_cArcher = false;
+                m_createStat[STAT_MAG] = 10;
+                m_createStat[STAT_INT] = 10;
+                m_createStat[STAT_CHR] = 10;
+                m_createStat[STAT_STR] = 14;
+                m_createStat[STAT_VIT] = 12;
+                m_createStat[STAT_DEX] = 14;
+                iPoint = m_createStat[STAT_STR] + m_createStat[STAT_VIT] + m_createStat[STAT_DEX] + m_createStat[STAT_INT] + m_createStat[STAT_MAG] + m_createStat[STAT_CHR];
+                iPoint = 70 - iPoint;
+                break;
+
+            case 27: // MAGE
+                if (m_cCurFocus != 5)
+                {
+                    m_cCurFocus = 5;
+                    return;
+                }
+                b_cWarrior = false;
+                b_cMage = true;
+                b_cBattleMage = false;
+                b_cArcher = false;
+                m_createStat[STAT_MAG] = 14;
+                m_createStat[STAT_INT] = 14;
+                m_createStat[STAT_CHR] = 10;
+                m_createStat[STAT_STR] = 10;
+                m_createStat[STAT_VIT] = 12;
+                m_createStat[STAT_DEX] = 10;
+                iPoint = m_createStat[STAT_STR] + m_createStat[STAT_VIT] + m_createStat[STAT_DEX] + m_createStat[STAT_INT] + m_createStat[STAT_MAG] + m_createStat[STAT_CHR];
+                iPoint = 70 - iPoint;
+                break;
+
+            case 28: // Battle Mage xRisenx
+                if (m_cCurFocus != 6)
+                {
+                    m_cCurFocus = 6;
+                    return;
+                }
+                b_cWarrior = false;
+                b_cMage = false;
+                b_cBattleMage = true;
+                b_cArcher = false;
+                m_createStat[STAT_MAG] = 14;
+                m_createStat[STAT_INT] = 10;
+                m_createStat[STAT_CHR] = 10;
+                m_createStat[STAT_STR] = 14;
+                m_createStat[STAT_VIT] = 12;
+                m_createStat[STAT_DEX] = 10;
+                iPoint = m_createStat[STAT_STR] + m_createStat[STAT_VIT] + m_createStat[STAT_DEX] + m_createStat[STAT_INT] + m_createStat[STAT_MAG] + m_createStat[STAT_CHR];
+                iPoint = 70 - iPoint;
+                break;
+
+            case 29: // Archer xRisenx
+                if (isArcherEnabled == false) return;
+                if (m_cCurFocus != 7)
+                {
+                    m_cCurFocus = 7;
+                    return;
+                }
+                b_cWarrior = false;
+                b_cMage = false;
+                b_cBattleMage = false;
+                b_cArcher = true;
+                m_createStat[STAT_MAG] = 10;
+                m_createStat[STAT_INT] = 10;
+                m_createStat[STAT_CHR] = 14;
+                m_createStat[STAT_STR] = 10;
+                m_createStat[STAT_VIT] = 12;
+                m_createStat[STAT_DEX] = 14;
+                iPoint = m_createStat[STAT_STR] + m_createStat[STAT_VIT] + m_createStat[STAT_DEX] + m_createStat[STAT_INT] + m_createStat[STAT_MAG] + m_createStat[STAT_CHR];
+                iPoint = 70 - iPoint;
+                break;
+
+                //case 28: // BMage
+                //	if (m_cCurFocus != 6) 
+                //	{
+                //		m_cCurFocus = 6;
+                //		return;
+                //	}
+
+                //	m_ccMag = 12 ;
+                //	m_ccInt = 14 ;
+                //	m_ccChr = 10 ;
+                //	m_ccStr = 14 ;
+                //	m_ccVit = 10 ;
+                //	m_ccDex = 10 ;
+                //	iPoint = m_ccStr + m_ccVit + m_ccDex + m_ccInt + m_ccMag + m_ccChr;
+                //	iPoint  = 70 - iPoint;
+                //	break;
+
+                //case 29: // Archer
+                //	if (m_cCurFocus != 7) 
+                //	{
+                //		m_cCurFocus = 7;
+                //		return;
+                //	}
+
+                //	m_ccMag = 10 ;
+                //	m_ccInt = 10 ;
+                //	m_ccChr = 14 ;
+                //	m_ccStr = 14 ;
+                //	m_ccVit = 10 ;
+                //	m_ccDex = 12 ;
+                //	iPoint = m_ccStr + m_ccVit + m_ccDex + m_ccInt + m_ccMag + m_ccChr;
+                //	iPoint  = 70 - iPoint;
+                //	break;
+        }
+
+
+    }
+    // 800x600 Fixed xRisenx
+
+    if ((msX >= 239) && (msX <= 347) && (msY >= 153) && (msY <= 172))
+    {			// "Enter Character Name"
+        PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER1);
+    }
+    else
+        if ((msX >= 281) && (msX <= 336) && (msY >= 205) && (msY <= 218))
+        {			// "Select Characters Gender"
+            PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER2);
+        }
+        else
+            if ((msX >= 309) && (msX <= 346) && (msY >= 220) && (msY <= 232))
+            {			// "Select Characters Skin Color."
+                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER3);
+            }
+            else
+                if ((msX >= 309) && (msX <= 346) && (msY >= 235) && (msY <= 247))
+                {			// "Select Characters Hairstyle."
+                    PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER4);
+                }
+                else
+                    if ((msX >= 309) && (msX <= 346) && (msY >= 250) && (msY <= 262))
+                    {			// "Select Characters hair color."
+                        PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER5);
+                    }
+                    else
+                        if ((msX >= 309) && (msX <= 346) && (msY >= 265) && (msY <= 277))
+                        {			// "Select Characters Underwear color."
+                            PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER6);
+                        }
+                        else
+                            if ((msX >= 310) && (msX <= 346) && (msY >= 324) && (msY <= 338))
+                            {
+                                // Str
+                                i = 0;
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER7);
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER8);
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER9);
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER10);
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER11);
+                            }
+                            else if ((msX >= 310) && (msX <= 346) && (msY >= 341) && (msY <= 355))
+                            {
+                                // Vit
+                                i = 0;
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER12);//"
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER13);//"
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER14);//"
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER15);//"
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER16);//"
+                            }
+                            else if ((msX >= 310) && (msX <= 346) && (msY >= 357) && (msY <= 371))
+                            {
+                                // Dex
+                                i = 0;
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER17);//"
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER18);//"
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER19);//"
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER20);//"
+                            }
+                            else if ((msX >= 310) && (msX <= 346) && (msY >= 373) && (msY <= 386))
+                            {
+                                // Int
+                                i = 0;
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER21);//"
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER22);//"
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER23);//"
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER24);
+                            }
+                            else if ((msX >= 310) && (msX <= 346) && (msY >= 389) && (msY <= 403))
+                            {
+                                // Mag
+                                i = 0;
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER25);
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER26);
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER27);
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER28);
+                            }
+                            else if ((msX >= 310) && (msX <= 346) && (msY >= 405) && (msY <= 419))
+                            {
+                                // Char
+                                i = 0;
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER29);
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER30);
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER31);
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER32);
+                            }
+
+    // 640 Resolution Setup Below xRisenx
+    //if ((msX >= 65+4-127+80) && (msX <= 275+4+80) && (msY >= 65+45+120) && (msY <= 82+45+120)) {
+    //	PutAlignedString(370, 580, 345, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER1);
+    //}
+    //else
+    //if ((msX >= 261+4-212) && (msX <= 289+4) && (msY >= 111+45) && (msY <= 124+45)) {
+    //	PutAlignedString(370, 580, 345, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER2);
+    //}
+    //else
+    //if ((msX >= 261+4-212) && (msX <= 289+4) && (msY >= 126+45) && (msY <= 139+45)) {
+    //	PutAlignedString(370, 580, 345, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER3);
+    //}
+    //else
+    //if ((msX >= 261+4-212) && (msX <= 289+4) && (msY >= 141+45) && (msY <= 154+45)) {
+    //	PutAlignedString(370, 580, 345, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER4);
+    //}
+    //else
+    //if ((msX >= 261+4-212) && (msX <= 289+4) && (msY >= 156+45) && (msY <= 169+45)) {
+    //	PutAlignedString(370, 580, 345, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER5);
+    //}
+    //else
+    //if ((msX >= 261+4-212) && (msX <= 289+4) && (msY >= 171+45) && (msY <= 184+45)) {
+    //	PutAlignedString(370, 580, 345, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER6);
+    //}
+    //else
+    //if ((msX >= 240+4-175) && (msX <= 268+4) && (msY >= 231+45) && (msY <= 244+45)) {
+    //	// Str
+    //	i= 0 ;
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER7);
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER8);
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER9);
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER10);
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER11);
+    //}
+    //else if ((msX >= 240+4-175) && (msX <= 268+4) && (msY >= 246+45) && (msY <= 259+45)) {
+
+    //	i= 0 ;
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER12);//"
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER13);//"
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER14);//"
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER15);//"
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER16);//"
+    //}
+    //else if ((msX >= 240+4-175) && (msX <= 268+4) && (msY >= 261+45) && (msY <= 274+45)) {
+    //	// Dex
+    //	i= 0 ;
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER17);//"
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER18);//"
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER19);//"
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER20);//"
+    //}
+    //else if ((msX >= 240+4-175) && (msX <= 268+4) && (msY >= 276+45) && (msY <= 289+45)) {
+    //	// Int
+    //	i= 0 ;
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER21);//"
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER22);//"
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER23);//"
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER24);
+    //}
+    //else if ((msX >= 240+4-175) && (msX <= 268+4) && (msY >= 291+45) && (msY <= 304+45)) {
+    //	// Mag
+    //	i= 0 ;
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER25);
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER26);
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER27);
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER28);
+    //}
+    //else if ((msX >= 240+4-175) && (msX <= 268+4) && (msY >= 306+45) && (msY <= 319+45)) {
+    //	// Charisma
+    //	i= 0 ;
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER29);
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER30);
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER31);
+    //	PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER32);
+    //}
+
+                            else if ((msX >= 704) && (msX <= 795) && (msY >= 558) && (msY <= 595))
+                            {
+                                m_cCurFocus = 2;
+                                if (strlen(cName) <= 0)
+                                {
+                                    i = 0;
+                                    PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER35);//"Please enter a character name."
+                                }
+                                else if (iPoint > 0)
+                                {
+                                    i = 0;
+                                    PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER36);//"You need to select your character class."
+                                }
+                                else if (m_Misc.bCheckValidName(cName) == false)
+                                {
+                                    i = 0;
+                                    PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER39);//"Cannot use special characters "
+                                    PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER40);//"in your character's name. Please"
+                                    PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER41);//"type another name."
+                                                                                                                                                //PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER39);//"Cannot use special characters "
+                                                                                                                                                //PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER40);//"in your character's name. Please"
+                                                                                                                                                //PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER41);//"type another name."
+                                }
+                                else
+                                {
+                                    i = 0;
+                                    PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER44);//"
+                                    PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER45);//"
+                                    PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER46);//"
+                                    PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER47);//"
+                                    PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 - 5 + 16 * i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER48);//"
+                                                                                                                                                //PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER44);//"
+                                                                                                                                                //PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER45);//"
+                                                                                                                                                //PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER46);//"
+                                                                                                                                                //PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER47);//"
+                                                                                                                                                //PutAlignedString(370, 580, 345 + 16*i++, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER48);//"
+                                }
+                                //}else if ((msX >= 500+80) && (msX <= 500+72+80) && (msY >= 445+120) && (msY <= 445+15+120))
+                                //{	m_cCurFocus = 3;
+                                //	PutAlignedString(370+80, 580+80, 345+120, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER49);
+                                //}
+
+                                //if ((msX >= 180) && (msX <= 250) && (msY >= 515) && (msY <= 530)) 
+                                //{
+                                //	m_cCurFocus = 4;
+                                //	PutAlignedString(370+80, 580+80, 345+120, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER50);
+                                //}
+
+                                //if ((msX >= 260) && (msX <= 330) && (msY >= 515) && (msY <= 530))
+                                //{
+                                //	m_cCurFocus = 5;
+                                //	PutAlignedString(370+80, 580+80, 345+120, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER51);
+                                //}
+                                // //Battle Mage
+                                //if ((msX >= 180) && (msX <= 250) && (msY >= 540) && (msY <= 555)) 
+                                //{
+                                //	m_cCurFocus = 6;
+                                //	PutAlignedString(370+80, 580+80, 345+120, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER52);
+                                //}
+                                // //Archer
+                                //if ((msX >= 260) && (msX <= 330) && (msY >= 540) && (msY <= 555))
+                                //{
+                                //	m_cCurFocus = 7;
+                                //	PutAlignedString(370+80, 580+80, 345+120, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER53);
+                                //}
+
+                                //640 Resolution Below
+
+                            }
+                            else if ((msX >= 6) && (msX <= 97) && (msY >= 558) && (msY <= 595))			// Cancel
+                            {
+                                m_cCurFocus = 3;
+                                PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER49);
+                            }// Difference: 30			30
+                             //			87				159				
+    if ((msX >= 87) && (msX <= 159) && (msY >= 447) && (msY <= 467))
+    {				// Warrior
+        m_cCurFocus = 4;
+        PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER50);
+    }
+
+    if ((msX >= 164) && (msX <= 236) && (msY >= 447) && (msY <= 467))
+    {				// Mage
+        m_cCurFocus = 5;
+        PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER51);
+    }
+
+    if ((msX >= 241) && (msX <= 313) && (msY >= 447) && (msY <= 467))
+    {				// Battle Mage
+        m_cCurFocus = 6;
+        PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER52);
+    }
+
+    if (isArcherEnabled == false)
+    {
+        if ((msX >= 318) && (msX <= 390) && (msY >= 447) && (msY <= 467))
+        {
+            PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER54);
+        }
+    }
+    else
+    {
+        if ((msX >= 318) && (msX <= 390) && (msY >= 447) && (msY <= 467))
+        {				// Archer
+            m_cCurFocus = 7;
+            PutAlignedString(370 + 80 + 15, 580 + 80 + 15, 345 + 120 - 125, UPDATE_SCREEN_ON_CREATE_NEW_CHARACTER53);
+        }
+    }
+
+    //	if (m_cGameModeCount < 6) //DIRECTX m_DDraw.DrawShadowBox(0,0,639,479);
+    //	if (m_cGameModeCount < 2) //DIRECTX m_DDraw.DrawShadowBox(0,0,639,479);
+
+    //if (//DIRECTX m_DDraw.iFlip() == DDERR_SURFACELOST) RestoreSprites();
+}*/
 
 void CGame::UpdateScreen_OnQuit()
 {
@@ -2726,4 +3465,109 @@ void CGame::UpdateScreen_OnGame()
         }
     }
     // iUpdateRet
+}
+
+void CGame::ShowReceivedString(bool bIsHide)
+{
+    ZeroMemory(G_cTxt2, sizeof(G_cTxt2));
+
+#ifdef USING_WIN_IME
+    if (G_hEditWnd != 0) GetWindowText(G_hEditWnd, m_pInputBuffer, (int)m_inputMaxLen);
+    strcpy(G_cTxt2, m_pInputBuffer);
+#else
+    strcpy(G_cTxt2, m_pInputBuffer);
+    if ((m_cEdit[0] != 0) && (strlen(m_pInputBuffer) + strlen(m_cEdit) + 1 <= m_inputMaxLen))
+    {
+        strcpy(G_cTxt2 + strlen(m_pInputBuffer), m_cEdit);
+    }
+#endif
+    if (bIsHide == true)
+    {
+        for (unsigned char i = 0; i < strlen(G_cTxt2); i++)
+            if (G_cTxt2[i] != 0) G_cTxt2[i] = '*';
+    }
+
+    if ((G_dwGlobalTime % 400) < 210)
+        G_cTxt2[strlen(G_cTxt2)] = '_';
+
+    if (m_iInputX2 == 0)
+    {
+        PutString(m_iInputX + 1, m_iInputY + 1, G_cTxt2, Color(255, 0, 0, 0));
+        PutString(m_iInputX, m_iInputY + 1, G_cTxt2, Color(255, 0, 0, 0));
+        PutString(m_iInputX + 1, m_iInputY, G_cTxt2, Color(255, 0, 0, 0));
+        PutString(m_iInputX, m_iInputY, G_cTxt2, Color(255, 255, 255, 255));
+    }
+    else {
+        PutAlignedString(m_iInputX + 1, m_iInputX2 + 1, m_iInputY + 1, G_cTxt2, Color(255, 0, 0, 0));
+        PutAlignedString(m_iInputX, m_iInputX2, m_iInputY + 1, G_cTxt2, Color(255, 0, 0, 0));
+        PutAlignedString(m_iInputX + 1, m_iInputX2 + 1, m_iInputY, G_cTxt2, Color(255, 0, 0, 0));
+        PutAlignedString(m_iInputX, m_iInputX2, m_iInputY, G_cTxt2, Color(255, 255, 255, 255));
+    }
+}
+
+void CGame::ClearInputString()
+{
+    if (m_pInputBuffer != 0)	ZeroMemory(m_pInputBuffer, sizeof(m_pInputBuffer));
+    ZeroMemory(m_cEdit, sizeof(m_cEdit));
+#ifdef USING_WIN_IME
+    if (G_hEditWnd != 0)	SetWindowText(G_hEditWnd, "");
+#endif
+}
+
+void CGame::StartInputString(int left, int top, uint32_t len, char* pBuffer, bool bIsHide, int right)
+{
+    m_bInputStatus = true;
+    m_iInputX = left;
+    m_iInputY = top;
+    m_iInputX2 = right;
+    m_pInputBuffer = pBuffer;
+    ZeroMemory(m_cEdit, sizeof(m_cEdit));
+    m_inputMaxLen = len;
+#ifdef USING_WIN_IME
+    if (bIsHide == false) G_hEditWnd = CreateWindow(RICHEDIT_CLASS, 0, WS_POPUP | ES_SELFIME, sX - 5, sY - 1, len * 12, 16, G_hWnd, (HMENU)0, G_hInstance, 0);
+    else G_hEditWnd = CreateWindow(RICHEDIT_CLASS, 0, WS_POPUP | ES_PASSWORD | ES_SELFIME, sX - 5, sY - 1, len * 12, 16, G_hWnd, (HMENU)0, G_hInstance, 0);
+    SetWindowText(G_hEditWnd, m_pInputBuffer);
+    SendMessage(G_hEditWnd, EM_EXLIMITTEXT, 0, len - 1);
+    SendMessage(G_hEditWnd, EM_SETLANGOPTIONS, 0, ~IMF_AUTOFONT);
+    COMPOSITIONFORM composform;
+    composform.dwStyle = CFS_POINT;
+    composform.ptCurrentPos.x = sX;
+    composform.ptCurrentPos.y = sY;
+    HIMC hImc = ImmGetContext(G_hWnd);
+    ImmSetCompositionWindow(hImc, &composform);
+    int StrLen = strlen(m_pInputBuffer);
+    SendMessage(G_hEditWnd, EM_SETSEL, StrLen, StrLen);
+#endif
+}
+
+void CGame::EndInputString()
+{
+    m_bInputStatus = false;
+#ifdef USING_WIN_IME
+    if (G_hEditWnd != 0)
+    {
+        GetWindowText(G_hEditWnd, m_pInputBuffer, (int)m_inputMaxLen);
+        CANDIDATEFORM candiform;
+        SendMessage(G_hEditWnd, WM_IME_CONTROL, IMC_GETCANDIDATEPOS, (LPARAM)&candiform);
+        DestroyWindow(G_hEditWnd);
+        G_hEditWnd = 0;
+    }
+#else
+    int len = strlen(m_cEdit);
+    if (len > 0)
+    {
+        m_cEdit[len] = 0;
+        strcpy(m_pInputBuffer + strlen(m_pInputBuffer), m_cEdit);
+        ZeroMemory(m_cEdit, sizeof(m_cEdit));
+    }
+#endif
+}
+
+void CGame::ReceiveString(char* pString)
+{
+    strcpy(pString, m_pInputBuffer);
+
+#ifdef USING_WIN_IME
+    if (G_hEditWnd != 0) GetWindowText(G_hEditWnd, pString, (int)m_inputMaxLen);
+#endif
 }

@@ -52,6 +52,8 @@ bin/ts
 bin/sprites/raws/
 bin/bin
 bin/*.*
+bin/dump/*
+x64/
 
 Client.VC.opendb
 Client.VC.db

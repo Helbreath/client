@@ -24,13 +24,93 @@ class CGame * G_pGame;
 
 bool Initialize(char * pCmdLine);
 
+using namespace ultralight;
+using UIWindow = ultralight::Window;
+
+RefPtr<ultralight::View> view;
+
+void SelfUpdate(const JSObject& thisObject, const JSArgs& args)
+{
+    std::cout << "Updated html.\n";
+    view->LoadURL("file:///ui/main.html");
+    //return JSValue("Hello from C++!<br/>Ultralight rocks!");
+}
+
+class MyListener: public ultralight::LoadListener {
+    virtual void OnBeginLoading(ultralight::View* caller)
+    {
+        std::cout << "Loading\n";
+    }
+    virtual void OnFinishLoading(ultralight::View* caller)
+    {
+        std::cout << "Finish Loading\n";
+    }
+    virtual void OnUpdateHistory(ultralight::View* caller)
+    {
+        std::cout << "Update History\n";
+    }
+    virtual void OnDOMReady(ultralight::View* caller)
+    {
+        std::cout << "Dom Ready\n";
+    }
+};
+
+class MyViewListener : public ultralight::ViewListener {
+    virtual void OnChangeTitle(ultralight::View* caller, const ultralight::String& title)
+    {
+        std::cout << "On Change Title\n";
+    }
+    virtual void OnChangeURL(ultralight::View* caller, const ultralight::String& url)
+    {
+        /// All javascript function/variable bindings must be changed here every single reload
+
+        std::cout << "On Change URL\n";
+        std::unique_lock<std::mutex> l(G_pGame->_html_eventm);
+        G_pGame->_html_eventqueue.emplace([]()
+        {
+            Ref<JSContext> context = view->LockJSContext();
+            SetJSContext(context.get());
+            JSObject global = JSGlobalObject();
+            global["SelfUpdate"] = std::function<void(const JSObject& thisObject, const JSArgs& args)>(SelfUpdate);
+            //global["UpdateLoading"] = std::function<void(const JSObject& thisObject, const JSArgs& args)>(std::bind(&CGame::thing, G_pGame));
+        });
+    }
+    virtual void OnChangeTooltip(ultralight::View* caller, const ultralight::String& tooltip)
+    {
+        //std::cout << "On Change Tooltip\n";
+    }
+    virtual void OnChangeCursor(ultralight::View* caller, ultralight::Cursor cursor)
+    {
+        //std::cout << "On Change Cursor\n";
+    }
+    virtual void OnAddConsoleMessage(ultralight::View* caller, MessageSource source, MessageLevel level, const ultralight::String& message, uint32_t line_number, uint32_t column_number, const ultralight::String& source_id)
+    {
+        std::cout << "Console Message\n" << message.utf8().data() << "\n";
+        //view->Stop();
+        //view->LoadURL("https://google.com");
+        //view->Reload();
+    }
+};
+
+class MyLogger : public Logger {
+public:
+    MyLogger() {}
+    virtual ~MyLogger() {}
+
+    ///
+    /// Called when the library wants to print a message to the log.
+    ///
+    virtual void LogMessage(ultralight::LogLevel log_level, const String16& message) override {
+        printf("%s\n", ultralight::String(message).utf8().data());
+    }
+};
+
 int main(int argc, char * argv[])
 {
 	srand((unsigned)time(0));
 
     G_pGame = new class CGame;
-  
-    
+
     G_pGame->_renderer = "OpenGL";
 
 #ifdef WIN32
@@ -68,11 +148,6 @@ int main(int argc, char * argv[])
                 G_pGame->screenheight_v = atoi(strtok_s(0, "=x", &ctx));
                 G_pGame->autovresolution = true;
             }
-
-
-
-
-
 //             else if (!memcmp(argv[i], "-renderer=", 10))
 //             {
 //                 char * ctx;
@@ -96,7 +171,18 @@ int main(int argc, char * argv[])
 //             }
         }
     }
+    //view->LoadURL("https://forum.helbreathx.net/");
 
+    /*Ref<App> app = App::Create();
+
+    Ref<UIWindow> uiwindow = UIWindow::Create(app->main_monitor(), 900, 600, false, kWindowFlags_Titled);
+
+    uiwindow->SetTitle("Ultralight Sample 2 - Basic App");
+    app->set_window(uiwindow);
+    Ref<Overlay> overlay = Overlay::Create(uiwindow, uiwindow->width(), uiwindow->height(), 0, 0);
+    overlay->view()->LoadHTML(htmlString());
+
+    app->Run();*/
 
 	if (!G_pGame->CreateRenderer())
 	{
@@ -123,6 +209,84 @@ int main(int argc, char * argv[])
 
     sf::Event event;
     sf::RenderWindow & window = G_pGame->window;
+
+    bool isrunning = true;
+
+    std::condition_variable cv;
+
+    std::mutex m;
+
+    std::unique_lock<std::mutex> l(m);
+
+    std::thread htmlrenderer([&]() {
+        Config config;
+        config.resource_path = "./resources/";
+        config.use_gpu_renderer = false;
+        config.device_scale = 1.0;
+        config.enable_javascript = true;
+        config.enable_images = true;
+        Platform::instance().set_config(config);
+
+        Platform::instance().set_font_loader(GetPlatformFontLoader());
+        Platform::instance().set_file_system(GetPlatformFileSystem("."));
+        //Platform::instance().set_logger(GetDefaultLogger("ultralight.log"));
+        Platform::instance().set_logger(new MyLogger());
+        //Platform::instance().set_gpu_driver();
+
+        RefPtr<Renderer> renderer = Renderer::Create();
+
+        view = renderer->CreateView(G_pGame->screenwidth_v, G_pGame->screenheight_v, true, nullptr);
+        MyListener lstnr;
+        MyViewListener viewlstnr;
+        view->set_load_listener(&lstnr);
+        view->set_view_listener(&viewlstnr);
+
+        view->Focus();
+
+        view->LoadURL("file:///ui/main.html");
+
+
+/*
+        {
+            Ref<JSContext> context = view->LockJSContext();
+            SetJSContext(context.get());
+            JSObject global = JSGlobalObject();
+            global["SelfUpdate"] = std::function<void(const JSObject& thisObject, const JSArgs& args)>(SelfUpdate);
+        }*/
+
+        cv.notify_all();
+
+        while (isrunning)
+        {
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(10ms);
+            {
+                std::unique_lock<std::mutex> l(G_pGame->_html_m);
+
+                {
+                    std::unique_lock<std::mutex> l(G_pGame->_html_eventm);
+                    int i = 10;
+                    while (--i)
+                    {
+                        if (!G_pGame->_html_eventqueue.empty())
+                        {
+                            auto evt = G_pGame->_html_eventqueue.front();
+                            evt();
+                            G_pGame->_html_eventqueue.pop();
+                        }
+                    }
+                }
+
+                renderer->Update();
+                renderer->Render();
+
+                G_pGame->dirty_html = !view->surface()->dirty_bounds().IsEmpty();
+                view->surface()->ClearDirtyBounds();
+            }
+        }
+    });
+
+    cv.wait(l);
  
     while (window.isOpen())
 	{
@@ -130,6 +294,7 @@ int main(int argc, char * argv[])
         G_pGame->OnTimer();
         G_pGame->fps.update();
 
+        
         while (window.pollEvent(event))
         {
             // "close requested" event: we close the window
@@ -139,10 +304,12 @@ int main(int argc, char * argv[])
 			}
 
 			// Give the UI a chance to claim the event
+/*
 			std::vector<sf::Event::EventType> captureEvents{ sf::Event::KeyPressed, sf::Event::KeyReleased, sf::Event::MouseButtonPressed, sf::Event::MouseButtonReleased, sf::Event::TextEntered };
 			if (std::find(captureEvents.begin(), captureEvents.end(), event.type) != captureEvents.end() && G_pGame->htmlUI->CaptureEvent(event)) {
 				break;
 			}
+*/
 
             G_pGame->OnEvent(event);
 
@@ -157,9 +324,12 @@ int main(int argc, char * argv[])
         window.display();
 	}
 
+    isrunning = false;
 	G_pGame->signals_.cancel();
 	G_pGame->Quit();
 	G_pGame->socketthread->join();
+    view->Stop();
+    htmlrenderer.join();
 	delete G_pGame;
 
 	return 0;

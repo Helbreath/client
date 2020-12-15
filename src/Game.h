@@ -19,6 +19,7 @@
 #include <functional>
 #include <mutex>
 #include <asio/signal_set.hpp>
+#include <queue>
 
 #include <process.h>
 #include <direct.h>
@@ -49,9 +50,10 @@
 #include "guild.h"
 #include "mail.h"
 #include "DialogBox.h"
-#include "HTMLUI.h"
 #include "ItemBag.h"
 #include <deque>
+#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include "Title.h" // Titles xRisenx
 
@@ -59,6 +61,16 @@
 #include <SFML/Graphics.hpp>
 
 #include "streams.h"
+
+#include <AppCore/App.h>
+#include <AppCore/Platform.h>
+#include <AppCore/Window.h>
+#include <AppCore/Overlay.h>
+#include <AppCore/JSHelpers.h>
+#include <Ultralight/Ultralight.h>
+#include <Ultralight/View.h>
+#include <Ultralight/KeyEvent.h>
+#include <Ultralight/KeyCodes.h>
 
 #define BTNSZX				74
 #define BTNSZY				20
@@ -207,16 +219,13 @@ class CGame
 {
 public:
     FPS fps;
-    struct UIMsgQueueEntry
-    {
-        JSValue obj;
-        string message;
-    };
 
-    typedef std::deque<shared_ptr<UIMsgQueueEntry>> UIMsgQueue;
+/*
+    using UIMsgQueue = std::deque<shared_ptr<UIMsgQueueEntry>>;
     UIMsgQueue uiqueue;
     void PutUIMsgQueue(shared_ptr<UIMsgQueueEntry> msg);
     shared_ptr<UIMsgQueueEntry> GetUIMsgQueue();
+*/
 
     int viewdstxvar = 0;
     int viewdstyvar = 0;
@@ -268,7 +277,7 @@ public:
     std::mutex socketmut;
     std::mutex uimut;
 
-    void ProcessUI(std::shared_ptr<UIMsgQueueEntry>);
+    //void ProcessUI(std::shared_ptr<UIMsgQueueEntry>);
 
 	std::shared_ptr<std::thread> socketthread;
 
@@ -319,8 +328,6 @@ public:
         }
     };
 
-	HTMLUI* htmlUI;
-
 	bool gamemode;
 
 	int16_t lastchar;
@@ -346,10 +353,30 @@ public:
 
     sf::RenderWindow window;
 
-    unsigned char* uibuffer;
-    sf::Texture uitex;
-    sf::Sprite uispr;
     char winName[256];
+
+	bool m_bInputStatus = false;
+	int m_iInputX, m_iInputY, m_iInputX2;
+	char* m_pInputBuffer;
+	uint32_t m_inputMaxLen;
+
+	bool dirty_html = false;
+    sf::Texture _html_tex;
+    sf::Sprite _html_spr;
+	std::mutex _html_m;
+	std::mutex _html_eventm;
+
+	std::queue<std::function<void(void)>> _html_eventqueue;
+
+	void send_key_to_ui(sf::Keyboard::Key key);
+
+	void ShowReceivedString(bool bIsHide = false);
+	void StartInputString(int left, int top, uint32_t len, char* pBuffer, bool bIsHide = false, int right = 0);
+	void EndInputString();
+	void ReceiveString(char* pString);
+	void ClearInputString();
+
+	void send_message_to_ui(std::function<void(void)> fn, bool with_lock = true);
 
     bool CreateRenderer(bool fs = false)
 	{
@@ -380,9 +407,9 @@ public:
         charselect.create(256, 256);
         htmlRTT.create(screenwidth_v, screenheight_v);
 
-		htmlUI = new HTMLUI(this);
-		htmlUI->Init();
-
+// 		htmlUI = new HTMLUI(this);
+// 		htmlUI->Init();
+// 
         handle = window.getSystemHandle();
         
 
@@ -399,10 +426,11 @@ public:
         s.loadFromFile(workingdirectory + "fonts/PoetsenOne-Regular.ttf");
         _font.insert(pair<string, sf::Font>("test", s));
 
-        uibuffer = new unsigned char[screenwidth_v * screenheight_v * 4];
-        uitex.create(screenwidth_v, screenheight_v);
-        uispr.setTexture(uitex);
-        
+        sf::Image img;
+        img.create(screenwidth_v, screenheight_v);
+        _html_tex.loadFromImage(img);
+        _html_spr.setTexture(_html_tex);
+
         return true;
 	}
     sf::WindowHandle handle;
@@ -839,7 +867,7 @@ public:
 	char cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMoveCheck = false, bool isMIM = false);
 	void CommandProcessor(short msX, short msY, short indexX, short indexY, char cLB, char cRB, char cMB);
 	void CalcViewPoint(uint64_t dwTime);
-	void OnKeyDown(uint32_t wParam);
+	void OnKeyDown(WPARAM wParam);
 	void Quit();
 	bool bInit(void * hWnd, void * hInst, char * pCmdLine);
 

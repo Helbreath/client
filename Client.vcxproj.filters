@@ -148,9 +148,6 @@
     <ClInclude Include="src\DialogBox.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="src\HTMLUI.h">
-      <Filter>ui</Filter>
-    </ClInclude>
     <ClInclude Include="src\ItemBag.h" />
   </ItemGroup>
   <ItemGroup>
@@ -226,9 +223,6 @@
       <Filter>shared</Filter>
     </ClCompile>
     <ClCompile Include="src\DialogBox.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\HTMLUI.cpp">
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp" />

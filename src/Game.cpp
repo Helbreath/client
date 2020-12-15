@@ -11,11 +11,9 @@
 
 #include "lan_eng.h"
 #include <asio/ssl.hpp>
-#include <Awesomium/WebKeyboardEvent.h>
-
-using namespace Awesomium;
 
 extern class CGame * G_pGame;
+extern ultralight::RefPtr<ultralight::View> view;
 
 // extern bool CheckCheating();
 // extern bool CheckHackProgram();
@@ -329,6 +327,7 @@ void CGame::ReadUsername()
 	}
 }
 
+/*
 void CGame::PutUIMsgQueue(shared_ptr<UIMsgQueueEntry> msg)
 {
     uiqueue.push_back(msg);
@@ -340,7 +339,7 @@ shared_ptr<CGame::UIMsgQueueEntry> CGame::GetUIMsgQueue()
     shared_ptr<UIMsgQueueEntry> msg = uiqueue.front();
     uiqueue.pop_front();
     return msg;
-}
+}*/
 
 shared_ptr<CGame::MsgQueueEntry> CGame::GetLoginMsgQueue()
 {
@@ -453,7 +452,7 @@ char itoh(int num)
 CGame::CGame()
 	: io_service_(),
 	signals_(io_service_),
-    ctx(asio::ssl::context::sslv23)
+    ctx(asio::ssl::context::tlsv12_client)
 {
     char cert[] = SSL_CERT;
     char dh[] = SSL_DH_PARAM;
@@ -985,9 +984,21 @@ void CGame::Quit()
 	io_service_.stop();
 }
 
+void CGame::send_message_to_ui(std::function<void(void)> fn, bool with_lock)
+{
+	if (with_lock)
+	{
+        std::unique_lock<std::mutex> l(_html_eventm);
+        _html_eventqueue.emplace(fn);
+	}
+	else
+		_html_eventqueue.emplace(fn);
+}
+
 void CGame::UpdateScreen()
 {
     G_dwGlobalTime = unixtime();
+    visible.clear();
 
 	switch (m_cGameMode) {
 	case GAMEMODE_ONCONNECTING:
@@ -995,7 +1006,8 @@ void CGame::UpdateScreen()
 		break;
 
 	case GAMEMODE_ONMAINMENU:
-		UpdateScreen_OnLogin();
+		//UpdateScreen_OnLogin();
+		UpdateScreen_OnMainMenu();
 		break;
 
 	case GAMEMODE_ONLOADING:
@@ -1038,34 +1050,20 @@ void CGame::UpdateScreen()
 
     static uint64_t fpstime = unixtime();
 	static uint64_t uitime = unixtime();
-	if (htmlUI->surface && G_dwGlobalTime - uitime > 50)
+	if (G_dwGlobalTime - uitime > 50)
     {
         if (G_dwGlobalTime - fpstime > 1000)
         {
             char cfps[20];
             sprintf(cfps, "%d", fps.getFPS());
-            htmlUI->jsData.SetProperty(WSLit("fps"), WSLit(cfps));
             fpstime = G_dwGlobalTime;
-            htmlUI->surface->set_is_dirty(true);
         }
 
-		htmlUI->view->Focus();
-        WebCore::instance()->Update();
         uitime = G_dwGlobalTime;
-	}
-
-	// Render HTML ui
-
-	if (htmlUI->isDirty())
-	{
-        htmlUI->surface->CopyTo(uibuffer, this->screenwidth_v * 4, 4, true, false);
-        uitex.update(uibuffer);
 	}
 
     setRenderTarget(DS_VISIBLE);
     
-    visible.draw(uispr);
-
     visible.display();
 
 
@@ -1092,6 +1090,55 @@ void CGame::UpdateScreen()
     }
 
 
+
+	if (dirty_html)
+	{
+        std::unique_lock<std::mutex> l(G_pGame->_html_m);
+        
+		using namespace ultralight;
+
+		Surface* surface = view->surface();
+		BitmapSurface* bitmap_surface = (BitmapSurface*)surface;
+		RefPtr<Bitmap> bitmap = bitmap_surface->bitmap();
+		void* pixels = bitmap->LockPixels();
+
+		uint32_t width = bitmap->width();
+		uint32_t height = bitmap->height();
+		uint32_t stride = bitmap->row_bytes();
+
+        // color swap ultralight -> SFML
+
+        static int64_t buffersize;
+		static char * test = nullptr;
+		if (!test)
+		{
+			buffersize = width * height * 4 + 5;
+			test = new char[buffersize];
+		}
+
+		memcpy(test, pixels, int64_t(width) * height * 4);
+
+		for (int i = 0; i < width * height * 4; i += 4)
+		{
+			// ultralight dumps abgr (rgba)
+			// sfml expects bgra (argb)
+            test[i + 0] = test[i + 0] ^ test[i + 2];
+            test[i + 2] = test[i + 2] ^ test[i + 0];
+            test[i + 0] = test[i + 0] ^ test[i + 2];
+		}
+
+		sf::Image img;
+		img.create(screenwidth_v, screenheight_v, (uint8_t*)test);
+
+		bitmap->UnlockPixels();
+		_html_tex.loadFromImage(img);
+		_html_spr.setTexture(_html_tex);
+
+		dirty_html = false;
+	}
+
+    draw(_html_spr);
+
     float diffx = static_cast<float>(screenwidth_v) / screenwidth;
     float diffy = static_cast<float>(screenheight_v) / screenheight;
     int mx = m_stMCursor.sX / diffx;
@@ -1101,7 +1148,7 @@ void CGame::UpdateScreen()
 	char cfps[20];
 	sprintf(cfps, "FPS: %d", fps.getFPS());
 
-    sf::Font & f = GetFont("arya");
+    //sf::Font & f = GetFont("arya");
 
     _text.setString(cfps);
     _text.setPosition(5, 5);
@@ -1325,11 +1372,312 @@ char CGame::cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMo
 	return 0;
 }
 
+
+int sfml_keycode_to_ultralight_keycode(Keyboard::Key key) {
+    switch (key) {
+		case sf::Keyboard::Space: return ultralight::KeyCodes::GK_SPACE;
+        //case sf::Keyboard::Space: return ultralight::KeyCodes::GK_OEM_7;
+		case Keyboard::Comma: return ultralight::KeyCodes::GK_OEM_COMMA;
+		case Keyboard::Subtract: return ultralight::KeyCodes::GK_OEM_MINUS;
+		case Keyboard::Period: return ultralight::KeyCodes::GK_OEM_PERIOD;
+		case Keyboard::Slash: return ultralight::KeyCodes::GK_OEM_2;
+		case Keyboard::Num0: return ultralight::KeyCodes::GK_0;
+        case Keyboard::Num1: return ultralight::KeyCodes::GK_1;
+        case Keyboard::Num2: return ultralight::KeyCodes::GK_2;
+        case Keyboard::Num3: return ultralight::KeyCodes::GK_3;
+        case Keyboard::Num4: return ultralight::KeyCodes::GK_4;
+        case Keyboard::Num5: return ultralight::KeyCodes::GK_5;
+        case Keyboard::Num6: return ultralight::KeyCodes::GK_6;
+        case Keyboard::Num7: return ultralight::KeyCodes::GK_7;
+        case Keyboard::Num8: return ultralight::KeyCodes::GK_8;
+        case Keyboard::Num9: return ultralight::KeyCodes::GK_9;
+        case Keyboard::Semicolon: return ultralight::KeyCodes::GK_OEM_1;
+        case Keyboard::Equal: return ultralight::KeyCodes::GK_OEM_PLUS;
+        case Keyboard::A: return ultralight::KeyCodes::GK_A;
+        case Keyboard::B: return ultralight::KeyCodes::GK_B;
+        case Keyboard::C: return ultralight::KeyCodes::GK_C;
+        case Keyboard::D: return ultralight::KeyCodes::GK_D;
+        case Keyboard::E: return ultralight::KeyCodes::GK_E;
+        case Keyboard::F: return ultralight::KeyCodes::GK_F;
+        case Keyboard::G: return ultralight::KeyCodes::GK_G;
+        case Keyboard::H: return ultralight::KeyCodes::GK_H;
+        case Keyboard::I: return ultralight::KeyCodes::GK_I;
+        case Keyboard::J: return ultralight::KeyCodes::GK_J;
+        case Keyboard::K: return ultralight::KeyCodes::GK_K;
+        case Keyboard::L: return ultralight::KeyCodes::GK_L;
+        case Keyboard::M: return ultralight::KeyCodes::GK_M;
+        case Keyboard::N: return ultralight::KeyCodes::GK_N;
+        case Keyboard::O: return ultralight::KeyCodes::GK_O;
+        case Keyboard::P: return ultralight::KeyCodes::GK_P;
+        case Keyboard::Q: return ultralight::KeyCodes::GK_Q;
+        case Keyboard::R: return ultralight::KeyCodes::GK_R;
+        case Keyboard::S: return ultralight::KeyCodes::GK_S;
+        case Keyboard::T: return ultralight::KeyCodes::GK_T;
+        case Keyboard::U: return ultralight::KeyCodes::GK_U;
+        case Keyboard::V: return ultralight::KeyCodes::GK_V;
+        case Keyboard::W: return ultralight::KeyCodes::GK_W;
+        case Keyboard::X: return ultralight::KeyCodes::GK_X;
+        case Keyboard::Y: return ultralight::KeyCodes::GK_Y;
+        case Keyboard::Z: return ultralight::KeyCodes::GK_Z;
+        case Keyboard::LBracket: return ultralight::KeyCodes::GK_OEM_4;
+        case Keyboard::Backslash: return ultralight::KeyCodes::GK_OEM_5;
+        case Keyboard::RBracket: return ultralight::KeyCodes::GK_OEM_6;
+        //case GLFW_KEY_GRAVE_ACCENT: return ultralight::KeyCodes::GK_OEM_3;
+        //case GLFW_KEY_WORLD_1: return ultralight::KeyCodes::GK_UNKNOWN;
+        //case GLFW_KEY_WORLD_2: return ultralight::KeyCodes::GK_UNKNOWN;
+        case Keyboard::Escape: return ultralight::KeyCodes::GK_ESCAPE;
+        case Keyboard::Enter: return ultralight::KeyCodes::GK_RETURN;
+        case Keyboard::Tab: return ultralight::KeyCodes::GK_TAB;
+        case Keyboard::Backspace: return ultralight::KeyCodes::GK_BACK;
+        case Keyboard::Insert: return ultralight::KeyCodes::GK_INSERT;
+        case Keyboard::Delete: return ultralight::KeyCodes::GK_DELETE;
+        case Keyboard::Right: return ultralight::KeyCodes::GK_RIGHT;
+        case Keyboard::Left: return ultralight::KeyCodes::GK_LEFT;
+        case Keyboard::Down: return ultralight::KeyCodes::GK_DOWN;
+        case Keyboard::Up: return ultralight::KeyCodes::GK_UP;
+        case Keyboard::PageUp: return ultralight::KeyCodes::GK_PRIOR;
+        case Keyboard::PageDown: return ultralight::KeyCodes::GK_NEXT;
+        case Keyboard::Home: return ultralight::KeyCodes::GK_HOME;
+        case Keyboard::End: return ultralight::KeyCodes::GK_END;
+        //case GLFW_KEY_CAPS_LOCK: return ultralight::KeyCodes::GK_CAPITAL;
+        //case GLFW_KEY_SCROLL_LOCK: return ultralight::KeyCodes::GK_SCROLL;
+        //case GLFW_KEY_NUM_LOCK: return ultralight::KeyCodes::GK_NUMLOCK;
+        //case GLFW_KEY_PRINT_SCREEN: return ultralight::KeyCodes::GK_SNAPSHOT;
+        case Keyboard::Pause: return ultralight::KeyCodes::GK_PAUSE;
+        case Keyboard::F1: return ultralight::KeyCodes::GK_F1;
+        case Keyboard::F2: return ultralight::KeyCodes::GK_F2;
+        case Keyboard::F3: return ultralight::KeyCodes::GK_F3;
+        case Keyboard::F4: return ultralight::KeyCodes::GK_F4;
+        case Keyboard::F5: return ultralight::KeyCodes::GK_F5;
+        case Keyboard::F6: return ultralight::KeyCodes::GK_F6;
+        case Keyboard::F7: return ultralight::KeyCodes::GK_F7;
+        case Keyboard::F8: return ultralight::KeyCodes::GK_F8;
+        case Keyboard::F9: return ultralight::KeyCodes::GK_F9;
+        case Keyboard::F10: return ultralight::KeyCodes::GK_F10;
+        case Keyboard::F11: return ultralight::KeyCodes::GK_F11;
+        case Keyboard::F12: return ultralight::KeyCodes::GK_F12;
+        case Keyboard::F13: return ultralight::KeyCodes::GK_F13;
+        case Keyboard::F14: return ultralight::KeyCodes::GK_F14;
+        case Keyboard::F15: return ultralight::KeyCodes::GK_F15;
+/*
+        case Keyboard::F16: return ultralight::KeyCodes::GK_F16;
+        case Keyboard::F17: return ultralight::KeyCodes::GK_F17;
+        case Keyboard::F18: return ultralight::KeyCodes::GK_F18;
+        case Keyboard::F19: return ultralight::KeyCodes::GK_F19;
+        case Keyboard::F20: return ultralight::KeyCodes::GK_F20;
+        case Keyboard::F21: return ultralight::KeyCodes::GK_F21;
+        case Keyboard::F22: return ultralight::KeyCodes::GK_F22;
+        case Keyboard::F23: return ultralight::KeyCodes::GK_F23;
+        case Keyboard::F24: return ultralight::KeyCodes::GK_F24;
+        case Keyboard::F25: return ultralight::KeyCodes::GK_UNKNOWN;*/
+        case Keyboard::Numpad0: return ultralight::KeyCodes::GK_NUMPAD0;
+        case Keyboard::Numpad1: return ultralight::KeyCodes::GK_NUMPAD1;
+        case Keyboard::Numpad2: return ultralight::KeyCodes::GK_NUMPAD2;
+        case Keyboard::Numpad3: return ultralight::KeyCodes::GK_NUMPAD3;
+        case Keyboard::Numpad4: return ultralight::KeyCodes::GK_NUMPAD4;
+        case Keyboard::Numpad5: return ultralight::KeyCodes::GK_NUMPAD5;
+        case Keyboard::Numpad6: return ultralight::KeyCodes::GK_NUMPAD6;
+        case Keyboard::Numpad7: return ultralight::KeyCodes::GK_NUMPAD7;
+        case Keyboard::Numpad8: return ultralight::KeyCodes::GK_NUMPAD8;
+        case Keyboard::Numpad9: return ultralight::KeyCodes::GK_NUMPAD9;
+        //case GLFW_KEY_KP_DECIMAL: return ultralight::KeyCodes::GK_DECIMAL;
+        case Keyboard::Divide: return ultralight::KeyCodes::GK_DIVIDE;
+        case Keyboard::Multiply: return ultralight::KeyCodes::GK_MULTIPLY;
+        //case Keyboard::Subtract: return ultralight::KeyCodes::GK_SUBTRACT;
+        case Keyboard::Add: return ultralight::KeyCodes::GK_ADD;
+        //case Keyboard::Return: return ultralight::KeyCodes::GK_RETURN;
+        //case Keyboard::Equal: return ultralight::KeyCodes::GK_OEM_PLUS;
+        case Keyboard::LShift: return ultralight::KeyCodes::GK_SHIFT;
+        case Keyboard::LControl: return ultralight::KeyCodes::GK_CONTROL;
+        case Keyboard::LAlt: return ultralight::KeyCodes::GK_MENU;
+        case Keyboard::LSystem: return ultralight::KeyCodes::GK_LWIN;
+        case Keyboard::RShift: return ultralight::KeyCodes::GK_SHIFT;
+        case Keyboard::RControl: return ultralight::KeyCodes::GK_CONTROL;
+        case Keyboard::RAlt: return ultralight::KeyCodes::GK_MENU;
+		case Keyboard::RSystem: return ultralight::KeyCodes::GK_RWIN;
+        case Keyboard::Menu: return ultralight::KeyCodes::GK_UNKNOWN;
+        default: return ultralight::KeyCodes::GK_UNKNOWN;
+    }
+}
+
+char event_to_keychar(int code)
+{
+	switch (code)
+	{
+		case VK_TAB:
+			return '0';
+	}
+	return ' ';
+}
+
+void CGame::send_key_to_ui(sf::Keyboard::Key key)
+{
+    ultralight::KeyEvent evt;
+    evt.native_key_code = 0;
+
+	if (m_bShiftPressed)
+        evt.modifiers |= ultralight::KeyEvent::kMod_ShiftKey;
+    if (m_bCtrlPressed)
+        evt.modifiers |= ultralight::KeyEvent::kMod_CtrlKey;
+    if (m_altPressed)
+        evt.modifiers |= ultralight::KeyEvent::kMod_AltKey;
+
+/*
+	switch (key)
+	{
+		case Keyboard::A:
+            evt.text = "a";
+            evt.unmodified_text = "a";
+			evt.virtual_key_code = ultralight::KeyCodes::GK_A;
+			break;
+	}*/
+
+    GetKeyIdentifierFromVirtualKeyCode(evt.virtual_key_code, evt.key_identifier);
+
+    {
+        std::unique_lock<std::mutex> l(_html_eventm);
+        _html_eventqueue.emplace([evt = std::move(evt)]() {
+            view->FireKeyEvent(evt);
+        });
+    }
+}
+
 void CGame::OnEvent(sf::Event event)
 {
     switch (event.type)
     {
+		case sf::Event::TextEntered:
+		{
+            ultralight::KeyEvent evt;
+            evt.type = ultralight::KeyEvent::kType_Char;
+			ultralight::String text = ultralight::String32((const char32_t*)&event.text.unicode, 1);
+            evt.text = text;
+            evt.unmodified_text = text;
+            {
+                std::unique_lock<std::mutex> l(_html_eventm);
+                _html_eventqueue.emplace([evt = std::move(evt)]() {
+                    view->FireKeyEvent(evt);
+                });
+            }
+			break;
+/*
+			if (event.text.unicode == VK_TAB)
+				break;
+            if (event.text.unicode == VK_BACK)
+                break;*/
+/*
+            ultralight::KeyEvent evt;
+            evt.type = ultralight::KeyEvent::kType_Char;
+            evt.native_key_code = event.text.unicode;
+            evt.virtual_key_code = event.text.unicode;
+			ultralight::String32 str((char32_t*)((char*)&event.text.unicode), 1);
+            std::cout << "Code: " << std::hex << event.text.unicode  << " : " << std::dec << event.text.unicode << "\n";
+            std::cout << "Text: " << std::hex << char(event.text.unicode & 0xff) << "\n";
+
+            evt.text = str;
+            evt.unmodified_text = str;
+            {
+                std::unique_lock<std::mutex> l(_html_eventm);
+                _html_eventqueue.emplace([evt = std::move(evt)]() {
+                    view->FireKeyEvent(evt);
+                });
+            }
+			break;*/
+		}
         case sf::Event::KeyPressed:
+		{
+            ultralight::KeyEvent evt;
+            evt.type = ultralight::KeyEvent::kType_RawKeyDown;
+			evt.native_key_code = 0;// sfml_keycode_to_ultralight_keycode(event.key.code);
+            evt.virtual_key_code = sfml_keycode_to_ultralight_keycode(event.key.code);
+            ultralight::GetKeyIdentifierFromVirtualKeyCode(evt.virtual_key_code, evt.key_identifier);
+
+            if (m_bShiftPressed)
+                evt.modifiers |= ultralight::KeyEvent::kMod_ShiftKey;
+            if (m_bCtrlPressed)
+                evt.modifiers |= ultralight::KeyEvent::kMod_CtrlKey;
+            if (m_altPressed)
+                evt.modifiers |= ultralight::KeyEvent::kMod_AltKey;
+
+/*
+            std::cout << "Key press: " << std::hex << event.key.code << "\n";
+            std::cout << "Key: " << (char)event.key.code << "\n";*/
+            {
+                std::unique_lock<std::mutex> l(_html_eventm);
+                _html_eventqueue.emplace([evt = std::move(evt)]() {
+                    view->FireKeyEvent(evt);
+                });
+            }
+
+			if (event.key.code == Keyboard::Enter || event.key.code == Keyboard::Tab)
+			{
+                ultralight::KeyEvent evt;
+                evt.type = ultralight::KeyEvent::kType_Char;
+                ultralight::String text = event.key.code == Keyboard::Enter ? ultralight::String("\r") : ultralight::String("\t");
+                evt.text = text;
+                evt.unmodified_text = text;
+			}
+/*
+			if (event.key.code == Keyboard::Backspace)
+			{
+                ultralight::KeyEvent evt;
+                evt.type = ultralight::KeyEvent::kType_KeyDown;
+                evt.native_key_code = 0;
+                evt.virtual_key_code = ultralight::KeyCodes::GK_BACK;
+                evt.modifiers = 0;
+                {
+                    std::unique_lock<std::mutex> l(_html_eventm);
+                    _html_eventqueue.emplace([evt = std::move(evt)]() {
+                        view->FireKeyEvent(evt);
+                    });
+                }
+            }
+            if (event.key.code == Keyboard::Tab)
+            {
+                ultralight::KeyEvent evt;
+                evt.type = ultralight::KeyEvent::kType_KeyDown;
+                evt.native_key_code = 0;
+                evt.virtual_key_code = ultralight::KeyCodes::GK_TAB;
+                evt.modifiers = 0;
+                {
+                    std::unique_lock<std::mutex> l(_html_eventm);
+                    _html_eventqueue.emplace([evt = std::move(evt)]() {
+                        view->FireKeyEvent(evt);
+                    });
+                }
+            }*/
+/*
+            ultralight::KeyEvent evt;
+
+            evt.type = ultralight::KeyEvent::kType_RawKeyDown;
+            evt.native_key_code = 0;
+			evt.virtual_key_code = event.key.code;
+            {
+                std::unique_lock<std::mutex> l(_html_eventm);
+                _html_eventqueue.emplace([evt = std::move(evt)]() {
+                    view->FireKeyEvent(evt);
+                });
+            }
+            std::cout << "Key press: " << std::hex << event.key.code << "\n";
+            std::cout << "Key: " << (char)event.key.code << "\n";
+			evt = ultralight::KeyEvent();
+            evt.type = ultralight::KeyEvent::kType_Char;
+            evt.native_key_code = 0;
+            evt.virtual_key_code = event.key.code;
+			char key[2] = { event.key.code & 0xff, '\0' };
+			evt.text = ultralight::String((char*)key, 1);
+			evt.unmodified_text = evt.text;
+			evt.modifiers = 0;
+			GetKeyIdentifierFromVirtualKeyCode(evt.virtual_key_code, evt.key_identifier);
+
+			evt.virtual_key_code = ultralight::KeyCodes::
+            {
+                std::unique_lock<std::mutex> l(_html_eventm);
+                _html_eventqueue.emplace([evt = std::move(evt)]() {
+                    view->FireKeyEvent(evt);
+                });
+            }*/
+
             switch (event.key.code)
             {
                 case Keyboard::Escape:
@@ -1344,6 +1692,7 @@ void CGame::OnEvent(sf::Event event)
                     break;
                 case Keyboard::LAlt:
                     m_altPressed = true;
+                    break;
                 case Keyboard::Tab:
                     break;
                 case Keyboard::Return:
@@ -1353,41 +1702,15 @@ void CGame::OnEvent(sf::Event event)
                         window.close();
                         window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Resize | Style::Close)));
                     }
+                    else
+					{
+                        m_bEnterPressed = true;
+                    }
                     break;
                 case Keyboard::F12:
                     CreateScreenShot();
                     break;
-                case Keyboard::F5:
-                {
-                    delete htmlUI->iResource;
-                    delete htmlUI->lView;
-                    delete htmlUI->mHandler;
-                    htmlUI->view->Destroy();
 
-                    htmlUI->view = htmlUI->core->CreateWebView(GetWidth(), GetHeight());
-
-                    htmlUI->jsNamespace = htmlUI->view->CreateGlobalJavascriptObject(WSLit("client"));
-                    htmlUI->jsData = htmlUI->jsNamespace.ToObject();
-                    htmlUI->jsData.SetProperty(WSLit("loading"), JSValue(true));
-                    htmlUI->jsData.SetProperty(WSLit("loadingPct"), JSValue(0.0f));
-                    htmlUI->jsData.SetCustomMethod(WSLit("log"), false);
-                    htmlUI->jsData.SetCustomMethod(WSLit("login"), false);
-                    htmlUI->jsData.SetCustomMethod(WSLit("selectCharacter"), false);
-                    htmlUI->jsData.SetCustomMethod(WSLit("enterGame"), false);
-                    htmlUI->jsData.SetCustomMethod(WSLit("renderCharacter"), false);
-                    htmlUI->jsData.SetCustomMethod(WSLit("cancelLogin"), false);
-
-                    htmlUI->mHandler = new HTMLUIMethodHandler(htmlUI);
-                    htmlUI->lView = new HTMLUIViewListener(htmlUI);
-                    htmlUI->iResource = new HTMLUIResourceInterceptor(htmlUI);
-
-                    htmlUI->core->set_resource_interceptor(htmlUI->iResource);
-                    // view->set_view_listener(lView);
-                    htmlUI->view->set_js_method_handler(htmlUI->mHandler);
-                    htmlUI->view->Focus();
-                    htmlUI->mHandler->htmlUI = htmlUI;
-                }
-                    break;
                 case Keyboard::F6:
                     calcoldviewport = !calcoldviewport;
                     if (!calcoldviewport)
@@ -1401,7 +1724,49 @@ void CGame::OnEvent(sf::Event event)
                     break;
             }
             break;
+        }
         case sf::Event::KeyReleased:
+        {
+            if (event.key.code == Keyboard::Backspace)
+            {
+                ultralight::KeyEvent evt;
+                evt.type = ultralight::KeyEvent::kType_KeyUp;
+                evt.native_key_code = 0;
+                evt.virtual_key_code = ultralight::KeyCodes::GK_BACK;
+                evt.modifiers = 0;
+                {
+                    std::unique_lock<std::mutex> l(_html_eventm);
+                    _html_eventqueue.emplace([evt = std::move(evt)]() {
+                        view->FireKeyEvent(evt);
+                    });
+                }
+            }
+            if (event.key.code == Keyboard::Tab)
+            {
+                ultralight::KeyEvent evt;
+                evt.type = ultralight::KeyEvent::kType_KeyUp;
+                evt.native_key_code = 0;
+                evt.virtual_key_code = ultralight::KeyCodes::GK_TAB;
+                evt.modifiers = 0;
+                {
+                    std::unique_lock<std::mutex> l(_html_eventm);
+                    _html_eventqueue.emplace([evt = std::move(evt)]() {
+                        view->FireKeyEvent(evt);
+                    });
+                }
+            }
+/*
+            ultralight::KeyEvent evt;
+
+            evt.type = ultralight::KeyEvent::kType_KeyUp;
+            evt.native_key_code = event.key.code;
+            {
+                std::unique_lock<std::mutex> l(_html_eventm);
+                _html_eventqueue.emplace([evt = std::move(evt)]() {
+                    view->FireKeyEvent(evt);
+                });
+            }*/
+
             switch (event.key.code)
             {
                 case Keyboard::Escape:
@@ -1414,6 +1779,7 @@ void CGame::OnEvent(sf::Event event)
                     break;
                 case Keyboard::LAlt:
                     m_altPressed = false;
+                    break;
                 case Keyboard::Tab:
                     break;
                 case Keyboard::Return:
@@ -1424,6 +1790,7 @@ void CGame::OnEvent(sf::Event event)
                     break;
             }
             break;
+        }
         case sf::Event::Resized:
             break;
         case sf::Event::LostFocus:
@@ -1435,10 +1802,25 @@ void CGame::OnEvent(sf::Event event)
         case sf::Event::MouseWheelScrolled:
             if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
             {
+				ultralight::ScrollEvent svt;
                 if (event.mouseWheelScroll.delta > 0)
+                {
+                    svt.delta_x = 0;
+                    svt.delta_y = 30;
                     m_stMCursor.sZ = 1;
+                }
                 else
+                {
+					svt.delta_x = 0;
+                    svt.delta_y = -30;
                     m_stMCursor.sZ = -1;
+                }
+                {
+                    std::unique_lock<std::mutex> l(_html_eventm);
+                    _html_eventqueue.emplace([svt = std::move(svt)]() {
+                        view->FireScrollEvent(svt);
+                    });
+                }
             }
             else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel)
             {
@@ -1450,6 +1832,11 @@ void CGame::OnEvent(sf::Event event)
             }
             break;
         case sf::Event::MouseButtonPressed:
+        {
+            ultralight::MouseEvent mvt;
+            mvt.type = ultralight::MouseEvent::kType_MouseDown;
+            mvt.x = m_stMCursor.sX;
+            mvt.y = m_stMCursor.sY;
 
             if (wasinactive)
             {
@@ -1461,6 +1848,7 @@ void CGame::OnEvent(sf::Event event)
                 if (rect.contains(m_stMCursor.sX, m_stMCursor.sY))
                 {
 
+/*
                     if (event.mouseButton.button == sf::Mouse::Right)
                     {
                         htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Right);
@@ -1472,43 +1860,69 @@ void CGame::OnEvent(sf::Event event)
                     else if (event.mouseButton.button == sf::Mouse::Middle)
                     {
                         htmlUI->view->InjectMouseDown(Awesomium::MouseButton::kMouseButton_Middle);
-                    }
+                    }*/
                     break;
                 }
             }
 
             if (event.mouseButton.button == sf::Mouse::Right)
             {
+                mvt.button = ultralight::MouseEvent::kButton_Right;
                 m_stMCursor.RB = true;
             }
             else if (event.mouseButton.button == sf::Mouse::Left)
             {
+                mvt.button = ultralight::MouseEvent::kButton_Left;
                 m_stMCursor.LB = true;
             }
             else if (event.mouseButton.button == sf::Mouse::Middle)
             {
+                mvt.button = ultralight::MouseEvent::kButton_Middle;
                 m_stMCursor.MB = true;
             }
 
+            {
+                std::unique_lock<std::mutex> l(_html_eventm);
+                _html_eventqueue.emplace([mvt = std::move(mvt)]() {
+                    view->FireMouseEvent(mvt);
+                });
+            }
             break;
+        }
         case sf::Event::MouseButtonReleased:
+        {
+            ultralight::MouseEvent mvt;
+            mvt.type = ultralight::MouseEvent::kType_MouseUp;
+            mvt.x = m_stMCursor.sX;
+            mvt.y = m_stMCursor.sY;
+
+
             if (event.mouseButton.button == sf::Mouse::Right)
             {
+                mvt.button = ultralight::MouseEvent::kButton_Right;
                 m_stMCursor.RB = false;
-                htmlUI->view->InjectMouseUp(Awesomium::MouseButton::kMouseButton_Right);
             }
             else if (event.mouseButton.button == sf::Mouse::Left)
             {
+                mvt.button = ultralight::MouseEvent::kButton_Left;
                 m_stMCursor.LB = false;
-                htmlUI->view->InjectMouseUp(Awesomium::MouseButton::kMouseButton_Left);
             }
             else if (event.mouseButton.button == sf::Mouse::Middle)
             {
+                mvt.button = ultralight::MouseEvent::kButton_Middle;
                 m_stMCursor.MB = false;
-                htmlUI->view->InjectMouseUp(Awesomium::MouseButton::kMouseButton_Middle);
+            }
+            {
+                std::unique_lock<std::mutex> l(_html_eventm);
+                _html_eventqueue.emplace([mvt = std::move(mvt)]() {
+                    view->FireMouseEvent(mvt);
+                });
             }
             break;
+        }
         case sf::Event::MouseMoved:
+        {
+            ultralight::MouseEvent mvt;
             float diffx = static_cast<float>(screenwidth_v) / screenwidth;
             float diffy = static_cast<float>(screenheight_v) / screenheight;
             uint16_t x = event.mouseMove.x * diffx;
@@ -1517,8 +1931,18 @@ void CGame::OnEvent(sf::Event event)
             m_stMCursor.sX = x;
             m_stMCursor.sY = y;
 
-            htmlUI->MouseMove(x, y);
+            mvt.x = x;
+            mvt.y = y;
+
+            mvt.type = ultralight::MouseEvent::kType_MouseMoved;
+            {
+                std::unique_lock<std::mutex> l(_html_eventm);
+                _html_eventqueue.emplace([mvt = std::move(mvt)]() {
+                    view->FireMouseEvent(mvt);
+                });
+            }
             break;
+        }
     }
 }
 
@@ -3473,6 +3897,7 @@ void CGame::MakeLegionEffectSpr( char* FileName, short sStart, short sCount, boo
 }
 */
 
+/*
 void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
 {
     WebString method_name = msg->obj.ToObject().GetProperty(WSLit("method_name")).ToString();
@@ -3507,7 +3932,6 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
     {
         if (args.size() < 2)
         {
-            htmlUI->Emit("renderCharacter", false, "Invalid data");
             return;
         }
         else
@@ -3550,7 +3974,6 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
     {
         if (args.size() < 2)
         {
-            htmlUI->Emit("login", false, "Invalid login information");
             return;
         }
         else
@@ -3560,7 +3983,6 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
 
             if (username.IsEmpty() || password.IsEmpty())
             {
-                htmlUI->Emit("login", false, "Username and password cannot be empty");
                 return;
             }
 
@@ -3576,7 +3998,6 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
     {
         if (args.size() == 0)
         {
-            htmlUI->Emit("selectCharacter", false, "Invalid character");
             return;
         }
         else
@@ -3587,7 +4008,6 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
             {
                 m_cCurFocus = selectid;
                 selectedchar = m_pCharList[selectid];
-                htmlUI->Emit("selectCharacter", true, "");
             }
             return;
         }
@@ -3612,15 +4032,13 @@ void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
                     strcpy(m_cMsg, "33");
                     ZeroMemory(m_cMapName, sizeof(m_cMapName));
                     memcpy(m_cMapName, m_pCharList[m_cCurFocus]->m_cMapName.c_str(), 10);
-                    htmlUI->Emit("enterGame", true, "");
                     return;
                 }
-                htmlUI->Emit("enterGame", false, "Invalid character name");
                 return;
             }
         }
     }
-}
+}*/
 
 void CGame::OnTimer()
 {
@@ -3628,6 +4046,7 @@ void CGame::OnTimer()
 	uint64_t dwTime = unixtime();
 
 
+/*
     {
         std::lock_guard<std::mutex> lock(uimut);
         while (uiqueue.size() > 0)
@@ -3635,7 +4054,7 @@ void CGame::OnTimer()
             shared_ptr<UIMsgQueueEntry> entry = GetUIMsgQueue();
             ProcessUI(entry);
         }
-    }
+    }*/
     {
         std::lock_guard<std::mutex> lock(socketmut);
         while (loginpipe.size() > 0)
@@ -7297,7 +7716,8 @@ void CGame::PutFontStringSize(std::string fontname, int iX, int iY, std::string 
     catch (const out_of_range & oor)
     {
         //error
-        __asm int 3;
+        //__asm int 3;
+        __debugbreak();
     }
 }
 
@@ -7315,7 +7735,8 @@ void CGame::PutFontString(std::string fontname, int iX, int iY, std::string text
     catch (const out_of_range & oor)
     {
         //error
-        __asm int 3;
+        //__asm int 3;
+		__debugbreak();
     }
 }
 
@@ -7335,7 +7756,8 @@ void CGame::PutAlignedString(int iX1, int iX2, int iY, std::string text, Color c
     catch (const out_of_range & oor)
     {
         //error
-        __asm int 3;
+        //__asm int 3;
+        __debugbreak();
     }
 }
 
@@ -7915,8 +8337,9 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 		break;
 
 	case LOGRESMSGTYPE_CONFIRM:
+/*
         htmlUI->Emit("login", true, "");
-        {JSValue res = htmlUI->view->CreateGlobalJavascriptObject(WSLit("client.game"));}
+        {JSValue res = htmlUI->view->CreateGlobalJavascriptObject(WSLit("client.game"));}*/
         loggedin = true;
 		wServerUpperVersion = sr.ReadShort();
 		wServerLowerVersion = sr.ReadShort();
@@ -7978,8 +8401,6 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 		m_iTimeLeftSecIP = sr.ReadInt();
 		ChangeGameMode(GAMEMODE_ONSELECTCHARACTER);
 		ClearContents_OnSelectCharacter();
-
-        htmlUI->SetCharacters();
 
 // #ifndef _DEBUG
 // 		if ( (wServerUpperVersion!=UPPER_VERSION) || (wServerLowerVersion!=LOWER_VERSION) )
@@ -8584,8 +9005,8 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
 			indexY++;
 		}
 
-        //if (m_showGrid)
-        /*{
+        if (m_showGrid)
+        {
             indexY = sDivY + m_pMapData->m_sPivotY;
             for (iy = -sModY; iy < GetHeight()+32; iy += 32)
             {
@@ -8619,7 +9040,7 @@ void CGame::DrawBackground(short sDivX, short sModX, short sDivY, short sModY)
                 }
                 indexY++;
             }
-        }*/
+        }
         setRenderTarget(DS_VISIBLE);
 	}
 	RECT rcRect;
@@ -10057,99 +10478,62 @@ void CGame::InitItemList(StreamRead & sr)
         return item;
     };
 
-    auto jsitem = [](shared_ptr<CItem> item)
-    {
-        JSObject obj;
-        obj.SetProperty(WSLit("name"), JSValue(ToWebString(item->name)));
-        obj.SetProperty(WSLit("count"), JSValue((int)item->m_dwCount));
-        obj.SetProperty(WSLit("type"), JSValue(item->m_cItemType));
-        obj.SetProperty(WSLit("color"), JSValue((double)item->m_ItemColor));
-        obj.SetProperty(WSLit("currentDurability"), JSValue(item->m_wMaxLifeSpan));
-        obj.SetProperty(WSLit("maxDurability"), JSValue(item->m_wCurLifeSpan));
-        obj.SetProperty(WSLit("special1"), JSValue(item->m_sItemSpecEffectValue1));
-        obj.SetProperty(WSLit("special2"), JSValue(item->m_sItemSpecEffectValue2));
-        obj.SetProperty(WSLit("special3"), JSValue(item->m_sItemSpecEffectValue3));
-        obj.SetProperty(WSLit("gender"), JSValue(item->m_cGenderLimit));
-        obj.SetProperty(WSLit("effect1"), JSValue(item->m_sItemEffectValue1));
-        obj.SetProperty(WSLit("effect2"), JSValue(item->m_sItemEffectValue2));
-        obj.SetProperty(WSLit("effect3"), JSValue(item->m_sItemEffectValue3));
-        obj.SetProperty(WSLit("effect4"), JSValue(item->m_sItemEffectValue4));
-        obj.SetProperty(WSLit("effect5"), JSValue(item->m_sItemEffectValue5));
-        obj.SetProperty(WSLit("effect6"), JSValue(item->m_sItemEffectValue6));
-        obj.SetProperty(WSLit("level"), JSValue(item->m_sLevelLimit));
-        obj.SetProperty(WSLit("attribute"), JSValue((double)item->m_dwAttribute));
-        obj.SetProperty(WSLit("weight"), JSValue(item->m_wWeight));
-        obj.SetProperty(WSLit("spriteFrame"), JSValue(item->m_sSpriteFrame));
-        obj.SetProperty(WSLit("sprite"), JSValue(item->m_sSprite));
-        obj.SetProperty(WSLit("uniqueId"), JSValue((double)item->ItemUniqueID));
-        return obj;
-    };
-
-    JSValue res = htmlUI->view->ExecuteJavascriptWithResult(WSLit("client.game"), WSLit(""));
-    if (!res.IsObject())
-    {
-        printf("(!) client.game is not an object\n");
-        return;
-    }
-    JSObject game = res.ToObject();
-    JSArray bags;
-
     for (int i = 0; i < totalBags; ++i)
     {
         ItemBag ib;
         int cTotalItems = sr.ReadByte();
-        JSArray bag;
+        //JSArray bag;
         for (int k = 0; k < cTotalItems; ++k)
         {
             shared_ptr<CItem> item = readitem(sr);
-            bag.Push(JSValue(jsitem(item)));
+            //bag.Push(JSValue(jsitem(item)));
             ib.itemList.push_back(item);
         }
         bagList.push_back(ib);
-        bags.Push(JSValue(bag));
+        //bags.Push(JSValue(bag));
     }
 
 
     totalBags = sr.ReadByte();
 
-    JSArray bankbags;
+    //JSArray bankbags;
 
     for (int i = 0; i < totalBags; ++i)
     {
         ItemBag ib;
         int cTotalItems = sr.ReadByte();
-        JSArray bag;
+        //JSArray bag;
         for (int k = 0; k < cTotalItems; ++k)
         {
             shared_ptr<CItem> item = readitem(sr);
-            bag.Push(JSValue(jsitem(item)));
+            //bag.Push(JSValue(jsitem(item)));
             ib.itemList.push_back(item);
         }
         bagBankList.push_back(ib);
-        bankbags.Push(JSValue(bag));
+        //bankbags.Push(JSValue(bag));
     }
 
-    game.SetProperty(WSLit("bags"), JSValue(bags));
-    game.SetProperty(WSLit("bagsBank"), JSValue(bankbags));
+    //game.SetProperty(WSLit("bags"), JSValue(bags));
+    //game.SetProperty(WSLit("bagsBank"), JSValue(bankbags));
     
     _iCalcTotalWeight();
 
 	// Magic, Skill Mastery
-    JSArray magic, skill;
+    //JSArray magic, skill;
 	for (int i = 0; i < MAXMAGICTYPE; i++)
 	{
         m_cMagicMastery[i] = sr.ReadByte();
-        magic.Insert(JSValue((int)m_cMagicMastery[i]), i);
+        //magic.Insert(JSValue((int)m_cMagicMastery[i]), i);
 	}
 
 	for (int i = 0; i < MAXSKILLTYPE; i++)
 	{
         m_cSkillMastery[i] = sr.ReadByte();
-        skill.Insert(JSValue((int)m_cSkillMastery[i]), i);
+        //skill.Insert(JSValue((int)m_cSkillMastery[i]), i);
     }
 
-    game.SetProperty(WSLit("magic"), JSValue(magic));
-    game.SetProperty(WSLit("skill"), JSValue(skill));
+    //game.SetProperty(WSLit("magic"), JSValue(magic));
+    //game.SetProperty(WSLit("skill"), JSValue(skill));
 
 }
 
@@ -13400,6 +13784,158 @@ void CGame::UpdateScreen_OnLogin()
 
 	m_cGameModeCount++;
 	if (m_cGameModeCount > 100) m_cGameModeCount = 100;
+
+
+/*
+    if (m_bEnterPressed == true)
+    {
+        m_bEnterPressed = false;
+        PlaySound('E', 14, 5);
+
+        switch (m_cCurFocus)
+        {
+            case 1:
+                m_cCurFocus++;
+                if (m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
+                break;
+            case 2:
+            case 3:
+// 			if(CheckCheating()) {
+// 				MessageBoxA(*(HWND*)m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modification.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
+// 				exit(1600);
+// 			}
+                if ((strlen(cName) == 0) || (strlen(cPassword) == 0)) break;
+                m_cAccountName = "";
+                m_cAccountPassword = "";
+                m_cAccountName = cName;
+                m_cAccountPassword = cPassword;
+                ChangeGameMode(GAMEMODE_ONCONNECTING);
+                m_dwConnectMode = MSGID_REQUEST_LOGIN;
+                ZeroMemory(m_cMsg, sizeof(m_cMsg));
+                strcpy(m_cMsg, "11");
+                //delete pMI;
+                if (_socket == nullptr)
+                {
+                    asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
+                    new_connection_->socket().async_connect(endpoint,
+                                                            std::bind(&CGame::handle_connect, this,
+                                                                        std::placeholders::_1));
+                }
+                else
+                {
+                    ConnectionEstablishHandler(SERVERTYPE_LOG);
+                }
+                return;
+            case 4:	// Exit
+    // #ifdef SELECTSERVER
+    // 			ChangeGameMode(GAMEMODE_ONSELECTSERVER);
+    // #else
+    // 			ChangeGameMode(GAMEMODE_ONMAINMENU);
+    // #endif
+    //
+    // 			delete pMI;
+    // 			ChangeGameMode(GAMEMODE_ONQUIT);
+                return;
+            case 5: //Create Account Button
+                return;
+            case 6: // Forums Button
+                return;
+            case 7: // Website Button
+                return;
+        }
+    }
+
+    iMIbuttonNum = pMI->iGetStatus(msX, msY, cLB, &cMIresult);
+    if (cMIresult == MIRESULT_CLICK)
+    {
+        PlaySound('E', 14, 5);
+        switch (iMIbuttonNum)
+        {
+            case 1:
+                m_cCurFocus = 1;
+                break;
+
+            case 2:
+                m_cCurFocus = 2;
+                break;
+
+            case 3:
+                // 			if(CheckCheating()) {
+                // 				MessageBoxA(*(HWND*)m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modification.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
+                // 				exit(1600);
+                // 			}
+                if ((strlen(cName) == 0) || (strlen(cPassword) == 0)) break;
+                EndInputString();
+                ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
+                ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
+                strcpy(m_cAccountName, cName);
+                strcpy(m_cAccountPassword, cPassword);
+                ChangeGameMode(GAMEMODE_ONCONNECTING);
+                m_dwConnectMode = MSGID_REQUEST_LOGIN;
+                ZeroMemory(m_cMsg, sizeof(m_cMsg));
+                strcpy(m_cMsg, "11");
+                delete pMI;
+                if (_socket == nullptr)
+                {
+                    boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
+                    new_connection_->socket().async_connect(endpoint,
+                                                            boost::bind(&CGame::handle_connect, this,
+                                                                        boost::asio::placeholders::error));
+                }
+                else
+                {
+                    ConnectionEstablishHandler(SERVERTYPE_LOG);
+                }
+                return;
+
+            case 4: // Exit button
+                / *#ifdef SELECTSERVER
+                    ChangeGameMode(GAMEMODE_ONSELECTSERVER); // ONMAINMENU
+#else
+                ChangeGameMode(GAMEMODE_ONMAINMENU);
+#endif* /
+                delete pMI;
+                ChangeGameMode(GAMEMODE_ONQUIT);
+                return;
+            case 5:	// Create Account Button
+#ifdef MAKE_ACCOUNT
+                ClearContents_OnSelectCharacter();
+                delete pMI;
+                //ChangeGameMode(GAMEMODE_ONAGREEMENT);
+                ChangeGameMode(GAMEMODE_ONCREATENEWACCOUNT);
+#else
+                GoHomepage();
+#endif
+                return;
+            case 6:	// Forums Button
+                GoHomepage(false);
+                return;
+            case 7: // Website Button
+                GoHomepage(true);
+                return;
+            case 8:	// Check Button
+                if (b_cRemember == true)
+                {
+                    b_cRemember = false;
+                    WriteUsername(cName, true);
+                    return;
+                }
+                else
+                {
+                    b_cRemember = true;
+                    if (sizeof(cName) > 0)
+                    {
+                        WriteUsername(cName, false);
+                    }
+                    return;
+                }
+                return;
+        }
+    }*/
+
+    DrawNewDialogBox(SPRID_INTERFACE_ND_LOGIN, 0, 0, 0, true);
+    DrawVersion();
+    //_Draw_OnLogin(cName, cPassword, msX, msY, m_cGameModeCount);
 }
 
 void CGame::NotifyMsgHandler(char * pData)
@@ -22944,7 +23480,7 @@ void CGame::InitDataResponseHandler(char * pData)
 
     ///Send UI Data
 
-    JSValue res = htmlUI->view->ExecuteJavascriptWithResult(WSLit("client.game"), WSLit(""));
+    /*JSValue res = htmlUI->view->ExecuteJavascriptWithResult(WSLit("client.game"), WSLit(""));
     JSObject game = res.ToObject();
 
     game.SetProperty(WSLit("id"), JSValue(m_sPlayerObjectID));
@@ -22989,7 +23525,7 @@ void CGame::InitDataResponseHandler(char * pData)
     game.SetProperty(WSLit("guildRank"), JSValue(m_iGuildRank));
     game.SetProperty(WSLit("superAttackLeft"), JSValue(m_iSuperAttackLeft));
     game.SetProperty(WSLit("fightzoneNumber"), JSValue(m_iFightzoneNumber));
-    game.SetProperty(WSLit("enemyKillTotalCount"), JSValue(m_iEnemyKillTotalCount));
+    game.SetProperty(WSLit("enemyKillTotalCount"), JSValue(m_iEnemyKillTotalCount));*/
 }
 
 void CGame::MotionEventHandler(char * pData)
@@ -26804,4 +27340,3 @@ void CGame::NotifyMsg_NpcHuntingWinner(char * pData)
 	cp += 4;
 }
 	// Monster kill event xRisenx
-

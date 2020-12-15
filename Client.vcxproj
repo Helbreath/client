@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B046891F-46C6-48B3-8BAC-777929D872EE}</ProjectGuid>
     <RootNamespace>Client</RootNamespace>
-    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -47,6 +47,7 @@
     <PlatformToolset>v142</PlatformToolset>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -82,7 +83,8 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)_d</TargetName>
-    <LibraryPath>lib;..\SDL2-2.0.5\lib\x86;..\boost_1_63_0\stage\lib;$(AWE_DIR)build\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>lib64;C:\Code\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>bin\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>bin\bin\</OutDir>
@@ -93,7 +95,18 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>lib;..\irrlicht-1.8.4\lib\Win32-visualstudio;..\boost_1_63_0\stage\lib;$(AWE_DIR)build\lib;..\irrKlang-1.5.0\lib\Win32-visualStudio;$(LibraryPath)</LibraryPath>
+    <LibraryPath>lib64;C:\Code\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <OutDir>bin\bin\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnabled>true</VcpkgEnabled>
+    <VcpkgManifestInstall>true</VcpkgManifestInstall>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <VcpkgConfiguration>Debug</VcpkgConfiguration>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <VcpkgConfiguration>Debug</VcpkgConfiguration>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
@@ -120,7 +133,7 @@
       <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Shared\;C:\Code\vcpkg\installed\x86-windows\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Shared\;C:\Code\vcpkg\installed\x86-windows\include;C:\Code\x-client\include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -140,7 +153,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;freetype.lib;jpeg.lib;ogg.lib;openal32.lib;sfml-audio-d.lib;sfml-graphics-d.lib;sfml-main-d.lib;sfml-system-d.lib;sfml-window-d.lib;libssl.lib;libcrypto.lib;winmm.lib;DbgHelp.lib;netapi32.lib;lib/search.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AppCore.lib;WebCore.lib;UltralightCore.lib;Ultralight.lib;opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;freetype.lib;jpeg.lib;ogg.lib;openal32.lib;sfml-audio-d.lib;sfml-graphics-d.lib;sfml-main-d.lib;sfml-system-d.lib;sfml-window-d.lib;libssl.lib;libcrypto.lib;winmm.lib;DbgHelp.lib;netapi32.lib;lib/search.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -162,7 +175,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FMT_HEADER_ONLY;ASIO_HAS_STD_CHRONO;_HAS_AUTO_PTR_ETC=1;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;ASIO_NO_DEPRECATED;ASIO_STANDALONE;ASIO_HEADER_ONLY;_WIN32_WINNT=0x0601;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -176,10 +189,11 @@
       <BrowseInformation>true</BrowseInformation>
       <WarningLevel>Level2</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>Shared\;..\boost_1_63_0;..\SDL2-2.0.5\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>Shared\;C:\Code\vcpkg\installed\x64-windows\include;C:\Code\x-client\include</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -197,11 +211,14 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;libeay32.lib;ssleay32.lib;awesomium.lib;winmm.lib;DbgHelp.lib;libboost_chrono-vc140-mt-gd-1_63.lib;libboost_date_time-vc140-mt-gd-1_63.lib;libboost_regex-vc140-mt-gd-1_63.lib;libboost_thread-vc140-mt-gd-1_63.lib;libboost_filesystem-vc140-mt-gd-1_63.lib;libboost_system-vc140-mt-gd-1_63.lib;libboost_timer-vc140-mt-gd-1_63.lib;Irrlicht.lib;netapi32.lib;lib/search.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AppCore.lib;WebCore.lib;UltralightCore.lib;Ultralight.lib;opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;ogg.lib;openal32.lib;sfml-audio-d.lib;sfml-graphics-d.lib;sfml-main-d.lib;sfml-system-d.lib;sfml-window-d.lib;libssl.lib;libcrypto.lib;winmm.lib;DbgHelp.lib;netapi32.lib;lib/search.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <EntryPointSymbol>
       </EntryPointSymbol>
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <StackReserveSize>
+      </StackReserveSize>
     </Link>
     <Bscmake>
       <OutputFile>$(IntDir)$(ProjectName).bsc</OutputFile>
@@ -219,7 +236,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ASIO_HAS_STD_CHRONO;_HAS_AUTO_PTR_ETC=1;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;ASIO_NO_DEPRECATED;ASIO_STANDALONE;ASIO_HEADER_ONLY;_WIN32_WINNT=0x0601;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -232,13 +249,13 @@
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WarningLevel>Level1</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalIncludeDirectories>Shared\;C:\Code\vcpkg\installed\x86-windows\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Shared\;C:\Code\vcpkg\installed\x86-windows\include;C:\Code\x-client\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MinimalRebuild>true</MinimalRebuild>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions512</EnableEnhancedInstructionSet>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -254,7 +271,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;freetype.lib;jpeg.lib;ogg.lib;openal32.lib;sfml-audio.lib;sfml-graphics.lib;sfml-main.lib;sfml-system.lib;sfml-window.lib;libeay32.lib;ssleay32.lib;awesomium.lib;winmm.lib;libboost_chrono-vc140-mt-1_63.lib;libboost_date_time-vc140-mt-1_63.lib;libboost_regex-vc140-mt-1_63.lib;libboost_thread-vc140-mt-1_63.lib;libboost_filesystem-vc140-mt-1_63.lib;libboost_system-vc140-mt-1_63.lib;libboost_timer-vc140-mt-1_63.lib;netapi32.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AppCore.lib;WebCore.lib;UltralightCore.lib;Ultralight.lib;opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;freetype.lib;jpeg.lib;ogg.lib;openal32.lib;sfml-audio.lib;sfml-graphics.lib;sfml-main.lib;sfml-system.lib;sfml-window.lib;libeay32.lib;ssleay32.lib;awesomium.lib;winmm.lib;libboost_chrono-vc140-mt-1_63.lib;libboost_date_time-vc140-mt-1_63.lib;libboost_regex-vc140-mt-1_63.lib;libboost_thread-vc140-mt-1_63.lib;libboost_filesystem-vc140-mt-1_63.lib;libboost_system-vc140-mt-1_63.lib;libboost_timer-vc140-mt-1_63.lib;netapi32.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EntryPointSymbol>
@@ -280,7 +297,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;WIN32;NDEBUG;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>FMT_HEADER_ONLY;ASIO_HAS_STD_CHRONO;_HAS_AUTO_PTR_ETC=1;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;ASIO_NO_DEPRECATED;ASIO_STANDALONE;ASIO_HEADER_ONLY;_WIN32_WINNT=0x0601;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -294,12 +311,12 @@
       <BrowseInformationFile>$(IntDir)</BrowseInformationFile>
       <WarningLevel>Level1</WarningLevel>
       <SuppressStartupBanner>true</SuppressStartupBanner>
-      <AdditionalIncludeDirectories>..\irrKlang-1.5.0\include;Shared\;..\boost_1_63_0;..\irrlicht-1.8.4\include;..\lua\;$(AWE_DIR)include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>Shared\;C:\Code\vcpkg\installed\x64-windows\include;C:\Code\x-client\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -315,7 +332,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <AdditionalDependencies>irrKlang.lib;libeay32.lib;ssleay32.lib;awesomium.lib;winmm.lib;libboost_chrono-vc140-mt-1_63.lib;libboost_date_time-vc140-mt-1_63.lib;libboost_regex-vc140-mt-1_63.lib;libboost_thread-vc140-mt-1_63.lib;libboost_filesystem-vc140-mt-1_63.lib;libboost_system-vc140-mt-1_63.lib;libboost_timer-vc140-mt-1_63.lib;Irrlicht.lib;netapi32.lib;ws2_32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>AppCore.lib;WebCore.lib;UltralightCore.lib;Ultralight.lib;opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;ogg.lib;openal32.lib;sfml-audio.lib;sfml-graphics.lib;sfml-main.lib;sfml-system.lib;sfml-window.lib;libssl.lib;libcrypto.lib;winmm.lib;DbgHelp.lib;netapi32.lib;lib/search.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EntryPointSymbol>
@@ -374,7 +391,6 @@
     <ClInclude Include="src\buffer.h" />
     <ClInclude Include="src\StrTok.h" />
     <ClInclude Include="src\DialogBox.h" />
-    <ClInclude Include="src\HTMLUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Res\resource.rc" />
@@ -406,7 +422,6 @@
     <ClCompile Include="src\buffer.cpp" />
     <ClCompile Include="src\StrTok.cpp" />
     <ClCompile Include="src\DialogBox.cpp" />
-    <ClCompile Include="src\HTMLUI.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
