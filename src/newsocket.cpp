@@ -40,6 +40,7 @@ void connection::start()
         //error
         printf("connection exception: %s\n", ec.message().c_str());
         stop();
+		client.ChangeGameMode(GAMEMODE_ONMAINMENU);
     }
 }
 
@@ -162,7 +163,7 @@ void connection::handle_read(const asio::error_code& e,
 	{
 		if (bytes_transferred != size)
 		{
-			printf("Did not receive proper amount of bytes : rcv: %d needed: %d", bytes_transferred, size);
+			printf("Did not receive proper amount of bytes : rcv: %d needed: %d", (int32_t)bytes_transferred, size);
 			client.stop(shared_from_this());
 			return;
 		}

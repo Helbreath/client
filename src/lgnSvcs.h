@@ -68,16 +68,17 @@ enum lgnSvcsCmds{
 	CMD_LGNSVC_MAX
 };
 
+/*
 const struct lgnPtsSvc{
 	char * desc;
 	char * name;
 	unsigned long price;
 	unsigned short cmd;
 } lgnPtsSvcs[] = {
-	/*{"MP14 Indestr. Golden Wizard Hat", "FantasyHat MP14", 25, CMD_LGNSVC_MAGEHAT},
+	/ *{"MP14 Indestr. Golden Wizard Hat", "FantasyHat MP14", 25, CMD_LGNSVC_MAGEHAT},
 	{"HP14 Indestr. Golden Wizard Hat", "FantasyHat HP14", 25, CMD_LGNSVC_BMAGEHAT},
 	{"HP14 Indestr. Golden Winged Helm", "FantasyHelm HP14", 25, CMD_LGNSVC_WARRIORHELM},
-	{"MP14 Indestr. Golden Winged Helm", "FantasyHelm MP14", 25, CMD_LGNSVC_BMAGEHELM},*/
+	{"MP14 Indestr. Golden Winged Helm", "FantasyHelm MP14", 25, CMD_LGNSVC_BMAGEHELM},* /
 	{"Town Change (to Aresden)", "TC(Are)", 10, CMD_LGNSVC_TOARE},
 	{"Town Change (to Elvine)", "TC(Elv)", 10, CMD_LGNSVC_TOELV},
 	{"20 Majestic points", "2 Maj", 2, CMD_LGNSVC_MAJ20},
@@ -133,5 +134,6 @@ const struct lgnPtsSvc{
 	{"Unlearn B.S.W and convert to manual", "Unlearn B.S.W", 10, CMD_LGNSVC_TRADEBSW},
 	{"","",0,0}
 };
+*/
 
 #endif // LGNSVCS_H

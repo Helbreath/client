@@ -16,7 +16,8 @@
 #define HBF_LOWER			3
 
 //#define SERVER_IP			"31.186.251.201" // Coders server
-#define SERVER_IP			"69.30.230.122"
+//#define SERVER_IP			"69.30.230.122"
+#define SERVER_IP			"127.0.0.1"
 //#define SERVER_IP			"192.168.0.13" //vm
 #define SERVER_PORT			2848
 
@@ -26,6 +27,7 @@
 #define DS_VISIBLE 0
 #define DS_BG 1
 #define DS_CS 2
+#define DS_WIN 3
 
 
 #define LANGUAGE	ENGLISH

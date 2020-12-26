@@ -53,6 +53,10 @@ bin/sprites/raws/
 bin/bin
 bin/*.*
 bin/dump/*
+bin/imagefix/*
+bin/inspector/*
+bin/oldui/*
+cef/*
 x64/
 
 Client.VC.opendb

@@ -19,6 +19,7 @@
 #include <sstream>
 #include <stdint.h>
 #include "common.h"
+#include "GlobalDef.h"
 
 using namespace sf;
 
@@ -46,13 +47,14 @@ public:
     CSprite(std::ifstream & hPakFile, std::string & cPakFileName, short sNthFile, bool bAlphaEffect = true);
 	//CSprite(HANDLE hPakFile, class DXC_ddraw * pDDraw, char * cPakFileName, short sNthFile, bool bAlphaEffect = TRUE, std::vector<int> * framePositions = NULL);
 	virtual ~CSprite();
-	static CSprite * CreateSprite(char * cPakFileName, short sNthFile, bool bAlphaEffect = true);
+	static CSprite * CreateSprite(std::string cPakFileName, short sNthFile, bool bAlphaEffect = true);
 	void DrawSubSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, Color color = Color(255,255,255,255));
 	void DrawSpriteNCK(int sX, int sY, int sFrame, uint64_t dwTime = 0, Color color = Color(255,255,255,255));
 	void DrawRGBNCK(int sX, int sY, int sFrame, uint64_t dwTime, Color color = Color(255,255,255,255));
 	void DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime = 0, Color color = Color(255,255,255,255));
     void DrawScaledSprite(int sX, int sY, int sFrame, int sWidth, int sHeight, uint64_t dwTime = 0, Color color = Color(255, 255, 255, 255));
 	void DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, Color color = Color(255,255,255,255));
+	void draw_to(int sX, int sY, int sFrame, uint64_t dwTime, Color color = Color(255,255,255,255), int draw_mode = DS_VISIBLE);
 	void DrawWidth(int sX, int sY, int sFrame, int sWidth, uint64_t dwTime, Color color = Color(255,255,255,255));
 	void DrawShadow(int sX, int sY, int sFrame, uint64_t dwTime, Color color = Color(255,255,255,255));
 	void CreateShadow();

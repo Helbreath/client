@@ -4,8 +4,10 @@
 
 #include "Sprite.h"
 #include "Game.h"
+#include <sodium.h>
 
 extern char G_cSpriteAlphaDegree;
+extern bool isrunning;
 
 extern int G_iAddTable31[64][510], G_iAddTable63[64][510];
 extern int G_iAddTransTable31[510][64], G_iAddTransTable63[510][64]; 
@@ -52,126 +54,124 @@ typedef struct tagBITMAPINFO {
 //////////////////////////////////////////////////////////////////////
 CSprite::CSprite(std::ifstream & hPakFile, std::string & cPakFileName, short sNthFile, bool bAlphaEffect)
 {
-	int iASDstart;
+    //int iASDstart;
 
-	m_stBrush	= 0;
-	m_bIsSurfaceEmpty = true;
+    m_stBrush = 0;
+    m_bIsSurfaceEmpty = true;
 
-	m_cAlphaDegree = 1;
-	m_bOnCriticalSection = false;
-	m_iTotalFrame = 0;
+    m_cAlphaDegree = 1;
+    m_bOnCriticalSection = false;
+    m_iTotalFrame = 0;
 
     sprite = 0;
 
-	hPakFile.seekg (24 + sNthFile*8, std::ios::beg);
-	hPakFile.read ((char*)&iASDstart, 4);
-	hPakFile.seekg (iASDstart+100, std::ios::beg);
-	hPakFile.read ((char*)&m_iTotalFrame, 4);
+    m_cPakFileName = cPakFileName;
+    m_bAlphaEffect = bAlphaEffect;
+    wPageid = sNthFile;
 
-	// 	SetFilePointer(hPakFile, 24 + sNthFile*8, NULL, FILE_BEGIN);
-	// 	ReadFile(hPakFile, &iASDstart,  4, &nCount, NULL); // i´Â ASDÆÄÀÏÀÇ ½ÃÀÛÀ§Ä¡
-	// 	SetFilePointer(hPakFile, iASDstart+100, NULL, FILE_BEGIN); 
-	// 	ReadFile(hPakFile, &m_iTotalFrame,  4, &nCount, NULL);
-	m_dwBitmapFileStartLoc = iASDstart  + (108 + (12*m_iTotalFrame));
-	m_stBrush = new stBrush[m_iTotalFrame];
-	hPakFile.read ((char*)m_stBrush, 12*m_iTotalFrame);
-	//ReadFile(hPakFile, m_stBrush, 12*m_iTotalFrame, &nCount, NULL);
-	m_cPakFileName = cPakFileName;
-	m_bAlphaEffect = bAlphaEffect;
-	wPageid = sNthFile;
-    sprite = new Sprite[m_iTotalFrame];
- 	for (int i = 0; i < m_iTotalFrame; ++i)
-        sprite[i] = Sprite();
-// 	subtextures = new ITexture *[m_iTotalFrame];
-// 	for (int i = 0; i < m_iTotalFrame; ++i)
-// 		subtextures[i] = 0;
 	//_pMakeSpriteSurface();
 }
 
 CSprite::~CSprite(void)
 {
 	if (m_stBrush != 0) delete[] m_stBrush;
-/*	delete[] subtextures;*/
-	int test;
-// 	if (_localimage)
-// 		test = _localimage->getReferenceCount();
-// 	if (_localimage) _localimage->drop();
-// 	if (_localshadow) _localshadow->drop();
+	if (sprite) delete[] sprite;
 }
 
 bool CSprite::_pMakeSpriteSurface()
 {
-    if ((m_stBrush == 0) || (!m_bIsSurfaceEmpty))
+    if (/*(m_stBrush == 0) || */(!m_bIsSurfaceEmpty) || !isrunning)
     {
         return false;
     }
 
-	//CMyDib mydib(m_cPakFileName, m_dwBitmapFileStartLoc);
-
-	BITMAPFILEHEADER fh;
-	char * m_lpDib;
-	std::stringstream ss;
-	ss << "sprites\\" << m_cPakFileName << ".pak";
-	std::ifstream szfile(ss.str().c_str(), std::ios::in | std::ios::binary);
-	if (!szfile.is_open())
-	{
-		//MessageBoxW(NULL, (std::wstring("Cannot open \"") + ss.str() + "\"").c_str(), "Error", MB_OK);
-		return false;
-	}
-
-	szfile.seekg(m_dwBitmapFileStartLoc, std::ios::beg);
-	szfile.read((char*)&fh, 14);
-	m_lpDib = (char *)new char[fh.bfSize];
-	szfile.seekg(m_dwBitmapFileStartLoc, std::ios::beg);
-	szfile.read((char*)m_lpDib, 14);
-	szfile.read((char*)m_lpDib + 14, fh.bfSize - 14);
-	szfile.close();
-	LPBITMAPINFO m_bmpInfo; //bmp �������
-	LPBITMAPINFOHEADER bmpInfoHeader;
-
-	bmpInfoHeader = (LPBITMAPINFOHEADER)(m_lpDib + 14);
-	m_bmpInfo = (LPBITMAPINFO)(m_lpDib + 14);
-	m_wBitmapSizeX = (uint16_t)(bmpInfoHeader->biWidth);
-	m_wBitmapSizeY = (uint16_t)(bmpInfoHeader->biHeight);
-
-	//ECF_A8R8G8B8 - desired
-    //ECF_R5G6B5 - most hb paks are
-
-
-
-	//////////////////////////////////////////////////////////////////////////
-
-/*
-    mkdir("dump");
-    mkdir(fmt::format("dump/{}", spriteid).c_str());
-    //for (int x = 0; x < m_iTotalFrame; ++x)
+    unsigned char * m_lpDib;
+    std::stringstream ss;
+    ss << "sprites\\" << m_cPakFileName << ".pak";
+    std::ifstream szfile(ss.str().c_str(), std::ios::in | std::ios::binary);
+    if (!szfile.is_open())
     {
-        std::string save = fmt::format("dump/{}/master.png", spriteid);
-        std::ofstream ofile(save, std::ios::out | std::ios::binary);
-		ofile.write(m_lpDib, fh.bfSize);
-
-		
-		/ *sf::RenderTexture temp;
-        temp.create(m_stBrush[x].szx, m_stBrush[x].szy);
-        sprite[x].setPosition(m_stBrush[x].pvx, m_stBrush[x].pvy);
-        temp.draw(sprite[x]);
-        temp.display();
-        std::cout << fmt::format("{} Size: {} x {} - Pivot: ({}, {}) - Source: ({}, {})\n", save, m_stBrush[x].szx, m_stBrush[x].szy, m_stBrush[x].pvx, m_stBrush[x].pvy, m_stBrush[x].sx, m_stBrush[x].sy);
-        temp.getTexture().copyToImage().saveToFile(save);* /
+        return false;
     }
-    _localimage.copyToImage().saveToFile(fmt::format("dump/{}/master.png", spriteid));*/
 
+	// replaces object constructor
+	if (!sprite)
+	{
+        int iASDstart;
+        szfile.seekg(24 + wPageid * 8, std::ios::beg);
+        szfile.read((char *)&iASDstart, 4);
+        szfile.seekg(iASDstart + 100, std::ios::beg);
+        szfile.read((char *)&m_iTotalFrame, 4);
+
+        //if (cPakFileName == "GameDialog") __debugbreak();
+
+        m_dwBitmapFileStartLoc = iASDstart + (108 + (12 * m_iTotalFrame));
+        m_stBrush = new stBrush[m_iTotalFrame];
+        szfile.read((char *)m_stBrush, 12 * m_iTotalFrame);
+
+        sprite = new Sprite[m_iTotalFrame];
+	}
 	//////////////////////////////////////////////////////////////////////////
 
 
-    sf::Image img;
-	if (!img.loadFromMemory(m_lpDib, fh.bfSize))
+    szfile.seekg(m_dwBitmapFileStartLoc, std::ios::beg);
+
+	uint32_t filesize;
+    uint32_t encryption;
+    unsigned char header[crypto_secretstream_xchacha20poly1305_HEADERBYTES];
+    szfile.read((char *)&filesize, 4);
+    m_lpDib = (unsigned char *)new unsigned char[filesize];
+    szfile.read((char *)&encryption, 4);
+	if (encryption == 0x3f8ebc3d)
+        szfile.read((char *)header, 24);
+    szfile.read((char *)m_lpDib, filesize);
+
+	//check for invalid frames
+	if (filesize > 100'000'000) __debugbreak();
+
+	int a = szfile.gcount();
+    szfile.close();
+    if (encryption == 0x3f8ebc3d)
 	{
-		std::cout << "Failed to load " << m_cPakFileName << "\n";
-		return false;
+		if (!G_pGame->has_key)
+		{
+			//error, has not received decryption key
+			MessageBoxA(NULL, fmt::format("Cannot open {}", m_cPakFileName).c_str(), "Error", MB_OK);
+			delete[] m_lpDib;
+			isrunning = false;
+            return false;
+		}
+        unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES] = { 0xf4, 0xb7, 0xdd, 0x28, 0xc5, 0xaf, 0xff, 0x3f, 0xdf, 0xd5, 0xa2, 0x9d, 0x68, 0x58, 0xde, 0x91, 0xd7, 0x4c, 0x4c, 0xf5, 0xbe, 0x74, 0xc3, 0xa7, 0xc9, 0xf3, 0x5, 0x81, 0x43, 0xee, 0x6f, 0x71 };
+        unsigned char * decrypted = new unsigned char[filesize*1.5];
+        unsigned long long decrypted_len;
+
+        if (crypto_aead_xchacha20poly1305_ietf_decrypt(decrypted, &decrypted_len, NULL, m_lpDib, filesize, 0, 0, header, G_pGame->key) != -1) {
+            delete[] m_lpDib;
+            m_lpDib = new unsigned char[decrypted_len];
+            memcpy(m_lpDib, decrypted, decrypted_len);
+            delete[] decrypted;
+        }
+		else
+		{
+			// error decrypting
+            delete[] decrypted;
+		}
 	}
-    img.createMaskFromColor(img.getPixel(0, 0));
-    _localimage.loadFromImage(img);
+	else if (encryption == 0xa8b73afe)
+	{
+		//do nothing
+	}
+
+    sf::MemoryInputStream is;
+    is.open((char *)m_lpDib, filesize);
+
+    if (!_localimage.loadFromStream(is))
+    {
+        std::cout << "Failed to load " << m_cPakFileName << "\n";
+        delete[] m_lpDib;
+        return false;
+    }
+	delete[] m_lpDib;
 
     for (int i = 0; i < m_iTotalFrame; ++i)
     {
@@ -179,19 +179,16 @@ bool CSprite::_pMakeSpriteSurface()
         sprite[i].setTextureRect(IntRect(m_stBrush[i].sx, m_stBrush[i].sy, m_stBrush[i].szx, m_stBrush[i].szy));
     }
 
-	m_bIsSurfaceEmpty = false;
+    m_bIsSurfaceEmpty = false;
 
     //CreateShadow();
 
 	return true;
 }
 
-CSprite * CSprite::CreateSprite(char * cPakFileName, short sNthFile, bool bAlphaEffect)
+CSprite * CSprite::CreateSprite(std::string cPakFileName, short sNthFile, bool bAlphaEffect)
 {
-	std::wstringstream ss;
-	ss << "sprites\\" << cPakFileName << ".pak";
-	std::wstring str = ss.str();
-	std::ifstream szfile(str.c_str(),std::ios::in|std::ios::binary);
+	std::ifstream szfile(fmt::format("sprites\\{}.pak", cPakFileName), std::ios::in|std::ios::binary);
 
 	if (!szfile.is_open())
 	{
@@ -199,7 +196,7 @@ CSprite * CSprite::CreateSprite(char * cPakFileName, short sNthFile, bool bAlpha
 		//MessageBoxW(NULL, ("Error loading pak: " + str).c_str(), "ERROR", MB_OK);
 	}
 
-	return new CSprite(szfile,std::string(cPakFileName), sNthFile, bAlphaEffect);
+	return new CSprite(szfile, cPakFileName, sNthFile, bAlphaEffect);
 }
 
 void CSprite::DrawShadow(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
@@ -287,6 +284,14 @@ void CSprite::DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
 	m_rcBound.top  = dY;
 	m_rcBound.right  = dX + szx;
 	m_rcBound.bottom = dY + szy;
+}
+
+void CSprite::draw_to(int sX, int sY, int sFrame, uint64_t dwTime, Color color, int draw_mode)
+{
+    if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+    sprite[sFrame].setColor(color);
+    sprite[sFrame].setPosition(sX + m_stBrush[sFrame].pvx, sY + m_stBrush[sFrame].pvy);
+    G_pGame->draw_to(sprite[sFrame], draw_mode);
 }
 
 void CSprite::DrawScaledSprite(int sX, int sY, int sFrame, int sWidth, int sHeight, uint64_t dwTime, Color color)

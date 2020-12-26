@@ -72,6 +72,7 @@
 #include <Ultralight/KeyEvent.h>
 #include <Ultralight/KeyCodes.h>
 
+
 #define BTNSZX				74
 #define BTNSZY				20
 #define LBTNPOSX			30
@@ -220,6 +221,9 @@ class CGame
 public:
     FPS fps;
 
+	unsigned char key[32];
+	bool has_key = false;
+
 /*
     using UIMsgQueue = std::deque<shared_ptr<UIMsgQueueEntry>>;
     UIMsgQueue uiqueue;
@@ -291,20 +295,49 @@ public:
 
     void draw(const Drawable& drawable, const RenderStates& states = RenderStates::Default)
     {
-        if (drawState == 0)
+        if (drawState == DS_VISIBLE)
         {
             //render to visible
             visible.draw(drawable, states);
         }
-        else if (drawState == 1)
+        else if (drawState == DS_BG)
         {
             //render to bg
             bg.draw(drawable, states);
         }
-        else if (drawState == 2)
+        else if (drawState == DS_CS)
         {
             //render to charselect
             charselect.draw(drawable, states);
+        }
+        else if (drawState == DS_WIN)
+        {
+            //render directly to window
+            window.draw(drawable, states);
+        }
+    }
+
+    void draw_to(const Drawable & drawable, int draw_mode, const RenderStates & states = RenderStates::Default)
+    {
+        if (draw_mode == DS_VISIBLE)
+        {
+            //render to visible
+            visible.draw(drawable, states);
+        }
+        else if (draw_mode == DS_BG)
+        {
+            //render to bg
+            bg.draw(drawable, states);
+        }
+        else if (draw_mode == DS_CS)
+        {
+            //render to charselect
+            charselect.draw(drawable, states);
+        }
+        else if (draw_mode == DS_WIN)
+        {
+            //render directly to window
+            window.draw(drawable, states);
         }
     }
 
@@ -363,8 +396,11 @@ public:
 	bool dirty_html = false;
     sf::Texture _html_tex;
     sf::Sprite _html_spr;
-	std::mutex _html_m;
-	std::mutex _html_eventm;
+    sf::Texture _html_tex_inspector;
+    sf::Sprite _html_spr_inspector;
+	std::recursive_mutex _html_m;
+	std::recursive_mutex _html_eventm;
+	bool inspectoractive = false;
 
 	std::queue<std::function<void(void)>> _html_eventqueue;
 
@@ -376,7 +412,16 @@ public:
 	void ReceiveString(char* pString);
 	void ClearInputString();
 
-	void send_message_to_ui(std::function<void(void)> fn, bool with_lock = true);
+	void call_func_for_ui(std::function<void(void)> fn, bool with_lock = true);
+	void send_message_to_ui(std::string msg, std::string param = "", std::string param2 = "");
+
+	int inspector_size = 0;
+	bool inside_vm = false;
+    bool responsive_ui = false;
+    int ui_update_frequency = 3;
+	bool scale_ui_with_virtual = true;
+	bool hide_ui = false;
+	bool take_screen = false;
 
     bool CreateRenderer(bool fs = false)
 	{
@@ -395,17 +440,22 @@ public:
         sprintf(winName, "Helbreath Xtreme %u.%u.%u Renderer: %s", HBF_MAJOR, HBF_MINOR, HBF_LOWER, _renderer.c_str());
 
         //Style::Fullscreen
-        window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Close)));
+        window.create(sf::VideoMode(screenwidth, screenheight + inspector_size), winName, (fullscreen ? Style::Fullscreen : (Style::Close)));
+
+		//window.setFramerateLimit(120);
 
         if (vsync)
             window.setVerticalSyncEnabled(true);
         else
             window.setVerticalSyncEnabled(false);
 
-        visible.create(screenwidth_v, screenheight_v);
-        bg.create(screenwidth_v + 300, screenheight_v + 300);
+#ifdef DEBUG_INSPECTOR
+		inspector_size = 300;
+#endif
+        visible.create(screenwidth_v, screenheight_v + inspector_size);
+        bg.create(screenwidth_v + 300, screenheight_v + 300 + inspector_size);
         charselect.create(256, 256);
-        htmlRTT.create(screenwidth_v, screenheight_v);
+        //htmlRTT.create(screenwidth_v, screenheight_v);
 
 // 		htmlUI = new HTMLUI(this);
 // 		htmlUI->Init();
@@ -431,10 +481,23 @@ public:
         _html_tex.loadFromImage(img);
         _html_spr.setTexture(_html_tex);
 
+		create_load_list();
+
         return true;
 	}
     sf::WindowHandle handle;
     void PutFontStringSize(std::string fontname, int iX, int iY, std::string text, Color color, int size);
+	void create_load_list();
+
+    std::string get_game_mode();
+	void receive_message_from_ui(const ultralight::JSObject & thisObject, const ultralight::JSArgs & args);
+
+	void start_loading()
+	{
+		ChangeGameMode(GAMEMODE_ONLOADING);
+	}
+
+	void update_ui_game_mode();
 
     std::map<string, sf::Font> _font;
     sf::Text _text;
@@ -1277,8 +1340,8 @@ public:
 	char m_cGameMode;
 	char m_cWhisperIndex;
 	char m_cWhisperName[12];
-	string m_cAccountName;
-	string m_cAccountPassword;
+	std::string m_cAccountName;
+	std::string m_cAccountPassword;
 	char m_cAccountAge[12];
 	char m_cNewPassword[12];
 	char m_cNewPassConfirm[12];
@@ -1449,7 +1512,7 @@ public:
 	void DrawDialogBox_Titles();
 	void DlgBoxClick_Titles(); // 
 #endif
-	bool bCheckItemEquiped(char itemName[]); // Beholder Necklace Fix xRisenx
+	bool bCheckItemEquiped(std::string itemName); // Beholder Necklace Fix xRisenx
 	// Gladiator Arena xRisenx
 	/*#define MAXARENAPLAYERS      200
 struct {

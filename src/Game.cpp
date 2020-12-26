@@ -11,9 +11,13 @@
 
 #include "lan_eng.h"
 #include <asio/ssl.hpp>
+#include <fmt/format.h>
 
 extern class CGame * G_pGame;
 extern ultralight::RefPtr<ultralight::View> view;
+extern ultralight::RefPtr<ultralight::View> inspector_view;
+
+extern bool isrunning;
 
 // extern bool CheckCheating();
 // extern bool CheckHackProgram();
@@ -297,35 +301,35 @@ void CGame::WriteSettingsVar(const char * var, uint32_t val)
 // 	RegCloseKey(key);
 }
 
-void CGame::WriteUsername(const char* cName, bool RemUser)
-{
-	int i;
-	FILE *fp = fopen("user.dat", "w+");
-
-	if(fp != 0)
-	{
-		if(RemUser == true)
-		{
-			fprintf(fp, cName);
-		} else {
-			fprintf(fp, "");
-		}
-		fclose(fp);
-	} else {
-		return;
-	}
-}
-
-void CGame::ReadUsername()
-{
-	FILE *pFile = fopen("user.dat", "r");
-	if(pFile != 0)
-	{
-		fgets(m_cUserName, 12, pFile);
-		puts(m_cUserName);
-		fclose(pFile);
-	}
-}
+// void CGame::WriteUsername(const char* cName, bool RemUser)
+// {
+// 	int i;
+// 	FILE *fp = fopen("user.dat", "w+");
+// 
+// 	if(fp != 0)
+// 	{
+// 		if(RemUser == true)
+// 		{
+// 			fprintf(fp, cName);
+// 		} else {
+// 			fprintf(fp, "");
+// 		}
+// 		fclose(fp);
+// 	} else {
+// 		return;
+// 	}
+// }
+// 
+// void CGame::ReadUsername()
+// {
+// 	FILE *pFile = fopen("user.dat", "r");
+// 	if(pFile != 0)
+// 	{
+// 		fgets(m_cUserName, 12, pFile);
+// 		puts(m_cUserName);
+// 		fclose(pFile);
+// 	}
+// }
 
 /*
 void CGame::PutUIMsgQueue(shared_ptr<UIMsgQueueEntry> msg)
@@ -452,7 +456,7 @@ char itoh(int num)
 CGame::CGame()
 	: io_service_(),
 	signals_(io_service_),
-    ctx(asio::ssl::context::tlsv12_client)
+    ctx(asio::ssl::context::tlsv13_client)
 {
     char cert[] = SSL_CERT;
     char dh[] = SSL_DH_PARAM;
@@ -470,7 +474,7 @@ CGame::CGame()
         | asio::ssl::context::single_dh_use);
     ctx.set_verify_mode(asio::ssl::verify_peer);
     ctx.add_certificate_authority(buffer_);
-    ctx.use_tmp_dh(dh_buff);
+    //ctx.use_tmp_dh(dh_buff);
 
 	selectedchar = nullptr;
 	autologin = false;
@@ -523,7 +527,7 @@ CGame::CGame()
 	m_iItemDropCnt = 0;
 	m_bItemDrop = false;
 	m_bIsSpecial = false;
-	m_cGameMode = GAMEMODE_ONLOADING;
+	m_cGameMode = GAMEMODE_NULL; // GAMEMODE_ONLOADING;
 	m_cWhisperIndex = MAXWHISPERMSG;
 	m_cGameModeCount = 0;
 	memset(m_cMapName, 0, sizeof(m_cMapName));
@@ -984,11 +988,11 @@ void CGame::Quit()
 	io_service_.stop();
 }
 
-void CGame::send_message_to_ui(std::function<void(void)> fn, bool with_lock)
+void CGame::call_func_for_ui(std::function<void(void)> fn, bool with_lock)
 {
 	if (with_lock)
 	{
-        std::unique_lock<std::mutex> l(_html_eventm);
+        std::unique_lock<std::recursive_mutex> l(_html_eventm);
         _html_eventqueue.emplace(fn);
 	}
 	else
@@ -998,7 +1002,8 @@ void CGame::send_message_to_ui(std::function<void(void)> fn, bool with_lock)
 void CGame::UpdateScreen()
 {
     G_dwGlobalTime = unixtime();
-    visible.clear();
+    visible.clear(sf::Color(127, 0, 0, 255));
+	static int64_t counter = 0;
 
 	switch (m_cGameMode) {
 	case GAMEMODE_ONCONNECTING:
@@ -1048,6 +1053,7 @@ void CGame::UpdateScreen()
 
 	}
 
+/*
     static uint64_t fpstime = unixtime();
 	static uint64_t uitime = unixtime();
 	if (G_dwGlobalTime - uitime > 50)
@@ -1060,7 +1066,7 @@ void CGame::UpdateScreen()
         }
 
         uitime = G_dwGlobalTime;
-	}
+	}*/
 
     setRenderTarget(DS_VISIBLE);
     
@@ -1089,11 +1095,29 @@ void CGame::UpdateScreen()
         visible.draw(sprite);
     }
 
+	int _fps = fps.getFPS();
+	int ui_temp_frequency = ui_update_frequency;
+	if (ui_temp_frequency >= _fps)
+		ui_temp_frequency = _fps - 1;
+	if (ui_temp_frequency == 0)
+		ui_temp_frequency = 1;
+	if (_fps == 0)
+		_fps = 2;
+	bool ui_update = false;
+	if (responsive_ui)
+        ui_update = true;
+	if (_fps == 0)
+		ui_update = true;
+	else if (!(counter % ui_temp_frequency))
+		ui_update = true;
 
+	counter++;
+	dirty_html = true;
 
-	if (dirty_html)
+	if (dirty_html && ui_update /*(responsive_ui || (_fps > 0)?(!(counter% (_fps / ui_update_frequency))):1)*/)
 	{
-        std::unique_lock<std::mutex> l(G_pGame->_html_m);
+		//std::cout << "ui update" << counter << "\n";
+        std::unique_lock<std::recursive_mutex> l(G_pGame->_html_m);
         
 		using namespace ultralight;
 
@@ -1101,48 +1125,119 @@ void CGame::UpdateScreen()
 		BitmapSurface* bitmap_surface = (BitmapSurface*)surface;
 		RefPtr<Bitmap> bitmap = bitmap_surface->bitmap();
 		void* pixels = bitmap->LockPixels();
+		view->surface()->ClearDirtyBounds();
 
-		uint32_t width = bitmap->width();
-		uint32_t height = bitmap->height();
-		uint32_t stride = bitmap->row_bytes();
+		int64_t width = bitmap->width();
+		int64_t height = bitmap->height();
+		int64_t stride = bitmap->row_bytes();
 
         // color swap ultralight -> SFML
 
         static int64_t buffersize;
-		static char * test = nullptr;
+		static uint8_t * test = nullptr;
+        //static uint8_t test2[6291456];
+        //static uint8_t test3[12582912];
+		//12582912
+/*
+		// for when the view size changes (if ever)
+		if (reset_ui_surface_buffer)
+		{
+			delete[] test;
+			test = nullptr;
+		}*/
 		if (!test)
 		{
-			buffersize = width * height * 4 + 5;
-			test = new char[buffersize];
+            buffersize = width * height * 4 + 5;
+            test = new uint8_t[buffersize];
 		}
 
-		memcpy(test, pixels, int64_t(width) * height * 4);
+        memcpy(test, pixels, int64_t(width) * height * 4);
+        //memcpy(test3, pixels, int64_t(width) * height * 4);
 
-		for (int i = 0; i < width * height * 4; i += 4)
+#pragma loop(hint_parallel(2))
+		for (int64_t i = 0; i < width * height * 4; i += 4)
 		{
 			// ultralight dumps abgr (rgba)
 			// sfml expects bgra (argb)
             test[i + 0] = test[i + 0] ^ test[i + 2];
-            test[i + 2] = test[i + 2] ^ test[i + 0];
+            test[i + 2] = (uint8_t)test[i + 2] ^ (uint8_t)test[i + 0];
             test[i + 0] = test[i + 0] ^ test[i + 2];
 		}
 
 		sf::Image img;
-		img.create(screenwidth_v, screenheight_v, (uint8_t*)test);
+		img.create(width, height, test);
+
+		if (take_screen)
+		{
+			img.saveToFile(fmt::format("{}.png", counter));
+			take_screen = false;
+		}
 
 		bitmap->UnlockPixels();
+		_html_tex = sf::Texture();
 		_html_tex.loadFromImage(img);
+		_html_spr = sf::Sprite();
 		_html_spr.setTexture(_html_tex);
+
+
+
+#ifdef DEBUG_INSPECTOR
+        if (inspectoractive)
+        {
+            Surface* surface = inspector_view->surface();
+            BitmapSurface* bitmap_surface = (BitmapSurface*)surface;
+            RefPtr<Bitmap> bitmap = bitmap_surface->bitmap();
+            void* pixels = bitmap->LockPixels();
+
+            uint32_t width = bitmap->width();
+            uint32_t height = bitmap->height();
+            uint32_t stride = bitmap->row_bytes();
+
+            // color swap ultralight -> SFML
+
+            static int64_t buffersize;
+            static char* test = nullptr;
+            if (!test)
+            {
+                buffersize = width * height * 4 + 5;
+                test = new char[buffersize];
+            }
+
+            memcpy(test, pixels, int64_t(width) * height * 4);
+
+            for (int i = 0; i < width * height * 4; i += 4)
+            {
+                // ultralight dumps abgr (rgba)
+                // sfml expects bgra (argb)
+                test[i + 0] = test[i + 0] ^ test[i + 2];
+                test[i + 2] = test[i + 2] ^ test[i + 0];
+                test[i + 0] = test[i + 0] ^ test[i + 2];
+            }
+
+            sf::Image img;
+            img.create(width, height, (uint8_t*)test);
+
+            bitmap->UnlockPixels();
+            _html_tex_inspector.loadFromImage(img);
+            _html_spr_inspector.setTexture(_html_tex_inspector);
+			_html_spr_inspector.setPosition(0, screenheight_v);
+        }
+#endif
+		
+
 
 		dirty_html = false;
 	}
 
-    draw(_html_spr);
+    //draw(_html_spr);
+#ifdef DEBUG_INSPECTOR
+    draw(_html_spr_inspector);
+#endif
 
-    float diffx = static_cast<float>(screenwidth_v) / screenwidth;
-    float diffy = static_cast<float>(screenheight_v) / screenheight;
-    int mx = m_stMCursor.sX / diffx;
-    int my = m_stMCursor.sY / diffy;
+    //float diffx = static_cast<float>(screenwidth_v) / screenwidth;
+    //float diffy = static_cast<float>(screenheight_v) / screenheight;
+	int mx = m_stMCursor.sX;// *diffx;
+	int my = m_stMCursor.sY;// *diffy;
 
     //test code
 	char cfps[20];
@@ -1154,7 +1249,7 @@ void CGame::UpdateScreen()
     _text.setPosition(5, 5);
     _text.setFillColor(Color(255, 255, 255, 255));
     _text.setCharacterSize(10);
-    visible.draw(_text);
+
 
 //     PutFontStringSize("test", 5, 5, "10", sf::Color::White, 10);
 //     PutFontStringSize("test", 5, 20, "12", sf::Color::White, 12);
@@ -1168,10 +1263,26 @@ void CGame::UpdateScreen()
         //StartBGM();
     }
 
+	if (scale_ui_with_virtual && !hide_ui)
+        draw(_html_spr);
+
+    sf::Sprite sprite = sf::Sprite(visible.getTexture());
+    sprite.setPosition(0, 0);
+    sprite.setScale(static_cast<float>(screenwidth) / screenwidth_v, static_cast<float>(screenheight) / screenheight_v);
+
+	window.clear(sf::Color(127, 0, 0, 255));
+
+    window.draw(sprite);
+    
+	if (!scale_ui_with_virtual && !hide_ui)
+		window.draw(_html_spr);
+
+	// draw mouse over everything - this draws it full size at every virtual resolution.
+	// this needs to go above `window.draw(sprite);` and draw to `visible` above to scale with virtual resolution
     if (m_bIsObserverMode == true)
     {
-        DrawLine(mx - 5, my    , mx + 5, my    , Color(255, 0, 0, 255));
-        DrawLine(mx    , my    , mx    , my + 5, Color(255, 0, 0, 255));
+        DrawLine(mx - 5, my, mx + 5, my, Color(255, 0, 0, 255));
+        DrawLine(mx, my, mx, my + 5, Color(255, 0, 0, 255));
 
         DrawLine(mx - 5, my - 1, mx + 5, my - 1, Color(255, 0, 0, 127));
         DrawLine(mx - 1, my - 5, mx - 1, my + 5, Color(255, 0, 0, 127));
@@ -1179,18 +1290,241 @@ void CGame::UpdateScreen()
         DrawLine(mx - 5, my + 1, mx + 5, my + 1, Color(255, 0, 0, 127));
         DrawLine(mx + 1, my - 5, mx + 1, my + 5, Color(255, 0, 0, 127));
     }
-    else m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(mx, my, m_stMCursor.sCursorFrame, unixseconds());
+	else m_pSprite[SPRID_MOUSECURSOR]->draw_to(mx, my, m_stMCursor.sCursorFrame, unixseconds(), Color(255, 255, 255, 255), DS_WIN);
 
 	m_stMCursor.sZ = 0;
 
-
-
-    sf::Sprite sprite = sf::Sprite(visible.getTexture());
-    sprite.setPosition(0, 0);
-    sprite.setScale(static_cast<float>(screenwidth) / screenwidth_v, static_cast<float>(screenheight) / screenheight_v);
-
-    window.draw(sprite);
+	window.draw(_text); 
 }
+
+std::string CGame::get_game_mode()
+{
+	switch (m_cGameMode)
+	{
+        case GAMEMODE_NULL:
+			return "null";
+        case GAMEMODE_ONQUIT:
+			return "quit";
+        case GAMEMODE_ONMAINMENU:
+			return "mainmenu";
+        case GAMEMODE_ONCONNECTING:
+			return "connecting";
+        case GAMEMODE_ONLOADING:
+			return "loading";
+        case GAMEMODE_ONWAITINGINITDATA:
+			return "waitinginitdata";
+        case GAMEMODE_ONMAINGAME:
+			return "maingame";
+        case GAMEMODE_ONCONNECTIONLOST:
+			return "connectionlost";
+        case GAMEMODE_ONMSG:
+			return "msg";
+        case GAMEMODE_ONCREATENEWACCOUNT:
+			return "createnewaccount";
+        case GAMEMODE_ONLOGIN:
+			return "login";
+        case GAMEMODE_ONQUERYFORCELOGIN:
+			return "queryforcelogin";
+        case GAMEMODE_ONSELECTCHARACTER:
+			return "selectcharacter";
+        case GAMEMODE_ONCREATENEWCHARACTER:
+			return "createnewcharacter";
+        case GAMEMODE_ONWAITINGRESPONSE:
+			return "waitingresponse";
+        case GAMEMODE_ONQUERYDELETECHARACTER:
+			return "querydeletecharacter";
+        case GAMEMODE_ONLOGRESMSG:
+			return "logresmsg";
+        case GAMEMODE_ONVERSIONNOTMATCH:
+			return "versionnotmatch";
+        case GAMEMODE_ONINTRODUCTION:
+			return "introduction";
+        case GAMEMODE_ONAGREEMENT:
+			return "agreement";
+        case GAMEMODE_ONSELECTSERVER:
+			return "selectserver";
+	}
+	return "unknown";
+}
+
+void CGame::update_ui_game_mode()
+{
+	std::string gamemode = get_game_mode();
+    call_func_for_ui([gamemode = std::move(gamemode)]()
+    {
+        ultralight::Ref<ultralight::JSContext> context = view->LockJSContext();
+        ultralight::SetJSContext(context.get());
+        ultralight::JSObject global = ultralight::JSGlobalObject();
+        ultralight::JSFunction UpdateGameMode = global["UpdateGameMode"];
+        if (UpdateGameMode.IsValid())
+        {
+            ultralight::JSArgs args;
+            args.push_back(ultralight::JSValue(gamemode.c_str()));
+			UpdateGameMode(args);
+        }
+    });
+}
+
+std::string get_string(const ultralight::String & o)
+{
+    return o.utf8().data();
+}
+
+std::string get_string(ultralight::JSString o)
+{
+	return get_string(ultralight::String(o));
+}
+
+std::string get_string(const ultralight::JSValue & o)
+{
+	if (!o.IsString())
+		throw std::exception("get_string() failure - not a string");
+
+	return get_string(o.ToString());
+}
+
+void CGame::receive_message_from_ui(const ultralight::JSObject& thisObject, const ultralight::JSArgs& args)
+{
+	try
+	{
+
+		using ultralight::JSValue;
+		using ultralight::JSArgs;
+		using ultralight::JSObject;
+		using ultralight::JSString;
+		using ultralight::String;
+		if (args.size() == 0)
+		{
+			//bail
+			return;
+		}
+
+		/*
+		* SendMessage("event", obj);
+		*/
+		JSValue jsevent = args[0];
+        std::string event = get_string(jsevent);
+        std::cout << fmt::format("Message recv: {}\n", event);
+
+        if (event == "onload")
+        {
+            if (m_cGameMode == GAMEMODE_NULL)
+                send_message_to_ui("startload");
+            else
+                send_message_to_ui("postload");
+			send_message_to_ui("logindetails", G_pGame->m_cAccountName, G_pGame->m_cAccountPassword);
+            return;
+        }
+        else if (event == "exit")
+        {
+            ChangeGameMode(GAMEMODE_NULL);
+			isrunning = false;
+			return;
+        }
+		else if (event == "mainmenuconnect")
+		{
+            ChangeGameMode(GAMEMODE_ONCONNECTING);
+            m_dwConnectMode = MSGID_REQUEST_LOGIN;
+            ZeroMemory(m_cMsg, sizeof(m_cMsg));
+            strcpy(m_cMsg, "11");
+
+            asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
+            new_connection_->socket().async_connect(endpoint,
+                std::bind(&CGame::handle_connect, this,
+                    std::placeholders::_1));
+		}
+		else if (event == "cancelwaiting" || event == "cancelconnect" || event == "disconnect")
+		{
+            _socket->stop();
+            //PlaySound('E', 14, 5);
+            if (m_bSoundFlag) m_pESound[38].stop();
+            if ((m_bSoundFlag) && (m_bMusicStat == true))
+                m_pBGM.stop();
+            isItemLoaded = false;
+            ChangeGameMode(GAMEMODE_ONMAINMENU);
+		}
+		else if (event == "disconnect")
+		{
+			_socket->stop();
+			//PlaySound('E', 14, 5);
+			if (m_bSoundFlag) m_pESound[38].stop();
+			if ((m_bSoundFlag) && (m_bMusicStat == true))
+				m_pBGM.stop();
+			isItemLoaded = false;
+			ChangeGameMode(GAMEMODE_ONMAINMENU);
+		}
+
+		if (args.size() == 1)
+			return;
+
+		JSValue jsparam = args[1];
+		if (jsparam.IsObject())
+		{
+            JSObject obj = jsparam.ToObject();
+            /*if (event == "login")
+			{
+				if (m_cGameMode == GAMEMODE_ONCONNECTING)
+					return;
+				if (obj.HasProperty("account") && obj.HasProperty("password"))
+				{
+					m_cAccountName = get_string(obj["account"]);
+					m_cAccountPassword = get_string(obj["password"]);
+					std::cout << m_cAccountName << " - " << m_cAccountPassword << '\n';
+
+					if (m_cAccountName.length() < 3)
+					{
+						send_message_to_ui("login.account.short");
+					}
+					if (m_cAccountPassword.length() < 3)
+					{
+                        send_message_to_ui("login.password.short");
+                    }
+
+                    ChangeGameMode(GAMEMODE_ONCONNECTING);
+                    m_dwConnectMode = MSGID_REQUEST_LOGIN;
+                    ZeroMemory(m_cMsg, sizeof(m_cMsg));
+                    strcpy(m_cMsg, "11");
+
+                    asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
+                    new_connection_->socket().async_connect(endpoint,
+                        std::bind(&CGame::handle_connect, this,
+                            std::placeholders::_1));
+
+				}
+			}
+            else */if (event == "resolution")
+			{
+                std::unique_lock<std::mutex> l(screenupdate);
+                SetVirtualResolution(int64_t(obj["x"].ToNumber()), int64_t(obj["y"].ToNumber()));
+                visible.create(screenwidth_v, screenheight_v + inspector_size);
+                bg.create(screenwidth_v + 300, screenheight_v + 300 + inspector_size);
+			}
+		}
+	}
+	catch (std::exception & ex)
+	{
+	}
+}
+
+void CGame::send_message_to_ui(std::string msg, std::string param, std::string param2)
+{
+    call_func_for_ui([msg = std::move(msg), param = std::move(param), param2 = std::move(param2)]()
+    {
+        ultralight::Ref<ultralight::JSContext> context = view->LockJSContext();
+        ultralight::SetJSContext(context.get());
+        ultralight::JSObject global = ultralight::JSGlobalObject();
+        ultralight::JSFunction ReceiveMessage = global["ReceiveMessage"];
+        if (ReceiveMessage.IsValid())
+        {
+            ultralight::JSArgs args;
+            args.push_back(ultralight::JSValue(msg.c_str()));
+            if (!param.empty()) args.push_back(ultralight::JSValue(param.c_str()));
+            if (!param2.empty()) args.push_back(ultralight::JSValue(param2.c_str()));
+			ReceiveMessage(args);
+        }
+    });
+}
+
 void CGame::CalcViewPointOld()
 {
     short dX, dY;
@@ -1307,7 +1641,14 @@ void CGame::handle_connect(const asio::error_code& e)
 		start(new_connection_);
 		new_connection_.reset(new connection(io_service_, *this, request_handler_, ctx));
         printf("handle_connect()\n");
-		ConnectionEstablishHandler(SERVERTYPE_LOG);
+		//if (new_connection_->socket().lowest_layer().is_open())
+		{
+			ConnectionEstablishHandler(SERVERTYPE_LOG);
+		}
+		//else
+		{
+        //    printf("Unable to connect\n");
+		}
 	}
 	else
 	{
@@ -1535,7 +1876,7 @@ void CGame::send_key_to_ui(sf::Keyboard::Key key)
     GetKeyIdentifierFromVirtualKeyCode(evt.virtual_key_code, evt.key_identifier);
 
     {
-        std::unique_lock<std::mutex> l(_html_eventm);
+        std::unique_lock<std::recursive_mutex> l(_html_eventm);
         _html_eventqueue.emplace([evt = std::move(evt)]() {
             view->FireKeyEvent(evt);
         });
@@ -1551,12 +1892,38 @@ void CGame::OnEvent(sf::Event event)
             ultralight::KeyEvent evt;
             evt.type = ultralight::KeyEvent::kType_Char;
 			ultralight::String text = ultralight::String32((const char32_t*)&event.text.unicode, 1);
+			std::string s = text.utf8().data();
+			if (s == "-")
+			{
+				ui_update_frequency--;
+				if (ui_update_frequency <= 0) ui_update_frequency = 1;
+			}
+			else if (s == "+")
+			{
+				ui_update_frequency++;
+			}
+			else if (s == "*")
+			{
+				responsive_ui = !responsive_ui;
+			}
+			else if (s == "/")
+			{
+				hide_ui = !hide_ui;
+			}
+			else if (s == "q")
+			{
+				take_screen = true;
+			}
             evt.text = text;
             evt.unmodified_text = text;
             {
-                std::unique_lock<std::mutex> l(_html_eventm);
-                _html_eventqueue.emplace([evt = std::move(evt)]() {
-                    view->FireKeyEvent(evt);
+                std::unique_lock<std::recursive_mutex> l(_html_eventm);
+                _html_eventqueue.emplace([evt = std::move(evt), this]() {
+#ifdef DEBUG_INSPECTOR
+                    if (m_stMCursor.sY > screenheight_v) inspector_view->FireKeyEvent(evt);
+					else
+#endif
+						view->FireKeyEvent(evt);
                 });
             }
 			break;
@@ -1577,7 +1944,7 @@ void CGame::OnEvent(sf::Event event)
             evt.text = str;
             evt.unmodified_text = str;
             {
-                std::unique_lock<std::mutex> l(_html_eventm);
+                std::unique_lock<std::recursive_mutex> l(_html_eventm);
                 _html_eventqueue.emplace([evt = std::move(evt)]() {
                     view->FireKeyEvent(evt);
                 });
@@ -1603,9 +1970,13 @@ void CGame::OnEvent(sf::Event event)
             std::cout << "Key press: " << std::hex << event.key.code << "\n";
             std::cout << "Key: " << (char)event.key.code << "\n";*/
             {
-                std::unique_lock<std::mutex> l(_html_eventm);
-                _html_eventqueue.emplace([evt = std::move(evt)]() {
-                    view->FireKeyEvent(evt);
+                std::unique_lock<std::recursive_mutex> l(_html_eventm);
+                _html_eventqueue.emplace([evt = std::move(evt), this]() {
+#ifdef DEBUG_INSPECTOR
+                    if (m_stMCursor.sY > screenheight_v) inspector_view->FireKeyEvent(evt);
+					else
+#endif
+						view->FireKeyEvent(evt);
                 });
             }
 
@@ -1626,7 +1997,7 @@ void CGame::OnEvent(sf::Event event)
                 evt.virtual_key_code = ultralight::KeyCodes::GK_BACK;
                 evt.modifiers = 0;
                 {
-                    std::unique_lock<std::mutex> l(_html_eventm);
+                    std::unique_lock<std::recursive_mutex> l(_html_eventm);
                     _html_eventqueue.emplace([evt = std::move(evt)]() {
                         view->FireKeyEvent(evt);
                     });
@@ -1640,7 +2011,7 @@ void CGame::OnEvent(sf::Event event)
                 evt.virtual_key_code = ultralight::KeyCodes::GK_TAB;
                 evt.modifiers = 0;
                 {
-                    std::unique_lock<std::mutex> l(_html_eventm);
+                    std::unique_lock<std::recursive_mutex> l(_html_eventm);
                     _html_eventqueue.emplace([evt = std::move(evt)]() {
                         view->FireKeyEvent(evt);
                     });
@@ -1653,7 +2024,7 @@ void CGame::OnEvent(sf::Event event)
             evt.native_key_code = 0;
 			evt.virtual_key_code = event.key.code;
             {
-                std::unique_lock<std::mutex> l(_html_eventm);
+                std::unique_lock<std::recursive_mutex> l(_html_eventm);
                 _html_eventqueue.emplace([evt = std::move(evt)]() {
                     view->FireKeyEvent(evt);
                 });
@@ -1672,7 +2043,7 @@ void CGame::OnEvent(sf::Event event)
 
 			evt.virtual_key_code = ultralight::KeyCodes::
             {
-                std::unique_lock<std::mutex> l(_html_eventm);
+                std::unique_lock<std::recursive_mutex> l(_html_eventm);
                 _html_eventqueue.emplace([evt = std::move(evt)]() {
                     view->FireKeyEvent(evt);
                 });
@@ -1735,9 +2106,13 @@ void CGame::OnEvent(sf::Event event)
                 evt.virtual_key_code = ultralight::KeyCodes::GK_BACK;
                 evt.modifiers = 0;
                 {
-                    std::unique_lock<std::mutex> l(_html_eventm);
-                    _html_eventqueue.emplace([evt = std::move(evt)]() {
-                        view->FireKeyEvent(evt);
+                    std::unique_lock<std::recursive_mutex> l(_html_eventm);
+                    _html_eventqueue.emplace([evt = std::move(evt), this]() {
+#ifdef DEBUG_INSPECTOR
+                        if (m_stMCursor.sY > screenheight_v) inspector_view->FireKeyEvent(evt);
+						else
+#endif
+							view->FireKeyEvent(evt);
                     });
                 }
             }
@@ -1749,9 +2124,13 @@ void CGame::OnEvent(sf::Event event)
                 evt.virtual_key_code = ultralight::KeyCodes::GK_TAB;
                 evt.modifiers = 0;
                 {
-                    std::unique_lock<std::mutex> l(_html_eventm);
-                    _html_eventqueue.emplace([evt = std::move(evt)]() {
-                        view->FireKeyEvent(evt);
+                    std::unique_lock<std::recursive_mutex> l(_html_eventm);
+                    _html_eventqueue.emplace([evt = std::move(evt), this]() {
+#ifdef DEBUG_INSPECTOR
+                        if (m_stMCursor.sY > screenheight_v) inspector_view->FireKeyEvent(evt);
+						else
+#endif
+							view->FireKeyEvent(evt);
                     });
                 }
             }
@@ -1761,7 +2140,7 @@ void CGame::OnEvent(sf::Event event)
             evt.type = ultralight::KeyEvent::kType_KeyUp;
             evt.native_key_code = event.key.code;
             {
-                std::unique_lock<std::mutex> l(_html_eventm);
+                std::unique_lock<std::recursive_mutex> l(_html_eventm);
                 _html_eventqueue.emplace([evt = std::move(evt)]() {
                     view->FireKeyEvent(evt);
                 });
@@ -1797,7 +2176,10 @@ void CGame::OnEvent(sf::Event event)
             window.setFramerateLimit(45);//set to var
             break;
         case sf::Event::GainedFocus:
-            window.setFramerateLimit(0);
+            if (m_cGameMode != GAMEMODE_ONLOADING)
+				window.setFramerateLimit(120);
+			else
+                window.setFramerateLimit(0);
             break;
         case sf::Event::MouseWheelScrolled:
             if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
@@ -1816,9 +2198,13 @@ void CGame::OnEvent(sf::Event event)
                     m_stMCursor.sZ = -1;
                 }
                 {
-                    std::unique_lock<std::mutex> l(_html_eventm);
-                    _html_eventqueue.emplace([svt = std::move(svt)]() {
-                        view->FireScrollEvent(svt);
+                    std::unique_lock<std::recursive_mutex> l(_html_eventm);
+                    _html_eventqueue.emplace([svt = std::move(svt), this]() {
+#ifdef DEBUG_INSPECTOR
+                        if (m_stMCursor.sY > screenheight_v) inspector_view->FireScrollEvent(svt);
+						else
+#endif
+							view->FireScrollEvent(svt);
                     });
                 }
             }
@@ -1882,9 +2268,17 @@ void CGame::OnEvent(sf::Event event)
             }
 
             {
-                std::unique_lock<std::mutex> l(_html_eventm);
-                _html_eventqueue.emplace([mvt = std::move(mvt)]() {
-                    view->FireMouseEvent(mvt);
+                std::unique_lock<std::recursive_mutex> l(_html_eventm);
+                _html_eventqueue.emplace([mvt = std::move(mvt), this]() mutable {
+#ifdef DEBUG_INSPECTOR
+                    if (mvt.y > screenheight_v)
+					{
+						mvt.y -= screenheight_v;
+						inspector_view->FireMouseEvent(mvt);
+					}
+                    else
+#endif
+						view->FireMouseEvent(mvt);
                 });
             }
             break;
@@ -1913,9 +2307,17 @@ void CGame::OnEvent(sf::Event event)
                 m_stMCursor.MB = false;
             }
             {
-                std::unique_lock<std::mutex> l(_html_eventm);
-                _html_eventqueue.emplace([mvt = std::move(mvt)]() {
-                    view->FireMouseEvent(mvt);
+                std::unique_lock<std::recursive_mutex> l(_html_eventm);
+                _html_eventqueue.emplace([mvt = std::move(mvt), this]() mutable {
+#ifdef DEBUG_INSPECTOR
+                    if (mvt.y > screenheight_v)
+                    {
+                        mvt.y -= screenheight_v;
+                        inspector_view->FireMouseEvent(mvt);
+                    }
+                    else
+#endif
+						view->FireMouseEvent(mvt);
                 });
             }
             break;
@@ -1934,11 +2336,21 @@ void CGame::OnEvent(sf::Event event)
             mvt.x = x;
             mvt.y = y;
 
+			//std::cout << fmt::format("{:#4}, {:#4} || {:#4}, {:#4}\n", event.mouseMove.x, event.mouseMove.y, x, y);
+
             mvt.type = ultralight::MouseEvent::kType_MouseMoved;
             {
-                std::unique_lock<std::mutex> l(_html_eventm);
-                _html_eventqueue.emplace([mvt = std::move(mvt)]() {
-                    view->FireMouseEvent(mvt);
+                std::unique_lock<std::recursive_mutex> l(_html_eventm);
+                _html_eventqueue.emplace([mvt = std::move(mvt), this]() mutable {
+#ifdef DEBUG_INSPECTOR
+                    if (mvt.y > screenheight_v)
+                    {
+                        mvt.y -= screenheight_v;
+                        inspector_view->FireMouseEvent(mvt);
+                    }
+                    else
+#endif
+						view->FireMouseEvent(mvt);
                 });
             }
             break;
@@ -1988,8 +2400,8 @@ bool CGame::SendLoginCommand(uint32_t dwMsgID)
 
 	sw.WriteInt(dwMsgID);
 	sw.WriteString("", 12);
-	sw.WriteString(m_cAccountName, 10);
-	sw.WriteString(m_cAccountPassword, 10);
+	sw.WriteString(m_cAccountName, 60);
+	sw.WriteString(m_cAccountPassword, 60);
 	//XSocket::GetMACaddress(macAddress);
 
 	switch(dwMsgID)
@@ -2009,7 +2421,7 @@ bool CGame::SendLoginCommand(uint32_t dwMsgID)
 		sw.WriteString(m_cWorldServerName, 30);
 		break;
 
-	case MSGID_REQUEST_CHANGEPASSWORD:
+	/*case MSGID_REQUEST_CHANGEPASSWORD:
 		sw.WriteString(m_cNewPassword, 10);
 		sw.WriteString(m_cNewPassConfirm, 10);
 		break;
@@ -2021,7 +2433,7 @@ bool CGame::SendLoginCommand(uint32_t dwMsgID)
 		sw.WriteString(m_cAccountSSN, 28);
 		sw.WriteString(m_cAccountQuiz, 45);
 		sw.WriteString(m_cAccountAnswer, 20);
-		break;
+		break;*/
 
 	case MSGID_REQUEST_CREATENEWCHARACTER:
 		sw.WriteString(m_cPlayerName, 10);
@@ -8688,9 +9100,12 @@ void CGame::ClearContents_OnCreateNewAccount()
 
 void CGame::ChangeGameMode(char cMode)
 {
+	if (m_cGameMode == GAMEMODE_ONLOADING)
+		window.setFramerateLimit(120);
 	m_cGameMode = cMode;
 	m_cGameModeCount = 0;
 	m_dwTime = G_dwGlobalTime;
+	update_ui_game_mode();
 
 #ifndef SELECTSERVER
 	if( cMode == GAMEMODE_ONSELECTSERVER )
@@ -8711,34 +9126,49 @@ bool CGame::bReadIp()
 }
 
 void CGame::ReleaseUnusedSprites()
-{	int i;
-	for (i = 0; i < MAXSPRITES; i++)
-	if (m_pSprite[i] != 0)
-	{	if( (m_pSprite[i]->m_bIsSurfaceEmpty == false) && (m_pSprite[i]->m_bOnCriticalSection == false) )
-		{	if ((G_dwGlobalTime - m_pSprite[i]->m_dwRefTime) > 60000 ) m_pSprite[i]->_iCloseSprite();
+{
+    int i;
+    for (i = 0; i < MAXSPRITES; i++)
+        if (m_pSprite[i] != 0)
+        {
+            if ((m_pSprite[i]->m_bIsSurfaceEmpty == false) && (m_pSprite[i]->m_bOnCriticalSection == false))
+            {
+                if ((G_dwGlobalTime - m_pSprite[i]->m_dwRefTime) > 60000) m_pSprite[i]->_iCloseSprite();
 
-	}	}
-	for (i = 0; i < MAXTILES; i++)
-	if (m_pTileSpr[i] != 0)
-	{	if( (m_pTileSpr[i]->m_bIsSurfaceEmpty == false) && (m_pTileSpr[i]->m_bOnCriticalSection == false) )
-		{	if ((G_dwGlobalTime - m_pTileSpr[i]->m_dwRefTime) > 60000 ) m_pTileSpr[i]->_iCloseSprite();
-	}	}
-	for (i = 0; i < MAXEFFECTSPR; i++)
-	if (m_pEffectSpr[i] != 0)
-	{	if( (m_pEffectSpr[i]->m_bIsSurfaceEmpty == false) && (m_pEffectSpr[i]->m_bOnCriticalSection == false) )
-		{	if ((G_dwGlobalTime - m_pEffectSpr[i]->m_dwRefTime) > 60000 ) m_pEffectSpr[i]->_iCloseSprite();
-	}	}
+            }
+        }
+    for (i = 0; i < MAXTILES; i++)
+        if (m_pTileSpr[i] != 0)
+        {
+            if ((m_pTileSpr[i]->m_bIsSurfaceEmpty == false) && (m_pTileSpr[i]->m_bOnCriticalSection == false))
+            {
+                if ((G_dwGlobalTime - m_pTileSpr[i]->m_dwRefTime) > 60000) m_pTileSpr[i]->_iCloseSprite();
+            }
+        }
+    for (i = 0; i < MAXEFFECTSPR; i++)
+        if (m_pEffectSpr[i] != 0)
+        {
+            if ((m_pEffectSpr[i]->m_bIsSurfaceEmpty == false) && (m_pEffectSpr[i]->m_bOnCriticalSection == false))
+            {
+                if ((G_dwGlobalTime - m_pEffectSpr[i]->m_dwRefTime) > 60000) m_pEffectSpr[i]->_iCloseSprite();
+            }
+        }
 
-// 	for (i = 0; i < MAXSOUNDEFFECTS; i++)
-// 	{	if (m_pCSound[i] != NULL)
-// 		{	if (((G_dwGlobalTime - m_pCSound[i]->m_dwTime) > 30000) && (m_pCSound[i]->m_bIsLooping == FALSE)) m_pCSound[i]->_ReleaseSoundBuffer();
-// 		}
-// 		if (m_pMSound[i] != NULL)
-// 		{	if (((G_dwGlobalTime - m_pMSound[i]->m_dwTime) > 30000) && (m_pMSound[i]->m_bIsLooping == FALSE)) m_pMSound[i]->_ReleaseSoundBuffer();
-// 		}
-// 		if (m_pESound[i] != NULL)
-// 		{	if (((G_dwGlobalTime - m_pESound[i]->m_dwTime) > 30000) && (m_pESound[i]->m_bIsLooping == FALSE)) m_pESound[i]->_ReleaseSoundBuffer();
-// 	}	}//DIRECTX
+//     for (i = 0; i < MAXSOUNDEFFECTS; i++)
+//     {
+//         if (m_pCSound[i] != NULL)
+//         {
+//             if (((G_dwGlobalTime - m_pCSound[i]->m_dwTime) > 30000) && (m_pCSound[i]->m_bIsLooping == FALSE)) m_pCSound[i]->_ReleaseSoundBuffer();
+//         }
+//         if (m_pMSound[i] != NULL)
+//         {
+//             if (((G_dwGlobalTime - m_pMSound[i]->m_dwTime) > 30000) && (m_pMSound[i]->m_bIsLooping == FALSE)) m_pMSound[i]->_ReleaseSoundBuffer();
+//         }
+//         if (m_pESound[i] != NULL)
+//         {
+//             if (((G_dwGlobalTime - m_pESound[i]->m_dwTime) > 30000) && (m_pESound[i]->m_bIsLooping == FALSE)) m_pESound[i]->_ReleaseSoundBuffer();
+//         }
+//     }//DIRECTX
 }
 
 void CGame::PutChatScrollList(char * txt, char cType)
@@ -11205,7 +11635,7 @@ void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, bool bIsPreDC)
 	}
 
 	dwTime = m_pChatMsgList[iChatIndex]->m_dwTime;
-	strncpy(cMsg, m_pChatMsgList[iChatIndex]->m_pMsg, sizeof(cMsg) -1);
+	strncpy(cMsg, m_pChatMsgList[iChatIndex]->m_pMsg.c_str(), sizeof(cMsg) -1);
 	cp = (char *)cMsg;
 	iLines = 0;
 
@@ -23788,15 +24218,15 @@ void CGame::MotionEventHandler(char * pData)
 			if (m_pChatMsgList[i] == 0)
 			{
 				int index = m_pMapData->getChatMsgIndex(wObjectID - 30000);
-				if(m_showAllDmg && m_pChatMsgList[index] && strlen(m_pChatMsgList[index]->m_pMsg) < sizeof(cTxt)-30)
+				if(m_showAllDmg && m_pChatMsgList[index] && strlen(m_pChatMsgList[index]->m_pMsg.c_str()) < sizeof(cTxt)-30)
 				{
 					if(index != -1 && m_dwCurTime - m_pChatMsgList[index]->m_dwTime < 150 &&
 						m_pChatMsgList[index]->m_cType >= 21 && m_pChatMsgList[index]->m_cType <= 23)
 					{
 						if (sV1 > 0)
-							wsprintfA(cTxt, "%s-%d!", m_pChatMsgList[index]->m_pMsg, sV1);
+							wsprintfA(cTxt, "%s-%d!", m_pChatMsgList[index]->m_pMsg.c_str(), sV1);
 						else
-							wsprintfA(cTxt, "%s-Crit!", m_pChatMsgList[index]->m_pMsg, sV1);
+							wsprintfA(cTxt, "%s-Crit!", m_pChatMsgList[index]->m_pMsg.c_str(), sV1);
 					}
 					else
 					{
@@ -23881,15 +24311,15 @@ void CGame::MotionEventHandler(char * pData)
 			if (sV1 != 0)
 			{
 				int index = m_pMapData->getChatMsgIndex(wObjectID - 30000);
-				if(index != -1 && m_showAllDmg && m_pChatMsgList[index] && strlen(m_pChatMsgList[index]->m_pMsg) < sizeof(cTxt)-30)
+				if(index != -1 && m_showAllDmg && m_pChatMsgList[index] && strlen(m_pChatMsgList[index]->m_pMsg.c_str()) < sizeof(cTxt)-30)
 				{
 					if(index != -1 && m_dwCurTime - m_pChatMsgList[index]->m_dwTime < 150 &&
 						m_pChatMsgList[index]->m_cType >= 21 && m_pChatMsgList[index]->m_cType <= 23)
 					{
 						if (sV1 > 0)
-							wsprintfA(cTxt, "%s-%d", m_pChatMsgList[index]->m_pMsg, sV1);
+							wsprintfA(cTxt, "%s-%d", m_pChatMsgList[index]->m_pMsg.c_str(), sV1);
 						else
-							wsprintfA(cTxt, "%s-Crit", m_pChatMsgList[index]->m_pMsg, sV1);
+							wsprintfA(cTxt, "%s-Crit", m_pChatMsgList[index]->m_pMsg.c_str(), sV1);
 					}
 					else
 					{
@@ -27296,23 +27726,23 @@ void CGame::HandleItemDescription(CItem * item)
 }
 
 // Beholder Necklace Fix xRisenx
-bool CGame::bCheckItemEquiped(char itemName[])
+bool CGame::bCheckItemEquiped(std::string itemName)
 {
-	for (int i = 0; i < MAXITEMS; i++)
-	{
-		if (m_pItemList[i] != 0)
-		{
-			if (strcmp(m_pItemList[i]->m_cName, itemName) == 0)
-			{
-			for (int x = 0; x < MAXITEMEQUIPPOS; x++)
-	{
-	if (m_sItemEquipmentStatus[x] == i)
-	return true;
-	}
-			}
-		}
-	}
-	return false;
+    for (int i = 0; i < MAXITEMS; i++)
+    {
+        if (m_pItemList[i] != 0)
+        {
+            if (itemName == m_pItemList[i]->m_cName)
+            {
+                for (int x = 0; x < MAXITEMEQUIPPOS; x++)
+                {
+                    if (m_sItemEquipmentStatus[x] == i)
+                        return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 	// Monster kill event xRisenx
 void CGame::NotifyMsg_NpcHuntingON()

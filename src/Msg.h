@@ -24,12 +24,12 @@ public:
 	static ChatType predremove;
 	static uint32_t nmsgs;
 
-	CMsg(char cType, char * pMsg, uint64_t dwTime);
+	CMsg(char cType, std::string pMsg, uint64_t dwTime);
 	CMsg();
 	virtual ~CMsg();
 
 	char   m_cType;
-	char * m_pMsg;
+	std::string m_pMsg;
 	short  m_sX, m_sY;
 	uint64_t  m_dwTime;
 	uint64_t m_msgid;

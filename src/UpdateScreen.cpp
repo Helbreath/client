@@ -136,914 +136,767 @@ void CGame::UpdateScreen_OnMainMenu()
     DrawVersion();*/
 }
 
+struct load_data {
+    int id;
+    int sprite_type;
+    std::string name;
+    int num;
+    bool alpha;
+    std::string label;
+};
+#define SPRITETYPE_SPRITE 1
+#define SPRITETYPE_TILE 2
+#define SPRITETYPE_EFFECT 3
+
+std::queue<load_data> data_list;
+int data_max = 0;
+
+void CGame::create_load_list()
+{
+    int i = 0;
+    data_list.push({ SPRID_INTERFACE_NEWMAPS1, SPRITETYPE_SPRITE, "Newmaps", 0, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_NEWMAPS2, SPRITETYPE_SPRITE, "Newmaps", 1, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_NEWMAPS3, SPRITETYPE_SPRITE, "Newmaps", 2, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_NEWMAPS4, SPRITETYPE_SPRITE, "Newmaps", 3, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_NEWMAPS5, SPRITETYPE_SPRITE, "Newmaps", 4, false, "Loading interface" });
+
+    data_list.push({ SPRID_INTERFACE_ND_GAME1, SPRITETYPE_SPRITE, "GameDialog", 0, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_ND_GAME2, SPRITETYPE_SPRITE, "GameDialog", 1, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_ND_GAME3, SPRITETYPE_SPRITE, "GameDialog", 2, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_ND_GAME4, SPRITETYPE_SPRITE, "GameDialog", 3, false, "Loading interface" });
+
+    data_list.push({ SPRID_INTERFACE_ND_CRUSADE, SPRITETYPE_SPRITE, "GameDialog", 4, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_ND_ICONPANNEL, SPRITETYPE_SPRITE, "GameDialog", 6, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_ND_INVENTORY, SPRITETYPE_SPRITE, "GameDialog", 7, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_ND_SELECTCHAR, SPRITETYPE_SPRITE, "GameDialog", 8, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_ND_NEWCHAR, SPRITETYPE_SPRITE, "GameDialog", 9, false, "Loading interface" });
+    //TODO current sprite does not contain newer interface
+    //data_list.push({ SPRID_INTERFACE_ND_NEWEXCHANGE, SPRITETYPE_SPRITE, "GameDialog", 10, false, "Loading interface" });
+
+    data_list.push({ SPRID_INTERFACE_ND_TEXT, SPRITETYPE_SPRITE, "DialogText", 0, false, "Loading interface" });
+    data_list.push({ SPRID_INTERFACE_ND_BUTTON, SPRITETYPE_SPRITE, "DialogText", 1, false, "Loading interface" });
+
+    auto make_sprite = [&](std::string FileName, int iStart, short sCount, bool bAlphaEffect, std::string label)
+    {
+        for (short i = 0; i < sCount; i++)
+            data_list.push({ i + iStart, SPRITETYPE_SPRITE, FileName, i, bAlphaEffect, label });
+    };
+
+    auto make_tile_sprite = [&](std::string FileName, int iStart, short sCount, bool bAlphaEffect, std::string label)
+    {
+        for (short i = 0; i < sCount; i++)
+            data_list.push({ i + iStart, SPRITETYPE_TILE, FileName, i, bAlphaEffect, label });
+    };
+
+    auto make_effect_sprite = [&](std::string FileName, int iStart, short sCount, bool bAlphaEffect, std::string label)
+    {
+        for (short i = 0; i < sCount; i++)
+            data_list.push({ i + iStart, SPRITETYPE_EFFECT, FileName, i, bAlphaEffect, label });
+    };
+
+    make_sprite("Telescope", SPRID_INTERFACE_GUIDEMAP, 34, false, "Loading interface");
+    make_sprite("Telescope2", SPRID_INTERFACE_GUIDEMAP + 35, 4, false, "Loading interface");
+    make_sprite("monster", SPRID_INTERFACE_MONSTER, 1, false, "Loading interface");
+
+    make_tile_sprite("maptiles1", 0, 32, true, "Loading map data");
+    make_tile_sprite("structures1", 50, 20, true, "Loading map data");
+    make_tile_sprite("Sinside1", 70, 27, false, "Loading map data");
+    make_tile_sprite("Trees1", 100, 46, true, "Loading map data");
+    make_tile_sprite("TreeShadows", 150, 46, true, "Loading map data");
+    make_tile_sprite("objects1", 200, 10, true, "Loading map data");
+    make_tile_sprite("objects2", 211, 5, true, "Loading map data");
+    make_tile_sprite("objects3", 216, 4, true, "Loading map data");
+    make_tile_sprite("objects4", 220, 2, true, "Loading map data");
+
+    make_tile_sprite("Tile223-225", 223, 3, true, "Loading map data");
+    make_tile_sprite("Tile226-229", 226, 4, true, "Loading map data");
+    make_tile_sprite("objects5", 230, 9, true, "Loading map data");
+    make_tile_sprite("objects6", 238, 4, true, "Loading map data");
+    make_tile_sprite("objects7", 242, 7, true, "Loading map data");
+    make_tile_sprite("maptiles2", 300, 15, true, "Loading map data");
+    make_tile_sprite("maptiles4", 320, 10, true, "Loading map data");
+    make_tile_sprite("maptiles5", 330, 19, true, "Loading map data");
+    make_tile_sprite("maptiles6", 349, 4, true, "Loading map data");
+    make_tile_sprite("maptiles353-361", 353, 9, true, "Loading map data");
+    make_tile_sprite("Tile363-366", 363, 4, true, "Loading map data");
+    make_tile_sprite("Tile367-367", 367, 1, true, "Loading map data");
+    make_tile_sprite("Tile370-381", 370, 12, true, "Loading map data");// Tile370~381
+    make_tile_sprite("Tile382-387", 382, 6, true, "Loading map data");
+    make_tile_sprite("Tile388-402", 388, 15, true, "Loading map data");
+
+
+
+    make_tile_sprite("Tile403-405", 403, 3, true, "Loading map data");
+    make_tile_sprite("Tile406-421", 406, 16, true, "Loading map data");
+    make_tile_sprite("Tile422-429", 422, 8, true, "Loading map data");
+    make_tile_sprite("Tile430-443", 430, 14, true, "Loading map data");
+    make_tile_sprite("Tile444-444", 444, 1, true, "Loading map data");
+    make_tile_sprite("Tile445-461", 445, 17, true, "Loading map data");
+    make_tile_sprite("Tile462-473", 462, 12, true, "Loading map data");
+    make_tile_sprite("Tile474-478", 474, 5, true, "Loading map data");
+    make_tile_sprite("Tile479-488", 479, 10, true, "Loading map data");
+    make_tile_sprite("Tile489-522", 489, 34, true, "Loading map data");	// Drunken City
+    make_tile_sprite("Tile523-530", 523, 8, true, "Loading map data");	// Rampart
+    make_tile_sprite("Tile531-540", 531, 10, true, "Loading map data");	// GodH + Pont
+    make_tile_sprite("Tile541-545", 541, 5, true, "Loading map data");	// GodH
+
+    make_sprite("itempack", SPRID_ITEMPACK_PIVOTPOINT + 1, 27, false, "Loading items");
+
+    data_list.push({ SPRID_ITEMPACK_PIVOTPOINT + 20, SPRITETYPE_SPRITE, "itempack", 17, false, "Loading items" });
+    data_list.push({ SPRID_ITEMPACK_PIVOTPOINT + 21, SPRITETYPE_SPRITE, "itempack", 18, false, "Loading items" });
+    data_list.push({ SPRID_ITEMPACK_PIVOTPOINT + 22, SPRITETYPE_SPRITE, "itempack", 19, false, "Loading items" });
+
+    make_sprite("itemground", SPRID_ITEMGROUND_PIVOTPOINT + 1, 19, false, "Loading items");
+
+    data_list.push({ SPRID_ITEMGROUND_PIVOTPOINT + 20, SPRITETYPE_SPRITE, "itemground", 17, false, "Loading items" });
+    data_list.push({ SPRID_ITEMGROUND_PIVOTPOINT + 21, SPRITETYPE_SPRITE, "itemground", 18, false, "Loading items" });
+    data_list.push({ SPRID_ITEMGROUND_PIVOTPOINT + 22, SPRITETYPE_SPRITE, "itemground", 19, false, "Loading items" });
+
+    make_sprite("item-dynamic", SPRID_ITEMDYNAMIC_PIVOTPOINT, 3, false, "Loading items");
+
+    // MALE
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 0, SPRITETYPE_SPRITE, "itemequipM", 0, false, "Loading items" }); // body
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 1, SPRITETYPE_SPRITE, "itemequipM", 1, false, "Loading items" }); // 1-swords
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 2, SPRITETYPE_SPRITE, "itemequipM", 2, false, "Loading items" });	// 2-bows
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 3, SPRITETYPE_SPRITE, "itemequipM", 3, false, "Loading items" });	// 3-shields
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 4, SPRITETYPE_SPRITE, "itemequipM", 4, false, "Loading items" });	// 4-tunics
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 5, SPRITETYPE_SPRITE, "itemequipM", 5, false, "Loading items" });	// 5-shoes
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 7, SPRITETYPE_SPRITE, "itemequipM", 6, false, "Loading items" }); // 6-berk
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 8, SPRITETYPE_SPRITE, "itemequipM", 7, false, "Loading items" });	// 7-hoses
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 9, SPRITETYPE_SPRITE, "itemequipM", 8, false, "Loading items" });	// 8-bodyarmor
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 15, SPRITETYPE_SPRITE, "itemequipM", 11, false, "Loading items" });  // Axe hammer
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 17, SPRITETYPE_SPRITE, "itemequipM", 12, false, "Loading items" }); // Wands
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 18, SPRITETYPE_SPRITE, "itemequipM", 9, false, "Loading items" }); // hair
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 19, SPRITETYPE_SPRITE, "itemequipM", 10, false, "Loading items" }); // undies
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 20, SPRITETYPE_SPRITE, "itemequipM", 13, false, "Loading items" }); // capes
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 21, SPRITETYPE_SPRITE, "itemequipM", 14, false, "Loading items" }); // helm
+
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 16, SPRITETYPE_SPRITE, "itempack", 15, false, "Loading items" }); // Necks, Angels, Pendants
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 22, SPRITETYPE_SPRITE, "itempack", 19, false, "Loading items" }); // Angels
+
+    // FEMALE
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 40, SPRITETYPE_SPRITE, "itemequipW", 0, false, "Loading items" }); // body
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 41, SPRITETYPE_SPRITE, "itemequipW", 1, false, "Loading items" }); // 1-swords
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 42, SPRITETYPE_SPRITE, "itemequipW", 2, false, "Loading items" });	// 2-bows
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 43, SPRITETYPE_SPRITE, "itemequipW", 3, false, "Loading items" });	// 3-shields
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 45, SPRITETYPE_SPRITE, "itemequipW", 4, false, "Loading items" });	// 4-tunics
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 50, SPRITETYPE_SPRITE, "itemequipW", 5, false, "Loading items" });	// 5-shoes
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 51, SPRITETYPE_SPRITE, "itemequipW", 6, false, "Loading items" }); // 6-berk
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 52, SPRITETYPE_SPRITE, "itemequipW", 7, false, "Loading items" });	// 7-hoses
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 53, SPRITETYPE_SPRITE, "itemequipW", 8, false, "Loading items" });	// 8-bodyarmor
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 55, SPRITETYPE_SPRITE, "itemequipW", 11, false, "Loading items" });  // Axe hammer
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 57, SPRITETYPE_SPRITE, "itemequipW", 12, false, "Loading items" }); // Wands
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 58, SPRITETYPE_SPRITE, "itemequipW", 9, false, "Loading items" }); // hair
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 59, SPRITETYPE_SPRITE, "itemequipW", 10, false, "Loading items" }); // undies
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 60, SPRITETYPE_SPRITE, "itemequipW", 13, false, "Loading items" }); // capes
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 61, SPRITETYPE_SPRITE, "itemequipW", 14, false, "Loading items" }); // helm
+
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 56, SPRITETYPE_SPRITE, "itempack", 15, false, "Loading items" }); // Necks, Angels, Pendants
+    data_list.push({ SPRID_ITEMEQUIP_PIVOTPOINT + 62, SPRITETYPE_SPRITE, "itempack", 19, false, "Loading items" }); // Angels
+
+    make_sprite("Bm", 500 + 15 * 8 * 0, 96, true, "Loading characters");// Black Man (Type: 1)
+    make_sprite("Wm", 500 + 15 * 8 * 1, 96, true, "Loading characters");// White Man (Type: 2)
+    make_sprite("Ym", 500 + 15 * 8 * 2, 96, true, "Loading characters");// Yellow Man (Type: 3)
+    make_sprite("Bw", 500 + 15 * 8 * 3, 96, true, "Loading characters");// Black Woman (Type: 4)
+    make_sprite("Ww", 500 + 15 * 8 * 4, 96, true, "Loading characters");// White Woman (Type: 5)
+    make_sprite("Yw", 500 + 15 * 8 * 5, 96, true, "Loading characters");// Yellow Woman (Type: 6)
+
+    make_sprite("TutelarAngel1", SPRID_TUTELARYANGELS_PIVOTPOINT + 50 * 0, 48, false, "Loading angels");//(STR)
+    make_sprite("TutelarAngel2", SPRID_TUTELARYANGELS_PIVOTPOINT + 50 * 1, 48, false, "Loading angels");//(DEX)
+    make_sprite("TutelarAngel3", SPRID_TUTELARYANGELS_PIVOTPOINT + 50 * 2, 48, false, "Loading angels");//(INT)
+    make_sprite("TutelarAngel4", SPRID_TUTELARYANGELS_PIVOTPOINT + 50 * 3, 48, false, "Loading angels");//(MAG)
+
+    make_sprite("slm", SPRID_MOB + 7 * 8 * 0, 40, true, "Loading npcs");// Slime (Type: 10)
+    make_sprite("ske", SPRID_MOB + 7 * 8 * 1, 40, true, "Loading npcs");// Skeleton (Type: 11)
+    make_sprite("Gol", SPRID_MOB + 7 * 8 * 2, 40, true, "Loading npcs");// Stone-Golem (Type: 12)
+    make_sprite("Cyc", SPRID_MOB + 7 * 8 * 3, 40, true, "Loading npcs");// Cyclops (Type: 13)
+    make_sprite("Orc", SPRID_MOB + 7 * 8 * 4, 40, true, "Loading npcs");// Orc (Type: 14)
+    make_sprite("Shopkpr", SPRID_MOB + 7 * 8 * 5, 8, true, "Loading npcs");		// ShopKeeper-Woman (Type: 15)
+    make_sprite("Ant", SPRID_MOB + 7 * 8 * 6, 40, true, "Loading npcs");//  Giant-Ant (Type: 16)
+    make_sprite("Scp", SPRID_MOB + 7 * 8 * 7, 40, true, "Loading npcs");//  Scorpion (Type: 17)
+    make_sprite("Zom", SPRID_MOB + 7 * 8 * 8, 40, true, "Loading npcs");//  Zombie (Type: 18)
+    make_sprite("Gandlf", SPRID_MOB + 7 * 8 * 9, 8, true, "Loading npcs");
+    make_sprite("Howard", SPRID_MOB + 7 * 8 * 10, 8, true, "Loading npcs");
+    make_sprite("Guard", SPRID_MOB + 7 * 8 * 11, 40, true, "Loading npcs");// Guard (Type: 21)
+    make_sprite("Amp", SPRID_MOB + 7 * 8 * 12, 40, true, "Loading npcs");// Amphis (Type: 22)
+    make_sprite("Cla", SPRID_MOB + 7 * 8 * 13, 40, true, "Loading npcs");// Clay-Golem (Type: 23)
+    make_sprite("tom", SPRID_MOB + 7 * 8 * 14, 8, true, "Loading npcs");// Tom (Type: 24)
+    make_sprite("William", SPRID_MOB + 7 * 8 * 15, 8, true, "Loading npcs");// William (Type: 25)
+
+    make_sprite("Kennedy", SPRID_MOB + 7 * 8 * 16, 8, true, "Loading npcs");// Kennedy (Type: 26)
+    make_sprite("Helb", SPRID_MOB + 7 * 8 * 17, 40, true, "Loading npcs");// Hellbound (Type: 27)
+    make_sprite("Troll", SPRID_MOB + 7 * 8 * 18, 40, true, "Loading npcs");// Troll (Type: 28)
+    make_sprite("EnragedTroll", SPRID_MOB + 7 * 8 * 112, 40, true, "Loading npcs");// Enraged Troll (Type: 122)
+    make_sprite("Orge", SPRID_MOB + 7 * 8 * 19, 40, true, "Loading npcs");// Orge (Type: 29)
+    make_sprite("Liche", SPRID_MOB + 7 * 8 * 20, 40, true, "Loading npcs");// Liche (Type: 30)
+    make_sprite("Demon", SPRID_MOB + 7 * 8 * 21, 40, true, "Loading npcs");// Demon (Type: 31)
+
+    //TODO some dumbass made this - missing 40th (39) sprite
+    //make_sprite("BlackDemon", SPRID_MOB + 7 * 8 * 95, 40, true, "Loading npcs");// Black Demon (Type: 105)
+
+    make_sprite("Unicorn", SPRID_MOB + 7 * 8 * 22, 40, true, "Loading npcs");// Unicorn (Type: 32)
+    make_sprite("DarkUnicorn", SPRID_MOB + 7 * 8 * 94, 40, true, "Loading npcs");// DarkUnicorn (Type: 104)
+    make_sprite("WereWolf", SPRID_MOB + 7 * 8 * 23, 40, true, "Loading npcs");// WereWolf (Type: 33)
+    make_sprite("Dummy", SPRID_MOB + 7 * 8 * 24, 40, true, "Loading npcs");// Dummy (Type: 34)
+
+    for (i = 0; i < 40; i++)
+        data_list.push({ SPRID_MOB + i + 7 * 8 * 25, SPRITETYPE_SPRITE, "Effect5", 0, false, "Loading npcs" });
+
+    make_sprite("GT-Arrow", SPRID_MOB + 7 * 8 * 26, 40, true, "Loading npcs");// Arrow-GuardTower (Type: 36)
+    make_sprite("GT-Cannon", SPRID_MOB + 7 * 8 * 27, 40, true, "Loading npcs");// Cannon-GuardTower (Type: 37)
+    make_sprite("ManaCollector", SPRID_MOB + 7 * 8 * 28, 40, true, "Loading npcs");// Mana Collector (Type: 38)
+    make_sprite("Detector", SPRID_MOB + 7 * 8 * 29, 40, true, "Loading npcs");// Detector (Type: 39)
+    make_sprite("ESG", SPRID_MOB + 7 * 8 * 30, 40, true, "Loading npcs");// ESG (Type: 40)
+    make_sprite("GMG", SPRID_MOB + 7 * 8 * 31, 40, true, "Loading npcs");// GMG (Type: 41)
+    make_sprite("ManaStone", SPRID_MOB + 7 * 8 * 32, 40, true, "Loading npcs");// ManaStone (Type: 42)
+    make_sprite("LWB", SPRID_MOB + 7 * 8 * 33, 40, true, "Loading npcs");// Light War Beetle (Type: 43)
+    make_sprite("GHK", SPRID_MOB + 7 * 8 * 34, 40, true, "Loading npcs");// God's Hand Knight (Type: 44)
+    make_sprite("GHKABS", SPRID_MOB + 7 * 8 * 35, 40, true, "Loading npcs");// God's Hand Knight with Armored Battle Steed (Type: 45)
+    make_sprite("TK", SPRID_MOB + 7 * 8 * 36, 40, true, "Loading npcs");// Temple Knight (Type: 46)
+    make_sprite("BG", SPRID_MOB + 7 * 8 * 37, 40, true, "Loading npcs");// Battle Golem (Type: 47)
+    make_sprite("Stalker", SPRID_MOB + 7 * 8 * 38, 40, true, "Loading npcs");// Stalker (Type: 48)
+    make_sprite("Hellclaw", SPRID_MOB + 7 * 8 * 39, 40, true, "Loading npcs");// Hellclaw (Type: 49)
+    make_sprite("Tigerworm", SPRID_MOB + 7 * 8 * 40, 40, true, "Loading npcs");// Tigerworm (Type: 50)
+    make_sprite("Catapult", SPRID_MOB + 7 * 8 * 41, 40, true, "Loading npcs");// Catapult (Type: 51)
+    make_sprite("Gagoyle", SPRID_MOB + 7 * 8 * 42, 40, true, "Loading npcs");// Gargoyle (Type: 52)
+    make_sprite("EnragedGagoyle", SPRID_MOB + 7 * 8 * 115, 40, true, "Loading npcs");// Enraged Gagoyle (Type: 125)
+    make_sprite("Beholder", SPRID_MOB + 7 * 8 * 43, 40, true, "Loading npcs");// Beholder (Type: 53)
+    make_sprite("DarkElf", SPRID_MOB + 7 * 8 * 44, 40, true, "Loading npcs");// Dark-Elf (Type: 54)
+    make_sprite("Bunny", SPRID_MOB + 7 * 8 * 45, 40, true, "Loading npcs");// Bunny (Type: 55)
+    make_sprite("Cat", SPRID_MOB + 7 * 8 * 46, 40, true, "Loading npcs");// Cat (Type: 56)
+    make_sprite("GiantFrog", SPRID_MOB + 7 * 8 * 47, 40, true, "Loading npcs");// GiantFrog (Type: 57)
+    make_sprite("MTGiant", SPRID_MOB + 7 * 8 * 48, 40, true, "Loading npcs");// Mountain Giant (Type: 58)
+    make_sprite("Ettin", SPRID_MOB + 7 * 8 * 49, 40, true, "Loading npcs");// Ettin (Type: 59)
+    make_sprite("CanPlant", SPRID_MOB + 7 * 8 * 50, 40, true, "Loading npcs");// Cannibal Plant (Type: 60)
+    make_sprite("Rudolph", SPRID_MOB + 7 * 8 * 51, 40, true, "Loading npcs");// Rudolph (Type: 61)
+    make_sprite("DireBoar", SPRID_MOB + 7 * 8 * 52, 40, true, "Loading npcs");// Boar (Type: 62)
+    make_sprite("frost", SPRID_MOB + 7 * 8 * 53, 40, true, "Loading npcs");// Frost (Type: 63)
+    make_sprite("Crop", SPRID_MOB + 7 * 8 * 54, 40, true, "Loading npcs");// Crop(Type: 64)
+    make_sprite("IceGolem", SPRID_MOB + 7 * 8 * 55, 40, true, "Loading npcs");// IceGolem (Type: 65)
+    make_sprite("Wyvern", SPRID_MOB + 7 * 8 * 56, 24, true, "Loading npcs");// Wyvern (Type: 66)
+    make_sprite("McGaffin", SPRID_MOB + 7 * 8 * 57, 16, true, "Loading npcs");// McGaffin (Type: 67)
+    make_sprite("Perry", SPRID_MOB + 7 * 8 * 58, 16, true, "Loading npcs");// Perry (Type: 68)
+    make_sprite("Devlin", SPRID_MOB + 7 * 8 * 59, 16, true, "Loading npcs");// Devlin (Type: 69)
+    make_sprite("Barlog", SPRID_MOB + 7 * 8 * 60, 40, true, "Loading npcs");// Barlog (Type: 70)
+    make_sprite("Centaurus", SPRID_MOB + 7 * 8 * 61, 40, true, "Loading npcs");// Centaurus (Type: 71)
+    make_sprite("ClawTurtle", SPRID_MOB + 7 * 8 * 62, 40, true, "Loading npcs");// Claw-Turtle (Type: 72)
+    make_sprite("FireWyvern", SPRID_MOB + 7 * 8 * 63, 24, true, "Loading npcs");// Fire-Wyvern (Type: 73)
+    make_sprite("GiantCrayfish", SPRID_MOB + 7 * 8 * 64, 40, true, "Loading npcs");// Giant-Crayfish (Type: 74)
+    make_sprite("GiantLizard", SPRID_MOB + 7 * 8 * 65, 40, true, "Loading npcs");// Giant-Lizard (Type: 75)
+    make_sprite("DarkWyvern", SPRID_MOB + 7 * 8 * 98, 24, true, "Loading npcs");// Dark-Wyvern (Type: 108)
+    make_sprite("EarthWyvern", SPRID_MOB + 7 * 8 * 96, 24, true, "Loading npcs");// Earth-Wyvern (Type: 106)
+    make_sprite("GrassWyvern", SPRID_MOB + 7 * 8 * 99, 24, true, "Loading npcs");// Grass-Wyvern (Type: 109)
+    make_sprite("MetalWyvern", SPRID_MOB + 7 * 8 * 102, 24, true, "Loading npcs");// Metal-Wyvern (Type: 112)
+    make_sprite("SeaWyvern", SPRID_MOB + 7 * 8 * 101, 24, true, "Loading npcs");// Sea-Wyvern (Type: 111)
+    make_sprite("SkyWyvern", SPRID_MOB + 7 * 8 * 100, 24, true, "Loading npcs");// Sky-Wyvern (Type: 110)
+    make_sprite("VoidWyvern", SPRID_MOB + 7 * 8 * 103, 24, true, "Loading npcs");// Void-Wyvern (Type: 113)
+    
+    //TODO: another retard made this (missing last sprite)
+    //make_sprite("WindWyvern", SPRID_MOB + 7 * 8 * 97, 24, true, "Loading npcs");// Wind-Wyvern (Type: 107)
+
+    make_sprite("GiantPlant", SPRID_MOB + 7 * 8 * 66, 40, true, "Loading npcs");// Giant-Plant (Type: 76)
+    make_sprite("MasterMageOrc", SPRID_MOB + 7 * 8 * 67, 40, true, "Loading npcs");// MasterMage-Orc (Type: 77)
+    make_sprite("Minotaurs", SPRID_MOB + 7 * 8 * 68, 40, true, "Loading npcs");// Minotaurs (Type: 78)
+    make_sprite("Nizie", SPRID_MOB + 7 * 8 * 69, 40, true, "Loading npcs");// Nizie (Type: 79)
+    make_sprite("Tentocle", SPRID_MOB + 7 * 8 * 70, 40, true, "Loading npcs");// Tentocle (Type: 80)
+    make_sprite("yspro", SPRID_MOB + 7 * 8 * 71, 32, true, "Loading npcs");// Abaddon (Type: 81)
+    make_sprite("Sorceress", SPRID_MOB + 7 * 8 * 72, 40, true, "Loading npcs");// Sorceress (Type: 82)
+    make_sprite("TPKnight", SPRID_MOB + 7 * 8 * 73, 40, true, "Loading npcs");// TPKnight (Type: 83)
+    make_sprite("ElfMaster", SPRID_MOB + 7 * 8 * 74, 40, true, "Loading npcs");// ElfMaster (Type: 84)
+    make_sprite("DarkKnight", SPRID_MOB + 7 * 8 * 75, 40, true, "Loading npcs");// DarkKnight (Type: 85)
+    make_sprite("HBTank", SPRID_MOB + 7 * 8 * 76, 32, true, "Loading npcs");// HeavyBattleTank (Type: 86)
+    make_sprite("CBTurret", SPRID_MOB + 7 * 8 * 77, 32, true, "Loading npcs");// CBTurret (Type: 87)
+    make_sprite("Babarian", SPRID_MOB + 7 * 8 * 78, 40, true, "Loading npcs");// Babarian (Type: 88)
+    make_sprite("ACannon", SPRID_MOB + 7 * 8 * 79, 32, true, "Loading npcs");// ACannon (Type: 89)
+    make_sprite("EternalDragon", SPRID_MOB + 7 * 8 * 104, 32, true, "Loading npcs");// Eternal dragon (Type: 114) 
+    make_sprite("EnragedCyclops", SPRID_MOB + 7 * 8 * 113, 40, true, "Loading npcs");// Enraged Cyclops (Type: 123)
+    make_sprite("EnragedStalker", SPRID_MOB + 7 * 8 * 114, 40, true, "Loading npcs");// Enraged Stalker (Type: 124)
+    make_sprite("EnragedHellclaw", SPRID_MOB + 7 * 8 * 116, 40, true, "Loading npcs");// Enraged Hellclaw (Type: 126)
+    make_sprite("EnragedTW", SPRID_MOB + 7 * 8 * 117, 40, true, "Loading npcs");// Enraged Tigerworm (Type: 127)
+
+
+    make_sprite("Gail", SPRID_MOB + 7 * 8 * 80, 8, true, "Loading npcs"); // Gail (Type: 90)
+    make_sprite("Gate", SPRID_MOB + 7 * 8 * 81, 24, true, "Loading npcs");// Heldenian Gate (Type: 91)/**/
+    make_sprite("Scarecrow", SPRID_MOB + 7 * 8 * 82, 40, true, "Loading npcs");
+    make_sprite("Princess", SPRID_MOB + 7 * 8 * 92, 8, true, "Loading npcs");// Princess 102
+
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_M + i + 15 * 0, SPRITETYPE_SPRITE, "Mpt", i + 12 * 0, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_M + i + 15 * 1, SPRITETYPE_SPRITE, "Mpt", i + 12 * 1, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_M + i + 15 * 2, SPRITETYPE_SPRITE, "Mpt", i + 12 * 2, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_M + i + 15 * 3, SPRITETYPE_SPRITE, "Mpt", i + 12 * 3, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_M + i + 15 * 4, SPRITETYPE_SPRITE, "Mpt", i + 12 * 4, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_M + i + 15 * 5, SPRITETYPE_SPRITE, "Mpt", i + 12 * 5, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_M + i + 15 * 6, SPRITETYPE_SPRITE, "Mpt", i + 12 * 6, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_M + i + 15 * 7, SPRITETYPE_SPRITE, "Mpt", i + 12 * 7, false, "Loading items" });
+
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_M + i + 15 * 0, SPRITETYPE_SPRITE, "Mhr", i + 12 * 0, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_M + i + 15 * 1, SPRITETYPE_SPRITE, "Mhr", i + 12 * 1, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_M + i + 15 * 2, SPRITETYPE_SPRITE, "Mhr", i + 12 * 2, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_M + i + 15 * 3, SPRITETYPE_SPRITE, "Mhr", i + 12 * 3, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_M + i + 15 * 4, SPRITETYPE_SPRITE, "Mhr", i + 12 * 4, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_M + i + 15 * 5, SPRITETYPE_SPRITE, "Mhr", i + 12 * 5, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_M + i + 15 * 6, SPRITETYPE_SPRITE, "Mhr", i + 12 * 6, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_M + i + 15 * 7, SPRITETYPE_SPRITE, "Mhr", i + 12 * 7, false, "Loading items" });
+
+    make_sprite("MLArmor", SPRID_BODYARMOR_M + 15 * 1, 12, true, "Loading items");
+    make_sprite("MCMail", SPRID_BODYARMOR_M + 15 * 2, 12, true, "Loading items");
+    make_sprite("MSMail", SPRID_BODYARMOR_M + 15 * 3, 12, true, "Loading items");
+    make_sprite("MPMail", SPRID_BODYARMOR_M + 15 * 4, 12, true, "Loading items");
+    //make_sprite( "MPMail",	SPRID_BODYARMOR_M + 15*25, 12, true, "Loading items");
+    make_sprite("Mtunic", SPRID_BODYARMOR_M + 15 * 5, 12, true, "Loading items");
+    make_sprite("MRobe1", SPRID_BODYARMOR_M + 15 * 6, 12, true, "Loading items");
+    make_sprite("MSanta", SPRID_BODYARMOR_M + 15 * 7, 12, true, "Loading items");
+    make_sprite("MHPMail1", SPRID_BODYARMOR_M + 15 * 8, 12, true, "Loading items"); //hero
+    make_sprite("MHPMail2", SPRID_BODYARMOR_M + 15 * 9, 12, true, "Loading items"); //hero
+    make_sprite("MHRobe1", SPRID_BODYARMOR_M + 15 * 10, 12, true, "Loading items"); //hero
+    make_sprite("MHRobe2", SPRID_BODYARMOR_M + 15 * 11, 12, true, "Loading items"); //hero
+    make_sprite("AncHeroArmorM", SPRID_BODYARMOR_M + 15 * 12, 12, true, "Loading items"); //hero // Black Ancient Hero Armor M
+    make_sprite("AncHeroRobeM", SPRID_BODYARMOR_M + 15 * 13, 12, true, "Loading items"); //hero // Black Ancient Hero Robe M
+    make_sprite("ALegRobeM", SPRID_BODYARMOR_M + 15 * 14, 12, true, "Loading items"); // Aresden Ancient Hero Robe M
+    make_sprite("ELegRobeM", SPRID_BODYARMOR_M + 15 * 15, 12, true, "Loading items"); // Elvine Ancient Hero Robe M
+    make_sprite("ALegArmorM", SPRID_BODYARMOR_M + 15 * 16, 12, true, "Loading items"); // Aresden Ancient Hero Armor M
+    make_sprite("ELegArmorM", SPRID_BODYARMOR_M + 15 * 17, 12, true, "Loading items"); // Elvine Ancient Hero Armor M
+    make_sprite("MShirt", SPRID_BERK_M + 15 * 1, 12, true, "Loading items");
+    make_sprite("MHauberk", SPRID_BERK_M + 15 * 2, 12, true, "Loading items");
+    //make_sprite( "MHauberk",	  SPRID_BERK_M + 15*25, 12, true, "Loading items");
+    make_sprite("MHHauberk1", SPRID_BERK_M + 15 * 3, 12, true, "Loading items");
+    make_sprite("MHHauberk2", SPRID_BERK_M + 15 * 4, 12, true, "Loading items");
+    make_sprite("AncHeroHauberkM", SPRID_BERK_M + 15 * 5, 12, true, "Loading items"); // Black Ancient Hero Hauberk M
+    make_sprite("ALegHauberkM", SPRID_BERK_M + 15 * 6, 12, true, "Loading items"); // Aresden Ancient Hero Hauberk M
+    make_sprite("ELegHauberkM", SPRID_BERK_M + 15 * 7, 12, true, "Loading items"); // Elvine Ancient Hero Hauberk M
+
+
+
+    make_sprite("MTrouser", SPRID_LEGG_M + 15 * 1, 12, true, "Loading items");
+    make_sprite("MHTrouser", SPRID_LEGG_M + 15 * 2, 12, true, "Loading items");
+    make_sprite("MCHoses", SPRID_LEGG_M + 15 * 3, 12, true, "Loading items");
+    make_sprite("MLeggings", SPRID_LEGG_M + 15 * 4, 12, true, "Loading items");
+    //make_sprite( "MLeggings",SPRID_LEGG_M + 15*25, 12, true, "Loading items");
+    make_sprite("MHLeggings1", SPRID_LEGG_M + 15 * 5, 12, true, "Loading items"); // hero
+    make_sprite("MHLeggings2", SPRID_LEGG_M + 15 * 6, 12, true, "Loading items"); // hero
+    make_sprite("AncHeroLegM", SPRID_LEGG_M + 15 * 7, 12, true, "Loading items"); // hero // Black Ancient Hero Leggings M
+    make_sprite("ALegLeggingsM", SPRID_LEGG_M + 15 * 8, 12, true, "Loading items"); // Aresden Ancient Leggings M 
+    make_sprite("ELegLeggingsM", SPRID_LEGG_M + 15 * 9, 12, true, "Loading items"); // Elvine Ancient Leggings M
+
+    make_sprite("MShoes", SPRID_BOOT_M + 15 * 1, 12, true, "Loading items");
+    make_sprite("MLBoots", SPRID_BOOT_M + 15 * 2, 12, true, "Loading items");
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 1, SPRITETYPE_SPRITE, "Msw", i + 56 * 0, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 2, SPRITETYPE_SPRITE, "Msw", i + 56 * 1, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 3, SPRITETYPE_SPRITE, "Msw", i + 56 * 2, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 4, SPRITETYPE_SPRITE, "Msw", i + 56 * 3, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 5, SPRITETYPE_SPRITE, "Msw", i + 56 * 4, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 6, SPRITETYPE_SPRITE, "Msw", i + 56 * 5, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 7, SPRITETYPE_SPRITE, "Msw", i + 56 * 6, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 8, SPRITETYPE_SPRITE, "Msw", i + 56 * 7, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 9, SPRITETYPE_SPRITE, "Msw", i + 56 * 8, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 10, SPRITETYPE_SPRITE, "Msw", i + 56 * 9, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 11, SPRITETYPE_SPRITE, "Msw", i + 56 * 10, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 12, SPRITETYPE_SPRITE, "Msw", i + 56 * 11, false, "Loading items" });
+
+    make_sprite("Mswx", SPRID_WEAPON_M + 64 * 5, 56, true, "Loading items");
+    make_sprite("Msw2", SPRID_WEAPON_M + 64 * 13, 56, true, "Loading items");
+    make_sprite("Msw3", SPRID_WEAPON_M + 64 * 14, 56, true, "Loading items");
+    make_sprite("MStormBringer", SPRID_WEAPON_M + 64 * 15, 56, true, "Loading items");
+    make_sprite("MDarkExec", SPRID_WEAPON_M + 64 * 16, 56, true, "Loading items");
+    make_sprite("MKlonessBlade", SPRID_WEAPON_M + 64 * 17, 56, true, "Loading items");
+    make_sprite("MKlonessAstock", SPRID_WEAPON_M + 64 * 18, 56, true, "Loading items");
+    make_sprite("MDebastator", SPRID_WEAPON_M + 64 * 19, 56, true, "Loading items");
+    make_sprite("MAxe1", SPRID_WEAPON_M + 64 * 20, 56, true, "Loading items");// Axe
+    make_sprite("MAxe2", SPRID_WEAPON_M + 64 * 21, 56, true, "Loading items");
+    make_sprite("MAxe3", SPRID_WEAPON_M + 64 * 22, 56, true, "Loading items");
+    make_sprite("MAxe4", SPRID_WEAPON_M + 64 * 23, 56, true, "Loading items");
+    make_sprite("MAxe5", SPRID_WEAPON_M + 64 * 24, 56, true, "Loading items");
+    make_sprite("MPickAxe1", SPRID_WEAPON_M + 64 * 25, 56, true, "Loading items");
+    make_sprite("MAxe6", SPRID_WEAPON_M + 64 * 26, 56, true, "Loading items");
+    make_sprite("Mhoe", SPRID_WEAPON_M + 64 * 27, 56, true, "Loading items");
+    make_sprite("MKlonessAxe", SPRID_WEAPON_M + 64 * 28, 56, true, "Loading items");
+    make_sprite("MLightBlade", SPRID_WEAPON_M + 64 * 29, 56, true, "Loading items");
+    make_sprite("MHammer", SPRID_WEAPON_M + 64 * 30, 56, true, "Loading items");
+    make_sprite("MBHammer", SPRID_WEAPON_M + 64 * 31, 56, true, "Loading items");
+    make_sprite("MBabHammer", SPRID_WEAPON_M + 64 * 32, 56, true, "Loading items");
+    make_sprite("MBShadowSword", SPRID_WEAPON_M + 64 * 33, 56, true, "Loading items");
+    make_sprite("MBerserkWand", SPRID_WEAPON_M + 64 * 34, 56, true, "Loading items");
+    make_sprite("Mstaff1", SPRID_WEAPON_M + 64 * 35, 56, true, "Loading items");// Staff
+    make_sprite("Mstaff2", SPRID_WEAPON_M + 64 * 36, 56, true, "Loading items");
+    make_sprite("MStaff3", SPRID_WEAPON_M + 64 * 37, 56, true, "Loading items");
+    make_sprite("MReMagicWand", SPRID_WEAPON_M + 64 * 38, 56, true, "Loading items");
+    make_sprite("MKlonessWand", SPRID_WEAPON_M + 64 * 39, 56, true, "Loading items");
+    make_sprite("Staff4M", SPRID_WEAPON_M + 64 * 40, 56, true, "Loading items");
+    // Bows 40 41 below
+    make_sprite("MDirectBow", SPRID_WEAPON_M + 64 * 43, 56, true, "Loading items");
+    make_sprite("MFireBow", SPRID_WEAPON_M + 64 * 44, 56, true, "Loading items");
+    make_sprite("Mbo", SPRID_WEAPON_M + 64 * 41, 56, true, "Loading items");
+
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_M + i + 64 * 42, SPRITETYPE_SPRITE, "Mbo", i + 56 * 1, false, "Loading items" });
+
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_M + i + 8 * 1, SPRITETYPE_SPRITE, "Msh", i + 7 * 0, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_M + i + 8 * 2, SPRITETYPE_SPRITE, "Msh", i + 7 * 1, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_M + i + 8 * 3, SPRITETYPE_SPRITE, "Msh", i + 7 * 2, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_M + i + 8 * 4, SPRITETYPE_SPRITE, "Msh", i + 7 * 3, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_M + i + 8 * 5, SPRITETYPE_SPRITE, "Msh", i + 7 * 4, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_M + i + 8 * 6, SPRITETYPE_SPRITE, "Msh", i + 7 * 5, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_M + i + 8 * 7, SPRITETYPE_SPRITE, "Msh", i + 7 * 6, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_M + i + 8 * 8, SPRITETYPE_SPRITE, "Msh", i + 7 * 7, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_M + i + 8 * 9, SPRITETYPE_SPRITE, "Msh", i + 7 * 8, false, "Loading items" });
+
+    make_sprite("Mmantle01", SPRID_MANTLE_M + 15 * 1, 12, true, "Loading items");
+    make_sprite("Mmantle02", SPRID_MANTLE_M + 15 * 2, 12, true, "Loading items");
+    make_sprite("Mmantle03", SPRID_MANTLE_M + 15 * 3, 12, true, "Loading items");
+    make_sprite("Mmantle04", SPRID_MANTLE_M + 15 * 4, 12, true, "Loading items");
+    make_sprite("Mmantle05", SPRID_MANTLE_M + 15 * 5, 12, true, "Loading items");
+    make_sprite("Mmantle06", SPRID_MANTLE_M + 15 * 6, 12, true, "Loading items");
+    make_sprite("Mmantle07", SPRID_MANTLE_M + 15 * 7, 12, true, "Loading items");
+    make_sprite("Mmantle08", SPRID_MANTLE_M + 15 * 8, 12, true, "Loading items");
+    make_sprite("AAncHeroCapeM", SPRID_MANTLE_M + 15 * 9, 12, true, "Loading items"); // Aresden Black Ancient Hero Cape M
+    make_sprite("EAncHeroCapeM", SPRID_MANTLE_M + 15 * 10, 12, true, "Loading items"); // Elvine Black Ancient Hero Cape M
+    make_sprite("MHelm1", SPRID_HEAD_M + 15 * 1, 12, true, "Loading items");
+    make_sprite("MHelm2", SPRID_HEAD_M + 15 * 2, 12, true, "Loading items");
+    make_sprite("MHelm3", SPRID_HEAD_M + 15 * 3, 12, true, "Loading items");
+    make_sprite("MHelm4", SPRID_HEAD_M + 15 * 4, 12, true, "Loading items");
+    make_sprite("NMHelm1", SPRID_HEAD_M + 15 * 5, 12, true, "Loading items");
+    //make_sprite( "NMHelm1", SPRID_HEAD_M + 15*25, 12, true, "Loading items");
+    make_sprite("NMHelm2", SPRID_HEAD_M + 15 * 6, 12, true, "Loading items");
+    make_sprite("NMHelm3", SPRID_HEAD_M + 15 * 7, 12, true, "Loading items");
+    make_sprite("NMHelm4", SPRID_HEAD_M + 15 * 8, 12, true, "Loading items");
+    make_sprite("MHHelm1", SPRID_HEAD_M + 15 * 9, 12, true, "Loading items");
+    make_sprite("MHHelm2", SPRID_HEAD_M + 15 * 10, 12, true, "Loading items");
+    make_sprite("MHCap1", SPRID_HEAD_M + 15 * 11, 12, true, "Loading items");
+    make_sprite("MHCap2", SPRID_HEAD_M + 15 * 12, 12, true, "Loading items");
+    make_sprite("AncHeroHelmM", SPRID_HEAD_M + 15 * 13, 12, true, "Loading items"); // Black Ancient Hero Helm M
+    make_sprite("AncHeroCapM", SPRID_HEAD_M + 15 * 14, 12, true, "Loading items"); // Black Ancient Hero Cap M
+    make_sprite("ALegHelmM", SPRID_HEAD_M + 15 * 15, 12, true, "Loading items"); // Aresden Ancient Helm M
+    make_sprite("ELegHelmM", SPRID_HEAD_M + 15 * 16, 12, true, "Loading items"); // Elvine Ancient Helm M
+    make_sprite("ALegCapM", SPRID_HEAD_M + 15 * 17, 12, true, "Loading items"); // Aresden Ancient Cap M
+    make_sprite("ELegCapM", SPRID_HEAD_M + 15 * 18, 12, true, "Loading items"); // Elvine Ancient Cap M
+
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_W + i + 15 * 0, SPRITETYPE_SPRITE, "Mpt", i + 12 * 0, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_W + i + 15 * 1, SPRITETYPE_SPRITE, "Mpt", i + 12 * 1, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_W + i + 15 * 2, SPRITETYPE_SPRITE, "Mpt", i + 12 * 2, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_W + i + 15 * 3, SPRITETYPE_SPRITE, "Mpt", i + 12 * 3, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_W + i + 15 * 4, SPRITETYPE_SPRITE, "Mpt", i + 12 * 4, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_W + i + 15 * 5, SPRITETYPE_SPRITE, "Mpt", i + 12 * 5, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_W + i + 15 * 6, SPRITETYPE_SPRITE, "Mpt", i + 12 * 6, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_UNDIES_W + i + 15 * 7, SPRITETYPE_SPRITE, "Mpt", i + 12 * 7, false, "Loading items" });
+
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_W + i + 15 * 0, SPRITETYPE_SPRITE, "Mhr", i + 12 * 0, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_W + i + 15 * 1, SPRITETYPE_SPRITE, "Mhr", i + 12 * 1, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_W + i + 15 * 2, SPRITETYPE_SPRITE, "Mhr", i + 12 * 2, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_W + i + 15 * 3, SPRITETYPE_SPRITE, "Mhr", i + 12 * 3, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_W + i + 15 * 4, SPRITETYPE_SPRITE, "Mhr", i + 12 * 4, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_W + i + 15 * 5, SPRITETYPE_SPRITE, "Mhr", i + 12 * 5, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_W + i + 15 * 6, SPRITETYPE_SPRITE, "Mhr", i + 12 * 6, false, "Loading items" });
+    for (i = 0; i < 12; i++) data_list.push({ SPRID_HAIR_W + i + 15 * 7, SPRITETYPE_SPRITE, "Mhr", i + 12 * 7, false, "Loading items" });
+
+    make_sprite("WBodice1", SPRID_BODYARMOR_W + 15 * 1, 12, true, "Loading items");
+    make_sprite("WBodice2", SPRID_BODYARMOR_W + 15 * 2, 12, true, "Loading items");
+    make_sprite("WLArmor", SPRID_BODYARMOR_W + 15 * 3, 12, true, "Loading items");
+    make_sprite("WCMail", SPRID_BODYARMOR_W + 15 * 4, 12, true, "Loading items");
+    make_sprite("WSMail", SPRID_BODYARMOR_W + 15 * 5, 12, true, "Loading items");
+    make_sprite("WPMail", SPRID_BODYARMOR_W + 15 * 6, 12, true, "Loading items");
+    make_sprite("WRobe1", SPRID_BODYARMOR_W + 15 * 7, 12, true, "Loading items");
+    make_sprite("WSanta", SPRID_BODYARMOR_W + 15 * 8, 12, true, "Loading items");
+    make_sprite("WHPMail1", SPRID_BODYARMOR_W + 15 * 9, 12, true, "Loading items"); //hero
+    make_sprite("WHPMail2", SPRID_BODYARMOR_W + 15 * 10, 12, true, "Loading items"); //hero
+    make_sprite("WHRobe1", SPRID_BODYARMOR_W + 15 * 11, 12, true, "Loading items"); // hero
+    make_sprite("WHRobe2", SPRID_BODYARMOR_W + 15 * 12, 12, true, "Loading items"); // hero
+    make_sprite("AncHeroArmorW", SPRID_BODYARMOR_W + 15 * 13, 12, true, "Loading items"); //hero // Black Ancient Hero Armor W
+    make_sprite("AncHeroRobeW", SPRID_BODYARMOR_W + 15 * 14, 12, true, "Loading items"); // hero // Black Ancient Hero Robe W
+    make_sprite("ALegRobeW", SPRID_BODYARMOR_W + 15 * 15, 12, true, "Loading items"); // Aresden Ancient Robe W
+    make_sprite("ELegRobeW", SPRID_BODYARMOR_W + 15 * 16, 12, true, "Loading items"); // Elvine Ancient Robe W
+    make_sprite("ALegArmorW", SPRID_BODYARMOR_W + 15 * 17, 12, true, "Loading items"); // Aresden Ancient Armor W
+    make_sprite("ELegArmorW", SPRID_BODYARMOR_W + 15 * 18, 12, true, "Loading items"); // Elvine Ancient Armor W
+
+    make_sprite("WChemiss", SPRID_BERK_W + 15 * 1, 12, true, "Loading items");
+    make_sprite("WShirt", SPRID_BERK_W + 15 * 2, 12, true, "Loading items");
+    make_sprite("WHauberk", SPRID_BERK_W + 15 * 3, 12, true, "Loading items");
+    make_sprite("WHHauberk1", SPRID_BERK_W + 15 * 4, 12, true, "Loading items");
+    make_sprite("WHHauberk2", SPRID_BERK_W + 15 * 5, 12, true, "Loading items");
+    make_sprite("AncHeroHauberkW", SPRID_BERK_W + 15 * 6, 12, true, "Loading items"); // Black Ancient Hero Hauberk W
+    make_sprite("ALegHauberkW", SPRID_BERK_W + 15 * 7, 12, true, "Loading items"); // Aresden Ancient Hauberk W
+    make_sprite("ELegHauberkW", SPRID_BERK_W + 15 * 8, 12, true, "Loading items"); // Elvine Ancient Hauberk W
+    make_sprite("WSkirt", SPRID_LEGG_W + 15 * 1, 12, true, "Loading items");
+    make_sprite("WTrouser", SPRID_LEGG_W + 15 * 2, 12, true, "Loading items");
+    make_sprite("WHTrouser", SPRID_LEGG_W + 15 * 3, 12, true, "Loading items");
+    make_sprite("WCHoses", SPRID_LEGG_W + 15 * 4, 12, true, "Loading items");
+    make_sprite("WLeggings", SPRID_LEGG_W + 15 * 5, 12, true, "Loading items");
+    make_sprite("WHLeggings1", SPRID_LEGG_W + 15 * 6, 12, true, "Loading items");
+    make_sprite("WHLeggings2", SPRID_LEGG_W + 15 * 7, 12, true, "Loading items");
+    make_sprite("AncHeroLegW", SPRID_LEGG_W + 15 * 8, 12, true, "Loading items"); // Black Ancient Hero Leggings W
+    make_sprite("ALegLeggingsW", SPRID_LEGG_W + 15 * 9, 12, true, "Loading items"); // Aresden Ancient Leggings W
+    make_sprite("ELegLeggingsW", SPRID_LEGG_W + 15 * 10, 12, true, "Loading items"); // Elvine Ancient Leggings W
+    make_sprite("WShoes", SPRID_BOOT_W + 15 * 1, 12, true, "Loading items");
+    make_sprite("WLBoots", SPRID_BOOT_W + 15 * 2, 12, true, "Loading items");
+
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 1, SPRITETYPE_SPRITE, "Wsw", i + 56 * 0, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 2, SPRITETYPE_SPRITE, "Wsw", i + 56 * 1, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 3, SPRITETYPE_SPRITE, "Wsw", i + 56 * 2, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 4, SPRITETYPE_SPRITE, "Wsw", i + 56 * 3, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 5, SPRITETYPE_SPRITE, "Wsw", i + 56 * 4, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 6, SPRITETYPE_SPRITE, "Wsw", i + 56 * 5, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 7, SPRITETYPE_SPRITE, "Wsw", i + 56 * 6, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 8, SPRITETYPE_SPRITE, "Wsw", i + 56 * 7, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 9, SPRITETYPE_SPRITE, "Wsw", i + 56 * 8, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 10, SPRITETYPE_SPRITE, "Wsw", i + 56 * 9, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 11, SPRITETYPE_SPRITE, "Wsw", i + 56 * 10, false, "Loading items" });
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 12, SPRITETYPE_SPRITE, "Wsw", i + 56 * 11, false, "Loading items" });
+
+    make_sprite("Wswx", SPRID_WEAPON_W + 64 * 5, 56, true, "Loading items");
+    make_sprite("Wsw2", SPRID_WEAPON_W + 64 * 13, 56, true, "Loading items");
+    make_sprite("Wsw3", SPRID_WEAPON_W + 64 * 14, 56, true, "Loading items"); // TheVampire
+    make_sprite("WStormBringer", SPRID_WEAPON_W + 64 * 15, 56, true, "Loading items");
+    make_sprite("WDarkExec", SPRID_WEAPON_W + 64 * 16, 56, true, "Loading items");
+    make_sprite("WKlonessBlade", SPRID_WEAPON_W + 64 * 17, 56, true, "Loading items");
+    make_sprite("WKlonessAstock", SPRID_WEAPON_W + 64 * 18, 56, true, "Loading items");
+    make_sprite("WDebastator", SPRID_WEAPON_W + 64 * 19, 56, true, "Loading items");
+    make_sprite("WAxe1", SPRID_WEAPON_W + 64 * 20, 56, true, "Loading items");// Axe
+    make_sprite("WAxe2", SPRID_WEAPON_W + 64 * 21, 56, true, "Loading items");
+    make_sprite("WAxe3", SPRID_WEAPON_W + 64 * 22, 56, true, "Loading items");
+    make_sprite("WAxe4", SPRID_WEAPON_W + 64 * 23, 56, true, "Loading items");
+    make_sprite("WAxe5", SPRID_WEAPON_W + 64 * 24, 56, true, "Loading items");
+    make_sprite("WpickAxe1", SPRID_WEAPON_W + 64 * 25, 56, true, "Loading items");
+    make_sprite("WAxe6", SPRID_WEAPON_W + 64 * 26, 56, true, "Loading items");
+    make_sprite("Whoe", SPRID_WEAPON_W + 64 * 27, 56, true, "Loading items");
+    make_sprite("WKlonessAxe", SPRID_WEAPON_W + 64 * 28, 56, true, "Loading items");
+    make_sprite("WLightBlade", SPRID_WEAPON_W + 64 * 29, 56, true, "Loading items");
+    make_sprite("WHammer", SPRID_WEAPON_W + 64 * 30, 56, true, "Loading items");
+    make_sprite("WBHammer", SPRID_WEAPON_W + 64 * 31, 56, true, "Loading items");
+    make_sprite("WBabHammer", SPRID_WEAPON_W + 64 * 32, 56, true, "Loading items");
+    make_sprite("WBShadowSword", SPRID_WEAPON_W + 64 * 33, 56, true, "Loading items");
+    make_sprite("WBerserkWand", SPRID_WEAPON_W + 64 * 34, 56, true, "Loading items");
+    make_sprite("Wstaff1", SPRID_WEAPON_W + 64 * 35, 56, true, "Loading items");
+    make_sprite("Wstaff2", SPRID_WEAPON_W + 64 * 36, 56, true, "Loading items");
+    make_sprite("WStaff3", SPRID_WEAPON_W + 64 * 37, 56, true, "Loading items");
+    make_sprite("WKlonessWand", SPRID_WEAPON_W + 64 * 39, 56, true, "Loading items");
+    make_sprite("WReMagicWand", SPRID_WEAPON_W + 64 * 38, 56, true, "Loading items");
+    make_sprite("Staff4W", SPRID_WEAPON_W + 64 * 40, 56, true, "Loading items");
+    // bows 40 41 below
+    make_sprite("WDirectBow", SPRID_WEAPON_W + 64 * 43, 56, true, "Loading items");
+    make_sprite("WFireBow", SPRID_WEAPON_W + 64 * 44, 56, true, "Loading items");
+    make_sprite("Wmantle01", SPRID_MANTLE_W + 15 * 1, 12, true, "Loading items");
+    make_sprite("Wmantle02", SPRID_MANTLE_W + 15 * 2, 12, true, "Loading items");
+    make_sprite("Wmantle03", SPRID_MANTLE_W + 15 * 3, 12, true, "Loading items");
+    make_sprite("Wmantle04", SPRID_MANTLE_W + 15 * 4, 12, true, "Loading items");
+    make_sprite("Wmantle05", SPRID_MANTLE_W + 15 * 5, 12, true, "Loading items");
+    make_sprite("Wmantle06", SPRID_MANTLE_W + 15 * 6, 12, true, "Loading items");
+    make_sprite("Wmantle07", SPRID_MANTLE_W + 15 * 7, 12, true, "Loading items");
+    make_sprite("Wmantle08", SPRID_MANTLE_W + 15 * 8, 12, true, "Loading items");
+    make_sprite("AAncHeroCapeW", SPRID_MANTLE_W + 15 * 9, 12, true, "Loading items"); // Aresden Black Ancient Hero Cape W
+    make_sprite("EAncHeroCapeW", SPRID_MANTLE_W + 15 * 10, 12, true, "Loading items"); // Elvine Black Ancient Hero Cape W
+    make_sprite("WHelm1", SPRID_HEAD_W + 15 * 1, 12, true, "Loading items");
+    make_sprite("WHelm4", SPRID_HEAD_W + 15 * 4, 12, true, "Loading items");
+    make_sprite("NWHelm1", SPRID_HEAD_W + 15 * 5, 12, true, "Loading items");
+    make_sprite("NWHelm2", SPRID_HEAD_W + 15 * 6, 12, true, "Loading items");
+    make_sprite("NWHelm3", SPRID_HEAD_W + 15 * 7, 12, true, "Loading items");
+    make_sprite("NWHelm4", SPRID_HEAD_W + 15 * 8, 12, true, "Loading items");
+    make_sprite("WHHelm1", SPRID_HEAD_W + 15 * 9, 12, true, "Loading items");
+    make_sprite("WHHelm2", SPRID_HEAD_W + 15 * 10, 12, true, "Loading items");
+    make_sprite("WHCap1", SPRID_HEAD_W + 15 * 11, 12, true, "Loading items");
+    make_sprite("WHCap2", SPRID_HEAD_W + 15 * 12, 12, true, "Loading items");
+    make_sprite("AncHeroHelmW", SPRID_HEAD_W + 15 * 13, 12, true, "Loading items"); // Black Ancient Hero Helm W
+    make_sprite("AncHeroCapW", SPRID_HEAD_W + 15 * 14, 12, true, "Loading items"); // Black Ancient Hero Cap W
+    make_sprite("ALegHelmW", SPRID_HEAD_W + 15 * 15, 12, true, "Loading items"); // Aresden Ancient Helm M
+    make_sprite("ELegHelmW", SPRID_HEAD_W + 15 * 16, 12, true, "Loading items"); // Elvine Ancient Helm M
+    make_sprite("ALegCapW", SPRID_HEAD_W + 15 * 17, 12, true, "Loading items"); // Aresden Ancient Cap M
+    make_sprite("ELegCapW", SPRID_HEAD_W + 15 * 18, 12, true, "Loading items"); // Elvine Ancient Cap M
+    make_sprite("Wbo", SPRID_WEAPON_W + 64 * 41, 56, true, "Loading items");// Bow
+
+    for (i = 0; i < 56; i++) data_list.push({ SPRID_WEAPON_W + i + 64 * 42, SPRITETYPE_SPRITE, "Wbo", i + 56 * 1, false, "Loading items" });
+
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_W + i + 8 * 1, SPRITETYPE_SPRITE, "Wsh", i + 7 * 0, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_W + i + 8 * 2, SPRITETYPE_SPRITE, "Wsh", i + 7 * 1, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_W + i + 8 * 3, SPRITETYPE_SPRITE, "Wsh", i + 7 * 2, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_W + i + 8 * 4, SPRITETYPE_SPRITE, "Wsh", i + 7 * 3, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_W + i + 8 * 5, SPRITETYPE_SPRITE, "Wsh", i + 7 * 4, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_W + i + 8 * 6, SPRITETYPE_SPRITE, "Wsh", i + 7 * 5, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_W + i + 8 * 7, SPRITETYPE_SPRITE, "Wsh", i + 7 * 6, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_W + i + 8 * 8, SPRITETYPE_SPRITE, "Wsh", i + 7 * 7, false, "Loading items" });
+    for (i = 0; i < 7; i++) data_list.push({ SPRID_SHIELD_W + i + 8 * 9, SPRITETYPE_SPRITE, "Wsh", i + 7 * 8, false, "Loading items" });
+
+
+
+    make_effect_sprite("effect", 0, 10, false, "Loading effects");
+    make_effect_sprite("effect2", 10, 3, false, "Loading effects");
+    make_effect_sprite("effect3", 13, 6, false, "Loading effects");
+    make_effect_sprite("effect4", 19, 5, false, "Loading effects");
+    for (i = 0; i <= 6; i++)
+        data_list.push({ i + 24, SPRITETYPE_EFFECT, "effect5", i + 1, false, "Loading effects" });
+    make_effect_sprite("CruEffect1", 31, 9, false, "Loading effects");
+    make_effect_sprite("effect6", 40, 5, false, "Loading effects");
+    make_effect_sprite("effect7", 45, 12, false, "Loading effects");
+    make_effect_sprite("effect8", 57, 9, false, "Loading effects");
+    make_effect_sprite("effect9", 66, 21, false, "Loading effects");
+
+    make_effect_sprite("effect10", 87, 2, false, "Loading effects"); // Effects Hero items
+    make_effect_sprite("effect11", 89, 14, false, "Loading effects"); // Cancel, stormBlade, resu, GateHeldenian....etc
+    make_effect_sprite("effect11s", 104, 1, false, "Loading effects");
+    make_effect_sprite("yseffect2", 140, 8, false, "Loading effects"); // Abaddon's death
+    make_effect_sprite("effect12", 148, 4, false, "Loading effects"); // Slates auras
+    make_effect_sprite("yseffect3", 152, 16, false, "Loading effects");
+    make_effect_sprite("yseffect4", 133, 7, false, "Loading effects"); // Abaddon's map thunder.
+    make_effect_sprite("effects", 168, 1, false, "Loading effects"); // minimap ping
+
+
+    //progressLabel = "Loading sounds";
+    for (i = 1; i <= 8; i++)
+    {
+        sprintf(G_cTxt, "data\\sounds\\C%d.wav", i);
+        CSoundBuffer[i].loadFromFile(G_cTxt);
+        m_pCSound[i].setBuffer(CSoundBuffer[i]);
+    }
+    for (i = 1; i <= 50; i++)
+    {
+        sprintf(G_cTxt, "data\\sounds\\M%d.wav", i);
+        MSoundBuffer[i].loadFromFile(G_cTxt);
+        m_pMSound[i].setBuffer(MSoundBuffer[i]);
+    }
+    for (i = 1; i <= 15; i++)
+    {
+        sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
+        ESoundBuffer[i].loadFromFile(G_cTxt);
+        m_pESound[i].setBuffer(ESoundBuffer[i]);
+    }
+    for (i = 9; i <= 16; i++)
+    {
+        sprintf(G_cTxt, "data\\sounds\\C%d.wav", i);
+        CSoundBuffer[i].loadFromFile(G_cTxt);
+        m_pCSound[i].setBuffer(CSoundBuffer[i]);
+    }
+    for (i = 51; i <= 100; i++)
+    {
+        sprintf(G_cTxt, "data\\sounds\\M%d.wav", i);
+        MSoundBuffer[i].loadFromFile(G_cTxt);
+        m_pMSound[i].setBuffer(MSoundBuffer[i]);
+    }
+    for (i = 16; i <= 30; i++)
+    {
+        sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
+        ESoundBuffer[i].loadFromFile(G_cTxt);
+        m_pESound[i].setBuffer(ESoundBuffer[i]);
+    }
+    for (i = 17; i <= 24; i++)
+    {
+        sprintf(G_cTxt, "data\\sounds\\C%d.wav", i);
+        CSoundBuffer[i].loadFromFile(G_cTxt);
+        m_pCSound[i].setBuffer(CSoundBuffer[i]);
+    }
+    for (i = 101; i <= 156; i++)
+    {
+        sprintf(G_cTxt, "data\\sounds\\M%d.wav", i);
+        MSoundBuffer[i].loadFromFile(G_cTxt);
+        m_pMSound[i].setBuffer(MSoundBuffer[i]);
+    }
+    for (i = 31; i <= 54; i++)
+    {
+        sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
+        ESoundBuffer[i].loadFromFile(G_cTxt);
+        m_pESound[i].setBuffer(ESoundBuffer[i]);
+    }
+    data_max = data_list.size();
+}
+
 void CGame::UpdateScreen_OnLoading(bool bActive)
 {
-    int i;
-    /*if( bActive )*/ UpdateScreen_OnLoading_Progress();
+    if (data_list.empty())
+        return;
 
 	std::string progressLabel;
-	bool progressComplete = false;
-	int progress = 0;
 
-    switch (m_cLoading)
+    int perform = (G_pGame->fps.getFPS()+20)/20;
+
+    while (--perform)
     {
-        case 0:
+        if (!data_list.empty())
         {
-            new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
-
-			progressLabel = "Loading interface";
-            m_pSprite[SPRID_MOUSECURSOR] = CSprite::CreateSprite("interface", 0, false);
-            m_pSprite[SPRID_INTERFACE_SPRFONTS] = CSprite::CreateSprite("interface", 1, false);
-
-            m_pSprite[SPRID_INTERFACE_NEWMAPS1] = CSprite::CreateSprite("Newmaps", 0, false);
-            m_pSprite[SPRID_INTERFACE_NEWMAPS2] = CSprite::CreateSprite("Newmaps", 1, false);
-            m_pSprite[SPRID_INTERFACE_NEWMAPS3] = CSprite::CreateSprite("Newmaps", 2, false);
-            m_pSprite[SPRID_INTERFACE_NEWMAPS4] = CSprite::CreateSprite("Newmaps", 3, false);
-            m_pSprite[SPRID_INTERFACE_NEWMAPS5] = CSprite::CreateSprite("Newmaps", 4, false);
-
-            m_pSprite[SPRID_INTERFACE_ND_LOGIN] = CSprite::CreateSprite("LoginDialog", 0, false);
-      
-            m_pSprite[SPRID_INTERFACE_ND_MAINMENU] = CSprite::CreateSprite("New-Dialog", 1, false);
-            m_pSprite[SPRID_INTERFACE_ND_QUIT] = CSprite::CreateSprite("New-Dialog", 2, false);
-
-            m_pSprite[SPRID_INTERFACE_ND_GAME1] = CSprite::CreateSprite("GameDialog", 0, false);
-            m_pSprite[SPRID_INTERFACE_ND_GAME2] = CSprite::CreateSprite("GameDialog", 1, false);
-            m_pSprite[SPRID_INTERFACE_ND_GAME3] = CSprite::CreateSprite("GameDialog", 2, false);
-            m_pSprite[SPRID_INTERFACE_ND_GAME4] = CSprite::CreateSprite("GameDialog", 3, false);
-            m_pSprite[SPRID_INTERFACE_ND_CRUSADE] = CSprite::CreateSprite("GameDialog", 4, false);
-            m_pSprite[SPRID_INTERFACE_ND_ICONPANNEL] = CSprite::CreateSprite("GameDialog", 6, false);
-            m_pSprite[SPRID_INTERFACE_ND_INVENTORY] = CSprite::CreateSprite("GameDialog", 7, false);
-            m_pSprite[SPRID_INTERFACE_ND_SELECTCHAR] = CSprite::CreateSprite("GameDialog", 8, false);
-            m_pSprite[SPRID_INTERFACE_ND_NEWCHAR] = CSprite::CreateSprite("GameDialog", 9, false);
-            m_pSprite[SPRID_INTERFACE_ND_NEWEXCHANGE] = CSprite::CreateSprite("GameDialog", 10, false);
-
-            m_pSprite[SPRID_INTERFACE_ND_TEXT] = CSprite::CreateSprite("DialogText", 0, false);
-            m_pSprite[SPRID_INTERFACE_ND_BUTTON] = CSprite::CreateSprite("DialogText", 1, false);
-            
-            MakeSprite("Telescope", SPRID_INTERFACE_GUIDEMAP, 34, false);
-            MakeSprite("Telescope2", SPRID_INTERFACE_GUIDEMAP + 35, 4, false);
-            MakeSprite("monster", SPRID_INTERFACE_MONSTER, 1, false);
-            m_cLoading = 2;
-        }
-        break;
-        case 2:
-        {
-			progressLabel = "Loading map data";
-            MakeTileSpr("maptiles1", 0, 32, true);
-            MakeTileSpr("structures1", 50, 20, true);
-            MakeTileSpr("Sinside1", 70, 27, false);
-            MakeTileSpr("Trees1", 100, 46, true);
-            MakeTileSpr("TreeShadows", 150, 46, true);
-            MakeTileSpr("objects1", 200, 10, true);
-            MakeTileSpr("objects2", 211, 5, true);
-            MakeTileSpr("objects3", 216, 4, true);
-            MakeTileSpr("objects4", 220, 2, true);
-            m_cLoading = 4;
-        }
-        break;
-        case 4:
-        {
-			progressLabel = "Loading map data.";
-            MakeTileSpr("Tile223-225", 223, 3, true);
-            MakeTileSpr("Tile226-229", 226, 4, true);
-            MakeTileSpr("objects5", 230, 9, true);
-            MakeTileSpr("objects6", 238, 4, true);
-            MakeTileSpr("objects7", 242, 7, true);
-            MakeTileSpr("maptiles2", 300, 15, true);
-            MakeTileSpr("maptiles4", 320, 10, true);
-            MakeTileSpr("maptiles5", 330, 19, true);
-            MakeTileSpr("maptiles6", 349, 4, true);
-            MakeTileSpr("maptiles353-361", 353, 9, true);
-            MakeTileSpr("Tile363-366", 363, 4, true);
-            MakeTileSpr("Tile367-367", 367, 1, true);
-            MakeTileSpr("Tile370-381", 370, 12, true);// Tile370~381
-            MakeTileSpr("Tile382-387", 382, 6, true);
-            MakeTileSpr("Tile388-402", 388, 15, true);
-            m_cLoading = 6;
-        }
-        break;
-        case 6:
-        {
-			progressLabel = "Loading map data..";
-            MakeTileSpr("Tile403-405", 403, 3, true);
-            MakeTileSpr("Tile406-421", 406, 16, true);
-            MakeTileSpr("Tile422-429", 422, 8, true);
-            MakeTileSpr("Tile430-443", 430, 14, true);
-            MakeTileSpr("Tile444-444", 444, 1, true);
-            MakeTileSpr("Tile445-461", 445, 17, true);
-            MakeTileSpr("Tile462-473", 462, 12, true);
-            MakeTileSpr("Tile474-478", 474, 5, true);
-            MakeTileSpr("Tile479-488", 479, 10, true);
-            MakeTileSpr("Tile489-522", 489, 34, true);	// Drunken City
-            MakeTileSpr("Tile523-530", 523, 8, true);	// Rampart
-            MakeTileSpr("Tile531-540", 531, 10, true);	// GodH + Pont
-            MakeTileSpr("Tile541-545", 541, 5, true);	// GodH
-
-            MakeSprite("itempack", SPRID_ITEMPACK_PIVOTPOINT + 1, 27, false);
-            m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + 20] = CSprite::CreateSprite("itempack", 17, false);
-            m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + 21] = CSprite::CreateSprite("itempack", 18, false);
-            m_pSprite[SPRID_ITEMPACK_PIVOTPOINT + 22] = CSprite::CreateSprite("itempack", 19, false); // Angels
-
-            MakeSprite("itemground", SPRID_ITEMGROUND_PIVOTPOINT + 1, 19, false);
-            m_pSprite[SPRID_ITEMGROUND_PIVOTPOINT + 20] = CSprite::CreateSprite("itemground", 17, false);
-            m_pSprite[SPRID_ITEMGROUND_PIVOTPOINT + 21] = CSprite::CreateSprite("itemground", 18, false);
-            m_pSprite[SPRID_ITEMGROUND_PIVOTPOINT + 22] = CSprite::CreateSprite("itemground", 19, false);//Angels
-            MakeSprite("item-dynamic", SPRID_ITEMDYNAMIC_PIVOTPOINT, 3, false);
-            m_cLoading = 8;
-        }
-        break;
-        case 8:
-        {
-			progressLabel = "Loading items";
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 0] = CSprite::CreateSprite("itemequipM", 0, false);	// body
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 1] = CSprite::CreateSprite("itemequipM", 1, false);	// 1-swords
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 2] = CSprite::CreateSprite("itemequipM", 2, false);	// 2-bows
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 3] = CSprite::CreateSprite("itemequipM", 3, false);	// 3-shields
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 4] = CSprite::CreateSprite("itemequipM", 4, false);	// 4-tunics
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 5] = CSprite::CreateSprite("itemequipM", 5, false);	// 5-shoes
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 7] = CSprite::CreateSprite("itemequipM", 6, false);	// 6-berk
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 8] = CSprite::CreateSprite("itemequipM", 7, false);	// 7-hoses
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 9] = CSprite::CreateSprite("itemequipM", 8, false);	// 8-bodyarmor
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 15] = CSprite::CreateSprite("itemequipM", 11, false); // Axe hammer
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 17] = CSprite::CreateSprite("itemequipM", 12, false); // Wands
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 18] = CSprite::CreateSprite("itemequipM", 9, false);  // hair
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 19] = CSprite::CreateSprite("itemequipM", 10, false); // undies
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 20] = CSprite::CreateSprite("itemequipM", 13, false); // capes
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 21] = CSprite::CreateSprite("itemequipM", 14, false); // helm
-
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 16] = CSprite::CreateSprite("itempack", 15); // Necks, Angels, Pendants
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 22] = CSprite::CreateSprite("itempack", 19); // Angels
-
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 40] = CSprite::CreateSprite("itemequipW", 0, false); // body
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 41] = CSprite::CreateSprite("itemequipW", 1, false); // 1-swords
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 42] = CSprite::CreateSprite("itemequipW", 2, false); // 2-bows
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 43] = CSprite::CreateSprite("itemequipW", 3, false); // 3-shields
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 45] = CSprite::CreateSprite("itemequipW", 4, false); // 4-shoes
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 50] = CSprite::CreateSprite("itemequipW", 5, false); // 5-Soustif
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 51] = CSprite::CreateSprite("itemequipW", 6, false); // 6 berk
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 52] = CSprite::CreateSprite("itemequipW", 7, false); // 7 hose
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 53] = CSprite::CreateSprite("itemequipW", 8, false); // 8-hoses
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 55] = CSprite::CreateSprite("itemequipW", 11, false); // Axe hammer
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 57] = CSprite::CreateSprite("itemequipW", 12, false); // Wands
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 58] = CSprite::CreateSprite("itemequipW", 9, false); // hair
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 59] = CSprite::CreateSprite("itemequipW", 10, false);// undies
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 60] = CSprite::CreateSprite("itemequipW", 13, false);// capes
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 61] = CSprite::CreateSprite("itemequipW", 14, false);// helm
-
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 56] = CSprite::CreateSprite("itempack", 15);// necks, angels, pendants
-            m_pSprite[SPRID_ITEMEQUIP_PIVOTPOINT + 62] = CSprite::CreateSprite("itempack", 19); // Angels
-            MakeSprite("Bm", 500 + 15 * 8 * 0, 96, true);// Black Man (Type: 1)
-            MakeSprite("Wm", 500 + 15 * 8 * 1, 96, true);// White Man (Type: 2)
-            MakeSprite("Ym", 500 + 15 * 8 * 2, 96, true);// Yellow Man (Type: 3)
-            m_cLoading = 10;
-        }
-        break;
-        case 10:
-        {
-			progressLabel = "Loading player sprites";
-            MakeSprite("TutelarAngel1", SPRID_TUTELARYANGELS_PIVOTPOINT + 50 * 0, 48, false);//(STR)
-            MakeSprite("TutelarAngel2", SPRID_TUTELARYANGELS_PIVOTPOINT + 50 * 1, 48, false);//(DEX)
-            MakeSprite("TutelarAngel3", SPRID_TUTELARYANGELS_PIVOTPOINT + 50 * 2, 48, false);//(INT)
-            MakeSprite("TutelarAngel4", SPRID_TUTELARYANGELS_PIVOTPOINT + 50 * 3, 48, false);//(MAG)
-            MakeSprite("Bw", 500 + 15 * 8 * 3, 96, true);// Black Woman (Type: 4)
-            MakeSprite("Ww", 500 + 15 * 8 * 4, 96, true);// White Woman (Type: 5)
-            MakeSprite("Yw", 500 + 15 * 8 * 5, 96, true);// Yellow Woman (Type: 6)
-            m_cLoading = 12;
-        }
-        break;
-        case 12:
-        {
-			progressLabel = "Loading NPC sprites";
-            MakeSprite("slm", SPRID_MOB + 7 * 8 * 0, 40, true);// Slime (Type: 10)
-            MakeSprite("ske", SPRID_MOB + 7 * 8 * 1, 40, true);// Skeleton (Type: 11)
-            MakeSprite("Gol", SPRID_MOB + 7 * 8 * 2, 40, true);// Stone-Golem (Type: 12)
-            MakeSprite("Cyc", SPRID_MOB + 7 * 8 * 3, 40, true);// Cyclops (Type: 13)
-            MakeSprite("Orc", SPRID_MOB + 7 * 8 * 4, 40, true);// Orc (Type: 14)
-            MakeSprite("Shopkpr", SPRID_MOB + 7 * 8 * 5, 8, true);		// ShopKeeper-Woman (Type: 15)
-            MakeSprite("Ant", SPRID_MOB + 7 * 8 * 6, 40, true);//  Giant-Ant (Type: 16)
-            MakeSprite("Scp", SPRID_MOB + 7 * 8 * 7, 40, true);//  Scorpion (Type: 17)
-            MakeSprite("Zom", SPRID_MOB + 7 * 8 * 8, 40, true);//  Zombie (Type: 18)
-            MakeSprite("Gandlf", SPRID_MOB + 7 * 8 * 9, 8, true);
-            MakeSprite("Howard", SPRID_MOB + 7 * 8 * 10, 8, true);
-            MakeSprite("Guard", SPRID_MOB + 7 * 8 * 11, 40, true);// Guard (Type: 21)
-            MakeSprite("Amp", SPRID_MOB + 7 * 8 * 12, 40, true);// Amphis (Type: 22)
-            MakeSprite("Cla", SPRID_MOB + 7 * 8 * 13, 40, true);// Clay-Golem (Type: 23)
-            MakeSprite("tom", SPRID_MOB + 7 * 8 * 14, 8, true);// Tom (Type: 24)
-            MakeSprite("William", SPRID_MOB + 7 * 8 * 15, 8, true);// William (Type: 25)
-            m_cLoading = 14;
-        }
-        break;
-        case 14:
-        {
-			progressLabel = "Loading NPC sprites.";
-            MakeSprite("Kennedy", SPRID_MOB + 7 * 8 * 16, 8, true);// Kennedy (Type: 26)
-            MakeSprite("Helb", SPRID_MOB + 7 * 8 * 17, 40, true);// Hellbound (Type: 27)
-            MakeSprite("Troll", SPRID_MOB + 7 * 8 * 18, 40, true);// Troll (Type: 28)
-            MakeSprite("EnragedTroll", SPRID_MOB + 7 * 8 * 112, 40, true);// Enraged Troll (Type: 122)
-            MakeSprite("Orge", SPRID_MOB + 7 * 8 * 19, 40, true);// Orge (Type: 29)
-            MakeSprite("Liche", SPRID_MOB + 7 * 8 * 20, 40, true);// Liche (Type: 30)
-            MakeSprite("Demon", SPRID_MOB + 7 * 8 * 21, 40, true);// Demon (Type: 31)
-            MakeSprite("BlackDemon", SPRID_MOB + 7 * 8 * 95, 40, true);// Black Demon (Type: 105)
-            MakeSprite("Unicorn", SPRID_MOB + 7 * 8 * 22, 40, true);// Unicorn (Type: 32)
-            MakeSprite("DarkUnicorn", SPRID_MOB + 7 * 8 * 94, 40, true);// DarkUnicorn (Type: 104)
-            MakeSprite("WereWolf", SPRID_MOB + 7 * 8 * 23, 40, true);// WereWolf (Type: 33)
-            MakeSprite("Dummy", SPRID_MOB + 7 * 8 * 24, 40, true);// Dummy (Type: 34)
-            //m_hPakFile = CreateFileA("sprites\\Effect5.pak", GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL); // Energy-Ball (Type: 35)
-            for (i = 0; i < 40; i++)
-                m_pSprite[SPRID_MOB + i + 7 * 8 * 25] = CSprite::CreateSprite("Effect5", 0, true);
-            m_cLoading = 16;
-        }
-        break;
-        case 16:
-        {
-			progressLabel = "Loading NPC sprites...";
-            MakeSprite("GT-Arrow", SPRID_MOB + 7 * 8 * 26, 40, true);// Arrow-GuardTower (Type: 36)
-            MakeSprite("GT-Cannon", SPRID_MOB + 7 * 8 * 27, 40, true);// Cannon-GuardTower (Type: 37)
-            MakeSprite("ManaCollector", SPRID_MOB + 7 * 8 * 28, 40, true);// Mana Collector (Type: 38)
-            MakeSprite("Detector", SPRID_MOB + 7 * 8 * 29, 40, true);// Detector (Type: 39)
-            MakeSprite("ESG", SPRID_MOB + 7 * 8 * 30, 40, true);// ESG (Type: 40)
-            MakeSprite("GMG", SPRID_MOB + 7 * 8 * 31, 40, true);// GMG (Type: 41)
-            MakeSprite("ManaStone", SPRID_MOB + 7 * 8 * 32, 40, true);// ManaStone (Type: 42)
-            MakeSprite("LWB", SPRID_MOB + 7 * 8 * 33, 40, true);// Light War Beetle (Type: 43)
-            MakeSprite("GHK", SPRID_MOB + 7 * 8 * 34, 40, true);// God's Hand Knight (Type: 44)
-            MakeSprite("GHKABS", SPRID_MOB + 7 * 8 * 35, 40, true);// God's Hand Knight with Armored Battle Steed (Type: 45)
-            MakeSprite("TK", SPRID_MOB + 7 * 8 * 36, 40, true);// Temple Knight (Type: 46)
-            MakeSprite("BG", SPRID_MOB + 7 * 8 * 37, 40, true);// Battle Golem (Type: 47)
-            m_cLoading = 18;
-        }
-        break;
-        case 18:
-        {
-			progressLabel = "Loading NPC sprites";
-            MakeSprite("Stalker", SPRID_MOB + 7 * 8 * 38, 40, true);// Stalker (Type: 48)
-            MakeSprite("Hellclaw", SPRID_MOB + 7 * 8 * 39, 40, true);// Hellclaw (Type: 49)
-            MakeSprite("Tigerworm", SPRID_MOB + 7 * 8 * 40, 40, true);// Tigerworm (Type: 50)
-            MakeSprite("Catapult", SPRID_MOB + 7 * 8 * 41, 40, true);// Catapult (Type: 51)
-            MakeSprite("Gagoyle", SPRID_MOB + 7 * 8 * 42, 40, true);// Gargoyle (Type: 52)
-            MakeSprite("EnragedGagoyle", SPRID_MOB + 7 * 8 * 115, 40, true);// Enraged Gagoyle (Type: 125)
-            MakeSprite("Beholder", SPRID_MOB + 7 * 8 * 43, 40, true);// Beholder (Type: 53)
-            MakeSprite("DarkElf", SPRID_MOB + 7 * 8 * 44, 40, true);// Dark-Elf (Type: 54)
-            MakeSprite("Bunny", SPRID_MOB + 7 * 8 * 45, 40, true);// Bunny (Type: 55)
-            MakeSprite("Cat", SPRID_MOB + 7 * 8 * 46, 40, true);// Cat (Type: 56)
-            MakeSprite("GiantFrog", SPRID_MOB + 7 * 8 * 47, 40, true);// GiantFrog (Type: 57)
-            MakeSprite("MTGiant", SPRID_MOB + 7 * 8 * 48, 40, true);// Mountain Giant (Type: 58)
-            m_cLoading = 20;
-        }
-        break;
-        case 20:
-        {
-			progressLabel = "Loading NPC sprites.";
-            MakeSprite("Ettin", SPRID_MOB + 7 * 8 * 49, 40, true);// Ettin (Type: 59)
-            MakeSprite("CanPlant", SPRID_MOB + 7 * 8 * 50, 40, true);// Cannibal Plant (Type: 60)
-            MakeSprite("Rudolph", SPRID_MOB + 7 * 8 * 51, 40, true);// Rudolph (Type: 61)
-            MakeSprite("DireBoar", SPRID_MOB + 7 * 8 * 52, 40, true);// Boar (Type: 62)
-            MakeSprite("frost", SPRID_MOB + 7 * 8 * 53, 40, true);// Frost (Type: 63)
-            MakeSprite("Crop", SPRID_MOB + 7 * 8 * 54, 40, true);// Crop(Type: 64)
-            MakeSprite("IceGolem", SPRID_MOB + 7 * 8 * 55, 40, true);// IceGolem (Type: 65)
-            MakeSprite("Wyvern", SPRID_MOB + 7 * 8 * 56, 24, true);// Wyvern (Type: 66)
-            MakeSprite("McGaffin", SPRID_MOB + 7 * 8 * 57, 16, true);// McGaffin (Type: 67)
-            MakeSprite("Perry", SPRID_MOB + 7 * 8 * 58, 16, true);// Perry (Type: 68)
-            MakeSprite("Devlin", SPRID_MOB + 7 * 8 * 59, 16, true);// Devlin (Type: 69)
-            MakeSprite("Barlog", SPRID_MOB + 7 * 8 * 60, 40, true);// Barlog (Type: 70)
-            MakeSprite("Centaurus", SPRID_MOB + 7 * 8 * 61, 40, true);// Centaurus (Type: 71)
-            MakeSprite("ClawTurtle", SPRID_MOB + 7 * 8 * 62, 40, true);// Claw-Turtle (Type: 72)
-            MakeSprite("FireWyvern", SPRID_MOB + 7 * 8 * 63, 24, true);// Fire-Wyvern (Type: 73)
-            MakeSprite("GiantCrayfish", SPRID_MOB + 7 * 8 * 64, 40, true);// Giant-Crayfish (Type: 74)
-            MakeSprite("GiantLizard", SPRID_MOB + 7 * 8 * 65, 40, true);// Giant-Lizard (Type: 75)
-            MakeSprite("DarkWyvern", SPRID_MOB + 7 * 8 * 98, 24, true);// Dark-Wyvern (Type: 108)
-            MakeSprite("EarthWyvern", SPRID_MOB + 7 * 8 * 96, 24, true);// Earth-Wyvern (Type: 106)
-            MakeSprite("GrassWyvern", SPRID_MOB + 7 * 8 * 99, 24, true);// Grass-Wyvern (Type: 109)
-            MakeSprite("MetalWyvern", SPRID_MOB + 7 * 8 * 102, 24, true);// Metal-Wyvern (Type: 112)
-            MakeSprite("SeaWyvern", SPRID_MOB + 7 * 8 * 101, 24, true);// Sea-Wyvern (Type: 111)
-            MakeSprite("SkyWyvern", SPRID_MOB + 7 * 8 * 100, 24, true);// Sky-Wyvern (Type: 110)
-            MakeSprite("VoidWyvern", SPRID_MOB + 7 * 8 * 103, 24, true);// Void-Wyvern (Type: 113)
-            MakeSprite("WindWyvern", SPRID_MOB + 7 * 8 * 97, 24, true);// Wind-Wyvern (Type: 107)
-            m_cLoading = 22;
-        }
-        break;
-        case 22:
-        {
-			progressLabel = "Loading NPC sprites..";
-            MakeSprite("GiantPlant", SPRID_MOB + 7 * 8 * 66, 40, true);// Giant-Plant (Type: 76)
-            MakeSprite("MasterMageOrc", SPRID_MOB + 7 * 8 * 67, 40, true);// MasterMage-Orc (Type: 77)
-            MakeSprite("Minotaurs", SPRID_MOB + 7 * 8 * 68, 40, true);// Minotaurs (Type: 78)
-            MakeSprite("Nizie", SPRID_MOB + 7 * 8 * 69, 40, true);// Nizie (Type: 79)
-            MakeSprite("Tentocle", SPRID_MOB + 7 * 8 * 70, 40, true);// Tentocle (Type: 80)
-            MakeSprite("yspro", SPRID_MOB + 7 * 8 * 71, 32, true);// Abaddon (Type: 81)
-            MakeSprite("Sorceress", SPRID_MOB + 7 * 8 * 72, 40, true);// Sorceress (Type: 82)
-            MakeSprite("TPKnight", SPRID_MOB + 7 * 8 * 73, 40, true);// TPKnight (Type: 83)
-            MakeSprite("ElfMaster", SPRID_MOB + 7 * 8 * 74, 40, true);// ElfMaster (Type: 84)
-            MakeSprite("DarkKnight", SPRID_MOB + 7 * 8 * 75, 40, true);// DarkKnight (Type: 85)
-            MakeSprite("HBTank", SPRID_MOB + 7 * 8 * 76, 32, true);// HeavyBattleTank (Type: 86)
-            MakeSprite("CBTurret", SPRID_MOB + 7 * 8 * 77, 32, true);// CBTurret (Type: 87)
-            MakeSprite("Babarian", SPRID_MOB + 7 * 8 * 78, 40, true);// Babarian (Type: 88)
-            MakeSprite("ACannon", SPRID_MOB + 7 * 8 * 79, 32, true);// ACannon (Type: 89)
-            MakeSprite("EternalDragon", SPRID_MOB + 7 * 8 * 104, 32, true);// Eternal dragon (Type: 114) 
-            MakeSprite("EnragedCyclops", SPRID_MOB + 7 * 8 * 113, 40, true);// Enraged Cyclops (Type: 123)
-            MakeSprite("EnragedStalker", SPRID_MOB + 7 * 8 * 114, 40, true);// Enraged Stalker (Type: 124)
-            MakeSprite("EnragedHellclaw", SPRID_MOB + 7 * 8 * 116, 40, true);// Enraged Hellclaw (Type: 126)
-            MakeSprite("EnragedTW", SPRID_MOB + 7 * 8 * 117, 40, true);// Enraged Tigerworm (Type: 127)
-            m_cLoading = 24;
-        }
-        break;
-        case 24:
-        {
-			progressLabel = "Loading NPC sprites...";
-            MakeSprite("Gail", SPRID_MOB + 7 * 8 * 80, 8, true); // Gail (Type: 90)
-            MakeSprite("Gate", SPRID_MOB + 7 * 8 * 81, 24, true);// Heldenian Gate (Type: 91)/**/
-            MakeSprite("Scarecrow", SPRID_MOB + 7 * 8 * 82, 40, true);
-            MakeSprite("Princess", SPRID_MOB + 7 * 8 * 92, 8, true);// Princess 102
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 0] = CSprite::CreateSprite("Mpt", i + 12 * 0, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 1] = CSprite::CreateSprite("Mpt", i + 12 * 1, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 2] = CSprite::CreateSprite("Mpt", i + 12 * 2, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 3] = CSprite::CreateSprite("Mpt", i + 12 * 3, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 4] = CSprite::CreateSprite("Mpt", i + 12 * 4, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 5] = CSprite::CreateSprite("Mpt", i + 12 * 5, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 6] = CSprite::CreateSprite("Mpt", i + 12 * 6, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_M + i + 15 * 7] = CSprite::CreateSprite("Mpt", i + 12 * 7, true);
-            m_cLoading = 26;
-        }
-        break;
-
-        case 26:
-        {
-			progressLabel = "Creating item sprites";
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 0] = CSprite::CreateSprite("Mhr", i + 12 * 0, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 1] = CSprite::CreateSprite("Mhr", i + 12 * 1, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 2] = CSprite::CreateSprite("Mhr", i + 12 * 2, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 3] = CSprite::CreateSprite("Mhr", i + 12 * 3, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 4] = CSprite::CreateSprite("Mhr", i + 12 * 4, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 5] = CSprite::CreateSprite("Mhr", i + 12 * 5, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 6] = CSprite::CreateSprite("Mhr", i + 12 * 6, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_M + i + 15 * 7] = CSprite::CreateSprite("Mhr", i + 12 * 7, true);
-            MakeSprite("MLArmor", SPRID_BODYARMOR_M + 15 * 1, 12, true);
-            MakeSprite("MCMail", SPRID_BODYARMOR_M + 15 * 2, 12, true);
-            MakeSprite("MSMail", SPRID_BODYARMOR_M + 15 * 3, 12, true);
-            MakeSprite("MPMail", SPRID_BODYARMOR_M + 15 * 4, 12, true);
-            //MakeSprite( "MPMail",	SPRID_BODYARMOR_M + 15*25, 12, TRUE);
-            MakeSprite("Mtunic", SPRID_BODYARMOR_M + 15 * 5, 12, true);
-            MakeSprite("MRobe1", SPRID_BODYARMOR_M + 15 * 6, 12, true);
-            MakeSprite("MSanta", SPRID_BODYARMOR_M + 15 * 7, 12, true);
-            MakeSprite("MHPMail1", SPRID_BODYARMOR_M + 15 * 8, 12, true); //hero
-            MakeSprite("MHPMail2", SPRID_BODYARMOR_M + 15 * 9, 12, true); //hero
-            MakeSprite("MHRobe1", SPRID_BODYARMOR_M + 15 * 10, 12, true); //hero
-            MakeSprite("MHRobe2", SPRID_BODYARMOR_M + 15 * 11, 12, true); //hero
-            MakeSprite("AncHeroArmorM", SPRID_BODYARMOR_M + 15 * 12, 12, true); //hero // Black Ancient Hero Armor M
-            MakeSprite("AncHeroRobeM", SPRID_BODYARMOR_M + 15 * 13, 12, true); //hero // Black Ancient Hero Robe M
-            MakeSprite("ALegRobeM", SPRID_BODYARMOR_M + 15 * 14, 12, true); // Aresden Ancient Hero Robe M
-            MakeSprite("ELegRobeM", SPRID_BODYARMOR_M + 15 * 15, 12, true); // Elvine Ancient Hero Robe M
-            MakeSprite("ALegArmorM", SPRID_BODYARMOR_M + 15 * 16, 12, true); // Aresden Ancient Hero Armor M
-            MakeSprite("ELegArmorM", SPRID_BODYARMOR_M + 15 * 17, 12, true); // Elvine Ancient Hero Armor M
-            MakeSprite("MShirt", SPRID_BERK_M + 15 * 1, 12, true);
-            MakeSprite("MHauberk", SPRID_BERK_M + 15 * 2, 12, true);
-            //MakeSprite( "MHauberk",	  SPRID_BERK_M + 15*25, 12, TRUE);
-            MakeSprite("MHHauberk1", SPRID_BERK_M + 15 * 3, 12, true);
-            MakeSprite("MHHauberk2", SPRID_BERK_M + 15 * 4, 12, true);
-            MakeSprite("AncHeroHauberkM", SPRID_BERK_M + 15 * 5, 12, true); // Black Ancient Hero Hauberk M
-            MakeSprite("ALegHauberkM", SPRID_BERK_M + 15 * 6, 12, true); // Aresden Ancient Hero Hauberk M
-            MakeSprite("ELegHauberkM", SPRID_BERK_M + 15 * 7, 12, true); // Elvine Ancient Hero Hauberk M
-            m_cLoading = 28;
-        }
-        break;
-        case 28:
-        {
-			progressLabel = "Creating item sprites.";
-            MakeSprite("MTrouser", SPRID_LEGG_M + 15 * 1, 12, true);
-            MakeSprite("MHTrouser", SPRID_LEGG_M + 15 * 2, 12, true);
-            MakeSprite("MCHoses", SPRID_LEGG_M + 15 * 3, 12, true);
-            MakeSprite("MLeggings", SPRID_LEGG_M + 15 * 4, 12, true);
-            //MakeSprite( "MLeggings",SPRID_LEGG_M + 15*25, 12, TRUE);
-            MakeSprite("MHLeggings1", SPRID_LEGG_M + 15 * 5, 12, true); // hero
-            MakeSprite("MHLeggings2", SPRID_LEGG_M + 15 * 6, 12, true); // hero
-            MakeSprite("AncHeroLegM", SPRID_LEGG_M + 15 * 7, 12, true); // hero // Black Ancient Hero Leggings M
-            MakeSprite("ALegLeggingsM", SPRID_LEGG_M + 15 * 8, 12, true); // Aresden Ancient Leggings M 
-            MakeSprite("ELegLeggingsM", SPRID_LEGG_M + 15 * 9, 12, true); // Elvine Ancient Leggings M
-
-            MakeSprite("MShoes", SPRID_BOOT_M + 15 * 1, 12, true);
-            MakeSprite("MLBoots", SPRID_BOOT_M + 15 * 2, 12, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 1] = CSprite::CreateSprite("Msw", i + 56 * 0, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 2] = CSprite::CreateSprite("Msw", i + 56 * 1, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 3] = CSprite::CreateSprite("Msw", i + 56 * 2, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 4] = CSprite::CreateSprite("Msw", i + 56 * 3, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 6] = CSprite::CreateSprite("Msw", i + 56 * 5, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 7] = CSprite::CreateSprite("Msw", i + 56 * 6, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 8] = CSprite::CreateSprite("Msw", i + 56 * 7, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 9] = CSprite::CreateSprite("Msw", i + 56 * 8, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 10] = CSprite::CreateSprite("Msw", i + 56 * 9, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 11] = CSprite::CreateSprite("Msw", i + 56 * 10, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 12] = CSprite::CreateSprite("Msw", i + 56 * 11, true);
-            m_cLoading = 30;
-        }
-        break;
-        case 30:
-        {
-			progressLabel = "Creating item sprites..";
-            MakeSprite("Mswx", SPRID_WEAPON_M + 64 * 5, 56, true);
-            MakeSprite("Msw2", SPRID_WEAPON_M + 64 * 13, 56, true);
-            MakeSprite("Msw3", SPRID_WEAPON_M + 64 * 14, 56, true);
-            MakeSprite("MStormBringer", SPRID_WEAPON_M + 64 * 15, 56, true);
-            MakeSprite("MDarkExec", SPRID_WEAPON_M + 64 * 16, 56, true);
-            MakeSprite("MKlonessBlade", SPRID_WEAPON_M + 64 * 17, 56, true);
-            MakeSprite("MKlonessAstock", SPRID_WEAPON_M + 64 * 18, 56, true);
-            MakeSprite("MDebastator", SPRID_WEAPON_M + 64 * 19, 56, true);
-            MakeSprite("MAxe1", SPRID_WEAPON_M + 64 * 20, 56, true);// Axe
-            MakeSprite("MAxe2", SPRID_WEAPON_M + 64 * 21, 56, true);
-            MakeSprite("MAxe3", SPRID_WEAPON_M + 64 * 22, 56, true);
-            MakeSprite("MAxe4", SPRID_WEAPON_M + 64 * 23, 56, true);
-            MakeSprite("MAxe5", SPRID_WEAPON_M + 64 * 24, 56, true);
-            MakeSprite("MPickAxe1", SPRID_WEAPON_M + 64 * 25, 56, true);
-            MakeSprite("MAxe6", SPRID_WEAPON_M + 64 * 26, 56, true);
-            MakeSprite("Mhoe", SPRID_WEAPON_M + 64 * 27, 56, true);
-            MakeSprite("MKlonessAxe", SPRID_WEAPON_M + 64 * 28, 56, true);
-            MakeSprite("MLightBlade", SPRID_WEAPON_M + 64 * 29, 56, true);
-            m_cLoading = 32;
-        }
-        break;
-        case 32:
-        {
-			progressLabel = "Creating item sprites...";
-            MakeSprite("MHammer", SPRID_WEAPON_M + 64 * 30, 56, true);
-            MakeSprite("MBHammer", SPRID_WEAPON_M + 64 * 31, 56, true);
-            MakeSprite("MBabHammer", SPRID_WEAPON_M + 64 * 32, 56, true);
-            MakeSprite("MBShadowSword", SPRID_WEAPON_M + 64 * 33, 56, true);
-            MakeSprite("MBerserkWand", SPRID_WEAPON_M + 64 * 34, 56, true);
-            MakeSprite("Mstaff1", SPRID_WEAPON_M + 64 * 35, 56, true);// Staff
-            MakeSprite("Mstaff2", SPRID_WEAPON_M + 64 * 36, 56, true);
-            MakeSprite("MStaff3", SPRID_WEAPON_M + 64 * 37, 56, true);
-            MakeSprite("MReMagicWand", SPRID_WEAPON_M + 64 * 38, 56, true);
-            MakeSprite("MKlonessWand", SPRID_WEAPON_M + 64 * 39, 56, true);
-            MakeSprite("Staff4M", SPRID_WEAPON_M + 64 * 40, 56, true);
-            // Bows 40 41 below
-            MakeSprite("MDirectBow", SPRID_WEAPON_M + 64 * 43, 56, true);
-            MakeSprite("MFireBow", SPRID_WEAPON_M + 64 * 44, 56, true);
-            m_cLoading = 34;
-        }
-        break;
-        case 34:
-        {
-			progressLabel = "Creating item sprites";
-            MakeSprite("Mbo", SPRID_WEAPON_M + 64 * 41, 56, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_M + i + 64 * 42] = CSprite::CreateSprite("Mbo", i + 56 * 1, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 1] = CSprite::CreateSprite("Msh", i + 7 * 0, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 2] = CSprite::CreateSprite("Msh", i + 7 * 1, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 3] = CSprite::CreateSprite("Msh", i + 7 * 2, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 4] = CSprite::CreateSprite("Msh", i + 7 * 3, true);
-            for (i = 0; i < 7; i++)	m_pSprite[SPRID_SHIELD_M + i + 8 * 5] = CSprite::CreateSprite("Msh", i + 7 * 4, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 6] = CSprite::CreateSprite("Msh", i + 7 * 5, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 7] = CSprite::CreateSprite("Msh", i + 7 * 6, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 8] = CSprite::CreateSprite("Msh", i + 7 * 7, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_M + i + 8 * 9] = CSprite::CreateSprite("Msh", i + 7 * 8, true);
-            m_cLoading = 36;
-        }
-        break;
-        case 36:
-        {
-			progressLabel = "Creating item sprites..";
-            MakeSprite("Mmantle01", SPRID_MANTLE_M + 15 * 1, 12, true);
-            MakeSprite("Mmantle02", SPRID_MANTLE_M + 15 * 2, 12, true);
-            MakeSprite("Mmantle03", SPRID_MANTLE_M + 15 * 3, 12, true);
-            MakeSprite("Mmantle04", SPRID_MANTLE_M + 15 * 4, 12, true);
-            MakeSprite("Mmantle05", SPRID_MANTLE_M + 15 * 5, 12, true);
-            MakeSprite("Mmantle06", SPRID_MANTLE_M + 15 * 6, 12, true);
-            MakeSprite("Mmantle07", SPRID_MANTLE_M + 15 * 7, 12, true);
-            MakeSprite("Mmantle08", SPRID_MANTLE_M + 15 * 8, 12, true);
-            MakeSprite("AAncHeroCapeM", SPRID_MANTLE_M + 15 * 9, 12, true); // Aresden Black Ancient Hero Cape M
-            MakeSprite("EAncHeroCapeM", SPRID_MANTLE_M + 15 * 10, 12, true); // Elvine Black Ancient Hero Cape M
-            MakeSprite("MHelm1", SPRID_HEAD_M + 15 * 1, 12, true);
-            MakeSprite("MHelm2", SPRID_HEAD_M + 15 * 2, 12, true);
-            MakeSprite("MHelm3", SPRID_HEAD_M + 15 * 3, 12, true);
-            MakeSprite("MHelm4", SPRID_HEAD_M + 15 * 4, 12, true);
-            MakeSprite("NMHelm1", SPRID_HEAD_M + 15 * 5, 12, true);
-            //MakeSprite( "NMHelm1", SPRID_HEAD_M + 15*25, 12, TRUE);
-            MakeSprite("NMHelm2", SPRID_HEAD_M + 15 * 6, 12, true);
-            MakeSprite("NMHelm3", SPRID_HEAD_M + 15 * 7, 12, true);
-            MakeSprite("NMHelm4", SPRID_HEAD_M + 15 * 8, 12, true);
-            MakeSprite("MHHelm1", SPRID_HEAD_M + 15 * 9, 12, true);
-            MakeSprite("MHHelm2", SPRID_HEAD_M + 15 * 10, 12, true);
-            MakeSprite("MHCap1", SPRID_HEAD_M + 15 * 11, 12, true);
-            MakeSprite("MHCap2", SPRID_HEAD_M + 15 * 12, 12, true);
-            MakeSprite("AncHeroHelmM", SPRID_HEAD_M + 15 * 13, 12, true); // Black Ancient Hero Helm M
-            MakeSprite("AncHeroCapM", SPRID_HEAD_M + 15 * 14, 12, true); // Black Ancient Hero Cap M
-            MakeSprite("ALegHelmM", SPRID_HEAD_M + 15 * 15, 12, true); // Aresden Ancient Helm M
-            MakeSprite("ELegHelmM", SPRID_HEAD_M + 15 * 16, 12, true); // Elvine Ancient Helm M
-            MakeSprite("ALegCapM", SPRID_HEAD_M + 15 * 17, 12, true); // Aresden Ancient Cap M
-            MakeSprite("ELegCapM", SPRID_HEAD_M + 15 * 18, 12, true); // Elvine Ancient Cap M
-            m_cLoading = 38;
-        }
-        break;
-        case 38:
-        {
-			progressLabel = "Creating item sprites...";
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 0] = CSprite::CreateSprite("Wpt", i, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 1] = CSprite::CreateSprite("Wpt", i + 12, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 2] = CSprite::CreateSprite("Wpt", i + 12 * 2, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 3] = CSprite::CreateSprite("Wpt", i + 12 * 3, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 4] = CSprite::CreateSprite("Wpt", i + 12 * 4, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 5] = CSprite::CreateSprite("Wpt", i + 12 * 5, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 6] = CSprite::CreateSprite("Wpt", i + 12 * 6, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_UNDIES_W + i + 15 * 7] = CSprite::CreateSprite("Wpt", i + 12 * 7, true);
-
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 0] = CSprite::CreateSprite("Whr", i + 0, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 1] = CSprite::CreateSprite("Whr", i + 12, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 2] = CSprite::CreateSprite("Whr", i + 12 * 2, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 3] = CSprite::CreateSprite("Whr", i + 12 * 3, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 4] = CSprite::CreateSprite("Whr", i + 12 * 4, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 5] = CSprite::CreateSprite("Whr", i + 12 * 5, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 6] = CSprite::CreateSprite("Whr", i + 12 * 6, true);
-            for (i = 0; i < 12; i++) m_pSprite[SPRID_HAIR_W + i + 15 * 7] = CSprite::CreateSprite("Whr", i + 12 * 7, true);
-            m_cLoading = 40;
-        }
-        break;
-        case 40:
-        {
-			progressLabel = "Creating item sprites";
-            MakeSprite("WBodice1", SPRID_BODYARMOR_W + 15 * 1, 12, true);
-            MakeSprite("WBodice2", SPRID_BODYARMOR_W + 15 * 2, 12, true);
-            MakeSprite("WLArmor", SPRID_BODYARMOR_W + 15 * 3, 12, true);
-            MakeSprite("WCMail", SPRID_BODYARMOR_W + 15 * 4, 12, true);
-            MakeSprite("WSMail", SPRID_BODYARMOR_W + 15 * 5, 12, true);
-            MakeSprite("WPMail", SPRID_BODYARMOR_W + 15 * 6, 12, true);
-            MakeSprite("WRobe1", SPRID_BODYARMOR_W + 15 * 7, 12, true);
-            MakeSprite("WSanta", SPRID_BODYARMOR_W + 15 * 8, 12, true);
-            MakeSprite("WHPMail1", SPRID_BODYARMOR_W + 15 * 9, 12, true); //hero
-            MakeSprite("WHPMail2", SPRID_BODYARMOR_W + 15 * 10, 12, true); //hero
-            MakeSprite("WHRobe1", SPRID_BODYARMOR_W + 15 * 11, 12, true); // hero
-            MakeSprite("WHRobe2", SPRID_BODYARMOR_W + 15 * 12, 12, true); // hero
-            MakeSprite("AncHeroArmorW", SPRID_BODYARMOR_W + 15 * 13, 12, true); //hero // Black Ancient Hero Armor W
-            MakeSprite("AncHeroRobeW", SPRID_BODYARMOR_W + 15 * 14, 12, true); // hero // Black Ancient Hero Robe W
-            MakeSprite("ALegRobeW", SPRID_BODYARMOR_W + 15 * 15, 12, true); // Aresden Ancient Robe W
-            MakeSprite("ELegRobeW", SPRID_BODYARMOR_W + 15 * 16, 12, true); // Elvine Ancient Robe W
-            MakeSprite("ALegArmorW", SPRID_BODYARMOR_W + 15 * 17, 12, true); // Aresden Ancient Armor W
-            MakeSprite("ELegArmorW", SPRID_BODYARMOR_W + 15 * 18, 12, true); // Elvine Ancient Armor W
-
-            MakeSprite("WChemiss", SPRID_BERK_W + 15 * 1, 12, true);
-            MakeSprite("WShirt", SPRID_BERK_W + 15 * 2, 12, true);
-            MakeSprite("WHauberk", SPRID_BERK_W + 15 * 3, 12, true);
-            MakeSprite("WHHauberk1", SPRID_BERK_W + 15 * 4, 12, true);
-            MakeSprite("WHHauberk2", SPRID_BERK_W + 15 * 5, 12, true);
-            MakeSprite("AncHeroHauberkW", SPRID_BERK_W + 15 * 6, 12, true); // Black Ancient Hero Hauberk W
-            MakeSprite("ALegHauberkW", SPRID_BERK_W + 15 * 7, 12, true); // Aresden Ancient Hauberk W
-            MakeSprite("ELegHauberkW", SPRID_BERK_W + 15 * 8, 12, true); // Elvine Ancient Hauberk W
-            MakeSprite("WSkirt", SPRID_LEGG_W + 15 * 1, 12, true);
-            MakeSprite("WTrouser", SPRID_LEGG_W + 15 * 2, 12, true);
-            MakeSprite("WHTrouser", SPRID_LEGG_W + 15 * 3, 12, true);
-            MakeSprite("WCHoses", SPRID_LEGG_W + 15 * 4, 12, true);
-            MakeSprite("WLeggings", SPRID_LEGG_W + 15 * 5, 12, true);
-            MakeSprite("WHLeggings1", SPRID_LEGG_W + 15 * 6, 12, true);
-            MakeSprite("WHLeggings2", SPRID_LEGG_W + 15 * 7, 12, true);
-            MakeSprite("AncHeroLegW", SPRID_LEGG_W + 15 * 8, 12, true); // Black Ancient Hero Leggings W
-            MakeSprite("ALegLeggingsW", SPRID_LEGG_W + 15 * 9, 12, true); // Aresden Ancient Leggings W
-            MakeSprite("ELegLeggingsW", SPRID_LEGG_W + 15 * 10, 12, true); // Elvine Ancient Leggings W
-            MakeSprite("WShoes", SPRID_BOOT_W + 15 * 1, 12, true);
-            MakeSprite("WLBoots", SPRID_BOOT_W + 15 * 2, 12, true);
-            m_cLoading = 42;
-        }
-        break;
-        case 42:
-        {
-			progressLabel = "Creating item sprites.";
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 1] = CSprite::CreateSprite("Wsw", i + 56 * 0, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 2] = CSprite::CreateSprite("Wsw", i + 56 * 1, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 3] = CSprite::CreateSprite("Wsw", i + 56 * 2, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 4] = CSprite::CreateSprite("Wsw", i + 56 * 3, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 6] = CSprite::CreateSprite("Wsw", i + 56 * 5, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 7] = CSprite::CreateSprite("Wsw", i + 56 * 6, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 8] = CSprite::CreateSprite("Wsw", i + 56 * 7, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 9] = CSprite::CreateSprite("Wsw", i + 56 * 8, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 10] = CSprite::CreateSprite("Wsw", i + 56 * 9, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 11] = CSprite::CreateSprite("Wsw", i + 56 * 10, true);
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 12] = CSprite::CreateSprite("Wsw", i + 56 * 11, true);
-            MakeSprite("Wswx", SPRID_WEAPON_W + 64 * 5, 56, true);
-            MakeSprite("Wsw2", SPRID_WEAPON_W + 64 * 13, 56, true);
-            MakeSprite("Wsw3", SPRID_WEAPON_W + 64 * 14, 56, true); // TheVampire
-            MakeSprite("WStormBringer", SPRID_WEAPON_W + 64 * 15, 56, true);
-            MakeSprite("WDarkExec", SPRID_WEAPON_W + 64 * 16, 56, true);
-            MakeSprite("WKlonessBlade", SPRID_WEAPON_W + 64 * 17, 56, true);
-            MakeSprite("WKlonessAstock", SPRID_WEAPON_W + 64 * 18, 56, true);
-            MakeSprite("WDebastator", SPRID_WEAPON_W + 64 * 19, 56, true);
-            m_cLoading = 44;
-        }
-        break;
-        case 44:
-        {
-			progressLabel = "Creating item sprites..";
-            MakeSprite("WAxe1", SPRID_WEAPON_W + 64 * 20, 56, true);// Axe
-            MakeSprite("WAxe2", SPRID_WEAPON_W + 64 * 21, 56, true);
-            MakeSprite("WAxe3", SPRID_WEAPON_W + 64 * 22, 56, true);
-            MakeSprite("WAxe4", SPRID_WEAPON_W + 64 * 23, 56, true);
-            MakeSprite("WAxe5", SPRID_WEAPON_W + 64 * 24, 56, true);
-            MakeSprite("WpickAxe1", SPRID_WEAPON_W + 64 * 25, 56, true);
-            MakeSprite("WAxe6", SPRID_WEAPON_W + 64 * 26, 56, true);
-            MakeSprite("Whoe", SPRID_WEAPON_W + 64 * 27, 56, true);
-            MakeSprite("WKlonessAxe", SPRID_WEAPON_W + 64 * 28, 56, true);
-            MakeSprite("WLightBlade", SPRID_WEAPON_W + 64 * 29, 56, true);
-            MakeSprite("WHammer", SPRID_WEAPON_W + 64 * 30, 56, true);
-            MakeSprite("WBHammer", SPRID_WEAPON_W + 64 * 31, 56, true);
-            MakeSprite("WBabHammer", SPRID_WEAPON_W + 64 * 32, 56, true);
-            MakeSprite("WBShadowSword", SPRID_WEAPON_W + 64 * 33, 56, true);
-            MakeSprite("WBerserkWand", SPRID_WEAPON_W + 64 * 34, 56, true);
-            MakeSprite("Wstaff1", SPRID_WEAPON_W + 64 * 35, 56, true);
-            MakeSprite("Wstaff2", SPRID_WEAPON_W + 64 * 36, 56, true);
-            MakeSprite("WStaff3", SPRID_WEAPON_W + 64 * 37, 56, true);
-            MakeSprite("WKlonessWand", SPRID_WEAPON_W + 64 * 39, 56, true);
-            MakeSprite("WReMagicWand", SPRID_WEAPON_W + 64 * 38, 56, true);
-            MakeSprite("Staff4W", SPRID_WEAPON_W + 64 * 40, 56, true);
-            // bows 40 41 below
-            MakeSprite("WDirectBow", SPRID_WEAPON_W + 64 * 43, 56, true);
-            MakeSprite("WFireBow", SPRID_WEAPON_W + 64 * 44, 56, true);
-            m_cLoading = 46;
-        }
-        break;
-		case 46:
-        {
-			progressLabel = "Creating item sprites...";
-            MakeSprite("Wmantle01", SPRID_MANTLE_W + 15 * 1, 12, true);
-            MakeSprite("Wmantle02", SPRID_MANTLE_W + 15 * 2, 12, true);
-            MakeSprite("Wmantle03", SPRID_MANTLE_W + 15 * 3, 12, true);
-            MakeSprite("Wmantle04", SPRID_MANTLE_W + 15 * 4, 12, true);
-            MakeSprite("Wmantle05", SPRID_MANTLE_W + 15 * 5, 12, true);
-            MakeSprite("Wmantle06", SPRID_MANTLE_W + 15 * 6, 12, true);
-            MakeSprite("Wmantle07", SPRID_MANTLE_W + 15 * 7, 12, true);
-            MakeSprite("Wmantle08", SPRID_MANTLE_W + 15 * 8, 12, true);
-            MakeSprite("AAncHeroCapeW", SPRID_MANTLE_W + 15 * 9, 12, true); // Aresden Black Ancient Hero Cape W
-            MakeSprite("EAncHeroCapeW", SPRID_MANTLE_W + 15 * 10, 12, true); // Elvine Black Ancient Hero Cape W
-            MakeSprite("WHelm1", SPRID_HEAD_W + 15 * 1, 12, true);
-            MakeSprite("WHelm4", SPRID_HEAD_W + 15 * 4, 12, true);
-            MakeSprite("NWHelm1", SPRID_HEAD_W + 15 * 5, 12, true);
-            MakeSprite("NWHelm2", SPRID_HEAD_W + 15 * 6, 12, true);
-            MakeSprite("NWHelm3", SPRID_HEAD_W + 15 * 7, 12, true);
-            MakeSprite("NWHelm4", SPRID_HEAD_W + 15 * 8, 12, true);
-            MakeSprite("WHHelm1", SPRID_HEAD_W + 15 * 9, 12, true);
-            MakeSprite("WHHelm2", SPRID_HEAD_W + 15 * 10, 12, true);
-            MakeSprite("WHCap1", SPRID_HEAD_W + 15 * 11, 12, true);
-            MakeSprite("WHCap2", SPRID_HEAD_W + 15 * 12, 12, true);
-            MakeSprite("AncHeroHelmW", SPRID_HEAD_W + 15 * 13, 12, true); // Black Ancient Hero Helm W
-            MakeSprite("AncHeroCapW", SPRID_HEAD_W + 15 * 14, 12, true); // Black Ancient Hero Cap W
-            MakeSprite("ALegHelmW", SPRID_HEAD_W + 15 * 15, 12, true); // Aresden Ancient Helm M
-            MakeSprite("ELegHelmW", SPRID_HEAD_W + 15 * 16, 12, true); // Elvine Ancient Helm M
-            MakeSprite("ALegCapW", SPRID_HEAD_W + 15 * 17, 12, true); // Aresden Ancient Cap M
-            MakeSprite("ELegCapW", SPRID_HEAD_W + 15 * 18, 12, true); // Elvine Ancient Cap M
-            m_cLoading = 48;
-        }
-        break;
-        case 48:
-        {
-			progressLabel = "Creating item sprites";
-            MakeSprite("Wbo", SPRID_WEAPON_W + 64 * 41, 56, true);// Bow
-            for (i = 0; i < 56; i++) m_pSprite[SPRID_WEAPON_W + i + 64 * 42] = CSprite::CreateSprite("Wbo", i + 56 * 1, true);
-            
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 1] = CSprite::CreateSprite("Wsh", i + 7 * 0, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 2] = CSprite::CreateSprite("Wsh", i + 7 * 1, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 3] = CSprite::CreateSprite("Wsh", i + 7 * 2, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 4] = CSprite::CreateSprite("Wsh", i + 7 * 3, true);
-            for (i = 0; i < 7; i++)	m_pSprite[SPRID_SHIELD_W + i + 8 * 5] = CSprite::CreateSprite("Wsh", i + 7 * 4, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 6] = CSprite::CreateSprite("Wsh", i + 7 * 5, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 7] = CSprite::CreateSprite("Wsh", i + 7 * 6, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 8] = CSprite::CreateSprite("Wsh", i + 7 * 7, true);
-            for (i = 0; i < 7; i++) m_pSprite[SPRID_SHIELD_W + i + 8 * 9] = CSprite::CreateSprite("Wsh", i + 7 * 8, true);
-            m_cLoading = 50;
-        }
-        break;
-        case 50:
-		{
-			progressLabel = "Creating effects";
-			MakeEffectSpr("effect", 0, 10, false);
-			MakeEffectSpr("effect2", 10, 3, false);
-			MakeEffectSpr("effect3", 13, 6, false);
-			MakeEffectSpr("effect4", 19, 5, false);
-			for (i = 0; i <= 6; i++)
-				m_pEffectSpr[i + 24] = CSprite::CreateSprite("effect5", i + 1, false);
-			MakeEffectSpr("CruEffect1", 31, 9, false);
-			MakeEffectSpr("effect6", 40, 5, false);
-			MakeEffectSpr("effect7", 45, 12, false);
-			MakeEffectSpr("effect8", 57, 9, false);
-			MakeEffectSpr("effect9", 66, 21, false);
-
-			MakeEffectSpr("effect10", 87, 2, false); // Effects Hero items
-			MakeEffectSpr("effect11", 89, 14, false); // Cancel, stormBlade, resu, GateHeldenian....etc
-			MakeEffectSpr("effect11s", 104, 1, false);
-			MakeEffectSpr("yseffect2", 140, 8, false); // Abaddon's death
-			MakeEffectSpr("effect12", 148, 4, false); // Slates auras
-			MakeEffectSpr("yseffect3", 152, 16, false);
-			MakeEffectSpr("yseffect4", 133, 7, false); // Abaddon's map thunder.
-			MakeEffectSpr("effects", 168, 1, false); // minimap ping
-			m_cLoading = 52;
-		}
-		break;
-		case 52: 
-		{
-			progressLabel = "Loading sounds";
-			if (m_bSoundFlag)
-			{
-				for (i = 1; i <= 8; i++)
-				{
-					sprintf(G_cTxt, "data\\sounds\\C%d.wav", i);
-					CSoundBuffer[i].loadFromFile(G_cTxt);
-					m_pCSound[i].setBuffer(CSoundBuffer[i]);
-					progress = m_cLoading + (int)(i / 2);
-				}
-			}
-			m_cLoading = 60;
-		}
-		break;
-		case 60:
-		{
-			progressLabel = "Loading sounds.";
-			if (m_bSoundFlag)
-			{
-				for (i = 1; i <= 50; i++)
-				{
-					sprintf(G_cTxt, "data\\sounds\\M%d.wav", i);
-					MSoundBuffer[i].loadFromFile(G_cTxt);
-					m_pMSound[i].setBuffer(MSoundBuffer[i]);
-					progress = m_cLoading + (int)(i / 5);
-				}
-			}
-			m_cLoading = 68;
-		}
-		break;
-		case 68:
-		{
-			progressLabel = "Loading sounds..";
-			if (m_bSoundFlag)
-			{
-				for (i = 1; i <= 15; i++)
-				{
-					sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
-					ESoundBuffer[i].loadFromFile(G_cTxt);
-					m_pESound[i].setBuffer(ESoundBuffer[i]);
-					progress = m_cLoading + (int)(i / 6);
-				}
-			}
-            m_cLoading = 76;
-		}
-		break;
-        case 76:
-        {
-            progressLabel = "Loading sounds";
-            if (m_bSoundFlag)
+            load_data item = data_list.front();
+            data_list.pop();
+            progressLabel = item.label;
+            if (item.sprite_type == SPRITETYPE_SPRITE)
             {
-                for (i = 9; i <= 16; i++)
-                {
-                    sprintf(G_cTxt, "data\\sounds\\C%d.wav", i);
-                    CSoundBuffer[i].loadFromFile(G_cTxt);
-                    m_pCSound[i].setBuffer(CSoundBuffer[i]);
-                    progress = m_cLoading + (int)(i / 2);
-                }
+                m_pSprite[item.id] = CSprite::CreateSprite(item.name, item.num, item.alpha);
             }
-            m_cLoading = 84;
-        }
-        break;
-        case 84:
-        {
-            progressLabel = "Loading sounds.";
-            if (m_bSoundFlag)
+            else if (item.sprite_type == SPRITETYPE_TILE)
             {
-                for (i = 51; i <= 100; i++)
-                {
-                    sprintf(G_cTxt, "data\\sounds\\M%d.wav", i);
-                    MSoundBuffer[i].loadFromFile(G_cTxt);
-                    m_pMSound[i].setBuffer(MSoundBuffer[i]);
-                    progress = m_cLoading + (int)(i / 5);
-                }
+                m_pTileSpr[item.id] = CSprite::CreateSprite(item.name, item.num, item.alpha);
             }
-            m_cLoading = 88;
-        }
-        break;
-        case 88:
-        {
-            progressLabel = "Loading sounds..";
-            if (m_bSoundFlag)
+            else if (item.sprite_type == SPRITETYPE_EFFECT)
             {
-                for (i = 16; i <= 30; i++)
-                {
-                    sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
-                    ESoundBuffer[i].loadFromFile(G_cTxt);
-                    m_pESound[i].setBuffer(ESoundBuffer[i]);
-                    progress = m_cLoading + (int)(i / 6);
-                }
+                m_pEffectSpr[item.id] = CSprite::CreateSprite(item.name, item.num, item.alpha);
             }
-            m_cLoading = 92;
         }
-        break;
-        case 92:
-        {
-            progressLabel = "Loading sounds";
-            if (m_bSoundFlag)
-            {
-                for (i = 17; i <= 24; i++)
-                {
-                    sprintf(G_cTxt, "data\\sounds\\C%d.wav", i);
-                    CSoundBuffer[i].loadFromFile(G_cTxt);
-                    m_pCSound[i].setBuffer(CSoundBuffer[i]);
-                    progress = m_cLoading + (int)(i / 2);
-                }
-            }
-            m_cLoading = 95;
-        }
-        break;
-        case 95:
-        {
-            progressLabel = "Loading sounds.";
-            if (m_bSoundFlag)
-            {
-                for (i = 101; i <= 156; i++)
-                {
-                    sprintf(G_cTxt, "data\\sounds\\M%d.wav", i);
-                    MSoundBuffer[i].loadFromFile(G_cTxt);
-                    m_pMSound[i].setBuffer(MSoundBuffer[i]);
-                    progress = m_cLoading + (int)(i / 5);
-                }
-            }
-            m_cLoading = 98;
-        }
-        break;
-        case 98:
-        {
-            progressLabel = "Loading sounds..";
-            if (m_bSoundFlag)
-            {
-                for (i = 31; i <= 54; i++)
-                {
-                    sprintf(G_cTxt, "data\\sounds\\E%d.wav", i);
-                    ESoundBuffer[i].loadFromFile(G_cTxt);
-                    m_pESound[i].setBuffer(ESoundBuffer[i]);
-                    progress = m_cLoading + (int)(i / 6);
-                }
-            }
-            m_cLoading = 100;
-        }
-        break;
-		case 100:
-		{
-			progressLabel = "Finalizing";
-            isItemLoaded = false;
-            //ChangeGameMode(GAMEMODE_ONMAINMENU);
-
-
-            // mass convert
+    }
 
 
 /*
-            mkdir("dump");
-            for (int i = 0; i < MAXSPRITES; ++i)
+    // mass convert
+    mkdir("dump");
+    for (int i = 0; i < MAXSPRITES; ++i)
+    {
+        if (m_pSprite[i])
+        {
+            m_pSprite[i]->_iOpenSprite();
+            if (m_pSprite[i]->_localimage.getSize().x == 0)
             {
-                if (m_pSprite[i])
-                {
-                    m_pSprite[i]->_iOpenSprite();
-                    if (m_pSprite[i]->_localimage.getSize().x == 0)
-                    {
-                        std::cout << fmt::format("Failed to load: {} - {}\n", i, m_pSprite[i]->m_cPakFileName);
-                    }
-                    mkdir(fmt::format("dump/{}", i).c_str());
-                    for (int x = 0; x < m_pSprite[i]->m_iTotalFrame; ++x)
-                    {
-                        //mkdir(fmt::format("dump/{}/{}", i, x).c_str());
-                        std::string save = fmt::format("dump/{}/{}.png", i, x);
-                        //IntRect(m_stBrush[i].sx, m_stBrush[i].sy, m_stBrush[i].szx, m_stBrush[i].szy)
-                        sf::RenderTexture temp;
-                        temp.create(m_pSprite[i]->m_stBrush[x].szx, m_pSprite[i]->m_stBrush[x].szy);
-                        m_pSprite[i]->sprite[x].setPosition(m_pSprite[i]->m_stBrush[x].pvx, m_pSprite[i]->m_stBrush[x].pvy);
-                        temp.draw(m_pSprite[i]->sprite[x]);
-                        temp.display();
-                        //std::cout << fmt::format("{} Size: {} x {} - Pivot: ({}, {}) - Source: ({}, {})\n", save, m_pSprite[i]->m_stBrush[x].szx, m_pSprite[i]->m_stBrush[x].szy, m_pSprite[i]->m_stBrush[x].pvx, m_pSprite[i]->m_stBrush[x].pvy, m_pSprite[i]->m_stBrush[x].sx, m_pSprite[i]->m_stBrush[x].sy);
-                        temp.getTexture().copyToImage().saveToFile(save);
-                    }
-                    m_pSprite[i]->_localimage.copyToImage().saveToFile(fmt::format("dump/{}/master.png", i));
-                }
-            }*/
-
-
-			// Let the UI know we're done loading
-            if (autologin)
-            {
-                ChangeGameMode(GAMEMODE_ONCONNECTING);
-                m_dwConnectMode = MSGID_REQUEST_LOGIN;
-                ZeroMemory(m_cMsg, sizeof(m_cMsg));
-                strcpy(m_cMsg, "11");
-
-                asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
-                new_connection_->socket().async_connect(endpoint,
-                                                        std::bind(&CGame::handle_connect, this,
-                                                                    std::placeholders::_1));
-                break;
+                std::cout << fmt::format("Failed to load: {} - {}\n", i, m_pSprite[i]->m_cPakFileName);
             }
-            ChangeGameMode(oldmode);
+            mkdir(fmt::format("dump/{}", i).c_str());
+            for (int x = 0; x < m_pSprite[i]->m_iTotalFrame; ++x)
+            {
+                //mkdir(fmt::format("dump/{}/{}", i, x).c_str());
+                std::string save = fmt::format("dump/{}/{}.png", i, x);
+                //IntRect(m_stBrush[i].sx, m_stBrush[i].sy, m_stBrush[i].szx, m_stBrush[i].szy)
+                sf::RenderTexture temp;
+                temp.create(m_pSprite[i]->m_stBrush[x].szx, m_pSprite[i]->m_stBrush[x].szy);
+                m_pSprite[i]->sprite[x].setPosition(m_pSprite[i]->m_stBrush[x].pvx, m_pSprite[i]->m_stBrush[x].pvy);
+                temp.draw(m_pSprite[i]->sprite[x]);
+                temp.display();
+                //std::cout << fmt::format("{} Size: {} x {} - Pivot: ({}, {}) - Source: ({}, {})\n", save, m_pSprite[i]->m_stBrush[x].szx, m_pSprite[i]->m_stBrush[x].szy, m_pSprite[i]->m_stBrush[x].pvx, m_pSprite[i]->m_stBrush[x].pvy, m_pSprite[i]->m_stBrush[x].sx, m_pSprite[i]->m_stBrush[x].sy);
+                temp.getTexture().copyToImage().saveToFile(save);
+            }
+            m_pSprite[i]->_localimage.copyToImage().saveToFile(fmt::format("dump/{}/master.png", i));
         }
-        break;
+    }*/
+
+
+    if (data_list.empty())
+    {
+        new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
+
+        // Let the UI know we're done loading
+        if (autologin)
+        {
+            ChangeGameMode(GAMEMODE_ONCONNECTING);
+            m_dwConnectMode = MSGID_REQUEST_LOGIN;
+            ZeroMemory(m_cMsg, sizeof(m_cMsg));
+            strcpy(m_cMsg, "11");
+
+            asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
+            new_connection_->socket().async_connect(endpoint,
+                std::bind(&CGame::handle_connect, this,
+                    std::placeholders::_1));
+        }
+        else
+            ChangeGameMode(GAMEMODE_ONMAINMENU);
+
+        //ChangeGameMode(oldmode);
     }
 
-    G_pGame->send_message_to_ui([&]()
+    //std::cout << "Loading: " << ((float(data_max) - data_list.size()) / float(data_max)) * 100 << "\n";
+
+    G_pGame->call_func_for_ui([=, count = data_list.size()]()
     {
+        double percent = ((double(data_max) - count) / double(data_max)) * 100;
+
+        //std::cout << "Loading: " << percent << " - remaining: " << count << "\n";
+
         ultralight::Ref<ultralight::JSContext> context = view->LockJSContext();
         ultralight::SetJSContext(context.get());
         ultralight::JSObject global = ultralight::JSGlobalObject();
         ultralight::JSFunction LoadingProgress = global["LoadingProgress"];
         if (LoadingProgress.IsValid())
         {
-            ultralight::JSValue v(m_cLoading);
             ultralight::JSArgs args;
-            args.push_back(v);
+            args.push_back(ultralight::JSValue(percent));
+            args.push_back(ultralight::JSValue(progressLabel.c_str()));
             LoadingProgress(args);
         }
     });
@@ -1087,7 +940,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
     uint64_t dwTime;
     static uint64_t dwCTime;
 
-    int iMIbuttonNum;
+    int iMIbuttonNum = 0;
 
     dwTime = unixtime();
     sX = 0;
@@ -1185,6 +1038,7 @@ void CGame::UpdateScreen_OnSelectCharacter()
     if (m_cMenuDir > 8) m_cMenuDir = 1;
 
     DrawVersion();
+    m_pSprite[SPRID_INTERFACE_ND_SELECTCHAR]->DrawRGB(msX, msY, 0, dwTime);
     //m_pSprite[SPRID_MOUSECURSOR]->PutSpriteFast(msX, msY, 0, dwTime);
     m_stMCursor.sCursorFrame = 0;
 

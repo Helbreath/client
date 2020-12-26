@@ -149,6 +149,7 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="src\ItemBag.h" />
+    <ClInclude Include="src\listeners.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Res\resource.rc">
@@ -227,5 +228,9 @@
     </ClCompile>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ItemBag.cpp" />
+    <ClCompile Include="src\listeners.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="key code.txt" />
   </ItemGroup>
 </Project>
