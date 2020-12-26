@@ -29,7 +29,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B046891F-46C6-48B3-8BAC-777929D872EE}</ProjectGuid>
     <RootNamespace>Client</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -122,14 +122,14 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)_d</TargetName>
-    <LibraryPath>lib64;C:\Code\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>lib64debug;lib64;C:\Code\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
     <OutDir>bin\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug default res|x64'">
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
     <TargetName>$(ProjectName)_d</TargetName>
-    <LibraryPath>lib64;C:\Code\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>lib64debug;lib64;C:\Code\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
     <OutDir>bin\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -141,7 +141,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>lib64;C:\Code\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>lib64release;lib64;C:\Code\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
     <OutDir>bin\bin\</OutDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
@@ -288,7 +288,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>FMT_HEADER_ONLY;ASIO_HAS_STD_CHRONO;_HAS_AUTO_PTR_ETC=1;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;ASIO_NO_DEPRECATED;ASIO_STANDALONE;ASIO_HEADER_ONLY;_WIN32_WINNT=0x0601;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;FMT_HEADER_ONLY;ASIO_HAS_STD_CHRONO;_HAS_AUTO_PTR_ETC=1;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;ASIO_NO_DEPRECATED;ASIO_STANDALONE;ASIO_HEADER_ONLY;_WIN32_WINNT=0x0601;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -309,6 +309,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -326,7 +327,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <AdditionalDependencies>cef.lib;opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;ogg.lib;openal32.lib;sfml-audio-d.lib;sfml-graphics-d.lib;sfml-main-d.lib;sfml-system-d.lib;sfml-window-d.lib;libssl.lib;libcrypto.lib;winmm.lib;DbgHelp.lib;netapi32.lib;lib/search.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcef_dll_wrapper.lib;libcef.lib;cef_sandbox.lib;opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;ogg.lib;openal32.lib;sfml-audio-d.lib;sfml-graphics-d.lib;sfml-main-d.lib;sfml-system-d.lib;sfml-window-d.lib;libssl.lib;libcrypto.lib;winmm.lib;DbgHelp.lib;netapi32.lib;lib/search.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -336,14 +337,19 @@
       </StackReserveSize>
       <HeapReserveSize>
       </HeapReserveSize>
-      <LargeAddressAware>true</LargeAddressAware>
-      <HeapCommitSize>419430400</HeapCommitSize>
+      <LargeAddressAware>false</LargeAddressAware>
+      <HeapCommitSize>
+      </HeapCommitSize>
       <StackCommitSize>
       </StackCommitSize>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
     <Bscmake>
       <OutputFile>$(IntDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
+    <Manifest>
+      <AdditionalManifestFiles>manifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug default res|x64'">
     <Midl>
@@ -356,7 +362,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>FMT_HEADER_ONLY;ASIO_HAS_STD_CHRONO;_HAS_AUTO_PTR_ETC=1;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;ASIO_NO_DEPRECATED;ASIO_STANDALONE;ASIO_HEADER_ONLY;_WIN32_WINNT=0x0601;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;FMT_HEADER_ONLY;ASIO_HAS_STD_CHRONO;_HAS_AUTO_PTR_ETC=1;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;ASIO_NO_DEPRECATED;ASIO_STANDALONE;ASIO_HEADER_ONLY;_WIN32_WINNT=0x0601;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>StackFrameRuntimeCheck</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -377,6 +383,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -394,7 +401,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <AdditionalDependencies>cef.lib;opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;ogg.lib;openal32.lib;sfml-audio-d.lib;sfml-graphics-d.lib;sfml-main-d.lib;sfml-system-d.lib;sfml-window-d.lib;libssl.lib;libcrypto.lib;winmm.lib;DbgHelp.lib;netapi32.lib;lib/search.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcef_dll_wrapper.lib;libcef.lib;opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;ogg.lib;openal32.lib;sfml-audio-d.lib;sfml-graphics-d.lib;sfml-main-d.lib;sfml-system-d.lib;sfml-window-d.lib;libssl.lib;libcrypto.lib;winmm.lib;DbgHelp.lib;netapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <EntryPointSymbol>
       </EntryPointSymbol>
@@ -404,14 +411,18 @@
       </StackReserveSize>
       <HeapReserveSize>
       </HeapReserveSize>
-      <LargeAddressAware>true</LargeAddressAware>
-      <HeapCommitSize>419430400</HeapCommitSize>
+      <LargeAddressAware>false</LargeAddressAware>
+      <HeapCommitSize>
+      </HeapCommitSize>
       <StackCommitSize>
       </StackCommitSize>
     </Link>
     <Bscmake>
       <OutputFile>$(IntDir)$(ProjectName).bsc</OutputFile>
     </Bscmake>
+    <Manifest>
+      <AdditionalManifestFiles>manifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Midl>
@@ -486,7 +497,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <PreprocessorDefinitions>FMT_HEADER_ONLY;ASIO_HAS_STD_CHRONO;_HAS_AUTO_PTR_ETC=1;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;ASIO_NO_DEPRECATED;ASIO_STANDALONE;ASIO_HEADER_ONLY;_WIN32_WINNT=0x0601;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;FMT_HEADER_ONLY;ASIO_HAS_STD_CHRONO;_HAS_AUTO_PTR_ETC=1;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;ASIO_NO_DEPRECATED;ASIO_STANDALONE;ASIO_HEADER_ONLY;_WIN32_WINNT=0x0601;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -524,7 +535,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
-      <AdditionalDependencies>cef.lib;opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;ogg.lib;openal32.lib;sfml-audio.lib;sfml-graphics.lib;sfml-main.lib;sfml-system.lib;sfml-window.lib;libssl.lib;libcrypto.lib;winmm.lib;DbgHelp.lib;netapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libcef_dll_wrapper.lib;libcef.lib;opengl32.lib;vorbis.lib;vorbisenc.lib;vorbisfile.lib;flac.lib;ogg.lib;openal32.lib;sfml-audio.lib;sfml-graphics.lib;sfml-main.lib;sfml-system.lib;sfml-window.lib;libssl.lib;libcrypto.lib;winmm.lib;DbgHelp.lib;netapi32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EntryPointSymbol>
@@ -572,9 +583,12 @@
     <ClInclude Include="src\DynamicObjectID.h" />
     <ClInclude Include="src\Guild.h" />
     <ClInclude Include="src\BuildItem.h" />
+    <ClInclude Include="src\HTMLUI.h" />
+    <ClInclude Include="src\Input.h" />
     <ClInclude Include="src\Item.h" />
     <ClInclude Include="src\ItemBag.h" />
     <ClInclude Include="src\ItemName.h" />
+    <ClInclude Include="src\json.hpp" />
     <ClInclude Include="src\listeners.h" />
     <ClInclude Include="src\Magic.h" />
     <ClInclude Include="src\mail.h" />
@@ -608,6 +622,10 @@
     <ClCompile Include="src\Curse.cpp" />
     <ClCompile Include="src\Guild.cpp" />
     <ClCompile Include="src\BuildItem.cpp" />
+    <ClCompile Include="src\HTMLUI.cpp" />
+    <ClCompile Include="src\HTMLUICore.cpp" />
+    <ClCompile Include="src\HTMLUIPanel.cpp" />
+    <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Item.cpp" />
     <ClCompile Include="src\ItemBag.cpp" />
     <ClCompile Include="src\ItemName.cpp" />

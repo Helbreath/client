@@ -62,15 +62,9 @@
 
 #include "streams.h"
 
-#include <AppCore/App.h>
-#include <AppCore/Platform.h>
-#include <AppCore/Window.h>
-#include <AppCore/Overlay.h>
-#include <AppCore/JSHelpers.h>
-#include <Ultralight/Ultralight.h>
-#include <Ultralight/View.h>
-#include <Ultralight/KeyEvent.h>
-#include <Ultralight/KeyCodes.h>
+#include "HTMLUI.h"
+#include "Input.h"
+#include "json.hpp"
 
 
 #define BTNSZX				74
@@ -423,6 +417,38 @@ public:
 	bool hide_ui = false;
 	bool take_screen = false;
 
+    HTMLUI * htmlUI;
+    Input * htmlInput;
+	HTMLUIPanel * uiFull;
+
+    void CreateUI()
+    {
+        // Create the main UI panel
+        // uiFull = htmlUI->createPanel("main", "http://hbx.decouple.io/index.html", 0, 0, screenwidth, screenheight);
+        uiFull = htmlUI->createPanel("main", "http://localhost:8080/", 0, 0, screenwidth, screenheight, CGame::InitializeUI);
+		//uiFull = htmlUI->createPanel("main", "https://google.com/", 0, 0, screenwidth, screenheight, CGame::InitializeUI);
+        //HTMLUICore::RegisterScheme("game", "sprite", new HTMLUISpriteHandlerFactory());
+    }
+
+    bool isUIInitialized = false;
+    static void InitializeUI(HTMLUIView * view)
+    {
+        // Create the client object on the main panel
+        CefRefPtr<CefV8Value> client = CefV8Value::CreateObject(NULL, NULL);
+        client->SetValue("loadingPct", CefV8Value::CreateDouble(0), V8_PROPERTY_ATTRIBUTE_NONE);
+        client->SetValue("log", CefV8Value::CreateFunction("log", view->jsHandler), V8_PROPERTY_ATTRIBUTE_NONE);
+        client->SetValue("login", CefV8Value::CreateFunction("login", view->jsHandler), V8_PROPERTY_ATTRIBUTE_NONE);
+        client->SetValue("sync", CefV8Value::CreateFunction("sync", view->jsHandler), V8_PROPERTY_ATTRIBUTE_NONE);
+        client->SetValue("selectCharacter", CefV8Value::CreateFunction("selectCharacter", view->jsHandler), V8_PROPERTY_ATTRIBUTE_NONE);
+        client->SetValue("enterGame", CefV8Value::CreateFunction("enterGame", view->jsHandler), V8_PROPERTY_ATTRIBUTE_NONE);
+        client->SetValue("renderCharacter", CefV8Value::CreateFunction("renderCharacter", view->jsHandler), V8_PROPERTY_ATTRIBUTE_NONE);
+        client->SetValue("cancelLogin", CefV8Value::CreateFunction("cancelLogin", view->jsHandler), V8_PROPERTY_ATTRIBUTE_NONE);
+        client->SetValue("loading", CefV8Value::CreateBool(true), V8_PROPERTY_ATTRIBUTE_NONE);
+        view->jsObject->SetValue("client", client, V8_PROPERTY_ATTRIBUTE_NONE);
+    }
+
+	void ProcessUI(const CefString & method_name, CefRefPtr<CefV8Value> object);
+
     bool CreateRenderer(bool fs = false)
 	{
 		fullscreen = fs;
@@ -443,6 +469,10 @@ public:
         window.create(sf::VideoMode(screenwidth, screenheight + inspector_size), winName, (fullscreen ? Style::Fullscreen : (Style::Close)));
 
 		//window.setFramerateLimit(120);
+
+        handle = window.getSystemHandle();
+        htmlUI = new HTMLUI(this, handle);
+        htmlInput = new Input(htmlUI);
 
         if (vsync)
             window.setVerticalSyncEnabled(true);
@@ -490,14 +520,14 @@ public:
 	void create_load_list();
 
     std::string get_game_mode();
-	void receive_message_from_ui(const ultralight::JSObject & thisObject, const ultralight::JSArgs & args);
+	//void receive_message_from_ui(const ultralight::JSObject & thisObject, const ultralight::JSArgs & args);
 
 	void start_loading()
 	{
 		ChangeGameMode(GAMEMODE_ONLOADING);
 	}
 
-	void update_ui_game_mode();
+	//void update_ui_game_mode();
 
     std::map<string, sf::Font> _font;
     sf::Text _text;
@@ -512,7 +542,7 @@ public:
 	shared_ptr<CCharInfo> selectedchar;
 	
 	
-	bool clipmousegame = true;
+	bool clipmousegame = false;
 	bool clipmousewindow;
 	bool isactive;
 	uint16_t screenwidth;

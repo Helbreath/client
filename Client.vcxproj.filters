@@ -150,6 +150,15 @@
     </ClInclude>
     <ClInclude Include="src\ItemBag.h" />
     <ClInclude Include="src\listeners.h" />
+    <ClInclude Include="src\HTMLUI.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\json.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Input.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Res\resource.rc">
@@ -229,6 +238,18 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ItemBag.cpp" />
     <ClCompile Include="src\listeners.cpp" />
+    <ClCompile Include="src\HTMLUI.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HTMLUICore.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HTMLUIPanel.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Input.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="key code.txt" />

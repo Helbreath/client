@@ -5,8 +5,6 @@
 //
 // --------------------------------------------------------------
 
-#define WIN32_LEAN_AND_MEAN
-
 #include "main.h"
 #include <stdio.h>
 #include <stdlib.h> 
@@ -18,14 +16,13 @@
 #include "Game.h"
 #include "GlobalDef.h"
 //#include "listeners.h"
+#include <condition_variable>
 
 #include <intrin.h>
 #include <sodium.h>
 #include <fmt/format.h>
 
-#include <include/cef_app.h>
-#include <include/cef_client.h>
-#include <include/cef_render_handler.h>
+#include "HTMLUI.h"
 
 //#define DEBUG_INSPECTOR
 
@@ -34,124 +31,19 @@ void * G_hInstance = 0;
 char   G_cSpriteAlphaDegree;
 class CGame * G_pGame;
 
-MyListener lstnr;
-MyViewListener viewlstnr;
-
 bool Initialize(char * pCmdLine);
-
-using namespace ultralight;
-using UIWindow = ultralight::Window;
-
-RefPtr<ultralight::View> view;
-RefPtr<ultralight::View> inspector_view;
-RefPtr<ultralight::Renderer> renderer;
-RefPtr<ultralight::Session> ui_session;
 
 bool isrunning = true;
 bool is_ui_running = true;
 bool restart_ui = false;
-std::thread htmlrenderer;
+
 std::condition_variable cv;
+std::condition_variable cv2;
 
 #include <windows.h> 
 #include <stdio.h> 
 #include <conio.h>
 #include <tchar.h>
-
-class MyLogger : public Logger {
-public:
-    MyLogger() {}
-    virtual ~MyLogger() {}
-
-    ///
-    /// Called when the library wants to print a message to the log.
-    ///
-    virtual void LogMessage(ultralight::LogLevel log_level, const String16& message) override {
-        printf("%s\n", ultralight::String(message).utf8().data());
-    }
-};
-
-MyLogger uilogger;
-
-void start_ui_thread()
-{
-    Config config;
-    config.resource_path = "./resources";
-    config.use_gpu_renderer = false;
-    config.device_scale = 1.0;
-    config.enable_javascript = true;
-    config.enable_images = true;
-    Platform::instance().set_config(config);
-
-    Platform::instance().set_font_loader(GetPlatformFontLoader());
-    Platform::instance().set_file_system(GetPlatformFileSystem("."));
-    //Platform::instance().set_logger(GetDefaultLogger("ultralight.log"));
-    Platform::instance().set_logger(&uilogger);
-    //Platform::instance().set_gpu_driver();
-
-    renderer = Renderer::Create();
-
-    view = renderer->CreateView(G_pGame->screenwidth_v, G_pGame->screenheight_v, true, nullptr);
-
-    view->set_load_listener(&lstnr);
-    view->set_view_listener(&viewlstnr);
-
-    view->Focus();
-
-    //view->LoadURL("file:///ui/index.html");
-    view->LoadURL("http://localhost:8080/");
-    //view->LoadURL("https://helbreath.io/ui/main.html");
-
-#ifdef DEBUG_INSPECTOR
-    inspector_view = view->inspector();
-    inspector_view->Resize(1024, G_pGame->inspector_size);
-
-    G_pGame->inspectoractive = true;
-
-    inspector_view->Focus();
-#endif
-
-
-    /*
-            {
-                Ref<JSContext> context = view->LockJSContext();
-                SetJSContext(context.get());
-                JSObject global = JSGlobalObject();
-                global["SelfUpdate"] = std::function<void(const JSObject& thisObject, const JSArgs& args)>(SelfUpdate);
-            }*/
-
-    cv.notify_all();
-
-    while (is_ui_running && isrunning)
-    {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(10ms);
-        {
-            std::unique_lock<std::recursive_mutex> l(G_pGame->_html_m);
-
-            {
-                std::unique_lock<std::recursive_mutex> l(G_pGame->_html_eventm);
-                int i = 10;
-                while (--i)
-                {
-                    if (!G_pGame->_html_eventqueue.empty())
-                    {
-                        auto evt = G_pGame->_html_eventqueue.front();
-                        evt();
-                        G_pGame->_html_eventqueue.pop();
-                    }
-                }
-            }
-
-            renderer->Update();
-            renderer->Render();
-
-            G_pGame->dirty_html = !view->surface()->dirty_bounds().IsEmpty() || (inspector_view ? !inspector_view->surface()->dirty_bounds().IsEmpty() : false);
-            //view->surface()->ClearDirtyBounds();
-            if (inspector_view) inspector_view->surface()->ClearDirtyBounds();
-        }
-    }
-}
 
 bool isvm()
 {
@@ -164,6 +56,24 @@ bool isvm()
 
 int main(int argc, char * argv[])
 {
+    if (HTMLUICore::Main() >= 0)
+        return -1;
+/*
+    CefSettings settings;
+    settings.multi_threaded_message_loop = true;
+    settings.windowless_rendering_enabled = true;
+    settings.remote_debugging_port = 9222;
+
+    HTMLUICore::GetInstance();
+
+    HTMLUICore::sApp = new HTMLUIApp();
+
+    HTMLUICore::sArgs = CefMainArgs(GetModuleHandle(NULL));
+
+    const auto exit_code = CefExecuteProcess(HTMLUICore::sArgs, HTMLUICore::sApp.get(), nullptr);
+    if (exit_code >= 0)
+        return exit_code;*/
+
 #ifndef _DEBUG
     HANDLE hMutex;
     if (OpenMutexA(MUTEX_ALL_ACCESS, FALSE, "__DDrawWriteMode__") != NULL) {
@@ -329,6 +239,11 @@ int main(int argc, char * argv[])
 
 	srand((unsigned)time(0));
 
+#ifdef WIN32
+    SetCurrentDirectoryA("../");
+#else
+#endif
+
     G_pGame = new class CGame;
 
 #ifndef _DEBUG
@@ -340,11 +255,6 @@ int main(int argc, char * argv[])
     G_pGame->_renderer = "OpenGL";
 
     G_pGame->inside_vm = isvm();
-
-#ifdef WIN32
-    SetCurrentDirectoryA("../");
-#else
-#endif
 
     if (argc >= 2)
     {
@@ -415,6 +325,35 @@ int main(int argc, char * argv[])
 
     app->Run();*/
 
+
+
+/*
+    CefSettings settings;
+    settings.multi_threaded_message_loop = false;
+    settings.windowless_rendering_enabled = true;
+    settings.remote_debugging_port = 9222;*/
+/*
+    cef_string_t * resources_path;
+    char rpath[] = R"(C:\Code\x-client\bin\bin)";
+
+    resources_path = cef_string_userfree_utf16_alloc();
+    cef_string_ascii_to_utf16(rpath, sizeof(rpath), resources_path);*/
+
+/*
+    std::string s = u8"Hello, World!";
+
+    // #include <codecvt>
+    std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16_t> convert;
+
+    std::u16string u16 = convert.from_bytes(s);*/
+
+    //settings.resources_dir_path = *resources_path;
+
+
+    HTMLUICore::StartWeb();
+
+    //CefInitialize(HTMLUICore::sArgs, settings, HTMLUICore::sApp.get(), NULL);
+
 	if (!G_pGame->CreateRenderer())
 	{
 		return 0;
@@ -423,7 +362,9 @@ int main(int argc, char * argv[])
 
 	Initialize("");
 
-    G_pGame->window.setMouseCursorGrabbed(true);
+    //G_pGame->window.setMouseCursorGrabbed(true);
+
+    G_pGame->window.setMouseCursorGrabbed(false);
     G_pGame->window.setMouseCursorVisible(false);
 
     G_pGame->m_pSprite[SPRID_MOUSECURSOR] = CSprite::CreateSprite("interface", 0, false);
@@ -440,24 +381,39 @@ int main(int argc, char * argv[])
     sf::Event event;
     sf::RenderWindow & window = G_pGame->window;
 
+    G_pGame->CreateUI();
+    //HTMLUICore::RegisterScheme("game", "sprite", new HTMLUISpriteHandlerFactory());
 
-    std::mutex m;
+    std::this_thread::sleep_for(1s);
 
-    std::unique_lock<std::mutex> l(m);
-
-    htmlrenderer = std::thread(start_ui_thread);
-
-    cv.wait(l);
- 
     while (window.isOpen() && isrunning)
 	{
+        //CefDoMessageLoopWork();
+
+/*
+        while (HTMLUICore::sRegSchemeQueue.size() > 0)
+        {
+            CefRegisterSchemeHandlerFactory(HTMLUICore::sRegSchemeQueue.front().mName, HTMLUICore::sRegSchemeQueue.front().mDomain, HTMLUICore::sRegSchemeQueue.front().mFactory);
+            HTMLUICore::sRegSchemeQueue.pop();
+        }*/
+
+/*
+        while (HTMLUICore::sViewQueue.size() > 0)
+        {
+            HTMLUICore::GetInstance()->AddBrowserToInterface(HTMLUICore::sViewQueue.front());
+            HTMLUICore::sViewQueue.pop();
+        }*/
+
+
         //timers first
         G_pGame->OnTimer();
         G_pGame->fps.update();
 
-        
+        //CefDoMessageLoopWork();
         while (window.pollEvent(event))
         {
+            
+
             // "close requested" event: we close the window
 			if (event.type == sf::Event::Closed) {
 				window.close();
@@ -475,6 +431,15 @@ int main(int argc, char * argv[])
             G_pGame->OnEvent(event);
 
         }
+
+/*
+        for (std::pair<std::string, HTMLUIPanel *> entry : G_pGame->htmlUI->panels) {
+            auto * panel = entry.second;
+            if (panel != nullptr && !panel->mView->GetBrowser()->IsLoading()) {
+                panel->paint();
+            }
+        }*/
+
         {
             std::unique_lock<std::mutex> l(G_pGame->screenupdate);
             window.clear(sf::Color::Black);
@@ -497,16 +462,19 @@ int main(int argc, char * argv[])
             cv.wait(l);*/
         }
 	}
-
     isrunning = false;
-	G_pGame->signals_.cancel();
-	G_pGame->Quit();
-	G_pGame->socketthread->join();
-    view->Stop();
-    htmlrenderer.join();
+
+    HTMLUICore::EndWeb();
+    HTMLUICore::WaitForWebEnd();
+
+    G_pGame->signals_.cancel();
+    G_pGame->Quit();
+    G_pGame->socketthread->join();
     if (window.isOpen()) window.close();
     G_pGame->io_service_.stop();
-	delete G_pGame;
+    delete G_pGame;
+
+    //CefShutdown();
 
 #ifndef _DEBUG
     ReleaseMutex(hMutex);

@@ -14,8 +14,6 @@
 #include <fmt/format.h>
 
 extern class CGame * G_pGame;
-extern ultralight::RefPtr<ultralight::View> view;
-extern ultralight::RefPtr<ultralight::View> inspector_view;
 
 extern bool isrunning;
 
@@ -1002,7 +1000,7 @@ void CGame::call_func_for_ui(std::function<void(void)> fn, bool with_lock)
 void CGame::UpdateScreen()
 {
     G_dwGlobalTime = unixtime();
-    visible.clear(sf::Color(127, 0, 0, 255));
+    visible.clear();
 	static int64_t counter = 0;
 
 	switch (m_cGameMode) {
@@ -1114,8 +1112,28 @@ void CGame::UpdateScreen()
 	counter++;
 	dirty_html = true;
 
+	{
+        for (std::pair<std::string, HTMLUIPanel *> entry : htmlUI->panels) {
+            auto * panel = entry.second;
+            sf::Lock lock(panel->mView->mMutex);
+            if (panel != nullptr/* && !panel->mView->GetBrowser()->IsLoading()*/) {
+                visible.draw(panel->mSprite);
+            }
+        }
+	}
+/*
+    for (std::pair<std::string, HTMLUIPanel *> entry : htmlUI->panels) {
+        auto * panel = entry.second;
+        if (panel != nullptr && !panel->mView->GetBrowser()->IsLoading()) {
+            visible.draw(panel->mSprite);
+        }
+    }*/
+
 	if (dirty_html && ui_update /*(responsive_ui || (_fps > 0)?(!(counter% (_fps / ui_update_frequency))):1)*/)
 	{
+
+
+/*
 		//std::cout << "ui update" << counter << "\n";
         std::unique_lock<std::recursive_mutex> l(G_pGame->_html_m);
         
@@ -1138,13 +1156,13 @@ void CGame::UpdateScreen()
         //static uint8_t test2[6291456];
         //static uint8_t test3[12582912];
 		//12582912
-/*
+/ *
 		// for when the view size changes (if ever)
 		if (reset_ui_surface_buffer)
 		{
 			delete[] test;
 			test = nullptr;
-		}*/
+		}* /
 		if (!test)
 		{
             buffersize = width * height * 4 + 5;
@@ -1223,7 +1241,7 @@ void CGame::UpdateScreen()
 			_html_spr_inspector.setPosition(0, screenheight_v);
         }
 #endif
-		
+		*/
 
 
 		dirty_html = false;
@@ -1263,19 +1281,19 @@ void CGame::UpdateScreen()
         //StartBGM();
     }
 
-	if (scale_ui_with_virtual && !hide_ui)
-        draw(_html_spr);
+	//if (scale_ui_with_virtual && !hide_ui)
+    //    draw(_html_spr);
 
     sf::Sprite sprite = sf::Sprite(visible.getTexture());
     sprite.setPosition(0, 0);
     sprite.setScale(static_cast<float>(screenwidth) / screenwidth_v, static_cast<float>(screenheight) / screenheight_v);
 
-	window.clear(sf::Color(127, 0, 0, 255));
+	window.clear();
 
     window.draw(sprite);
     
-	if (!scale_ui_with_virtual && !hide_ui)
-		window.draw(_html_spr);
+	//if (!scale_ui_with_virtual && !hide_ui)
+	//	window.draw(_html_spr);
 
 	// draw mouse over everything - this draws it full size at every virtual resolution.
 	// this needs to go above `window.draw(sprite);` and draw to `visible` above to scale with virtual resolution
@@ -1347,42 +1365,186 @@ std::string CGame::get_game_mode()
 	return "unknown";
 }
 
-void CGame::update_ui_game_mode()
+void CGame::ProcessUI(const CefString & method_name, CefRefPtr<CefV8Value> obj)
 {
-	std::string gamemode = get_game_mode();
-    call_func_for_ui([gamemode = std::move(gamemode)]()
+    CefRefPtr<CefV8Value> args = obj->GetValue("args");
+
+    if (method_name == "sync")
     {
-        ultralight::Ref<ultralight::JSContext> context = view->LockJSContext();
-        ultralight::SetJSContext(context.get());
-        ultralight::JSObject global = ultralight::JSGlobalObject();
-        ultralight::JSFunction UpdateGameMode = global["UpdateGameMode"];
-        if (UpdateGameMode.IsValid())
+        std::map<std::string, HTMLUIPanel *>::iterator p;
+        // Sync emitters
+        for (p = htmlUI->panels.begin(); p != htmlUI->panels.end(); p++)
         {
-            ultralight::JSArgs args;
-            args.push_back(ultralight::JSValue(gamemode.c_str()));
-			UpdateGameMode(args);
+            p->second->mView->SendEmitters();
         }
-    });
+    }
+    else if (method_name == "log")
+    {
+        std::string buffer = "";
+        int i = 0;
+        while (i < args->GetArrayLength())
+        {
+            CefRefPtr<CefV8Value> entry = args->GetValue(i);
+            buffer = buffer + entry->GetStringValue().ToString() + " ";
+            i++;
+        }
+        printf("[JS] > %s\n", buffer.c_str());
+        return;
+    }
+    else if (method_name == "chatMessage")
+    {
+        if (obj->IsString())
+        {
+            string chatmessage = args->GetValue(0)->GetStringValue().ToString();
+            bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, chatmessage.c_str(), 0);
+        }
+        else
+        {
+            __debugbreak();
+        }
+    }
+    else if (method_name == "renderCharacter")
+    {
+        if (args->GetArrayLength() < 2)
+        {
+            json o;
+            o["success"] = false;
+            o["message"] = "Invalid data";
+            uiFull->mView->Emit("renderCharacter", o);
+            return;
+        }
+        else
+        {
+            charselectx = args->GetValue(0)->GetIntValue();
+            charselecty = args->GetValue(1)->GetIntValue();
+        }
+    }
+    else if (method_name == "cancelLogin")
+    {
+        if (_socket)
+        {
+            _socket->stop();
+            _socket = nullptr;
+            ChangeGameMode(GAMEMODE_ONLOGIN);
+        }
+    }
+    else if (method_name == "dialogRects")
+    {
+        if (args->GetArrayLength() > 0)
+        {
+            dialogs.clear();
+            for (int i = 0; i < args->GetArrayLength(); ++i)
+            {
+                CefRefPtr<CefV8Value> obj = args->GetValue(i);
+                int16_t x1 = obj->GetValue("x1")->GetIntValue();
+                int16_t y1 = obj->GetValue("y1")->GetIntValue();
+                int16_t x2 = obj->GetValue("x2")->GetIntValue();
+                int16_t y2 = obj->GetValue("y2")->GetIntValue();
+
+                dialogs.push_back(sf::Rect<int16_t>({ x1, y1, x2, y2 }));
+            }
+        }
+        else
+        {
+            printf("Invalid dialogRects params");
+        }
+    }
+    else if (method_name == "login")
+    {
+        if (args->GetArrayLength() < 2)
+        {
+            json o;
+            o["success"] = false;
+            o["message"] = "Invalid login information";
+            uiFull->mView->Emit("login", o);
+            return;
+        }
+        else
+        {
+            string username = args->GetValue(0)->GetStringValue().ToString();
+            string password = args->GetValue(1)->GetStringValue().ToString();
+
+            if (username.empty() || password.empty())
+            {
+                json o;
+                o["success"] = false;
+                o["message"] = "Username and password cannot be empty";
+                uiFull->mView->Emit("login", o);
+                return;
+            }
+
+            m_cAccountName = username;
+            m_cAccountPassword = password;
+            StartLogin();
+            ChangeGameMode(GAMEMODE_ONCONNECTING);
+            m_dwConnectMode = MSGID_REQUEST_LOGIN;
+            return;
+        }
+    }
+    else if (method_name == "selectCharacter")
+    {
+        if (args->GetArrayLength() == 0)
+        {
+            json o;
+            o["success"] = false;
+            o["message"] = "Invalid character";
+            uiFull->mView->Emit("selectCharacter", o);
+            return;
+        }
+        else
+        {
+            int16_t selectid = static_cast<int16_t>(args->GetValue(0)->GetIntValue());
+
+            if (m_pCharList.size() > selectid)
+            {
+                m_cCurFocus = selectid;
+                selectedchar = m_pCharList[selectid];
+                json o;
+                o["success"] = true;
+                o["message"] = "";
+                uiFull->mView->Emit("selectCharacter", o);
+            }
+            return;
+        }
+    }
+    else if (method_name == "enterGame")
+    {
+        if (m_pCharList[m_cCurFocus] != 0)
+        {
+            if (m_pCharList[m_cCurFocus]->m_sSex != 0)
+            {
+                ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
+                strcpy(m_cPlayerName, m_pCharList[m_cCurFocus]->m_cName.c_str());
+                m_iLevel = (int)m_pCharList[m_cCurFocus]->m_sLevel;
+                if (m_Misc.bCheckValidString(m_cPlayerName) == true)
+                {
+                    m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
+                    m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
+                    ChangeGameMode(GAMEMODE_ONCONNECTING);
+                    m_dwConnectMode = MSGID_REQUEST_ENTERGAME;
+                    m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
+                    ZeroMemory(m_cMsg, sizeof(m_cMsg));
+                    strcpy(m_cMsg, "33");
+                    ZeroMemory(m_cMapName, sizeof(m_cMapName));
+                    memcpy(m_cMapName, m_pCharList[m_cCurFocus]->m_cMapName.c_str(), 10);
+
+                    json o;
+                    o["success"] = true;
+                    o["message"] = "";
+                    uiFull->mView->Emit("enterGame", o);
+                    return;
+                }
+
+                json o;
+                o["success"] = false;
+                o["message"] = "Invalid character name";
+                uiFull->mView->Emit("enterGame", o);
+                return;
+            }
+        }
+    }
 }
-
-std::string get_string(const ultralight::String & o)
-{
-    return o.utf8().data();
-}
-
-std::string get_string(ultralight::JSString o)
-{
-	return get_string(ultralight::String(o));
-}
-
-std::string get_string(const ultralight::JSValue & o)
-{
-	if (!o.IsString())
-		throw std::exception("get_string() failure - not a string");
-
-	return get_string(o.ToString());
-}
-
+/*
 void CGame::receive_message_from_ui(const ultralight::JSObject& thisObject, const ultralight::JSArgs& args)
 {
 	try
@@ -1399,9 +1561,9 @@ void CGame::receive_message_from_ui(const ultralight::JSObject& thisObject, cons
 			return;
 		}
 
-		/*
+		/ *
 		* SendMessage("event", obj);
-		*/
+		* /
 		JSValue jsevent = args[0];
         std::string event = get_string(jsevent);
         std::cout << fmt::format("Message recv: {}\n", event);
@@ -1461,7 +1623,7 @@ void CGame::receive_message_from_ui(const ultralight::JSObject& thisObject, cons
 		if (jsparam.IsObject())
 		{
             JSObject obj = jsparam.ToObject();
-            /*if (event == "login")
+            / *if (event == "login")
 			{
 				if (m_cGameMode == GAMEMODE_ONCONNECTING)
 					return;
@@ -1492,7 +1654,7 @@ void CGame::receive_message_from_ui(const ultralight::JSObject& thisObject, cons
 
 				}
 			}
-            else */if (event == "resolution")
+            else * /if (event == "resolution")
 			{
                 std::unique_lock<std::mutex> l(screenupdate);
                 SetVirtualResolution(int64_t(obj["x"].ToNumber()), int64_t(obj["y"].ToNumber()));
@@ -1523,7 +1685,7 @@ void CGame::send_message_to_ui(std::string msg, std::string param, std::string p
 			ReceiveMessage(args);
         }
     });
-}
+}*/
 
 void CGame::CalcViewPointOld()
 {
@@ -1714,6 +1876,7 @@ char CGame::cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMo
 }
 
 
+/*
 int sfml_keycode_to_ultralight_keycode(Keyboard::Key key) {
     switch (key) {
 		case sf::Keyboard::Space: return ultralight::KeyCodes::GK_SPACE;
@@ -1800,7 +1963,7 @@ int sfml_keycode_to_ultralight_keycode(Keyboard::Key key) {
         case Keyboard::F13: return ultralight::KeyCodes::GK_F13;
         case Keyboard::F14: return ultralight::KeyCodes::GK_F14;
         case Keyboard::F15: return ultralight::KeyCodes::GK_F15;
-/*
+/ *
         case Keyboard::F16: return ultralight::KeyCodes::GK_F16;
         case Keyboard::F17: return ultralight::KeyCodes::GK_F17;
         case Keyboard::F18: return ultralight::KeyCodes::GK_F18;
@@ -1810,7 +1973,7 @@ int sfml_keycode_to_ultralight_keycode(Keyboard::Key key) {
         case Keyboard::F22: return ultralight::KeyCodes::GK_F22;
         case Keyboard::F23: return ultralight::KeyCodes::GK_F23;
         case Keyboard::F24: return ultralight::KeyCodes::GK_F24;
-        case Keyboard::F25: return ultralight::KeyCodes::GK_UNKNOWN;*/
+        case Keyboard::F25: return ultralight::KeyCodes::GK_UNKNOWN;* /
         case Keyboard::Numpad0: return ultralight::KeyCodes::GK_NUMPAD0;
         case Keyboard::Numpad1: return ultralight::KeyCodes::GK_NUMPAD1;
         case Keyboard::Numpad2: return ultralight::KeyCodes::GK_NUMPAD2;
@@ -1863,7 +2026,7 @@ void CGame::send_key_to_ui(sf::Keyboard::Key key)
     if (m_altPressed)
         evt.modifiers |= ultralight::KeyEvent::kMod_AltKey;
 
-/*
+/ *
 	switch (key)
 	{
 		case Keyboard::A:
@@ -1871,7 +2034,7 @@ void CGame::send_key_to_ui(sf::Keyboard::Key key)
             evt.unmodified_text = "a";
 			evt.virtual_key_code = ultralight::KeyCodes::GK_A;
 			break;
-	}*/
+	}* /
 
     GetKeyIdentifierFromVirtualKeyCode(evt.virtual_key_code, evt.key_identifier);
 
@@ -1881,18 +2044,20 @@ void CGame::send_key_to_ui(sf::Keyboard::Key key)
             view->FireKeyEvent(evt);
         });
     }
-}
+}*/
 
 void CGame::OnEvent(sf::Event event)
 {
+    if (htmlInput->CaptureEvent(event)) {
+        return;
+    }
+
     switch (event.type)
     {
 		case sf::Event::TextEntered:
 		{
-            ultralight::KeyEvent evt;
-            evt.type = ultralight::KeyEvent::kType_Char;
-			ultralight::String text = ultralight::String32((const char32_t*)&event.text.unicode, 1);
-			std::string s = text.utf8().data();
+/*
+			std::string s = ((char *)event.text.unicode) + 4;
 			if (s == "-")
 			{
 				ui_update_frequency--;
@@ -1913,142 +2078,11 @@ void CGame::OnEvent(sf::Event event)
 			else if (s == "q")
 			{
 				take_screen = true;
-			}
-            evt.text = text;
-            evt.unmodified_text = text;
-            {
-                std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                _html_eventqueue.emplace([evt = std::move(evt), this]() {
-#ifdef DEBUG_INSPECTOR
-                    if (m_stMCursor.sY > screenheight_v) inspector_view->FireKeyEvent(evt);
-					else
-#endif
-						view->FireKeyEvent(evt);
-                });
-            }
+			}*/
 			break;
-/*
-			if (event.text.unicode == VK_TAB)
-				break;
-            if (event.text.unicode == VK_BACK)
-                break;*/
-/*
-            ultralight::KeyEvent evt;
-            evt.type = ultralight::KeyEvent::kType_Char;
-            evt.native_key_code = event.text.unicode;
-            evt.virtual_key_code = event.text.unicode;
-			ultralight::String32 str((char32_t*)((char*)&event.text.unicode), 1);
-            std::cout << "Code: " << std::hex << event.text.unicode  << " : " << std::dec << event.text.unicode << "\n";
-            std::cout << "Text: " << std::hex << char(event.text.unicode & 0xff) << "\n";
-
-            evt.text = str;
-            evt.unmodified_text = str;
-            {
-                std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                _html_eventqueue.emplace([evt = std::move(evt)]() {
-                    view->FireKeyEvent(evt);
-                });
-            }
-			break;*/
 		}
         case sf::Event::KeyPressed:
 		{
-            ultralight::KeyEvent evt;
-            evt.type = ultralight::KeyEvent::kType_RawKeyDown;
-			evt.native_key_code = 0;// sfml_keycode_to_ultralight_keycode(event.key.code);
-            evt.virtual_key_code = sfml_keycode_to_ultralight_keycode(event.key.code);
-            ultralight::GetKeyIdentifierFromVirtualKeyCode(evt.virtual_key_code, evt.key_identifier);
-
-            if (m_bShiftPressed)
-                evt.modifiers |= ultralight::KeyEvent::kMod_ShiftKey;
-            if (m_bCtrlPressed)
-                evt.modifiers |= ultralight::KeyEvent::kMod_CtrlKey;
-            if (m_altPressed)
-                evt.modifiers |= ultralight::KeyEvent::kMod_AltKey;
-
-/*
-            std::cout << "Key press: " << std::hex << event.key.code << "\n";
-            std::cout << "Key: " << (char)event.key.code << "\n";*/
-            {
-                std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                _html_eventqueue.emplace([evt = std::move(evt), this]() {
-#ifdef DEBUG_INSPECTOR
-                    if (m_stMCursor.sY > screenheight_v) inspector_view->FireKeyEvent(evt);
-					else
-#endif
-						view->FireKeyEvent(evt);
-                });
-            }
-
-			if (event.key.code == Keyboard::Enter || event.key.code == Keyboard::Tab)
-			{
-                ultralight::KeyEvent evt;
-                evt.type = ultralight::KeyEvent::kType_Char;
-                ultralight::String text = event.key.code == Keyboard::Enter ? ultralight::String("\r") : ultralight::String("\t");
-                evt.text = text;
-                evt.unmodified_text = text;
-			}
-/*
-			if (event.key.code == Keyboard::Backspace)
-			{
-                ultralight::KeyEvent evt;
-                evt.type = ultralight::KeyEvent::kType_KeyDown;
-                evt.native_key_code = 0;
-                evt.virtual_key_code = ultralight::KeyCodes::GK_BACK;
-                evt.modifiers = 0;
-                {
-                    std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                    _html_eventqueue.emplace([evt = std::move(evt)]() {
-                        view->FireKeyEvent(evt);
-                    });
-                }
-            }
-            if (event.key.code == Keyboard::Tab)
-            {
-                ultralight::KeyEvent evt;
-                evt.type = ultralight::KeyEvent::kType_KeyDown;
-                evt.native_key_code = 0;
-                evt.virtual_key_code = ultralight::KeyCodes::GK_TAB;
-                evt.modifiers = 0;
-                {
-                    std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                    _html_eventqueue.emplace([evt = std::move(evt)]() {
-                        view->FireKeyEvent(evt);
-                    });
-                }
-            }*/
-/*
-            ultralight::KeyEvent evt;
-
-            evt.type = ultralight::KeyEvent::kType_RawKeyDown;
-            evt.native_key_code = 0;
-			evt.virtual_key_code = event.key.code;
-            {
-                std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                _html_eventqueue.emplace([evt = std::move(evt)]() {
-                    view->FireKeyEvent(evt);
-                });
-            }
-            std::cout << "Key press: " << std::hex << event.key.code << "\n";
-            std::cout << "Key: " << (char)event.key.code << "\n";
-			evt = ultralight::KeyEvent();
-            evt.type = ultralight::KeyEvent::kType_Char;
-            evt.native_key_code = 0;
-            evt.virtual_key_code = event.key.code;
-			char key[2] = { event.key.code & 0xff, '\0' };
-			evt.text = ultralight::String((char*)key, 1);
-			evt.unmodified_text = evt.text;
-			evt.modifiers = 0;
-			GetKeyIdentifierFromVirtualKeyCode(evt.virtual_key_code, evt.key_identifier);
-
-			evt.virtual_key_code = ultralight::KeyCodes::
-            {
-                std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                _html_eventqueue.emplace([evt = std::move(evt)]() {
-                    view->FireKeyEvent(evt);
-                });
-            }*/
-
             switch (event.key.code)
             {
                 case Keyboard::Escape:
@@ -2100,39 +2134,9 @@ void CGame::OnEvent(sf::Event event)
         {
             if (event.key.code == Keyboard::Backspace)
             {
-                ultralight::KeyEvent evt;
-                evt.type = ultralight::KeyEvent::kType_KeyUp;
-                evt.native_key_code = 0;
-                evt.virtual_key_code = ultralight::KeyCodes::GK_BACK;
-                evt.modifiers = 0;
-                {
-                    std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                    _html_eventqueue.emplace([evt = std::move(evt), this]() {
-#ifdef DEBUG_INSPECTOR
-                        if (m_stMCursor.sY > screenheight_v) inspector_view->FireKeyEvent(evt);
-						else
-#endif
-							view->FireKeyEvent(evt);
-                    });
-                }
             }
             if (event.key.code == Keyboard::Tab)
             {
-                ultralight::KeyEvent evt;
-                evt.type = ultralight::KeyEvent::kType_KeyUp;
-                evt.native_key_code = 0;
-                evt.virtual_key_code = ultralight::KeyCodes::GK_TAB;
-                evt.modifiers = 0;
-                {
-                    std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                    _html_eventqueue.emplace([evt = std::move(evt), this]() {
-#ifdef DEBUG_INSPECTOR
-                        if (m_stMCursor.sY > screenheight_v) inspector_view->FireKeyEvent(evt);
-						else
-#endif
-							view->FireKeyEvent(evt);
-                    });
-                }
             }
 /*
             ultralight::KeyEvent evt;
@@ -2184,29 +2188,7 @@ void CGame::OnEvent(sf::Event event)
         case sf::Event::MouseWheelScrolled:
             if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
             {
-				ultralight::ScrollEvent svt;
-                if (event.mouseWheelScroll.delta > 0)
-                {
-                    svt.delta_x = 0;
-                    svt.delta_y = 30;
-                    m_stMCursor.sZ = 1;
-                }
-                else
-                {
-					svt.delta_x = 0;
-                    svt.delta_y = -30;
-                    m_stMCursor.sZ = -1;
-                }
-                {
-                    std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                    _html_eventqueue.emplace([svt = std::move(svt), this]() {
-#ifdef DEBUG_INSPECTOR
-                        if (m_stMCursor.sY > screenheight_v) inspector_view->FireScrollEvent(svt);
-						else
-#endif
-							view->FireScrollEvent(svt);
-                    });
-                }
+
             }
             else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel)
             {
@@ -2219,11 +2201,6 @@ void CGame::OnEvent(sf::Event event)
             break;
         case sf::Event::MouseButtonPressed:
         {
-            ultralight::MouseEvent mvt;
-            mvt.type = ultralight::MouseEvent::kType_MouseDown;
-            mvt.x = m_stMCursor.sX;
-            mvt.y = m_stMCursor.sY;
-
             if (wasinactive)
             {
                 wasinactive = false;
@@ -2253,78 +2230,36 @@ void CGame::OnEvent(sf::Event event)
 
             if (event.mouseButton.button == sf::Mouse::Right)
             {
-                mvt.button = ultralight::MouseEvent::kButton_Right;
                 m_stMCursor.RB = true;
             }
             else if (event.mouseButton.button == sf::Mouse::Left)
             {
-                mvt.button = ultralight::MouseEvent::kButton_Left;
                 m_stMCursor.LB = true;
             }
             else if (event.mouseButton.button == sf::Mouse::Middle)
             {
-                mvt.button = ultralight::MouseEvent::kButton_Middle;
                 m_stMCursor.MB = true;
-            }
-
-            {
-                std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                _html_eventqueue.emplace([mvt = std::move(mvt), this]() mutable {
-#ifdef DEBUG_INSPECTOR
-                    if (mvt.y > screenheight_v)
-					{
-						mvt.y -= screenheight_v;
-						inspector_view->FireMouseEvent(mvt);
-					}
-                    else
-#endif
-						view->FireMouseEvent(mvt);
-                });
             }
             break;
         }
         case sf::Event::MouseButtonReleased:
         {
-            ultralight::MouseEvent mvt;
-            mvt.type = ultralight::MouseEvent::kType_MouseUp;
-            mvt.x = m_stMCursor.sX;
-            mvt.y = m_stMCursor.sY;
-
-
             if (event.mouseButton.button == sf::Mouse::Right)
             {
-                mvt.button = ultralight::MouseEvent::kButton_Right;
                 m_stMCursor.RB = false;
             }
             else if (event.mouseButton.button == sf::Mouse::Left)
             {
-                mvt.button = ultralight::MouseEvent::kButton_Left;
                 m_stMCursor.LB = false;
             }
             else if (event.mouseButton.button == sf::Mouse::Middle)
             {
-                mvt.button = ultralight::MouseEvent::kButton_Middle;
                 m_stMCursor.MB = false;
-            }
-            {
-                std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                _html_eventqueue.emplace([mvt = std::move(mvt), this]() mutable {
-#ifdef DEBUG_INSPECTOR
-                    if (mvt.y > screenheight_v)
-                    {
-                        mvt.y -= screenheight_v;
-                        inspector_view->FireMouseEvent(mvt);
-                    }
-                    else
-#endif
-						view->FireMouseEvent(mvt);
-                });
             }
             break;
         }
         case sf::Event::MouseMoved:
         {
-            ultralight::MouseEvent mvt;
             float diffx = static_cast<float>(screenwidth_v) / screenwidth;
             float diffy = static_cast<float>(screenheight_v) / screenheight;
             uint16_t x = event.mouseMove.x * diffx;
@@ -2333,26 +2268,7 @@ void CGame::OnEvent(sf::Event event)
             m_stMCursor.sX = x;
             m_stMCursor.sY = y;
 
-            mvt.x = x;
-            mvt.y = y;
-
 			//std::cout << fmt::format("{:#4}, {:#4} || {:#4}, {:#4}\n", event.mouseMove.x, event.mouseMove.y, x, y);
-
-            mvt.type = ultralight::MouseEvent::kType_MouseMoved;
-            {
-                std::unique_lock<std::recursive_mutex> l(_html_eventm);
-                _html_eventqueue.emplace([mvt = std::move(mvt), this]() mutable {
-#ifdef DEBUG_INSPECTOR
-                    if (mvt.y > screenheight_v)
-                    {
-                        mvt.y -= screenheight_v;
-                        inspector_view->FireMouseEvent(mvt);
-                    }
-                    else
-#endif
-						view->FireMouseEvent(mvt);
-                });
-            }
             break;
         }
     }
@@ -9105,7 +9021,14 @@ void CGame::ChangeGameMode(char cMode)
 	m_cGameMode = cMode;
 	m_cGameModeCount = 0;
 	m_dwTime = G_dwGlobalTime;
-	update_ui_game_mode();
+	//update_ui_game_mode();
+	if (uiFull)
+	{
+		json o;
+		o["success"] = false;
+		o["message"] = get_game_mode();
+		uiFull->mView->Emit(get_game_mode(), o);
+	}
 
 #ifndef SELECTSERVER
 	if( cMode == GAMEMODE_ONSELECTSERVER )

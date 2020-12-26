@@ -13,8 +13,6 @@ extern void MakeSprite(char * FileName, int iStart, short sCount, bool bAlphaEff
 extern void MakeTileSpr(char * FileName, short sStart, short sCount, bool bAlphaEffect);
 extern void MakeEffectSpr(char * FileName, short sStart, short sCount, bool bAlphaEffect);
 
-extern ultralight::RefPtr<ultralight::View> view;
-
 extern CGame * G_pGame;
 
 // extern bool CheckCheating();
@@ -882,6 +880,13 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 
     //std::cout << "Loading: " << ((float(data_max) - data_list.size()) / float(data_max)) * 100 << "\n";
 
+    json obj;
+    obj["progress"] = m_cLoading;
+    obj["progressLabel"] = progressLabel;
+    obj["complete"] = m_cLoading == 100 ? true : false;
+    //uiFull->mView->Emit("progressUpdate", obj);
+
+/*
     G_pGame->call_func_for_ui([=, count = data_list.size()]()
     {
         double percent = ((double(data_max) - count) / double(data_max)) * 100;
@@ -899,7 +904,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             args.push_back(ultralight::JSValue(progressLabel.c_str()));
             LoadingProgress(args);
         }
-    });
+    });*/
 
 	// Update the UI with the loading progress
 /*

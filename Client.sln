@@ -10,6 +10,8 @@ Global
 		Debug 1024 res|x64 = Debug 1024 res|x64
 		Debug default res|Win32 = Debug default res|Win32
 		Debug default res|x64 = Debug default res|x64
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 	EndGlobalSection
@@ -22,6 +24,10 @@ Global
 		{B046891F-46C6-48B3-8BAC-777929D872EE}.Debug default res|Win32.Build.0 = Debug default res|Win32
 		{B046891F-46C6-48B3-8BAC-777929D872EE}.Debug default res|x64.ActiveCfg = Debug default res|x64
 		{B046891F-46C6-48B3-8BAC-777929D872EE}.Debug default res|x64.Build.0 = Debug default res|x64
+		{B046891F-46C6-48B3-8BAC-777929D872EE}.Debug|Win32.ActiveCfg = Debug default res|Win32
+		{B046891F-46C6-48B3-8BAC-777929D872EE}.Debug|Win32.Build.0 = Debug default res|Win32
+		{B046891F-46C6-48B3-8BAC-777929D872EE}.Debug|x64.ActiveCfg = Debug default res|x64
+		{B046891F-46C6-48B3-8BAC-777929D872EE}.Debug|x64.Build.0 = Debug default res|x64
 		{B046891F-46C6-48B3-8BAC-777929D872EE}.Release|Win32.ActiveCfg = Release|Win32
 		{B046891F-46C6-48B3-8BAC-777929D872EE}.Release|Win32.Build.0 = Release|Win32
 		{B046891F-46C6-48B3-8BAC-777929D872EE}.Release|x64.ActiveCfg = Release|x64
@@ -31,8 +37,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		VisualSVNWorkingCopyRoot = 
 		SolutionGuid = {948CE06C-EB8A-4135-ACFD-0DAE594591F3}
+		VisualSVNWorkingCopyRoot = 
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
