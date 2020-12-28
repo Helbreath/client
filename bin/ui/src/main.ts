@@ -87,27 +87,27 @@ class Base extends Vue {
   }
 }
 
+function doOnLoad() {
+  let app: Base | null = null;
+
+  window.vueapp = app = new Base({
+    store,
+    vuetify,
+    render: h => h(App),
+  }).$mount('#app');
+  window.removeEventListener('load', doOnLoad);
+
+  window.vueapp = app;
+}
 export function configure() {
   // tslint:disable-next-line: no-var-requires
   window.Vue = require('vue');
 
   window.$ = window.jQuery = require('jquery');
 
-  let app: Base | null = null;
-
-  window.vueapp = app;
-
   window.game = new Game();
 
-  window.addEventListener('load', () => {
-    // const app2 = new Base();
-    window.vueapp = app = new Base({
-      // router,
-      store,
-      vuetify,
-      render: h => h(App),
-    }).$mount('#app');
-  });
+  window.addEventListener('load', doOnLoad);
 }
 
 configure();
