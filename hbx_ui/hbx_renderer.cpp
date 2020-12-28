@@ -21,12 +21,19 @@ public:
         // communicate the calling of this function back to the game process for processing
         // potentially intercept any calls for render-side handling? such as retrieving resource assets?
 
-        CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create(name.c_str());
-        CefRefPtr<CefListValue> arglist = message->GetArgumentList();
+        if (name == "SendJsonMessage")
+        {
+            CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create(name.c_str());
+            CefRefPtr<CefListValue> arglist = message->GetArgumentList();
 
-        message->GetArgumentList()->SetString(0, arguments.begin()->get()->GetStringValue());
+            message->GetArgumentList()->SetString(0, arguments.begin()->get()->GetStringValue());
 
-        browser->GetMainFrame()->SendProcessMessage(PID_BROWSER, message);
+            browser->GetMainFrame()->SendProcessMessage(PID_BROWSER, message);
+        }
+        else if (name == "log")
+        {
+            send_pipe_message("console.log: " + arguments.begin()->get()->GetStringValue().ToString());
+        }
 
         // Function does not exist.
         return true;
@@ -105,6 +112,7 @@ public:
 //         client->SetValue("log", CefV8Value::CreateFunction("log", js_handler), V8_PROPERTY_ATTRIBUTE_NONE);
 //         js_object->SetValue("client", client, V8_PROPERTY_ATTRIBUTE_NONE);
         js_object->SetValue("SendJsonMessage", CefV8Value::CreateFunction("SendJsonMessage", js_handler), V8_PROPERTY_ATTRIBUTE_NONE);
+        js_object->SetValue("log", CefV8Value::CreateFunction("log", js_handler), V8_PROPERTY_ATTRIBUTE_NONE);
     }
 
     void OnContextReleased(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) override

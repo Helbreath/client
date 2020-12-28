@@ -31,6 +31,7 @@ declare global {
     ReceiveMessage: (msg: string, param: string, param2: string) => void;
     emit: (data: any) => void;
     SendJsonMessage: (data: string) => void;
+    log: (msg: string) => void;
   }
 }
 

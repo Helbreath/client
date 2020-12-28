@@ -48,12 +48,12 @@ export default class App extends Vue {
   }
 
   protected OnMessage(msg: string, param: any) {
-    console.log(`OnMessage: ${msg}`);
+    window.log(`OnMessage: ${msg}`);
     switch (msg) {
       case 'startload': // start load process
         // loadingBar = document.querySelector('#loading-bar');
         // loadingLabel = document.querySelector('#loading-label');
-        console.log('Starting load');
+        window.log('Starting load');
         window.SendMessage('startload', {});
         break;
       case 'postload': // load is complete
@@ -64,7 +64,7 @@ export default class App extends Vue {
         break;
       case 'gamemode':
         this.Game.mode = param.mode;
-        console.log(`Game mode recv: ${this.Game.mode}`);
+        window.log(`Game mode recv: ${this.Game.mode}`);
         this.update++;
         break;
       case 'loadingprogress':
@@ -104,7 +104,7 @@ export default class App extends Vue {
   protected created() {
     this.$vuetify.theme.dark = true;
     this.$root.$on('message', this.OnMessage);
-    console.log('created');
+    window.log('created');
   }
   protected beforeMount() {}
   protected mounted() {
