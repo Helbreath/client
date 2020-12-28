@@ -1,4 +1,4 @@
-﻿// Sprite.cpp: implementation of the CSprite class.
+// Sprite.cpp: implementation of the CSprite class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -289,6 +289,11 @@ void CSprite::DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
 void CSprite::draw_to(int sX, int sY, int sFrame, uint64_t dwTime, Color color, int draw_mode)
 {
     if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+	if (sFrame >= m_iTotalFrame)
+	{
+		std::cout << "Sprite out_of_bounds! - " << sFrame << " - " << m_cPakFileName << '\n';
+		return;
+	}
     sprite[sFrame].setColor(color);
     sprite[sFrame].setPosition(sX + m_stBrush[sFrame].pvx, sY + m_stBrush[sFrame].pvy);
     G_pGame->draw_to(sprite[sFrame], draw_mode);
