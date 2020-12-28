@@ -63,7 +63,6 @@ void connection::stop()
 	try
 	{
 		socket_.lowest_layer().close();
-        client.ChangeGameMode(GAMEMODE_ONMAINMENU);
 		//client._socket.reset();
 	}
 	catch (std::exception& e)

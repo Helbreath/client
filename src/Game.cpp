@@ -393,7 +393,25 @@ void CGame::stop(connection_ptr c)
 	try
 	{
 		c->stop();
-        ChangeGameMode(GAMEMODE_ONMAINMENU);
+
+		// 
+		switch (m_cGameMode)
+		{
+			case GAMEMODE_ONCONNECTING:
+			case GAMEMODE_ONMAINGAME:
+			case GAMEMODE_ONLOGIN:
+			case GAMEMODE_ONSELECTCHARACTER:
+			case GAMEMODE_ONLOGRESMSG:
+				// play mode. connection stop here would typically indicate a disconnect
+				ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
+				break;
+            case GAMEMODE_ONMAINMENU:
+				break;
+            default:
+                ChangeGameMode(GAMEMODE_ONMAINMENU);
+				break;
+        }
+
         //ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
         _socket.reset();
         new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
@@ -1427,6 +1445,56 @@ std::string CGame::get_game_mode()
 			return "selectserver";
 	}
 	return "unknown";
+}
+
+std::string CGame::get_game_mode(int _gamemode)
+{
+    switch (_gamemode)
+    {
+        case GAMEMODE_NULL:
+            return "null";
+        case GAMEMODE_ONQUIT:
+            return "quit";
+        case GAMEMODE_ONMAINMENU:
+            return "mainmenu";
+        case GAMEMODE_ONCONNECTING:
+            return "connecting";
+        case GAMEMODE_ONLOADING:
+            return "loading";
+        case GAMEMODE_ONWAITINGINITDATA:
+            return "waitinginitdata";
+        case GAMEMODE_ONMAINGAME:
+            return "maingame";
+        case GAMEMODE_ONCONNECTIONLOST:
+            return "connectionlost";
+        case GAMEMODE_ONMSG:
+            return "msg";
+        case GAMEMODE_ONCREATENEWACCOUNT:
+            return "createnewaccount";
+        case GAMEMODE_ONLOGIN:
+            return "login";
+        case GAMEMODE_ONQUERYFORCELOGIN:
+            return "queryforcelogin";
+        case GAMEMODE_ONSELECTCHARACTER:
+            return "selectcharacter";
+        case GAMEMODE_ONCREATENEWCHARACTER:
+            return "createnewcharacter";
+        case GAMEMODE_ONWAITINGRESPONSE:
+            return "waitingresponse";
+        case GAMEMODE_ONQUERYDELETECHARACTER:
+            return "querydeletecharacter";
+        case GAMEMODE_ONLOGRESMSG:
+            return "logresmsg";
+        case GAMEMODE_ONVERSIONNOTMATCH:
+            return "versionnotmatch";
+        case GAMEMODE_ONINTRODUCTION:
+            return "introduction";
+        case GAMEMODE_ONAGREEMENT:
+            return "agreement";
+        case GAMEMODE_ONSELECTSERVER:
+            return "selectserver";
+    }
+    return "unknown";
 }
 
 void CGame::CalcViewPointOld()
@@ -8991,7 +9059,14 @@ void CGame::ClearContents_OnCreateNewAccount()
 
 void CGame::ChangeGameMode(char cMode)
 {
-	std::cout << "Changing game mode: " << get_game_mode() << "\n";
+	std::unique_lock<std::mutex> l(gamemode_m);
+	if (m_cGameMode == cMode)
+	{
+		// gamemode already set to this
+		std::cout << "Duplicate game mode being set to [" << get_game_mode(cMode) << "]\n";
+		return;
+	}
+	std::cout << "Changing game mode: " << get_game_mode(cMode) << "\n";
 	if (m_cGameMode == GAMEMODE_ONLOADING)
 		window.setFramerateLimit(120);
 	m_cGameMode = cMode;
@@ -9000,7 +9075,7 @@ void CGame::ChangeGameMode(char cMode)
 	//update_ui_game_mode();
 	if (cef_ui->core->view)
 	{
-		send_message_to_ui("gamemode", { { "mode", get_game_mode() } });
+		send_message_to_ui("gamemode", { { "mode", get_game_mode(cMode) } });
 	}
 
 	if (cMode == GAMEMODE_ONSELECTCHARACTER)

@@ -431,6 +431,7 @@ public:
     std::queue<std::pair<std::string, json>> ui_events;
 
     std::mutex ui_event_m;
+	std::mutex gamemode_m;
 
 	uint64_t ui_delay = 10;
 
@@ -506,6 +507,7 @@ public:
 	void create_load_list();
 
     std::string get_game_mode();
+    std::string get_game_mode(int _gamemode);
 
     std::map<string, sf::Font> _font;
     sf::Text _text;
