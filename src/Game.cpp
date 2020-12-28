@@ -1864,16 +1864,17 @@ void CGame::send_message_to_ui(std::string msg, json param)
 	cef_ui->core->view->emit(msg, std::move(param));
 }
 
-#define CHECK_ARGS(x) if (data.size() < x) return;
-void CGame::receive_message_from_ui(std::string name, json obj)
+#define CHECK_ARGS(x) if (obj.size() < x) return;
+void CGame::receive_message_from_ui(std::string name, json o)
 {
     try
     {
 		if (name == "SendJsonMessage")
 		{
-			std::string message = obj["msg"].get<std::string>();
-			json data = obj["data"];
-			std::cout << fmt::format("From JS: {} - Data: {}\n", message, data.dump());
+			// message received is { msg, data }
+			std::string message = o["msg"].get<std::string>();
+            json obj = o["data"];
+            std::cout << fmt::format("From JS: {} - Data: {}\n", message, obj.dump());
 
 			if (message == "onload")
 			{
@@ -1882,6 +1883,7 @@ void CGame::receive_message_from_ui(std::string name, json obj)
                 else
                     send_message_to_ui("postload");
 				send_message_to_ui("logindetails", { G_pGame->m_cAccountName, G_pGame->m_cAccountPassword });
+				send_message_to_ui("gamemode", { { "mode", get_game_mode() } });
                 return;
 			}
 			else if (message == "chat")
@@ -1889,6 +1891,12 @@ void CGame::receive_message_from_ui(std::string name, json obj)
 				CHECK_ARGS(1);
 				bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, obj["message"].get<std::string>().c_str(), 0);
 				return;
+			}
+			else if (message == "changecursor")
+			{
+                CHECK_ARGS(1);
+				if (obj.is_number())
+					m_stMCursor.sCursorFrame = obj.get<uint16_t>();
 			}
 			else if (message == "rendercharacter")
 			{
@@ -1978,22 +1986,10 @@ void CGame::receive_message_from_ui(std::string name, json obj)
 				ChangeGameMode(GAMEMODE_ONMAINMENU);
                 return;
             }
-			else if (message == "disconnect")
-			{
-				_socket->stop();
-				//PlaySound('E', 14, 5);
-				if (m_bSoundFlag) m_pESound[38].stop();
-				if ((m_bSoundFlag) && (m_bMusicStat == true))
-					m_pBGM.stop();
-				isItemLoaded = false;
-				ChangeGameMode(GAMEMODE_ONMAINMENU);
-                return;
-            }
 			else if (message == "playsound")
 			{
-                if (data.size() < 3)
-                    return;
-				PlaySound(data[0].get<std::string>(), data[1].get<int>(), data[2].get<int>());
+				CHECK_ARGS(3);
+				PlaySound(obj[0].get<std::string>(), obj[1].get<int>(), obj[2].get<int>());
                 return;
             }
 			else if (message == "startload")
@@ -2028,17 +2024,17 @@ void CGame::receive_message_from_ui(std::string name, json obj)
             }
 			else if (message == "music")
 			{
-                if (data["status"] == false)
+                if (obj["status"] == false)
                 {
                     m_pBGM.stop();
 					return;
                 }
 
 				std::string track;
-				if (data.size() < 2)
+				if (obj.size() < 2)
 					track = "data\\music\\aresden.wav";
 				else
-					track = data["file"].get<std::string>();
+					track = obj["file"].get<std::string>();
                     
                 m_pBGM.stop();
                 bgmbuffer.loadFromFile(track);
@@ -2049,10 +2045,9 @@ void CGame::receive_message_from_ui(std::string name, json obj)
             }
             else if (message == "resolution")
             {
-                if (data.size() < 2)
-                    return;
+				CHECK_ARGS(2);
                 std::unique_lock<std::mutex> l(screenupdate);
-                SetVirtualResolution(int16_t(data["x"].get<int16_t>()), int16_t(obj["y"].get<int16_t>()));
+                SetVirtualResolution(int16_t(obj["x"].get<int16_t>()), int16_t(obj["y"].get<int16_t>()));
                 visible.create(screenwidth_v, screenheight_v + inspector_size);
                 bg.create(screenwidth_v + 300, screenheight_v + 300 + inspector_size);
                 return;
