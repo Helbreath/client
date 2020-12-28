@@ -52,6 +52,7 @@ ProcessType GetProcessType(const CefRefPtr<CefCommandLine> & command_line) {
 }
 
 
+#ifdef _DEBUG
 //////////////////////////////////////////////////////////////////////////
 // debug named pipes
 #define BUFSIZE 512
@@ -62,11 +63,15 @@ BOOL   fSuccess = FALSE;
 DWORD  cbRead, cbToWrite, cbWritten, dwMode;
 LPSTR lpszPipename = "\\\\.\\pipe\\stupidcefdebuglog";
 //////////////////////////////////////////////////////////////////////////
+#endif
 
 std::string processtype;
 
 void send_pipe_message(std::string msg)
 {
+#ifndef _DEBUG
+    return;
+#else
     std::string tosend = processtype + msg;
     fSuccess = WriteFile(
         hPipe,                  // pipe handle 
@@ -74,6 +79,7 @@ void send_pipe_message(std::string msg)
         tosend.length()+1,         // message length 
         &cbWritten,             // bytes written 
         NULL);                  // not overlapped 
+#endif
 }
 
 // Entry point function for all processes.
@@ -82,8 +88,9 @@ int main(int argc, char * argv[]) {
     // Enable High-DPI support on Windows 7 or newer.
     CefEnableHighDPISupport();
 
+#ifdef _DEBUG
     //////////////////////////////////////////////////////////////////////////
-    // mother fucking named pipes
+    // debug named pipes
     while (1)
     {
         hPipe = CreateFileA(
@@ -129,6 +136,7 @@ int main(int argc, char * argv[]) {
         _tprintf(TEXT("SetNamedPipeHandleState failed. GLE=%d\n"), GetLastError());
         return -1;
     }
+#endif
 
     CefMainArgs main_args(GetModuleHandle(NULL));
 

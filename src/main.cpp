@@ -62,6 +62,7 @@ int main(int argc, char * argv[])
     //////////////////////////////////////////////////////////////////////////
     // debug named pipes
 
+#ifdef _DEBUG
     std::thread pipethead([&] {
         std::vector<std::thread> pipethreadlist;
         for (;;)
@@ -162,7 +163,7 @@ int main(int argc, char * argv[])
                 CloseHandle(hPipe);
         }
     });
-
+#endif
     //////////////////////////////////////////////////////////////////////////
 
 
