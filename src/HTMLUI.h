@@ -10,6 +10,7 @@
 #include <iostream>
 #include <string>
 #include <regex>
+#include <filesystem>
 
 
 #include <include/cef_app.h>
@@ -22,7 +23,6 @@
 #include "json.hpp"
 
 #include "include/base/cef_bind.h"
-#include "include/cef_app.h"
 #include "include/cef_parser.h"
 #include "include/views/cef_browser_view.h"
 #include "include/views/cef_window.h"
@@ -60,11 +60,7 @@ class WebV8Handler : public CefV8Handler
 public:
 	WebV8Handler() {}
 
-	virtual bool Execute(const CefString& name,
-		CefRefPtr<CefV8Value> object,
-		const CefV8ValueList& arguments,
-		CefRefPtr<CefV8Value>& retval,
-		CefString& exception) override;
+	virtual bool Execute(const CefString& name, CefRefPtr<CefV8Value> object, const CefV8ValueList& arguments, CefRefPtr<CefV8Value>& retval, CefString& exception) override;
 
 private:
 	IMPLEMENT_REFCOUNTING(WebV8Handler);
@@ -72,7 +68,8 @@ private:
 
 CefRefPtr<CefV8Value> JSONtoCef(json o);
 
-class HTMLUICore : public CefBrowserProcessHandler,
+class HTMLUICore : public CefApp,
+	public CefBrowserProcessHandler,
 	public CefRenderProcessHandler,
 	public CefClient,
 	public CefLifeSpanHandler,
@@ -80,7 +77,8 @@ class HTMLUICore : public CefBrowserProcessHandler,
 	public CefRequestHandler,
 	public CefDisplayHandler,
 	public CefRenderHandler,
-	public CefKeyboardHandler
+	public CefKeyboardHandler,
+	public CefContextMenuHandler
 {
 
 public:
@@ -88,7 +86,6 @@ public:
 	friend class WebV8Handler;
 public:
     virtual void OnContextInitialized() override {
-		std::cout << "ho-lee shit\n";
     }
 	static int Main();
 	static void SetSubprocess(const std::string path) { sSubprocess = path; }
@@ -100,32 +97,44 @@ public:
 	static HTMLUIView* CreateView(int width, int height, const std::string& url, bool transparent, HTMLUI *ui, void(*cb)(HTMLUIView*));
 	static void UpdateInterfaceTextures();
 	static CefRefPtr<HTMLUICore> GetInstance();
+    virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override { return this; }
 	virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
 	virtual CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
 	virtual CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
 	virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
 	virtual CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
 	virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() override { return this; }
-	virtual void OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame);
+	virtual void OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, TransitionType transition_type) override;
 	virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, int httpStatusCode) override;
 	virtual void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect &rect) override;
-	virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type,
-		const RectList& dirtyRects, const void* buffer, int width, int height) override;
+	virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList& dirtyRects, const void* buffer, int width, int height) override;
 	virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent& e, CefEventHandle os_event) override;
 	virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
 	virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
-	//virtual void OnRenderProcessThreadCreated(CefRefPtr<CefListValue> extra_info) override;
+    //virtual void OnRenderProcessThreadCreated(CefRefPtr<CefListValue> extra_info) override;
+    //virtual void OnRenderThreadCreated(CefRefPtr<CefListValue> extra_info) override;
 	virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefDictionaryValue> extra_info) override;
 	virtual void OnBrowserDestroyed(CefRefPtr<CefBrowser> browser) override;
 	virtual void OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) override;
-	virtual void OnContextReleased(CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, CefRefPtr< CefV8Context > context) override;
-	virtual void OnUncaughtException(CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, CefRefPtr< CefV8Context > context, CefRefPtr< CefV8Exception > exception, CefRefPtr< CefV8StackTrace > stackTrace) override;
+	virtual void OnContextReleased(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context) override;
+	virtual void OnUncaughtException(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context, CefRefPtr<CefV8Exception> exception, CefRefPtr<CefV8StackTrace> stackTrace) override;
 	virtual bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefProcessId source_process, CefRefPtr<CefProcessMessage> message) override;
+
+	virtual void OnBeforeCommandLineProcessing(const CefString & process_type, CefRefPtr<CefCommandLine> command_line) override
+	{
+		command_line->AppendSwitchWithValue("log-level", "0");
+	}
+
 	void CefV8Array2ListValue(CefRefPtr<CefV8Value> source, CefRefPtr<CefListValue> target);
 	void CefListValue2V8Array(CefRefPtr<CefListValue> source, CefRefPtr<CefV8Value> target);
 	void CefV8JsonObject2DictionaryValue(CefRefPtr<CefV8Value>source, CefRefPtr<CefDictionaryValue> target);
 	void CefDictionaryValue2V8JsonObject(CefRefPtr<CefDictionaryValue> source, CefRefPtr<CefV8Value> target);
 
+    void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) override;
+    bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags) override;
+
+    virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler() override { return this; }
+    virtual CefRefPtr<CefRenderProcessHandler> GetRenderProcessHandler() override { return this; }
 //private:
 
 	struct RegScheme
@@ -143,7 +152,6 @@ public:
 	static std::string sSubprocess;
 	static bool sSingleProcess;
 	static CefMainArgs sArgs;
-	static CefRefPtr<HTMLUIApp> sApp;
 	static CefRefPtr<HTMLUICore> sInstance;
 	static void WebThread();
 	static sf::Thread* spThread;
@@ -151,14 +159,14 @@ public:
 	static std::queue<RegScheme> sRegSchemeQueue;
 	static std::queue<HTMLUIView*> sViewQueue;
 	static std::map<int, HTMLUIView*> sViews;
-	typedef std::map<std::pair<std::string, int>, JSBinding::JSCallback>	BindingMap;
+	typedef std::map<std::pair<std::string, int>, JSBinding::JSCallback> BindingMap;
 	static BindingMap sBindings;
 	void AddBrowserToInterface(HTMLUIView* pWeb);
 
 	HTMLUICore() {}
 	~HTMLUICore() {}
 
-public:
+private:
 	IMPLEMENT_REFCOUNTING(HTMLUICore);
 };
 
@@ -291,13 +299,13 @@ public:
 
 	bool ReadFromFile(std::string filePath);
 
-	virtual bool HTMLUISpriteHandler::ProcessRequest(CefRefPtr<CefRequest> request, CefRefPtr<CefCallback> callback) override;
+	virtual bool ProcessRequest(CefRefPtr<CefRequest> request, CefRefPtr<CefCallback> callback) override;
 
-	virtual void HTMLUISpriteHandler::GetResponseHeaders(CefRefPtr<CefResponse> response, int64& response_length, CefString& redirectUrl) override;
+	virtual void GetResponseHeaders(CefRefPtr<CefResponse> response, int64& response_length, CefString& redirectUrl) override;
 
-	virtual void HTMLUISpriteHandler::Cancel() override;
+	virtual void Cancel() override;
 
-	virtual bool HTMLUISpriteHandler::ReadResponse(void* data_out, int bytes_to_read, int& bytes_read, CefRefPtr<CefCallback> callback) override;
+	virtual bool ReadResponse(void* data_out, int bytes_to_read, int& bytes_read, CefRefPtr<CefCallback> callback) override;
 
 	~HTMLUISpriteHandler();
 

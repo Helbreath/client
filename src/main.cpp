@@ -24,6 +24,8 @@
 
 #include "HTMLUI.h"
 
+#include "ui/ui_core.hpp"
+
 //#define DEBUG_INSPECTOR
 
 void * G_hWnd = 0;
@@ -44,6 +46,7 @@ std::condition_variable cv2;
 #include <stdio.h> 
 #include <conio.h>
 #include <tchar.h>
+#include <WinBase.h>
 
 bool isvm()
 {
@@ -56,8 +59,116 @@ bool isvm()
 
 int main(int argc, char * argv[])
 {
-    if (HTMLUICore::Main() >= 0)
-        return -1;
+    //////////////////////////////////////////////////////////////////////////
+    // debug named pipes
+
+    std::thread pipethead([&] {
+        std::vector<std::thread> pipethreadlist;
+        for (;;)
+        {
+            HANDLE hPipe = CreateNamedPipeA(
+                "\\\\.\\pipe\\stupidcefdebuglog",             // pipe name 
+                PIPE_ACCESS_DUPLEX,       // read/write access 
+                PIPE_TYPE_MESSAGE |       // message type pipe 
+                PIPE_READMODE_MESSAGE |   // message-read mode 
+                PIPE_WAIT,                // blocking mode 
+                PIPE_UNLIMITED_INSTANCES, // max. instances  
+                BUFSIZE,                  // output buffer size 
+                BUFSIZE,                  // input buffer size 
+                0,                        // client time-out 
+                NULL);                    // default security attribute 
+            BOOL   fConnected = FALSE;
+            fConnected = ConnectNamedPipe(hPipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
+            if (fConnected)
+            {
+                printf("Client connected, creating a processing thread.\n");
+
+                // Create a thread for this client. 
+                pipethreadlist.push_back(std::thread([&, hPipe] {
+                    HANDLE hHeap = GetProcessHeap();
+                    char * pchRequest = (char *)HeapAlloc(hHeap, 0, BUFSIZE);
+                    char * pchReply = (char *)HeapAlloc(hHeap, 0, BUFSIZE);
+
+                    DWORD cbBytesRead = 0, cbReplyBytes = 0, cbWritten = 0;
+                    BOOL fSuccess = FALSE;
+
+                    if (hPipe == NULL)
+                    {
+                        printf("\nERROR - Pipe Server Failure:\n");
+                        printf("   InstanceThread got an unexpected NULL value in lpvParam.\n");
+                        printf("   InstanceThread exitting.\n");
+                        if (pchReply != NULL) HeapFree(hHeap, 0, pchReply);
+                        if (pchRequest != NULL) HeapFree(hHeap, 0, pchRequest);
+                        return;
+                    }
+
+                    if (pchRequest == NULL)
+                    {
+                        printf("\nERROR - Pipe Server Failure:\n");
+                        printf("   InstanceThread got an unexpected NULL heap allocation.\n");
+                        printf("   InstanceThread exitting.\n");
+                        if (pchReply != NULL) HeapFree(hHeap, 0, pchReply);
+                        return;
+                    }
+
+                    if (pchReply == NULL)
+                    {
+                        printf("\nERROR - Pipe Server Failure:\n");
+                        printf("   InstanceThread got an unexpected NULL heap allocation.\n");
+                        printf("   InstanceThread exitting.\n");
+                        if (pchRequest != NULL) HeapFree(hHeap, 0, pchRequest);
+                        return;
+                    }
+
+                    // Print verbose messages. In production code, this should be for debugging only.
+                    printf("InstanceThread created, receiving and processing messages.\n");
+
+                    // The thread's parameter is a handle to a pipe object instance. 
+
+                    // Loop until done reading
+                    while (1)
+                    {
+                        // Read client requests from the pipe. This simplistic code only allows messages
+                        // up to BUFSIZE characters in length.
+                        fSuccess = ReadFile(
+                            hPipe,        // handle to pipe 
+                            pchRequest,    // buffer to receive data 
+                            BUFSIZE, // size of buffer 
+                            &cbBytesRead, // number of bytes read 
+                            NULL);        // not overlapped I/O 
+
+                        if (!fSuccess) break;
+
+                        std::cout << "!!CEF!!: " << pchRequest << "\n";
+                    }
+
+                    // Flush the pipe to allow the client to read the pipe's contents 
+                    // before disconnecting. Then disconnect the pipe, and close the 
+                    // handle to this pipe instance. 
+
+                    FlushFileBuffers(hPipe);
+                    DisconnectNamedPipe(hPipe);
+                    CloseHandle(hPipe);
+
+                    HeapFree(hHeap, 0, pchRequest);
+                    HeapFree(hHeap, 0, pchReply);
+
+                    printf("InstanceThread exiting.\n");
+                    return;
+                }));
+            }
+            else
+                // The client could not connect, so close the pipe. 
+                CloseHandle(hPipe);
+        }
+    });
+
+    //////////////////////////////////////////////////////////////////////////
+
+
+    //std::this_thread::sleep_for(10s);
+    //if (HTMLUICore::Main() >= 0)
+    //    return -1;
 /*
     CefSettings settings;
     settings.multi_threaded_message_loop = true;
@@ -350,7 +461,7 @@ int main(int argc, char * argv[])
     //settings.resources_dir_path = *resources_path;
 
 
-    HTMLUICore::StartWeb();
+    //HTMLUICore::StartWeb();
 
     //CefInitialize(HTMLUICore::sArgs, settings, HTMLUICore::sApp.get(), NULL);
 
@@ -373,22 +484,30 @@ int main(int argc, char * argv[])
     G_pGame->m_pSprite[SPRID_INTERFACE_ND_MAINMENU] = CSprite::CreateSprite("New-Dialog", 1, false);
     G_pGame->m_pSprite[SPRID_INTERFACE_ND_QUIT] = CSprite::CreateSprite("New-Dialog", 2, false);
 
-// 	G_pGame->clipmousegame = true;
-// 	G_pGame->clipmousewindow = true;
-
-	int grace = 0;
-
     sf::Event event;
     sf::RenderWindow & window = G_pGame->window;
 
-    G_pGame->CreateUI();
-    //HTMLUICore::RegisterScheme("game", "sprite", new HTMLUISpriteHandlerFactory());
+    std::thread cef_thread(std::bind(&ui::ui_game::run_cef_thread, G_pGame->cef_ui));
 
-    std::this_thread::sleep_for(1s);
+    //G_pGame->CreateUI();
+    //HTMLUICore::RegisterScheme("game", "sprite", new HTMLUISpriteHandlerFactory());
 
     while (window.isOpen() && isrunning)
 	{
-        //CefDoMessageLoopWork();
+//         while (sRegSchemeQueue.size() > 0)
+//         {
+//             CefRegisterSchemeHandlerFactory(sRegSchemeQueue.front().mName, sRegSchemeQueue.front().mDomain, sRegSchemeQueue.front().mFactory);
+//             std::cout << fmt::format("Registering Scheme Handler {} - {}\n", sRegSchemeQueue.front().mName, sRegSchemeQueue.front().mDomain);
+//             sRegSchemeQueue.pop();
+//         }
+
+/*
+        while (_ui->view_queue.size() > 0)
+        {
+            GetInstance()->AddBrowserToInterface(_ui->view_queue.front());
+            sViewQueue.pop();
+        }*/
+
 
 /*
         while (HTMLUICore::sRegSchemeQueue.size() > 0)
@@ -464,8 +583,11 @@ int main(int argc, char * argv[])
 	}
     isrunning = false;
 
-    HTMLUICore::EndWeb();
-    HTMLUICore::WaitForWebEnd();
+    G_pGame->cef_ui->is_running = false;
+    cef_thread.join();
+
+    //HTMLUICore::EndWeb();
+    //HTMLUICore::WaitForWebEnd();
 
     G_pGame->signals_.cancel();
     G_pGame->Quit();

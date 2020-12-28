@@ -3,8 +3,24 @@
 
 extern CGame * G_pGame;
 
+void HTMLUICore::OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model)
+{
+    CEF_REQUIRE_UI_THREAD();
+
+    model->Clear();
+}
+
+bool HTMLUICore::OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags)
+{
+    CEF_REQUIRE_UI_THREAD();
+
+    MessageBox(browser->GetHost()->GetWindowHandle(), L"The requested action is not supported", L"Unsupported Action", MB_OK | MB_ICONINFORMATION);
+    return false;
+}
+#include <filesystem>
 std::string getcwd_string(void) {
 	char buff[1024];
+	
 	getcwd(buff, 1024);
 	std::string cwd(buff);
 	return cwd;
@@ -131,7 +147,7 @@ bool HTMLUISpriteHandler::ProcessRequest(CefRefPtr<CefRequest> request, CefRefPt
 	std::cmatch matches;
 	std::regex pattern ("game://([a-zA-Z0-9]+)/([0-9]+)");
 
-	std::string basePath = getcwd_string();
+	std::string basePath = std::filesystem::current_path().string();
 	mMimeType = "image/png";
 
 	if (std::regex_match(url.c_str(), matches, pattern) && matches.size() == 3) {

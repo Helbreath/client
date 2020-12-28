@@ -1,13 +1,13 @@
 #include "HTMLUI.h"
 #include "Game.h"
+#include <fmt/format.h>
 
 extern CGame * G_pGame;
 
 // Static variables
 std::string HTMLUICore::sSubprocess = "hbx_ui.exe";
-bool HTMLUICore::sSingleProcess = true;
+bool HTMLUICore::sSingleProcess = false;
 CefMainArgs HTMLUICore::sArgs;
-CefRefPtr<HTMLUIApp> HTMLUICore::sApp = NULL;
 CefRefPtr<HTMLUICore> HTMLUICore::sInstance = NULL;
 sf::Thread* HTMLUICore::spThread = NULL;
 bool HTMLUICore::sEndThread = false;
@@ -111,20 +111,22 @@ CefRefPtr<HTMLUICore> HTMLUICore::GetInstance()
 
 extern std::condition_variable cv;
 extern std::condition_variable cv2;
+//extern std::string getcwd_string(void);
 
 void HTMLUICore::WebThread()
 {
-	if (sApp == nullptr)
-	{
-		Main();
-	}
+	Main();
 
 	CefSettings settings;
 	settings.multi_threaded_message_loop = false;
+	CefString(&settings.log_file).FromASCII("log.txt");
 	// settings.single_process = sSingleProcess;
 	settings.windowless_rendering_enabled = true;
 	settings.external_message_pump = true;
 	settings.remote_debugging_port = 9222;
+	settings.background_color = cef_color_t(0x00ffffff);
+
+    CefString(&settings.browser_subprocess_path).FromASCII(fmt::format("{}\\bin\\{}", std::filesystem::current_path().string(), sSubprocess).c_str());
 
 	/*if (sSubprocess != "")
 	{
@@ -133,15 +135,20 @@ void HTMLUICore::WebThread()
 	CefString(&settings.browser_subprocess_path).FromASCII(sSubprocess.c_str());
 	}*/
 
-	CefInitialize(sArgs, settings, sApp.get(), NULL);
+	CefInitialize(sArgs, settings, GetInstance().get(), NULL);
 
 	while (!sEndThread)
 	{
 		CefDoMessageLoopWork();
 
+		//DLOG(INFO) << "MessageLoopWork";
+
+		std::this_thread::sleep_for(10ms);
+
 		while (sRegSchemeQueue.size() > 0)
 		{
 			CefRegisterSchemeHandlerFactory(sRegSchemeQueue.front().mName, sRegSchemeQueue.front().mDomain, sRegSchemeQueue.front().mFactory);
+			std::cout << fmt::format("Registering Scheme Handler {} - {}\n", sRegSchemeQueue.front().mName, sRegSchemeQueue.front().mDomain);
 			sRegSchemeQueue.pop();
 		}
 
@@ -208,6 +215,9 @@ void HTMLUICore::AddBrowserToInterface(HTMLUIView* view)
 	info.SetAsWindowless(view->mHandle);
 	CefBrowserSettings browserSettings;
 	browserSettings.javascript_access_clipboard = STATE_ENABLED;
+	browserSettings.javascript = STATE_ENABLED;
+	browserSettings.universal_access_from_file_urls = STATE_ENABLED;
+	browserSettings.file_access_from_file_urls = STATE_ENABLED;
 
 
 	CefRefPtr<CefBrowser> browser = CefBrowserHost::CreateBrowserSync(info, this, view->GetCurrentURL(), browserSettings, NULL, NULL);
@@ -225,9 +235,10 @@ int HTMLUICore::Main()
 #else
 	sArgs = CefMainArgs();
 #endif
-	sApp = new HTMLUIApp();
 
-	int exit_code = CefExecuteProcess(sArgs, sApp.get(), NULL);
+	//sApp = new HTMLUIApp();
+
+	int exit_code = CefExecuteProcess(sArgs, GetInstance().get(), NULL);
 
 	if (exit_code >= 0)
 	{
@@ -285,7 +296,8 @@ HTMLUIView* HTMLUICore::CreateView(int width, int height, const std::string& url
 
 void HTMLUICore::UpdateInterfaceTextures()
 {
-	std::map<int, HTMLUIView*>::iterator i;
+    DLOG(ERROR) << "UpdateInterfaceTextures";
+    std::map<int, HTMLUIView *>::iterator i;
 	for (i = sViews.begin(); i != sViews.end(); i++)
 	{
 		i->second->UpdateTexture();
@@ -295,6 +307,7 @@ void HTMLUICore::UpdateInterfaceTextures()
 
 void HTMLUICore::OnBrowserCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefDictionaryValue> extra_info)
 {
+	DLOG(ERROR) << "OnBrowserCreated";
 	BindingMap::iterator i = sBindings.begin();
 	for (; i != sBindings.end(); i++)
 	{
@@ -312,7 +325,8 @@ void HTMLUICore::OnBrowserCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefDi
 
 void HTMLUICore::OnBrowserDestroyed(CefRefPtr<CefBrowser> browser)
 {
-	BindingMap::iterator i = sBindings.begin();
+    DLOG(ERROR) << "OnBrowserDestroyed";
+    BindingMap::iterator i = sBindings.begin();
 	for (; i != sBindings.end();)
 	{
 		if (i->first.second == browser->GetIdentifier())
@@ -325,7 +339,8 @@ void HTMLUICore::OnBrowserDestroyed(CefRefPtr<CefBrowser> browser)
 
 void HTMLUICore::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context)
 {
-	// Ask the interface if it wants bindings
+    DLOG(ERROR) << "OnContextCreated";
+    // Ask the interface if it wants bindings
 	if (!sViews.count(browser->GetIdentifier()))
 	{
 		return;
@@ -356,7 +371,7 @@ void HTMLUICore::OnContextCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFr
 
 void HTMLUICore::OnContextReleased(CefRefPtr< CefBrowser > browser, CefRefPtr< CefFrame > frame, CefRefPtr< CefV8Context > context)
 {
-	printf("Context released\n");
+	
 }
 
 
@@ -375,7 +390,8 @@ void HTMLUICore::OnRenderProcessThreadCreated(CefRefPtr<CefListValue> extra_info
 
 bool HTMLUICore::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefProcessId source_process, CefRefPtr<CefProcessMessage> message)
 {
-	CefString message_name = message->GetName();
+    DLOG(ERROR) << "OnProcessMessageReceived";
+    CefString message_name = message->GetName();
 
 	if (CefCurrentlyOn(TID_RENDERER))
 	{
@@ -449,27 +465,30 @@ bool HTMLUICore::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefRefP
 }
 
 
-void HTMLUICore::OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame)
+void HTMLUICore::OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, TransitionType transition_type)
 {
+    DLOG(ERROR) << "OnLoadStart";
 
 }
 
 
 void HTMLUICore::OnLoadEnd(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, int httpStatusCode)
 {
+    DLOG(ERROR) << "OnLoadEnd";
 
 }
 
 
 void HTMLUICore::OnAfterCreated(CefRefPtr<CefBrowser> browser)
 {
-	std::cout << "OnAfterCreated\n";
+    DLOG(ERROR) << "OnAfterCreated";
 }
 
 
 void HTMLUICore::OnBeforeClose(CefRefPtr<CefBrowser> browser)
 {
-	//Free the browser pointer so that the browser can be destroyed.
+    DLOG(ERROR) << "OnBeforeClose";
+    //Free the browser pointer so that the browser can be destroyed.
 	if (sViews.count(browser->GetIdentifier()))
 		sViews[browser->GetIdentifier()]->ClearBrowser();
 }
@@ -639,7 +658,8 @@ void HTMLUICore::CefV8Array2ListValue(CefRefPtr<CefV8Value> source, CefRefPtr<Ce
 	}
 }
 
-void HTMLUICore::CefListValue2V8Array(CefRefPtr<CefListValue> source, CefRefPtr<CefV8Value> target) {
+void HTMLUICore::CefListValue2V8Array(CefRefPtr<CefListValue> source, CefRefPtr<CefV8Value> target)
+{
 	assert(target->IsArray());
 
 	int arg_length = static_cast<int>(source->GetSize());
@@ -823,7 +843,8 @@ HTMLUIView::HTMLUIView(int width, int height, const std::string& url, bool trans
 
 void HTMLUIView::SetContext(CefRefPtr<CefV8Context> context, CefRefPtr<CefV8Value> object, CefRefPtr<CefV8Handler> handler)
 {
-	jsContext = context;
+    DLOG(ERROR) << "SetContext";
+    jsContext = context;
 	jsObject = object;
 	jsHandler = handler;
 
@@ -875,7 +896,8 @@ void HTMLUIView::Emit(std::string method, json object)
 
 void HTMLUIView::SendEmitters()
 {
-	// emitMtx.lock_shared();
+    DLOG(ERROR) << "SendEmitters";
+    // emitMtx.lock_shared();
 	CefRefPtr<CefV8Value> ui = jsObject->GetValue("UI");
 	for(auto i = pendingEmit.cbegin(); i != pendingEmit.cend();)
 	{
@@ -1065,7 +1087,8 @@ void HTMLUIView::AddJSBindings(const std::vector<JSBinding> bindings)
 
 void HTMLUIView::ExecuteJS(const CefString& code)
 {
-	if (!mBrowser)
+    DLOG(ERROR) << "ExecuteJS";
+    if (!mBrowser)
 		return;
 
 	ExecuteJS(code, mBrowser->GetMainFrame());
@@ -1074,7 +1097,8 @@ void HTMLUIView::ExecuteJS(const CefString& code)
 
 void HTMLUIView::ExecuteJS(const CefString& code, CefRefPtr<CefFrame> frame)
 {
-	if (!mBrowser)
+    DLOG(ERROR) << "ExecuteJS";
+    if (!mBrowser)
 		return;
 
 	//Should probably check to make sure the frame is from our browser here.
@@ -1085,7 +1109,8 @@ void HTMLUIView::ExecuteJS(const CefString& code, CefRefPtr<CefFrame> frame)
 
 void HTMLUIView::ExecuteJS(const CefString& code, CefRefPtr<CefFrame> frame, int startLine)
 {
-	if (!mBrowser)
+    DLOG(ERROR) << "ExecuteJS";
+    if (!mBrowser)
 		return;
 
 	//Should probably check to make sure the frame is from our browser here.
@@ -1098,7 +1123,8 @@ bool HTMLUIView::JSCallback(const CefString& name,
 	CefRefPtr<CefListValue> arguments
 )
 {
-	bool result = false;
+    DLOG(ERROR) << "JSCallback";
+    bool result = false;
 	//Check if this is one of our bindings.
 
 	if (HTMLUICore::sBindings.count(std::make_pair(name, mBrowser->GetIdentifier())))
@@ -1145,7 +1171,8 @@ bool WebV8Handler::Execute(const CefString& name,
 	CefRefPtr<CefV8Value>& retval,
 	CefString& exception)
 {
-	//Send message to browser process to call function
+    DLOG(ERROR) << "Execute";
+    //Send message to browser process to call function
 	CefRefPtr<CefBrowser> browser = CefV8Context::GetCurrentContext()->GetBrowser();
 	CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create("jsbinding_call");
 	message->GetArgumentList()->SetString(0, name);

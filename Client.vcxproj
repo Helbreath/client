@@ -416,6 +416,7 @@
       </HeapCommitSize>
       <StackCommitSize>
       </StackCommitSize>
+      <UACExecutionLevel>AsInvoker</UACExecutionLevel>
     </Link>
     <Bscmake>
       <OutputFile>$(IntDir)$(ProjectName).bsc</OutputFile>
@@ -583,7 +584,6 @@
     <ClInclude Include="src\DynamicObjectID.h" />
     <ClInclude Include="src\Guild.h" />
     <ClInclude Include="src\BuildItem.h" />
-    <ClInclude Include="src\HTMLUI.h" />
     <ClInclude Include="src\Input.h" />
     <ClInclude Include="src\Item.h" />
     <ClInclude Include="src\ItemBag.h" />
@@ -613,6 +613,10 @@
     <ClInclude Include="src\buffer.h" />
     <ClInclude Include="src\StrTok.h" />
     <ClInclude Include="src\DialogBox.h" />
+    <ClInclude Include="src\ui\ui_core.hpp" />
+    <ClInclude Include="src\ui\ui_input.hpp" />
+    <ClInclude Include="src\ui\ui_panel.hpp" />
+    <ClInclude Include="src\ui\ui_view.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Res\resource.rc" />
@@ -622,10 +626,6 @@
     <ClCompile Include="src\Curse.cpp" />
     <ClCompile Include="src\Guild.cpp" />
     <ClCompile Include="src\BuildItem.cpp" />
-    <ClCompile Include="src\HTMLUI.cpp" />
-    <ClCompile Include="src\HTMLUICore.cpp" />
-    <ClCompile Include="src\HTMLUIPanel.cpp" />
-    <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Item.cpp" />
     <ClCompile Include="src\ItemBag.cpp" />
     <ClCompile Include="src\ItemName.cpp" />
@@ -638,6 +638,10 @@
     <ClCompile Include="src\Effect.cpp" />
     <ClCompile Include="src\Sprite.cpp" />
     <ClCompile Include="src\TileSpr.cpp" />
+    <ClCompile Include="src\ui\ui_core.cpp" />
+    <ClCompile Include="src\ui\ui_input.cpp" />
+    <ClCompile Include="src\ui\ui_panel.cpp" />
+    <ClCompile Include="src\ui\ui_view.cpp" />
     <ClCompile Include="src\UpdateScreen.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\MapData.cpp" />

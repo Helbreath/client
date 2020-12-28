@@ -1,6 +1,7 @@
 <template>
   <v-container id="selectcharacter">
     <div id="hbx-popup-center-text" class="text-center text-truncate text-h5">Select your character</div>
+    <v-btn @click="Disconnect()">Create New Character</v-btn>
     <v-btn @click="Disconnect()">Logout</v-btn>
   </v-container>
 </template>

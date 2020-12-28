@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client.vcxproj", "{B046891F-46C6-48B3-8BAC-777929D872EE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A} = {F0DF4B81-E07D-4453-B28D-9A9C9B08267A}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hbx_ui", "hbx_ui\hbx_ui.vcxproj", "{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,13 +37,29 @@ Global
 		{B046891F-46C6-48B3-8BAC-777929D872EE}.Release|Win32.Build.0 = Release|Win32
 		{B046891F-46C6-48B3-8BAC-777929D872EE}.Release|x64.ActiveCfg = Release|x64
 		{B046891F-46C6-48B3-8BAC-777929D872EE}.Release|x64.Build.0 = Release|x64
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug 1024 res|Win32.ActiveCfg = Debug|Win32
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug 1024 res|Win32.Build.0 = Debug|Win32
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug 1024 res|x64.ActiveCfg = Debug|x64
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug 1024 res|x64.Build.0 = Debug|x64
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug default res|Win32.ActiveCfg = Debug|Win32
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug default res|Win32.Build.0 = Debug|Win32
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug default res|x64.ActiveCfg = Debug|x64
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug default res|x64.Build.0 = Debug|x64
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug|Win32.Build.0 = Debug|Win32
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug|x64.ActiveCfg = Debug|x64
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Debug|x64.Build.0 = Debug|x64
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Release|Win32.ActiveCfg = Release|Win32
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Release|Win32.Build.0 = Release|Win32
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Release|x64.ActiveCfg = Release|x64
+		{F0DF4B81-E07D-4453-B28D-9A9C9B08267A}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {948CE06C-EB8A-4135-ACFD-0DAE594591F3}
 		VisualSVNWorkingCopyRoot = 
+		SolutionGuid = {948CE06C-EB8A-4135-ACFD-0DAE594591F3}
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
