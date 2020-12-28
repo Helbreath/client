@@ -11,9 +11,9 @@
 CTile::CTile()
 {
 	m_sOwnerType = 0;
-	ZeroMemory(m_cOwnerName, sizeof(m_cOwnerName));
+	m_cOwnerName = "";
 	m_sDeadOwnerType = 0;
-	ZeroMemory(m_cDeadOwnerName, sizeof(m_cDeadOwnerName));
+	m_cDeadOwnerName = "";
 	m_cDeadOwnerFrame     = -1;
 
 	m_sItemSprite      = 0;
@@ -45,10 +45,10 @@ void CTile::Clear()
 	m_wDeadObjectID = 0;
 
 	m_sOwnerType = 0;
-	ZeroMemory(m_cOwnerName, sizeof(m_cOwnerName));
+	m_cOwnerName = "";
 	
 	m_sDeadOwnerType = 0;
-	ZeroMemory(m_cDeadOwnerName, sizeof(m_cDeadOwnerName));
+	m_cDeadOwnerName = "";
 
 	m_cDeadOwnerFrame = -1;
 	m_dwDeadOwnerTime = 0;
