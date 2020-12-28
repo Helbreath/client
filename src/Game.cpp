@@ -1060,11 +1060,11 @@ void CGame::UpdateScreen()
 		break;
 
 	case GAMEMODE_ONSELECTCHARACTER:
-		b_cWarrior = false;
-		b_cMage = false;
-		b_cBattleMage = false;
-		b_cArcher = false;
-		UpdateScreen_OnSelectCharacter();
+// 		b_cWarrior = false;
+// 		b_cMage = false;
+// 		b_cBattleMage = false;
+// 		b_cArcher = false;
+// 		UpdateScreen_OnSelectCharacter();
 		break;
 
 	case GAMEMODE_ONLOGRESMSG:
