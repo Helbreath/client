@@ -28,11 +28,9 @@ declare global {
     vueapp: Base | null;
     game: Game;
     SendMessage: (msg: string, data: any) => void;
-    StartLoading: () => void;
-    GetGameMode: () => void;
     ReceiveMessage: (msg: string, param: string, param2: string) => void;
-    UpdateGameMode: (val: string) => void;
-    LoadingProgress: (val: number, label: string) => void;
+    emit: (data: any) => void;
+    SendJsonMessage: (data: string) => void;
   }
 }
 
@@ -113,47 +111,11 @@ export function configure() {
 
 configure();
 
-function ReceiveMessage(msg: string, param: string, param2: string) {
-  window.vueapp?.$emit('message', msg, param, param2);
-}
+window.ReceiveMessage = (msg: string, param: string) => {
+  // console.log(`ReceiveMessage("${msg}", "${param}")`);
+  window.vueapp?.$emit('message', msg, JSON.parse(param));
+};
 
-function UpdateGameMode(val: string) {
-  window.vueapp?.$emit('gamemode', val);
-  // this.Game.mode = val;
-  // console.log(`Game mode recv: ${this.Game.mode}`);
-  /*switch (val) {
-    case 'mainmenu': // main menu
-      document.querySelector('#loading-bar-parent').style.visibility = 'hidden';
-      document.querySelector('#login').style.visibility = 'visible';
-      break;
-    case 'waitingresponse': // logging in
-      document.querySelector('#loading-bar-parent').style.visibility = 'hidden';
-      document.querySelector('#login').style.visibility = 'hidden';
-      break;
-  }*/
-  /*console.log('hiding all ui elements');
-  for (let f of document.querySelectorAll(`.hbx-ui`)) {
-    console.log(`hiding ${f.id}`);
-    f.style.visibility = 'hidden';
-  }
-  console.log(`Showing #${this.Game.mode}`);
-  document.querySelector(`#${this.Game.mode}`).style.visibility = 'visible';
-  document.querySelector(`#mainmenu`).style.visibility = 'visible';*/
-}
-
-function LoadingProgress(val: number, label: string) {
-  window.vueapp?.$emit('progress', val, label);
-  // console.log(`Loading progress ${val} - ${label}`);
-  // loadingBar.style.width = val + '%';
-  // loadingLabel.innerHTML = label;
-  if (val === 100) {
-    // document.querySelector('#loading-bar-parent').style.visibility = 'hidden';
-    // document.querySelector('#login').style.visibility = 'visible';
-    window.vueapp?.$emit('load complete');
-    // SendMessage('load complete');
-  }
-}
-
-window.UpdateGameMode = UpdateGameMode;
-window.ReceiveMessage = ReceiveMessage;
-window.LoadingProgress = LoadingProgress;
+window.SendMessage = (msg: string, data: any) => {
+  window.SendJsonMessage(JSON.stringify({ msg, data }));
+};

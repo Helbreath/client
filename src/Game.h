@@ -62,15 +62,11 @@
 
 #include "streams.h"
 
-#include <AppCore/App.h>
-#include <AppCore/Platform.h>
-#include <AppCore/Window.h>
-#include <AppCore/Overlay.h>
-#include <AppCore/JSHelpers.h>
-#include <Ultralight/Ultralight.h>
-#include <Ultralight/View.h>
-#include <Ultralight/KeyEvent.h>
-#include <Ultralight/KeyCodes.h>
+#include "HTMLUI.h"
+#include "Input.h"
+#include "json.hpp"
+
+#include "ui/ui_core.hpp"
 
 
 #define BTNSZX				74
@@ -341,6 +337,11 @@ public:
         }
     }
 
+	uint8_t getRenderTarget()
+	{
+		return drawState;
+	}
+
     void setRenderTarget(uint8_t s, bool clearbuffer = false, Color color = Color(0, 0, 0))
     {
         drawState = s;
@@ -412,8 +413,7 @@ public:
 	void ReceiveString(char* pString);
 	void ClearInputString();
 
-	void call_func_for_ui(std::function<void(void)> fn, bool with_lock = true);
-	void send_message_to_ui(std::string msg, std::string param = "", std::string param2 = "");
+	void send_message_to_ui(std::string msg, json param = {});
 
 	int inspector_size = 0;
 	bool inside_vm = false;
@@ -422,6 +422,19 @@ public:
 	bool scale_ui_with_virtual = true;
 	bool hide_ui = false;
 	bool take_screen = false;
+	bool rendering_character = false;
+
+    ui::ui_game * cef_ui;
+    ui::ui_panel * cef_panel;
+    ui::ui_input * cef_input;
+
+    std::queue<std::pair<std::string, json>> ui_events;
+
+    std::mutex ui_event_m;
+
+	uint64_t ui_delay = 10;
+
+	void receive_message_from_ui(std::string name, json obj);
 
     bool CreateRenderer(bool fs = false)
 	{
@@ -444,6 +457,15 @@ public:
 
 		//window.setFramerateLimit(120);
 
+        handle = window.getSystemHandle();
+
+        cef_ui = new ui::ui_game(this, handle);
+		cef_input = new ui::ui_input(cef_ui);
+
+		cef_panel = cef_ui->create_panel("main", "http://localhost:8080/", 0, 0, screenwidth, screenheight);
+		//cef_panel = cef_ui->create_panel("main", "https://discord.com/login", 0, 0, screenwidth, screenheight);
+
+
         if (vsync)
             window.setVerticalSyncEnabled(true);
         else
@@ -455,14 +477,6 @@ public:
         visible.create(screenwidth_v, screenheight_v + inspector_size);
         bg.create(screenwidth_v + 300, screenheight_v + 300 + inspector_size);
         charselect.create(256, 256);
-        //htmlRTT.create(screenwidth_v, screenheight_v);
-
-// 		htmlUI = new HTMLUI(this);
-// 		htmlUI->Init();
-// 
-        handle = window.getSystemHandle();
-        
-
 
         //create some fonts
 
@@ -483,6 +497,8 @@ public:
 
 		create_load_list();
 
+        _text.setFont(_font.at("arya"));
+
         return true;
 	}
     sf::WindowHandle handle;
@@ -490,14 +506,6 @@ public:
 	void create_load_list();
 
     std::string get_game_mode();
-	void receive_message_from_ui(const ultralight::JSObject & thisObject, const ultralight::JSArgs & args);
-
-	void start_loading()
-	{
-		ChangeGameMode(GAMEMODE_ONLOADING);
-	}
-
-	void update_ui_game_mode();
 
     std::map<string, sf::Font> _font;
     sf::Text _text;
@@ -512,7 +520,7 @@ public:
 	shared_ptr<CCharInfo> selectedchar;
 	
 	
-	bool clipmousegame = true;
+	bool clipmousegame = false;
 	bool clipmousewindow;
 	bool isactive;
 	uint16_t screenwidth;
@@ -817,7 +825,8 @@ public:
 	void _DrawBlackRect(int iSize);
 	void DrawNpcName(   short sX, short sY, short sOwnerType, int iStatus);
 	void DrawObjectName(short sX, short sY, char * pName, int iStatus);
-	void PlaySound(char cType, int iNum, int iDist, long lPan = 0);
+    void PlaySound(char cType, int iNum, int iDist, long lPan = 0);
+    void PlaySound(std::string cType, int iNum, int iDist, long lPan = 0);
 	void _RemoveChatMsgListByObjectID(int iObjectID);
 	void _LoadTextDlgContents(int cType);
 	int  _iLoadTextDlgContents2(int iType);
@@ -886,7 +895,6 @@ public:
 	void ReleaseTimeoverChatMsg();
 	void ChatMsgHandler(char * pData);
 	void ReleaseUnusedSprites();
-	bool bReadIp();
 	void OnKeyUp(WPARAM wParam);
 	void OnSysKeyDown(WPARAM wParam);
 	void OnSysKeyUp(WPARAM wParam);
@@ -1350,7 +1358,7 @@ public:
 	char m_cEmailAddr[52];
 	char m_cAccountQuiz[46];// Quiz
 	char m_cAccountAnswer[22];
-	char m_cPlayerName[12];
+	std::string player_name;
 	char m_cPlayerDir;
 	char m_cMsg[200];
 	char m_cLocation[12];
@@ -1380,7 +1388,7 @@ public:
 	char m_cSoundVolume, m_cMusicVolume;
 	Weather m_weather;
 	char m_cIlusionOwnerType;
-	char m_cName_IE[12];
+	std::string m_cName_IE;
 	char m_sViewDX, m_sViewDY;
 	char m_cCommandCount;
 	//char m_cLoading;

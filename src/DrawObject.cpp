@@ -80,7 +80,7 @@ bool   CGame::DrawObject_OnAttack(int indexX, int indexY, int sX, int sY, bool b
     iShieldGlare = (_tmp_sAppr4 & 0x0003);
     if ((_tmp_iStatus & 0x10) != 0)
     {
-        if (memcmp(m_cPlayerName, _tmp_cName, 10) == 0) bInv = true;
+        if (player_name == _tmp_cName) bInv = true;
         else if (bCheckItemEquiped("NecklaceOfBeholder") == true) bInv = true; // Beholder Necklace Fix xRisenx
         else if (_iGetFOE(_tmp_iStatus) == 1) bInv = true;
         else return false;
@@ -759,7 +759,7 @@ bool CGame::DrawObject_OnAttackMove(int indexX, int indexY, int sX, int sY, bool
     iShieldGlare = (_tmp_sAppr4 & 0x0003);
     if ((_tmp_iStatus & 0x10) != 0)
     {
-        if (memcmp(m_cPlayerName, _tmp_cName, 10) == 0) bInv = true;
+        if (player_name == _tmp_cName) bInv = true;
         else if (bCheckItemEquiped("NecklaceOfBeholder") == true) bInv = true; // Beholder Necklace Fix xRisenx
         else if (_iGetFOE(_tmp_iStatus) == 1) bInv = true;
         else return false;
@@ -1427,7 +1427,7 @@ bool   CGame::DrawObject_OnMagic(int indexX, int indexY, int sX, int sY, bool bT
 
     if ((_tmp_iStatus & 0x10) != 0)
     {
-        if (memcmp(m_cPlayerName, _tmp_cName, 10) == 0)
+        if (player_name == _tmp_cName)
             bInv = true;
         else
         {
@@ -1760,7 +1760,7 @@ bool   CGame::DrawObject_OnGetItem(int indexX, int indexY, int sX, int sY, bool 
 
     if ((_tmp_iStatus & 0x10) != 0)
     {
-        if (memcmp(m_cPlayerName, _tmp_cName, 10) == 0) bInv = true;
+        if (player_name ==  _tmp_cName) bInv = true;
         else if (bCheckItemEquiped("NecklaceOfBeholder") == true) bInv = true; // Beholder Necklace Fix xRisenx
         else if (_iGetFOE(_tmp_iStatus) == 1) bInv = true;
         else return false;
@@ -2090,7 +2090,7 @@ bool CGame::DrawObject_OnDamage(int indexX, int indexY, int sX, int sY, bool bTr
     iShieldGlare = (_tmp_sAppr4 & 0x0003);
     if ((_tmp_iStatus & 0x10) != 0)
     {
-        if (memcmp(m_cPlayerName, _tmp_cName, 10) == 0) bInv = true;
+        if (player_name == _tmp_cName) bInv = true;
         else if (bCheckItemEquiped("NecklaceOfBeholder") == true) bInv = true; // Beholder Necklace Fix xRisenx
         else if (_iGetFOE(_tmp_iStatus) == 1) bInv = true;
         else return false;
@@ -3897,7 +3897,7 @@ bool   CGame::DrawObject_OnMove(int indexX, int indexY, int sX, int sY, bool bTr
     iShieldGlare = (_tmp_sAppr4 & 0x0003);
     if ((_tmp_iStatus & 0x10) != 0)
     {
-        if (memcmp(m_cPlayerName, _tmp_cName, 10) == 0) bInv = true;
+        if (player_name == _tmp_cName) bInv = true;
         else if (bCheckItemEquiped("NecklaceOfBeholder") == true) bInv = true; // Beholder Necklace Fix xRisenx
         else if (_iGetFOE(_tmp_iStatus) == 1) bInv = true;
         else return false;
@@ -4747,7 +4747,7 @@ bool CGame::DrawObject_OnDamageMove(int indexX, int indexY, int sX, int sY, bool
     iShieldGlare = (_tmp_sAppr4 & 0x0003);
     if ((_tmp_iStatus & 0x10) != 0)
     {
-        if (memcmp(m_cPlayerName, _tmp_cName, 10) == 0) bInv = true;
+        if (player_name == _tmp_cName) bInv = true;
         else if (bCheckItemEquiped("NecklaceOfBeholder") == true) bInv = true; // Beholder Necklace Fix xRisenx
         else if (_iGetFOE(_tmp_iStatus) == 1) bInv = true;
         else return false;
@@ -5775,7 +5775,7 @@ bool   CGame::DrawObject_OnStop(int indexX, int indexY, int sX, int sY, bool bTr
     iShieldGlare = (_tmp_sAppr4 & 0x0003);
     if ((_tmp_iStatus & 0x10) != 0)
     {
-        if (memcmp(m_cPlayerName, _tmp_cName, 10) == 0) bInv = true;
+        if (player_name == _tmp_cName) bInv = true;
         else if (bCheckItemEquiped("NecklaceOfBeholder") == true) bInv = true; // Beholder Necklace Fix xRisenx
         else if (_iGetFOE(_tmp_iStatus) == 1) bInv = true;
         else return false;
@@ -6569,7 +6569,7 @@ bool   CGame::DrawObject_OnRun(int indexX, int indexY, int sX, int sY, bool bTra
     iShieldGlare = (_tmp_sAppr4 & 0x0003);
     if ((_tmp_iStatus & 0x10) != 0)
     {
-        if (memcmp(m_cPlayerName, _tmp_cName, 10) == 0) bInv = true;
+        if (player_name == _tmp_cName) bInv = true;
         else if (bCheckItemEquiped("NecklaceOfBeholder") == true) bInv = true; // Beholder Necklace Fix xRisenx
         else if (_iGetFOE(_tmp_iStatus) == 1) bInv = true;
         else return false;

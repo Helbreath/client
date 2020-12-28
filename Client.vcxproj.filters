@@ -31,6 +31,9 @@
     <Filter Include="engine">
       <UniqueIdentifier>{3a499399-abc8-4898-9cbf-6b14da6a2472}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ui\new_ui">
+      <UniqueIdentifier>{6c4057f1-d159-4f7f-9a4f-34ec2b618a2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\_OK.bmp">
@@ -150,6 +153,24 @@
     </ClInclude>
     <ClInclude Include="src\ItemBag.h" />
     <ClInclude Include="src\listeners.h" />
+    <ClInclude Include="src\json.hpp">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Input.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\ui_core.hpp">
+      <Filter>ui\new_ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\ui_input.hpp">
+      <Filter>ui\new_ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\ui_panel.hpp">
+      <Filter>ui\new_ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ui\ui_view.hpp">
+      <Filter>ui\new_ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Res\resource.rc">
@@ -229,6 +250,18 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ItemBag.cpp" />
     <ClCompile Include="src\listeners.cpp" />
+    <ClCompile Include="src\ui\ui_core.cpp">
+      <Filter>ui\new_ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\ui_input.cpp">
+      <Filter>ui\new_ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\ui_panel.cpp">
+      <Filter>ui\new_ui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui\ui_view.cpp">
+      <Filter>ui\new_ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Text Include="key code.txt" />

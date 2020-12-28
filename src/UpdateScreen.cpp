@@ -13,8 +13,6 @@ extern void MakeSprite(char * FileName, int iStart, short sCount, bool bAlphaEff
 extern void MakeTileSpr(char * FileName, short sStart, short sCount, bool bAlphaEffect);
 extern void MakeEffectSpr(char * FileName, short sStart, short sCount, bool bAlphaEffect);
 
-extern ultralight::RefPtr<ultralight::View> view;
-
 extern CGame * G_pGame;
 
 // extern bool CheckCheating();
@@ -799,9 +797,9 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
     if (data_list.empty())
         return;
 
-	std::string progressLabel;
+	std::string progress_label;
 
-    int perform = (G_pGame->fps.getFPS()+20)/20;
+    int perform = 300;// (G_pGame->fps.getFPS() + 20) / 20;
 
     while (--perform)
     {
@@ -809,7 +807,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
         {
             load_data item = data_list.front();
             data_list.pop();
-            progressLabel = item.label;
+            progress_label = item.label;
             if (item.sprite_type == SPRITETYPE_SPRITE)
             {
                 m_pSprite[item.id] = CSprite::CreateSprite(item.name, item.num, item.alpha);
@@ -824,6 +822,10 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             }
         }
     }
+
+    double percent = ((double(data_max) - data_list.size()) / double(data_max)) * 100;
+
+    send_message_to_ui("loadingprogress", { { "val", percent }, { "label", progress_label } });
 
 
 /*
@@ -857,31 +859,18 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
     }*/
 
 
-    if (data_list.empty())
-    {
-        new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
-
-        // Let the UI know we're done loading
-        if (autologin)
-        {
-            ChangeGameMode(GAMEMODE_ONCONNECTING);
-            m_dwConnectMode = MSGID_REQUEST_LOGIN;
-            ZeroMemory(m_cMsg, sizeof(m_cMsg));
-            strcpy(m_cMsg, "11");
-
-            asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
-            new_connection_->socket().async_connect(endpoint,
-                std::bind(&CGame::handle_connect, this,
-                    std::placeholders::_1));
-        }
-        else
-            ChangeGameMode(GAMEMODE_ONMAINMENU);
-
-        //ChangeGameMode(oldmode);
-    }
-
     //std::cout << "Loading: " << ((float(data_max) - data_list.size()) / float(data_max)) * 100 << "\n";
 
+
+
+
+//     json obj;
+//     obj["progress"] = m_cLoading;
+//     obj["progressLabel"] = progressLabel;
+//     obj["complete"] = m_cLoading == 100 ? true : false;
+    //uiFull->mView->Emit("progressUpdate", obj);
+
+/*
     G_pGame->call_func_for_ui([=, count = data_list.size()]()
     {
         double percent = ((double(data_max) - count) / double(data_max)) * 100;
@@ -899,7 +888,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
             args.push_back(ultralight::JSValue(progressLabel.c_str()));
             LoadingProgress(args);
         }
-    });
+    });*/
 
 	// Update the UI with the loading progress
 /*
@@ -992,10 +981,9 @@ void CGame::UpdateScreen_OnSelectCharacter()
         {
             if (m_pCharList[m_cCurFocus - 1]->m_sSex != 0)
             {
-                ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-                strcpy(m_cPlayerName, m_pCharList[m_cCurFocus - 1]->m_cName.c_str());
+                player_name = m_pCharList[m_cCurFocus - 1]->m_cName;
                 m_iLevel = (int)m_pCharList[m_cCurFocus - 1]->m_sLevel;
-                if (m_Misc.bCheckValidString(m_cPlayerName) == true)
+                if (m_Misc.bCheckValidString(player_name.c_str()) == true)
                 {
                     m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
                     m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
@@ -1060,10 +1048,9 @@ void CGame::UpdateScreen_OnSelectCharacter()
                     {
                         if (m_pCharList[m_cCurFocus - 1]->m_sSex != 0)
                         {
-                            ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-                            strcpy(m_cPlayerName, m_pCharList[m_cCurFocus - 1]->m_cName.c_str());
+                            player_name = m_pCharList[m_cCurFocus - 1]->m_cName;
                             m_iLevel = (int)m_pCharList[m_cCurFocus - 1]->m_sLevel;
-                            if (m_Misc.bCheckValidString(m_cPlayerName) == true)
+                            if (m_Misc.bCheckValidString(player_name.c_str()) == true)
                             {
                                 m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
                                 m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
@@ -1092,11 +1079,10 @@ void CGame::UpdateScreen_OnSelectCharacter()
                 {
                     if (m_pCharList[m_cCurFocus - 1]->m_sSex != 0)
                     {
-                        ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-                        strcpy(m_cPlayerName, m_pCharList[m_cCurFocus - 1]->m_cName.c_str());
+                        player_name = m_pCharList[m_cCurFocus - 1]->m_cName;
                         m_iLevel = (int)m_pCharList[m_cCurFocus - 1]->m_sLevel;
 
-                        if (m_Misc.bCheckValidString(m_cPlayerName) == true)
+                        if (m_Misc.bCheckValidString(player_name.c_str()) == true)
                         {
                             m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
                             m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
@@ -3227,7 +3213,7 @@ void CGame::UpdateScreen_OnGame()
 
     //if((dwTime - lastScreenUpdate) > 1)
     {
-        iUpdateRet = m_pMapData->iObjectFrameCounter(m_cPlayerName, m_sViewPointX, m_sViewPointY);
+        iUpdateRet = m_pMapData->iObjectFrameCounter(player_name, m_sViewPointX, m_sViewPointY);
         lastScreenUpdate = dwTime;
     }
     //else iUpdateRet = 0;

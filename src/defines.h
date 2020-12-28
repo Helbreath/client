@@ -29,7 +29,6 @@
 #include <unistd.h>
 #include <inttypes.h>
 #else
-#define WIN32_LEAN_AND_MEAN   
 #include <SDKDDKVer.h>
 #include <tchar.h>
 #include <direct.h>

@@ -65,3 +65,7 @@ Client.VC.VC.opendb
 .vs/
 *.enc
 Win32/
+
+*.aps
+
+bin/GPUCache/
