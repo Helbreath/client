@@ -112,7 +112,9 @@ export default class App extends Vue {
   }
   protected beforeUpdate() {}
   protected updated() {}
-  protected beforeDestroy() {}
+  protected beforeDestroy() {
+    this.$root.$off('message', this.OnMessage);
+  }
   protected destroyed() {}
 }
 </script>
