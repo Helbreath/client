@@ -177,18 +177,18 @@ bool ui_input::ui_capture_mouse_move(sf::Event event)
 
     }
 
-//     for (std::pair<std::string, ui_panel *> entry : this->ui->panels) {
-//         ui_panel * panel = entry.second;
-//         if (
-//             event.mouseMove.x >= panel->mX && event.mouseMove.x <= panel->mX + panel->mWidth &&
-//             event.mouseMove.y >= panel->mY && event.mouseMove.y <= panel->mY + panel->mHeight
-//             ) {
-//             panel->hasFocus = true;
-//             panel->mView->SendFocusEvent(true);
-//             panel->mView->SendMouseMoveEvent(event.mouseMove.x - panel->mX, event.mouseMove.y - panel->mY, false);
-//             panel->mView->UpdateTexture();
-//         }
-//     }
+    //     for (std::pair<std::string, ui_panel *> entry : this->ui->panels) {
+    //         ui_panel * panel = entry.second;
+    //         if (
+    //             event.mouseMove.x >= panel->mX && event.mouseMove.x <= panel->mX + panel->mWidth &&
+    //             event.mouseMove.y >= panel->mY && event.mouseMove.y <= panel->mY + panel->mHeight
+    //             ) {
+    //             panel->hasFocus = true;
+    //             panel->mView->SendFocusEvent(true);
+    //             panel->mView->SendMouseMoveEvent(event.mouseMove.x - panel->mX, event.mouseMove.y - panel->mY, false);
+    //             panel->mView->UpdateTexture();
+    //         }
+    //     }
     return false;
 }
 
@@ -220,29 +220,29 @@ bool ui_input::ui_capture_mouse_button(sf::Event event)
 
 
 
-//     for (std::pair<std::string, ui_panel *> entry : this->ui->panels) {
-//         ui_panel * panel = entry.second;
-//         bool inPanel = (
-//             event.mouseButton.x >= panel->mX && event.mouseButton.x <= panel->mX + panel->mWidth &&
-//             event.mouseButton.y >= panel->mY && event.mouseButton.y <= panel->mY + panel->mHeight
-//             );
-//         if ((event.type == sf::Event::MouseButtonReleased && panel->mouseDown) || inPanel) {
-//             panel->mView->SendMouseClickEvent(event.mouseButton.x, event.mouseButton.y, event.mouseButton.button, (event.type == sf::Event::MouseButtonReleased), 1);
-//             if (event.type == sf::Event::MouseButtonPressed) {
-//                 panel->mouseDown = true;
-//                 panel->hasFocus = true;
-//                 panel->mView->SendFocusEvent(true);
-//                 panel->mView->UpdateTexture();
-//             }
-//             else {
-//                 panel->mouseDown = false;
-//             }
-//         }
-//         else if (event.type == sf::Event::MouseButtonPressed && !inPanel) {
-//             panel->hasFocus = false;
-//             panel->mView->SendFocusEvent(false);
-//         }
-//     }
+    //     for (std::pair<std::string, ui_panel *> entry : this->ui->panels) {
+    //         ui_panel * panel = entry.second;
+    //         bool inPanel = (
+    //             event.mouseButton.x >= panel->mX && event.mouseButton.x <= panel->mX + panel->mWidth &&
+    //             event.mouseButton.y >= panel->mY && event.mouseButton.y <= panel->mY + panel->mHeight
+    //             );
+    //         if ((event.type == sf::Event::MouseButtonReleased && panel->mouseDown) || inPanel) {
+    //             panel->mView->SendMouseClickEvent(event.mouseButton.x, event.mouseButton.y, event.mouseButton.button, (event.type == sf::Event::MouseButtonReleased), 1);
+    //             if (event.type == sf::Event::MouseButtonPressed) {
+    //                 panel->mouseDown = true;
+    //                 panel->hasFocus = true;
+    //                 panel->mView->SendFocusEvent(true);
+    //                 panel->mView->UpdateTexture();
+    //             }
+    //             else {
+    //                 panel->mouseDown = false;
+    //             }
+    //         }
+    //         else if (event.type == sf::Event::MouseButtonPressed && !inPanel) {
+    //             panel->hasFocus = false;
+    //             panel->mView->SendFocusEvent(false);
+    //         }
+    //     }
     return false;
 }
 
@@ -259,18 +259,18 @@ bool ui_input::ui_capture_key_event(sf::Event event)
     }
 
 
-//     for (std::pair<std::string, ui_panel *> entry : this->ui->panels) {
-//         ui_panel * panel = entry.second;
-// 
-//         if (panel->hasFocus) {
-//             if (event.type == sf::Event::TextEntered) {
-//                 panel->mView->SendKeyEvent((char)event.text.unicode);
-//             }
-//             else {
-//                 panel->mView->SendKeyEvent(sfkeyToWparam(event.key.code), (event.type == sf::Event::KeyReleased), event.key.control);
-//             }
-//         }
-//     }
+    //     for (std::pair<std::string, ui_panel *> entry : this->ui->panels) {
+    //         ui_panel * panel = entry.second;
+    // 
+    //         if (panel->hasFocus) {
+    //             if (event.type == sf::Event::TextEntered) {
+    //                 panel->mView->SendKeyEvent((char)event.text.unicode);
+    //             }
+    //             else {
+    //                 panel->mView->SendKeyEvent(sfkeyToWparam(event.key.code), (event.type == sf::Event::KeyReleased), event.key.control);
+    //             }
+    //         }
+    //     }
     return false;
 }
 

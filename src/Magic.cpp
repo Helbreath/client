@@ -10,7 +10,7 @@
 
 CMagic::CMagic()
 {
-	memset(m_cName, 0, sizeof(m_cName));
+    memset(m_cName, 0, sizeof(m_cName));
 }
 
 CMagic::~CMagic()

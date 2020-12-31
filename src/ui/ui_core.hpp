@@ -53,7 +53,7 @@ public:
 class ui_core : public CefApp,
     public CefClient,
     public CefBrowserProcessHandler,
-//     public CefRenderProcessHandler,
+    //     public CefRenderProcessHandler,
     public CefLifeSpanHandler,
     public CefLoadHandler,
     public CefRequestHandler,
@@ -63,7 +63,7 @@ class ui_core : public CefApp,
     public CefContextMenuHandler
 {
 public:
-    ui_core(sf::WindowHandle _handle, CGame * _game): handle(_handle), view(nullptr), game(_game) {}
+    ui_core(sf::WindowHandle _handle, CGame * _game) : handle(_handle), view(nullptr), game(_game) {}
     ~ui_core() {}
 
     // CefClient

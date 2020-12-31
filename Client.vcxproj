@@ -573,10 +573,6 @@
     <Image Include="Res\icon1.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\x-server\src\netmessages.h" />
-    <ClInclude Include="..\x-server\src\protobuf\initdata.pb.h" />
-    <ClInclude Include="..\x-server\src\protobuf\initplayer.pb.h" />
-    <ClInclude Include="..\x-server\src\protobuf\item.pb.h" />
     <ClInclude Include="Res\resource.h" />
     <ClInclude Include="src\ActionID.h" />
     <ClInclude Include="src\CharInfo.h" />
@@ -584,12 +580,10 @@
     <ClInclude Include="src\DynamicObjectID.h" />
     <ClInclude Include="src\Guild.h" />
     <ClInclude Include="src\BuildItem.h" />
-    <ClInclude Include="src\Input.h" />
     <ClInclude Include="src\Item.h" />
     <ClInclude Include="src\ItemBag.h" />
     <ClInclude Include="src\ItemName.h" />
     <ClInclude Include="src\json.hpp" />
-    <ClInclude Include="src\listeners.h" />
     <ClInclude Include="src\Magic.h" />
     <ClInclude Include="src\mail.h" />
     <ClInclude Include="src\Skill.h" />
@@ -629,7 +623,6 @@
     <ClCompile Include="src\Item.cpp" />
     <ClCompile Include="src\ItemBag.cpp" />
     <ClCompile Include="src\ItemName.cpp" />
-    <ClCompile Include="src\listeners.cpp" />
     <ClCompile Include="src\Magic.cpp" />
     <ClCompile Include="src\mail.cpp" />
     <ClCompile Include="src\Skill.cpp" />

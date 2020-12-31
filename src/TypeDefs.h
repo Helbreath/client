@@ -1,12 +1,10 @@
-#ifndef TYPEDEFS_H
-#define TYPEDEFS_H
-
+#pragma once
 
 #include <string>
- //typedef std::string string;
- typedef std::stringstream sstream;
- 
- typedef std::ostream ostream;
+//typedef std::string string;
+typedef std::stringstream sstream;
+
+typedef std::ostream ostream;
 
 #include <list>
 #include <unordered_map>
@@ -19,16 +17,16 @@ typedef uint64_t ItemUID;
 typedef uint32_t NpcID;
 
 //-------------------------------------------MACROS----------------------------------------------------------
-#define foreach(x,y)		for(decltype(( y ).begin()) x = ( y ).begin(); x != ( y ).end(); ++x)
-#define foreach_a(x,y)	for(decltype(&( y )[0]) x = &( y )[0]; x < &( y )[0] + (sizeof( y )/sizeof(( y )[0])); x++)
+#define foreach(x, y) for (decltype((y).begin()) x = (y).begin(); x != (y).end(); ++x)
+#define foreach_a(x, y) for (decltype(&(y)[0]) x = &(y)[0]; x < &(y)[0] + (sizeof(y) / sizeof((y)[0])); x++)
 
 //--------------------------------------------TIME-----------------------------------------------------------
 
 struct Date
 {
-	uint16_t year;
-	uint8_t month;
-	uint8_t day;
+    uint16_t year;
+    uint8_t month;
+    uint8_t day;
 };
 
 //#define SECONDS(x)			(x * CLOCKS_PER_SEC)
@@ -44,19 +42,17 @@ struct Date
 // #define _d					_h * 24
 
 // time_t
-#define MINUTE(x)		x * 60
-#define HOUR(x)	 	x * MINUTE(60)
-#define DAY(x)		 	x * HOUR(24)
+#define MINUTE(x) x * 60
+#define HOUR(x) x *MINUTE(60)
+#define DAY(x) x *HOUR(24)
 
 enum DaysOfWeek
 {
-	SUNDAY,
-	MONDAY,
-	TUESDAY,
-	WEDNESDAY,
-	THURSDAY,
-	FRIDAY,
-	SATURDAY
+    SUNDAY,
+    MONDAY,
+    TUESDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY
 };
-
-#endif // TYPEDEFS_H

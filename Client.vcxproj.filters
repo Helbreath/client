@@ -25,9 +25,6 @@
     <Filter Include="shared">
       <UniqueIdentifier>{ad59ab46-ac01-4081-bb34-b916cb330654}</UniqueIdentifier>
     </Filter>
-    <Filter Include="net\packets">
-      <UniqueIdentifier>{8ea15c90-250a-4a71-a6b7-9187a2aa6e40}</UniqueIdentifier>
-    </Filter>
     <Filter Include="engine">
       <UniqueIdentifier>{3a499399-abc8-4898-9cbf-6b14da6a2472}</UniqueIdentifier>
     </Filter>
@@ -51,18 +48,6 @@
   <ItemGroup>
     <ClInclude Include="Res\resource.h">
       <Filter>res</Filter>
-    </ClInclude>
-    <ClInclude Include="..\x-server\src\protobuf\initdata.pb.h">
-      <Filter>net\packets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\x-server\src\protobuf\initplayer.pb.h">
-      <Filter>net\packets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\x-server\src\protobuf\item.pb.h">
-      <Filter>net\packets</Filter>
-    </ClInclude>
-    <ClInclude Include="..\x-server\src\netmessages.h">
-      <Filter>net\packets</Filter>
     </ClInclude>
     <ClInclude Include="src\GlobalDef.h">
       <Filter>ui</Filter>
@@ -152,11 +137,7 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="src\ItemBag.h" />
-    <ClInclude Include="src\listeners.h" />
     <ClInclude Include="src\json.hpp">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Input.h">
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="src\ui\ui_core.hpp">
@@ -249,7 +230,6 @@
     </ClCompile>
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ItemBag.cpp" />
-    <ClCompile Include="src\listeners.cpp" />
     <ClCompile Include="src\ui\ui_core.cpp">
       <Filter>ui\new_ui</Filter>
     </ClCompile>

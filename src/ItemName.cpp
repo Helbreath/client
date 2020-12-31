@@ -10,13 +10,10 @@
 
 CItemName::CItemName()
 {
-	memset(m_cOriginName, 0, sizeof(m_cOriginName));
-	memset(m_cName, 0, sizeof(m_cName));
+    memset(m_cOriginName, 0, sizeof(m_cOriginName));
+    memset(m_cName, 0, sizeof(m_cName));
 }
 
 CItemName::~CItemName()
 {
-
 }
-
-

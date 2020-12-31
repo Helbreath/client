@@ -10,14 +10,13 @@
 
 CSkill::CSkill()
 {
-	memset(m_cName, 0, sizeof(m_cName));
+    memset(m_cName, 0, sizeof(m_cName));
 
-	m_iLevel = 0;
-	m_bIsUseable = false;
-	m_cUseMethod = 0;
+    m_iLevel = 0;
+    m_bIsUseable = false;
+    m_cUseMethod = 0;
 }
 
 CSkill::~CSkill()
 {
-
 }

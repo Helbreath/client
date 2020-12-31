@@ -102,7 +102,7 @@ void ui_view::send_mouse_wheel_event(int x, int y, int deltax, int deltay)
     e.x = x;
     e.y = y;
     e.modifiers = get_mouse_modifiers();
-    browser->GetHost()->SendMouseWheelEvent(e, 0, 30*deltay);
+    browser->GetHost()->SendMouseWheelEvent(e, 0, 30 * deltay);
 }
 
 void ui_view::send_key_event(WPARAM key, bool key_up, bool is_system /*= false*/, int modifiers /*= -1*/)
@@ -136,33 +136,33 @@ void ui_view::send_key_event(char key, int modifiers /*= -1*/)
 
 void ui_view::add_js_binding(const std::string name, js_binding::js_callback callback)
 {
-//     HTMLUICore::sBindings.insert(std::make_pair(std::make_pair(name, mBrowser->GetIdentifier()), callback));
-// 
-//     CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create("jsbinding_create");
-//     message->GetArgumentList()->SetString(0, name.c_str());
-//     message->GetArgumentList()->SetInt(1, mBrowser->GetIdentifier());
-// 
-//     mBrowser->GetMainFrame()->SendProcessMessage(PID_RENDERER, message);
-// 
-//     //We have to reload the page otherwise the bindings wont be added to the context.
-//     mBrowser->Reload();
+    //     HTMLUICore::sBindings.insert(std::make_pair(std::make_pair(name, mBrowser->GetIdentifier()), callback));
+    // 
+    //     CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create("jsbinding_create");
+    //     message->GetArgumentList()->SetString(0, name.c_str());
+    //     message->GetArgumentList()->SetInt(1, mBrowser->GetIdentifier());
+    // 
+    //     mBrowser->GetMainFrame()->SendProcessMessage(PID_RENDERER, message);
+    // 
+    //     //We have to reload the page otherwise the bindings wont be added to the context.
+    //     mBrowser->Reload();
 }
 
 void ui_view::add_js_bindings(const std::vector<js_binding> bindings)
 {
-//     for (unsigned int i = 0; i < bindings.size(); i++)
-//     {
-//         HTMLUICore::sBindings.insert(std::make_pair(std::make_pair(bindings[i].mFunctionName, mBrowser->GetIdentifier()), bindings[i].mfpJSCallback));
-// 
-//         CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create("jsbinding_create");
-//         message->GetArgumentList()->SetString(0, bindings[i].mFunctionName);
-//         message->GetArgumentList()->SetInt(1, mBrowser->GetIdentifier());
-// 
-//         mBrowser->GetMainFrame()->SendProcessMessage(PID_RENDERER, message);
-//     }
-// 
-//     //We have to reload the page otherwise the bindings wont be added to the context.
-//     mBrowser->Reload();
+    //     for (unsigned int i = 0; i < bindings.size(); i++)
+    //     {
+    //         HTMLUICore::sBindings.insert(std::make_pair(std::make_pair(bindings[i].mFunctionName, mBrowser->GetIdentifier()), bindings[i].mfpJSCallback));
+    // 
+    //         CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create("jsbinding_create");
+    //         message->GetArgumentList()->SetString(0, bindings[i].mFunctionName);
+    //         message->GetArgumentList()->SetInt(1, mBrowser->GetIdentifier());
+    // 
+    //         mBrowser->GetMainFrame()->SendProcessMessage(PID_RENDERER, message);
+    //     }
+    // 
+    //     //We have to reload the page otherwise the bindings wont be added to the context.
+    //     mBrowser->Reload();
 }
 
 void ui_view::execute_js(const CefString & code)
@@ -196,16 +196,16 @@ void ui_view::execute_js(const CefString & code, CefRefPtr<CefFrame> frame, int 
 
 bool ui_view::jscallback(const CefString & name, CefRefPtr<CefListValue> arguments)
 {
-//     bool result = false;
-//     //Check if this is one of our bindings.
-// 
-//     if (HTMLUICore::sBindings.count(std::make_pair(name, mBrowser->GetIdentifier())))
-//     {
-//         result = HTMLUICore::sBindings[std::make_pair(name, mBrowser->GetIdentifier())](arguments);
-//     }
-// 
-//     //Otherwise fallthrough and return false.
-//     return result;
+    //     bool result = false;
+    //     //Check if this is one of our bindings.
+    // 
+    //     if (HTMLUICore::sBindings.count(std::make_pair(name, mBrowser->GetIdentifier())))
+    //     {
+    //         result = HTMLUICore::sBindings[std::make_pair(name, mBrowser->GetIdentifier())](arguments);
+    //     }
+    // 
+    //     //Otherwise fallthrough and return false.
+    //     return result;
 
     return false;
 }
@@ -230,9 +230,9 @@ void ui_view::send_emitters()
     while (!pending_emit.empty())
     {
         auto & e = pending_emit.front();
-//         CefV8ValueList args;
-//         args.push_back(CefV8Value::CreateString(e.first));
-//         args.push_back(json_to_cef(e.second));
+        //         CefV8ValueList args;
+        //         args.push_back(CefV8Value::CreateString(e.first));
+        //         args.push_back(json_to_cef(e.second));
 
 
         CefRefPtr<CefProcessMessage> message = CefProcessMessage::Create(e.first);
@@ -240,14 +240,14 @@ void ui_view::send_emitters()
         browser->GetMainFrame()->SendProcessMessage(PID_RENDERER, message);
 
 
-//         if (ui->HasValue("emit")) {
-//             auto fnc = ui->GetValue("emit");
-//             if (fnc->IsFunction()) {
-//                 if (!fnc->ExecuteFunctionWithContext(js_context, NULL, args)) {
-//                     printf("Unable to execute function: %s", e.first.c_str());
-//                 }
-//             }
-//         }
+        //         if (ui->HasValue("emit")) {
+        //             auto fnc = ui->GetValue("emit");
+        //             if (fnc->IsFunction()) {
+        //                 if (!fnc->ExecuteFunctionWithContext(js_context, NULL, args)) {
+        //                     printf("Unable to execute function: %s", e.first.c_str());
+        //                 }
+        //             }
+        //         }
         pending_emit.pop();
     }
 }

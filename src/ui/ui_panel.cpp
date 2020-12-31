@@ -28,7 +28,7 @@ ui_panel::~ui_panel()
 
 void ui_panel::paint()
 {
-     view->update_texture();
+    view->update_texture();
 }
 
 }

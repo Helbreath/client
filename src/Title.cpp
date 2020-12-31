@@ -10,15 +10,14 @@
 
 Title::Title()
 {
-	ZeroMemory(m_cSubject, sizeof(m_cSubject));
+    ZeroMemory(m_cSubject, sizeof(m_cSubject));
 
-	m_iCurrentNo = 0;
-	m_iNextRankPoints = 0;
-	m_iRank = 0;
-	m_iServerTitleIndex = 0;
+    m_iCurrentNo = 0;
+    m_iNextRankPoints = 0;
+    m_iRank = 0;
+    m_iServerTitleIndex = 0;
 }
 
 Title::~Title()
 {
-
 }

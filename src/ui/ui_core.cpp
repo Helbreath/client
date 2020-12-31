@@ -14,9 +14,9 @@ ui_game::ui_game(CGame * _game, sf::WindowHandle _handle)
 
 ui_panel * ui_game::create_panel(std::string name, std::string url, int x, int y, int width, int height)
 {
-//     if (this->panels.find(name) != this->panels.end()) {
-//         return this->panels.at(name);
-//     }
+    //     if (this->panels.find(name) != this->panels.end()) {
+    //         return this->panels.at(name);
+    //     }
     if (panel)
         return panel;
 
@@ -64,28 +64,28 @@ void ui_game::run_cef_thread()
         if (core->view)
             core->view->send_emitters();
 
-/*
-        while (sRegSchemeQueue.size() > 0)
-        {
-            CefRegisterSchemeHandlerFactory(sRegSchemeQueue.front().mName, sRegSchemeQueue.front().mDomain, sRegSchemeQueue.front().mFactory);
-            std::cout << fmt::format("Registering Scheme Handler {} - {}\n", sRegSchemeQueue.front().mName, sRegSchemeQueue.front().mDomain);
-            sRegSchemeQueue.pop();
-        }*/
-
-/*
-        while (sViewQueue.size() > 0)
-        {
-            GetInstance()->AddBrowserToInterface(sViewQueue.front());
-            sViewQueue.pop();
-        }*/
-
         /*
-                for (std::pair<std::string, HTMLUIPanel *> entry : G_pGame->htmlUI->panels) {
-                    auto * panel = entry.second;
-                    if (panel != nullptr && !panel->mView->GetBrowser()->IsLoading()) {
-                        panel->paint();
-                    }
+                while (sRegSchemeQueue.size() > 0)
+                {
+                    CefRegisterSchemeHandlerFactory(sRegSchemeQueue.front().mName, sRegSchemeQueue.front().mDomain, sRegSchemeQueue.front().mFactory);
+                    std::cout << fmt::format("Registering Scheme Handler {} - {}\n", sRegSchemeQueue.front().mName, sRegSchemeQueue.front().mDomain);
+                    sRegSchemeQueue.pop();
                 }*/
+
+                /*
+                        while (sViewQueue.size() > 0)
+                        {
+                            GetInstance()->AddBrowserToInterface(sViewQueue.front());
+                            sViewQueue.pop();
+                        }*/
+
+                        /*
+                                for (std::pair<std::string, HTMLUIPanel *> entry : G_pGame->htmlUI->panels) {
+                                    auto * panel = entry.second;
+                                    if (panel != nullptr && !panel->mView->GetBrowser()->IsLoading()) {
+                                        panel->paint();
+                                    }
+                                }*/
     }
 }
 
@@ -112,20 +112,20 @@ void ui_core::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect & rect)
         rect = CefRect(0, 0, view->get_width(), view->get_height());
 
 
-//     if (!sViews.count(browser->GetIdentifier()))
-//     {
-//         rect = CefRect(0, 0, 1024, 768);
-//         return;
-//     }
-//     HTMLUIView * view = sViews[browser->GetIdentifier()];
-//     if (!view)
-//     {
-//         rect = CefRect(0, 0, 1024, 768);
-//         return;
-//     }
-// 
-//     rect = CefRect(0, 0, view->GetWidth(), view->GetHeight());
-//     return;
+    //     if (!sViews.count(browser->GetIdentifier()))
+    //     {
+    //         rect = CefRect(0, 0, 1024, 768);
+    //         return;
+    //     }
+    //     HTMLUIView * view = sViews[browser->GetIdentifier()];
+    //     if (!view)
+    //     {
+    //         rect = CefRect(0, 0, 1024, 768);
+    //         return;
+    //     }
+    // 
+    //     rect = CefRect(0, 0, view->GetWidth(), view->GetHeight());
+    //     return;
 }
 
 void ui_core::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList & dirtyRects, const void * buffer, int width, int height)
@@ -237,8 +237,8 @@ void ui_core::OnBeforeClose(CefRefPtr<CefBrowser> browser)
 {
     if (view && view->browser)
         view->clear_browser();
-//     if (sViews.count(browser->GetIdentifier()))
-//         sViews[browser->GetIdentifier()]->ClearBrowser();
+    //     if (sViews.count(browser->GetIdentifier()))
+    //         sViews[browser->GetIdentifier()]->ClearBrowser();
 }
 
 void ui_core::OnBeforeChildProcessLaunch(CefRefPtr<CefCommandLine> command_line)
@@ -331,7 +331,7 @@ ui_view * ui_core::create_view(int width, int height, const std::string & url, b
     //add_browser_to_interface(view);
 
     create_browser = true;
-    
+
     //view_queue.push(view);
 
     return view;
