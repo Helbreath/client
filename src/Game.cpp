@@ -1031,7 +1031,6 @@ void CGame::UpdateScreen()
 		break;
 
 	case GAMEMODE_ONMAINMENU:
-		//UpdateScreen_OnLogin();
 		UpdateScreen_OnMainMenu();
 		break;
 
@@ -1049,10 +1048,6 @@ void CGame::UpdateScreen()
 
 	case GAMEMODE_ONMSG:
 		UpdateScreen_OnMsg();
-		break;
-
-	case GAMEMODE_ONLOGIN:
-		UpdateScreen_OnLogin();
 		break;
 
 	case GAMEMODE_ONQUIT:
@@ -1096,6 +1091,14 @@ void CGame::UpdateScreen()
 
 
     // Things rendered over the UI are here
+
+	if (isloaded)
+    {
+		// movable window character select test
+		_tmp_sOwnerType = 1;
+		_tmp_cDir = 1;
+        DrawObject_OnMove_ForMenu(0, 0, testx, testy, false, G_dwGlobalTime, 0, 0);
+    }
 
 	if (rendering_character)
 	{
@@ -1695,12 +1698,20 @@ void CGame::receive_message_from_ui(std::string name, json o)
 			if (message == "onload")
 			{
 				if (m_cGameMode == GAMEMODE_NULL)
-					send_message_to_ui("startload");
+				{
+                    send_message_to_ui("gameversion", { { "version", fmt::format("{}.{}.{}", UPPER_VERSION, LOWER_VERSION, PATCH_VERSION) } });
+                    send_message_to_ui("startload");
+				}
                 else
                     send_message_to_ui("postload");
 				send_message_to_ui("logindetails", { G_pGame->m_cAccountName, G_pGame->m_cAccountPassword });
-				send_message_to_ui("gamemode", { { "mode", get_game_mode() } });
+                send_message_to_ui("gamemode", { { "mode", get_game_mode() } });
                 return;
+			}
+			else if (message == "movetestsprite")
+			{
+				testx = obj["x"].get<uint32_t>();
+				testy = obj["y"].get<uint32_t>();
 			}
 			else if (message == "chat")
 			{
@@ -14014,186 +14025,6 @@ void CGame::StartLogin()
         printf("StartLogin()\n");
         ConnectionEstablishHandler(SERVERTYPE_LOG);
     }
-}
-
-void CGame::UpdateScreen_OnLogin()
-{
-	short msX, msY, msZ, sX, sY;
-	char cLB, cRB, cMB;
-	char cMIresult;
-	int  iMIbuttonNum;
-	static char  cPassword[12], cPrevFocus;
-	static char cName[12];
-
-	sX = 146;
-	sY = 114;
-	if (m_cGameModeCount == 0)
-	{
-        clipmousegame = false;
-        window.setMouseCursorGrabbed(true);
-        window.setMouseCursorVisible(false);
-		m_stMCursor.sCursorFrame = 0;
-
-		if (_socket)
-		{
-			_socket->stop();
-		}
-	}
-
-	m_cGameModeCount++;
-	if (m_cGameModeCount > 100) m_cGameModeCount = 100;
-
-
-/*
-    if (m_bEnterPressed == true)
-    {
-        m_bEnterPressed = false;
-        PlaySound('E', 14, 5);
-
-        switch (m_cCurFocus)
-        {
-            case 1:
-                m_cCurFocus++;
-                if (m_cCurFocus > m_cMaxFocus) m_cCurFocus = 1;
-                break;
-            case 2:
-            case 3:
-// 			if(CheckCheating()) {
-// 				MessageBoxA(*(HWND*)m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modification.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
-// 				exit(1600);
-// 			}
-                if ((strlen(cName) == 0) || (strlen(cPassword) == 0)) break;
-                m_cAccountName = "";
-                m_cAccountPassword = "";
-                m_cAccountName = cName;
-                m_cAccountPassword = cPassword;
-                ChangeGameMode(GAMEMODE_ONCONNECTING);
-                m_dwConnectMode = MSGID_REQUEST_LOGIN;
-                ZeroMemory(m_cMsg, sizeof(m_cMsg));
-                strcpy(m_cMsg, "11");
-                //delete pMI;
-                if (_socket == nullptr)
-                {
-                    asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
-                    new_connection_->socket().async_connect(endpoint,
-                                                            std::bind(&CGame::handle_connect, this,
-                                                                        std::placeholders::_1));
-                }
-                else
-                {
-                    ConnectionEstablishHandler(SERVERTYPE_LOG);
-                }
-                return;
-            case 4:	// Exit
-    // #ifdef SELECTSERVER
-    // 			ChangeGameMode(GAMEMODE_ONSELECTSERVER);
-    // #else
-    // 			ChangeGameMode(GAMEMODE_ONMAINMENU);
-    // #endif
-    //
-    // 			delete pMI;
-    // 			ChangeGameMode(GAMEMODE_ONQUIT);
-                return;
-            case 5: //Create Account Button
-                return;
-            case 6: // Forums Button
-                return;
-            case 7: // Website Button
-                return;
-        }
-    }
-
-    iMIbuttonNum = pMI->iGetStatus(msX, msY, cLB, &cMIresult);
-    if (cMIresult == MIRESULT_CLICK)
-    {
-        PlaySound('E', 14, 5);
-        switch (iMIbuttonNum)
-        {
-            case 1:
-                m_cCurFocus = 1;
-                break;
-
-            case 2:
-                m_cCurFocus = 2;
-                break;
-
-            case 3:
-                // 			if(CheckCheating()) {
-                // 				MessageBoxA(*(HWND*)m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modification.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
-                // 				exit(1600);
-                // 			}
-                if ((strlen(cName) == 0) || (strlen(cPassword) == 0)) break;
-                EndInputString();
-                ZeroMemory(m_cAccountName, sizeof(m_cAccountName));
-                ZeroMemory(m_cAccountPassword, sizeof(m_cAccountPassword));
-                strcpy(m_cAccountName, cName);
-                strcpy(m_cAccountPassword, cPassword);
-                ChangeGameMode(GAMEMODE_ONCONNECTING);
-                m_dwConnectMode = MSGID_REQUEST_LOGIN;
-                ZeroMemory(m_cMsg, sizeof(m_cMsg));
-                strcpy(m_cMsg, "11");
-                delete pMI;
-                if (_socket == nullptr)
-                {
-                    boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(m_cLogServerAddr), m_iLogServerPort);
-                    new_connection_->socket().async_connect(endpoint,
-                                                            boost::bind(&CGame::handle_connect, this,
-                                                                        boost::asio::placeholders::error));
-                }
-                else
-                {
-                    ConnectionEstablishHandler(SERVERTYPE_LOG);
-                }
-                return;
-
-            case 4: // Exit button
-                / *#ifdef SELECTSERVER
-                    ChangeGameMode(GAMEMODE_ONSELECTSERVER); // ONMAINMENU
-#else
-                ChangeGameMode(GAMEMODE_ONMAINMENU);
-#endif* /
-                delete pMI;
-                ChangeGameMode(GAMEMODE_ONQUIT);
-                return;
-            case 5:	// Create Account Button
-#ifdef MAKE_ACCOUNT
-                ClearContents_OnSelectCharacter();
-                delete pMI;
-                //ChangeGameMode(GAMEMODE_ONAGREEMENT);
-                ChangeGameMode(GAMEMODE_ONCREATENEWACCOUNT);
-#else
-                GoHomepage();
-#endif
-                return;
-            case 6:	// Forums Button
-                GoHomepage(false);
-                return;
-            case 7: // Website Button
-                GoHomepage(true);
-                return;
-            case 8:	// Check Button
-                if (b_cRemember == true)
-                {
-                    b_cRemember = false;
-                    WriteUsername(cName, true);
-                    return;
-                }
-                else
-                {
-                    b_cRemember = true;
-                    if (sizeof(cName) > 0)
-                    {
-                        WriteUsername(cName, false);
-                    }
-                    return;
-                }
-                return;
-        }
-    }*/
-
-    DrawNewDialogBox(SPRID_INTERFACE_ND_LOGIN, 0, 0, 0, true);
-    DrawVersion();
-    //_Draw_OnLogin(cName, cPassword, msX, msY, m_cGameModeCount);
 }
 
 void CGame::NotifyMsgHandler(char * pData)

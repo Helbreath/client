@@ -779,7 +779,6 @@ public:
 // 	void MakeLegionEffectSpr( char* FileName, short sStart, short sCount, bool bAlphaEffect = TRUE);
 	void UpdateScreen_OnLoading(bool bActive);
 	void UpdateScreen_OnConnectionLost();
-	void UpdateScreen_OnLogin();
 	void UpdateScreen_OnMsg();
 	void UpdateScreen_OnQuit();
 	void UpdateScreen_OnQueryForceLogin();

@@ -1,4 +1,4 @@
-// Sprite.cpp: implementation of the CSprite class.
+﻿// Sprite.cpp: implementation of the CSprite class.
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -199,8 +199,27 @@ CSprite * CSprite::CreateSprite(std::string cPakFileName, short sNthFile, bool b
 	return new CSprite(szfile, cPakFileName, sNthFile, bAlphaEffect);
 }
 
+// class test : public sf::Sprite
+// {
+// public:
+// 	void trythis()
+// 	{
+// 		this->
+// 	}
+// };
+
 void CSprite::DrawShadow(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
 {
+// 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+// 
+// 	test newSprite;
+// 	newSprite.setTexture(*sprite[sFrame].getTexture());
+// 
+// 	newSprite[sFrame].setColor(Color(0,0,0,127));
+// 	newSprite[sFrame].setPosition(sX + m_stBrush[sFrame].pvx, sY + m_stBrush[sFrame].pvy);
+// 	newSprite[sFrame].trythis();
+//     G_pGame->draw(newSprite[sFrame]);
+
 // 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
 // 	G_pGame->driver->draw2DImage(_localshadow, core::position2d<s32>(sX+m_stBrush[sFrame].pvx,sY+m_stBrush[sFrame].pvy),
 // 		core::rect<s32>(m_stBrush[sFrame].sx,m_stBrush[sFrame].sy,m_stBrush[sFrame].sx+m_stBrush[sFrame].szx,m_stBrush[sFrame].sy+m_stBrush[sFrame].szy), 0,
