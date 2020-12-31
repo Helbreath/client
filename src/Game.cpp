@@ -1349,6 +1349,53 @@ std::string CGame::get_game_mode(int _gamemode)
     return "unknown";
 }
 
+int16_t CGame::get_game_mode(std::string _gamemode)
+{
+    if (_gamemode == "null")
+        return GAMEMODE_NULL;
+    if (_gamemode == "quit")
+        return GAMEMODE_ONQUIT;
+    if (_gamemode == "mainmenu")
+        return GAMEMODE_ONMAINMENU;
+    if (_gamemode == "connecting")
+        return GAMEMODE_ONCONNECTING;
+    if (_gamemode == "loading")
+        return GAMEMODE_ONLOADING;
+    if (_gamemode == "waitinginitdata")
+        return GAMEMODE_ONWAITINGINITDATA;
+    if (_gamemode == "maingame")
+        return GAMEMODE_ONMAINGAME;
+    if (_gamemode == "connectionlost")
+        return GAMEMODE_ONCONNECTIONLOST;
+    if (_gamemode == "msg")
+        return GAMEMODE_ONMSG;
+    if (_gamemode == "createnewaccount")
+        return GAMEMODE_ONCREATENEWACCOUNT;
+    if (_gamemode == "login")
+        return GAMEMODE_ONLOGIN;
+    if (_gamemode == "queryforcelogin")
+        return GAMEMODE_ONQUERYFORCELOGIN;
+    if (_gamemode == "selectcharacter")
+        return GAMEMODE_ONSELECTCHARACTER;
+    if (_gamemode == "createnewcharacter")
+        return GAMEMODE_ONCREATENEWCHARACTER;
+    if (_gamemode == "waitingresponse")
+        return GAMEMODE_ONWAITINGRESPONSE;
+    if (_gamemode == "querydeletecharacter")
+        return GAMEMODE_ONQUERYDELETECHARACTER;
+    if (_gamemode == "logresmsg")
+        return GAMEMODE_ONLOGRESMSG;
+    if (_gamemode == "versionnotmatch")
+        return GAMEMODE_ONVERSIONNOTMATCH;
+    if (_gamemode == "introduction")
+        return GAMEMODE_ONINTRODUCTION;
+    if (_gamemode == "agreement")
+        return GAMEMODE_ONAGREEMENT;
+    if (_gamemode == "selectserver")
+        return GAMEMODE_ONSELECTSERVER;
+    return GAMEMODE_NULL;
+}
+
 void CGame::CalcViewPointOld()
 {
     short dX, dY;
@@ -1587,176 +1634,6 @@ char CGame::cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMo
         }
     return 0;
 }
-
-/*
-int sfml_keycode_to_ultralight_keycode(Keyboard::Key key) {
-    switch (key) {
-        case sf::Keyboard::Space: return ultralight::KeyCodes::GK_SPACE;
-        //case sf::Keyboard::Space: return ultralight::KeyCodes::GK_OEM_7;
-        case Keyboard::Comma: return ultralight::KeyCodes::GK_OEM_COMMA;
-        case Keyboard::Subtract: return ultralight::KeyCodes::GK_OEM_MINUS;
-        case Keyboard::Period: return ultralight::KeyCodes::GK_OEM_PERIOD;
-        case Keyboard::Slash: return ultralight::KeyCodes::GK_OEM_2;
-        case Keyboard::Num0: return ultralight::KeyCodes::GK_0;
-        case Keyboard::Num1: return ultralight::KeyCodes::GK_1;
-        case Keyboard::Num2: return ultralight::KeyCodes::GK_2;
-        case Keyboard::Num3: return ultralight::KeyCodes::GK_3;
-        case Keyboard::Num4: return ultralight::KeyCodes::GK_4;
-        case Keyboard::Num5: return ultralight::KeyCodes::GK_5;
-        case Keyboard::Num6: return ultralight::KeyCodes::GK_6;
-        case Keyboard::Num7: return ultralight::KeyCodes::GK_7;
-        case Keyboard::Num8: return ultralight::KeyCodes::GK_8;
-        case Keyboard::Num9: return ultralight::KeyCodes::GK_9;
-        case Keyboard::Semicolon: return ultralight::KeyCodes::GK_OEM_1;
-        case Keyboard::Equal: return ultralight::KeyCodes::GK_OEM_PLUS;
-        case Keyboard::A: return ultralight::KeyCodes::GK_A;
-        case Keyboard::B: return ultralight::KeyCodes::GK_B;
-        case Keyboard::C: return ultralight::KeyCodes::GK_C;
-        case Keyboard::D: return ultralight::KeyCodes::GK_D;
-        case Keyboard::E: return ultralight::KeyCodes::GK_E;
-        case Keyboard::F: return ultralight::KeyCodes::GK_F;
-        case Keyboard::G: return ultralight::KeyCodes::GK_G;
-        case Keyboard::H: return ultralight::KeyCodes::GK_H;
-        case Keyboard::I: return ultralight::KeyCodes::GK_I;
-        case Keyboard::J: return ultralight::KeyCodes::GK_J;
-        case Keyboard::K: return ultralight::KeyCodes::GK_K;
-        case Keyboard::L: return ultralight::KeyCodes::GK_L;
-        case Keyboard::M: return ultralight::KeyCodes::GK_M;
-        case Keyboard::N: return ultralight::KeyCodes::GK_N;
-        case Keyboard::O: return ultralight::KeyCodes::GK_O;
-        case Keyboard::P: return ultralight::KeyCodes::GK_P;
-        case Keyboard::Q: return ultralight::KeyCodes::GK_Q;
-        case Keyboard::R: return ultralight::KeyCodes::GK_R;
-        case Keyboard::S: return ultralight::KeyCodes::GK_S;
-        case Keyboard::T: return ultralight::KeyCodes::GK_T;
-        case Keyboard::U: return ultralight::KeyCodes::GK_U;
-        case Keyboard::V: return ultralight::KeyCodes::GK_V;
-        case Keyboard::W: return ultralight::KeyCodes::GK_W;
-        case Keyboard::X: return ultralight::KeyCodes::GK_X;
-        case Keyboard::Y: return ultralight::KeyCodes::GK_Y;
-        case Keyboard::Z: return ultralight::KeyCodes::GK_Z;
-        case Keyboard::LBracket: return ultralight::KeyCodes::GK_OEM_4;
-        case Keyboard::Backslash: return ultralight::KeyCodes::GK_OEM_5;
-        case Keyboard::RBracket: return ultralight::KeyCodes::GK_OEM_6;
-        //case GLFW_KEY_GRAVE_ACCENT: return ultralight::KeyCodes::GK_OEM_3;
-        //case GLFW_KEY_WORLD_1: return ultralight::KeyCodes::GK_UNKNOWN;
-        //case GLFW_KEY_WORLD_2: return ultralight::KeyCodes::GK_UNKNOWN;
-        case Keyboard::Escape: return ultralight::KeyCodes::GK_ESCAPE;
-        case Keyboard::Enter: return ultralight::KeyCodes::GK_RETURN;
-        case Keyboard::Tab: return ultralight::KeyCodes::GK_TAB;
-        case Keyboard::Backspace: return ultralight::KeyCodes::GK_BACK;
-        case Keyboard::Insert: return ultralight::KeyCodes::GK_INSERT;
-        case Keyboard::Delete: return ultralight::KeyCodes::GK_DELETE;
-        case Keyboard::Right: return ultralight::KeyCodes::GK_RIGHT;
-        case Keyboard::Left: return ultralight::KeyCodes::GK_LEFT;
-        case Keyboard::Down: return ultralight::KeyCodes::GK_DOWN;
-        case Keyboard::Up: return ultralight::KeyCodes::GK_UP;
-        case Keyboard::PageUp: return ultralight::KeyCodes::GK_PRIOR;
-        case Keyboard::PageDown: return ultralight::KeyCodes::GK_NEXT;
-        case Keyboard::Home: return ultralight::KeyCodes::GK_HOME;
-        case Keyboard::End: return ultralight::KeyCodes::GK_END;
-        //case GLFW_KEY_CAPS_LOCK: return ultralight::KeyCodes::GK_CAPITAL;
-        //case GLFW_KEY_SCROLL_LOCK: return ultralight::KeyCodes::GK_SCROLL;
-        //case GLFW_KEY_NUM_LOCK: return ultralight::KeyCodes::GK_NUMLOCK;
-        //case GLFW_KEY_PRINT_SCREEN: return ultralight::KeyCodes::GK_SNAPSHOT;
-        case Keyboard::Pause: return ultralight::KeyCodes::GK_PAUSE;
-        case Keyboard::F1: return ultralight::KeyCodes::GK_F1;
-        case Keyboard::F2: return ultralight::KeyCodes::GK_F2;
-        case Keyboard::F3: return ultralight::KeyCodes::GK_F3;
-        case Keyboard::F4: return ultralight::KeyCodes::GK_F4;
-        case Keyboard::F5: return ultralight::KeyCodes::GK_F5;
-        case Keyboard::F6: return ultralight::KeyCodes::GK_F6;
-        case Keyboard::F7: return ultralight::KeyCodes::GK_F7;
-        case Keyboard::F8: return ultralight::KeyCodes::GK_F8;
-        case Keyboard::F9: return ultralight::KeyCodes::GK_F9;
-        case Keyboard::F10: return ultralight::KeyCodes::GK_F10;
-        case Keyboard::F11: return ultralight::KeyCodes::GK_F11;
-        case Keyboard::F12: return ultralight::KeyCodes::GK_F12;
-        case Keyboard::F13: return ultralight::KeyCodes::GK_F13;
-        case Keyboard::F14: return ultralight::KeyCodes::GK_F14;
-        case Keyboard::F15: return ultralight::KeyCodes::GK_F15;
-/ *
-        case Keyboard::F16: return ultralight::KeyCodes::GK_F16;
-        case Keyboard::F17: return ultralight::KeyCodes::GK_F17;
-        case Keyboard::F18: return ultralight::KeyCodes::GK_F18;
-        case Keyboard::F19: return ultralight::KeyCodes::GK_F19;
-        case Keyboard::F20: return ultralight::KeyCodes::GK_F20;
-        case Keyboard::F21: return ultralight::KeyCodes::GK_F21;
-        case Keyboard::F22: return ultralight::KeyCodes::GK_F22;
-        case Keyboard::F23: return ultralight::KeyCodes::GK_F23;
-        case Keyboard::F24: return ultralight::KeyCodes::GK_F24;
-        case Keyboard::F25: return ultralight::KeyCodes::GK_UNKNOWN;* /
-        case Keyboard::Numpad0: return ultralight::KeyCodes::GK_NUMPAD0;
-        case Keyboard::Numpad1: return ultralight::KeyCodes::GK_NUMPAD1;
-        case Keyboard::Numpad2: return ultralight::KeyCodes::GK_NUMPAD2;
-        case Keyboard::Numpad3: return ultralight::KeyCodes::GK_NUMPAD3;
-        case Keyboard::Numpad4: return ultralight::KeyCodes::GK_NUMPAD4;
-        case Keyboard::Numpad5: return ultralight::KeyCodes::GK_NUMPAD5;
-        case Keyboard::Numpad6: return ultralight::KeyCodes::GK_NUMPAD6;
-        case Keyboard::Numpad7: return ultralight::KeyCodes::GK_NUMPAD7;
-        case Keyboard::Numpad8: return ultralight::KeyCodes::GK_NUMPAD8;
-        case Keyboard::Numpad9: return ultralight::KeyCodes::GK_NUMPAD9;
-        //case GLFW_KEY_KP_DECIMAL: return ultralight::KeyCodes::GK_DECIMAL;
-        case Keyboard::Divide: return ultralight::KeyCodes::GK_DIVIDE;
-        case Keyboard::Multiply: return ultralight::KeyCodes::GK_MULTIPLY;
-        //case Keyboard::Subtract: return ultralight::KeyCodes::GK_SUBTRACT;
-        case Keyboard::Add: return ultralight::KeyCodes::GK_ADD;
-        //case Keyboard::Return: return ultralight::KeyCodes::GK_RETURN;
-        //case Keyboard::Equal: return ultralight::KeyCodes::GK_OEM_PLUS;
-        case Keyboard::LShift: return ultralight::KeyCodes::GK_SHIFT;
-        case Keyboard::LControl: return ultralight::KeyCodes::GK_CONTROL;
-        case Keyboard::LAlt: return ultralight::KeyCodes::GK_MENU;
-        case Keyboard::LSystem: return ultralight::KeyCodes::GK_LWIN;
-        case Keyboard::RShift: return ultralight::KeyCodes::GK_SHIFT;
-        case Keyboard::RControl: return ultralight::KeyCodes::GK_CONTROL;
-        case Keyboard::RAlt: return ultralight::KeyCodes::GK_MENU;
-        case Keyboard::RSystem: return ultralight::KeyCodes::GK_RWIN;
-        case Keyboard::Menu: return ultralight::KeyCodes::GK_UNKNOWN;
-        default: return ultralight::KeyCodes::GK_UNKNOWN;
-    }
-}
-
-char event_to_keychar(int code)
-{
-    switch (code)
-    {
-        case VK_TAB:
-            return '0';
-    }
-    return ' ';
-}
-
-void CGame::send_key_to_ui(sf::Keyboard::Key key)
-{
-    ultralight::KeyEvent evt;
-    evt.native_key_code = 0;
-
-    if (m_bShiftPressed)
-        evt.modifiers |= ultralight::KeyEvent::kMod_ShiftKey;
-    if (m_bCtrlPressed)
-        evt.modifiers |= ultralight::KeyEvent::kMod_CtrlKey;
-    if (m_altPressed)
-        evt.modifiers |= ultralight::KeyEvent::kMod_AltKey;
-
-/ *
-    switch (key)
-    {
-        case Keyboard::A:
-            evt.text = "a";
-            evt.unmodified_text = "a";
-            evt.virtual_key_code = ultralight::KeyCodes::GK_A;
-            break;
-    }* /
-
-    GetKeyIdentifierFromVirtualKeyCode(evt.virtual_key_code, evt.key_identifier);
-
-    {
-        std::unique_lock<std::recursive_mutex> l(_html_eventm);
-        _html_eventqueue.emplace([evt = std::move(evt)]() {
-            view->FireKeyEvent(evt);
-        });
-    }
-}*/
 
 void CGame::send_message_to_ui(std::string msg, json param)
 {

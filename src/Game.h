@@ -479,6 +479,7 @@ public:
 
     std::string get_game_mode();
     std::string get_game_mode(int _gamemode);
+    int16_t get_game_mode(std::string _gamemode);
 
     std::map<string, sf::Font> _font;
     sf::Text _text;
