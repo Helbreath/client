@@ -1276,47 +1276,6 @@ void CGame::UpdateScreen_OnWaitInitData()
     m_stMCursor.sCursorFrame = 8;
 }
 
-void CGame::UpdateScreen_OnConnectionLost()
-{
-    short msX, msY, msZ;
-    char cLB, cRB, cMB;
-    static uint64_t dwTime;
-
-    msX = m_stMCursor.sX;
-    msY = m_stMCursor.sY;
-    msZ = m_stMCursor.sZ;
-    cLB = (m_stMCursor.LB == true) ? 1 : 0;
-    cRB = (m_stMCursor.RB == true) ? 1 : 0;
-    cMB = (m_stMCursor.MB == true) ? 1 : 0;
-
-    if (m_cGameModeCount == 0)
-    {
-        dwTime = unixtime();
-        if (m_bSoundFlag)
-            m_pESound[38].stop();
-        if ((m_bSoundFlag) && (m_bMusicStat == TRUE))
-        {
-            m_pBGM.stop();
-        }
-    }
-    m_cGameModeCount++;
-    if (m_cGameModeCount > 100)
-        m_cGameModeCount = 100;
-    DrawNewDialogBox(SPRID_INTERFACE_ND_GAME4, 162 + 80, 125 + 80, 2);
-    PutString_SprFont(172 + 54 + 80, 180 + 80, "Connection Lost!", 7, 0, 0);
-    PutString(172 + 50 + 80, 180 + 30 + 80, UPDATE_SCREEN_ON_CONNECTION_LOST, Color(0, 0, 0));
-    m_stMCursor.sCursorFrame = 0;
-
-    if ((unixtime() - m_dwTime) > 5000)
-    {
-        isItemLoaded = false;
-        m_iPartyStatus = 0;
-        m_iTotalPartyMember = 0;
-        ClearPartyMembers();
-        ChangeGameMode(GAMEMODE_ONMAINMENU);
-    }
-}
-
 void CGame::UpdateScreen_OnQuit()
 {
     short msX, msY, msZ;
@@ -1377,7 +1336,6 @@ void CGame::UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short 
     iYear = iMonth = iDay = iHour = iMinute = 0;
 
     if (selectedchar)
-
     {
         cTotalChar++;
         switch (selectedchar->m_sSex)
