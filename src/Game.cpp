@@ -1680,6 +1680,13 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, obj["message"].get<std::string>().c_str(), 0);
                 return;
             }
+            else if (message == "changegamemode")
+            {
+                // add some limitations to prevent abuse in ui
+                CHECK_ARGS(1);
+                int16_t mode = get_game_mode(obj["mode"].get<std::string>());
+                ChangeGameMode(mode);
+            }
             else if (message == "changecursor")
             {
                 CHECK_ARGS(1);
