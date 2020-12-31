@@ -69,3 +69,4 @@ Win32/
 *.aps
 
 bin/GPUCache/
+bin/ui/
