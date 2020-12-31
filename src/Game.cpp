@@ -1120,6 +1120,16 @@ void CGame::UpdateScreen()
         case GAMEMODE_ONLOGRESMSG:
             UpdateScreen_OnLogResMsg();
             break;
+
+        case GAMEMODE_ONCONNECTIONLOST:
+            if (m_bSoundFlag) m_pESound[38].stop();
+            if (m_bMusicStat) m_pBGM.stop();
+            isItemLoaded = false;
+            m_iPartyStatus = 0;
+            m_iTotalPartyMember = 0;
+            ClearPartyMembers();
+            m_stMCursor.sCursorFrame = 0;
+            break;
     }
 
     setRenderTarget(DS_VISIBLE);
