@@ -261,6 +261,11 @@ void CSprite::DrawSprite(int sX, int sY, int sFrame, uint64_t dwTime, Color colo
 void CSprite::DrawRGB(int sX, int sY, int sFrame, uint64_t dwTime, Color color)
 {
 	if (m_bIsSurfaceEmpty) if (_iOpenSprite() == false) return;
+    if (sFrame >= m_iTotalFrame)
+    {
+        std::cout << "Sprite out_of_bounds! - " << sFrame << " - " << m_cPakFileName << '\n';
+        return;
+    }
     sprite[sFrame].setColor(color);
     sprite[sFrame].setPosition(sX + m_stBrush[sFrame].pvx, sY + m_stBrush[sFrame].pvy);
     G_pGame->draw(sprite[sFrame]);

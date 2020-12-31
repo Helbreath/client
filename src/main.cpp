@@ -26,8 +26,6 @@
 
 #include "ui/ui_core.hpp"
 
-//#define DEBUG_INSPECTOR
-
 void * G_hWnd = 0;
 void * G_hInstance = 0;
 char   G_cSpriteAlphaDegree;
@@ -166,25 +164,6 @@ int main(int argc, char * argv[])
 #endif
     //////////////////////////////////////////////////////////////////////////
 
-
-    //std::this_thread::sleep_for(10s);
-    //if (HTMLUICore::Main() >= 0)
-    //    return -1;
-/*
-    CefSettings settings;
-    settings.multi_threaded_message_loop = true;
-    settings.windowless_rendering_enabled = true;
-    settings.remote_debugging_port = 9222;
-
-    HTMLUICore::GetInstance();
-
-    HTMLUICore::sApp = new HTMLUIApp();
-
-    HTMLUICore::sArgs = CefMainArgs(GetModuleHandle(NULL));
-
-    const auto exit_code = CefExecuteProcess(HTMLUICore::sArgs, HTMLUICore::sApp.get(), nullptr);
-    if (exit_code >= 0)
-        return exit_code;*/
 
 #ifndef _DEBUG
     HANDLE hMutex;
@@ -401,82 +380,19 @@ int main(int argc, char * argv[])
                 G_pGame->autovresolution = true;
             }
 #endif
-//             else if (!memcmp(argv[i], "-renderer=", 10))
-//             {
-//                 char * ctx;
-//                 char * c = strtok_s(argv[i], "=:", &ctx);
-//                 string renderer = strtok_s(0, "=:", &ctx);
-//                 if (renderer == "opengl")
-//                 {
-//                     G_pGame->_renderer = "OpenG";
-//                     driverType = video::EDT_OPENGL;
-//                 }
-//                 else if (renderer == "software")
-//                 {
-//                     G_pGame->_renderer = "Software";
-//                     driverType = video::EDT_BURNINGSVIDEO;// EDT_SOFTWARE;
-//                 }
-//                 else
-//                 {
-//                     G_pGame->_renderer = "DirectX3D9";
-//                     driverType = video::EDT_DIRECT3D9;
-//                 }
-//             }
         }
     }
-    //view->LoadURL("https://forum.helbreathx.net/");
-
-    /*Ref<App> app = App::Create();
-
-    Ref<UIWindow> uiwindow = UIWindow::Create(app->main_monitor(), 900, 600, false, kWindowFlags_Titled);
-
-    uiwindow->SetTitle("Ultralight Sample 2 - Basic App");
-    app->set_window(uiwindow);
-    Ref<Overlay> overlay = Overlay::Create(uiwindow, uiwindow->width(), uiwindow->height(), 0, 0);
-    overlay->view()->LoadHTML(htmlString());
-
-    app->Run();*/
-
-
-
-/*
-    CefSettings settings;
-    settings.multi_threaded_message_loop = false;
-    settings.windowless_rendering_enabled = true;
-    settings.remote_debugging_port = 9222;*/
-/*
-    cef_string_t * resources_path;
-    char rpath[] = R"(C:\Code\x-client\bin\bin)";
-
-    resources_path = cef_string_userfree_utf16_alloc();
-    cef_string_ascii_to_utf16(rpath, sizeof(rpath), resources_path);*/
-
-/*
-    std::string s = u8"Hello, World!";
-
-    // #include <codecvt>
-    std::wstring_convert<std::codecvt<char16_t, char, std::mbstate_t>, char16_t> convert;
-
-    std::u16string u16 = convert.from_bytes(s);*/
-
-    //settings.resources_dir_path = *resources_path;
-
-
-    //HTMLUICore::StartWeb();
-
-    //CefInitialize(HTMLUICore::sArgs, settings, HTMLUICore::sApp.get(), NULL);
 
 	if (!G_pGame->CreateRenderer())
 	{
 		return 0;
 	}
 
-
 	Initialize("");
 
     //G_pGame->window.setMouseCursorGrabbed(true);
 
-    G_pGame->window.setMouseCursorGrabbed(false);
+    G_pGame->window.setMouseCursorGrabbed(G_pGame->clipmousegame);
     G_pGame->window.setMouseCursorVisible(false);
 
     G_pGame->m_pSprite[SPRID_MOUSECURSOR] = CSprite::CreateSprite("interface", 0, false);

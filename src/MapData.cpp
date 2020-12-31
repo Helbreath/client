@@ -2381,7 +2381,8 @@ int CMapData::iObjectFrameCounter(std::string & cPlayerName, short sViewPointX, 
 						iSkipFrame = ((dwTime - m_pData[dX][dY].m_dwOwnerTime)/dwFrameTime);
 						if (iSkipFrame > 3) iSkipFrame = 3;
 						m_pData[dX][dY].m_cOwnerFrame += iSkipFrame;
-					}else
+					}
+					else
 					{	
 						m_pData[dX][dY].m_cOwnerFrame++;
 					}

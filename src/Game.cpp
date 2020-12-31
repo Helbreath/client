@@ -1095,12 +1095,6 @@ void CGame::UpdateScreen()
 
 
 
-    //video::SColor col = video::SColor(255, 255, 255, 255);
-    //driver->draw2DImage(visible, core::rect<s32>(0, 0, screenwidth, screenheight), core::rect<s32>(0, 0, GetWidth(), GetHeight()), 0, &col, false);
-
-//     driver->draw2DImage(charselect, core::rect<s32>(charselectx, charselecty, charselectx + size.Width * 2, charselecty + size.Height * 2),
-//                         core::rect<s32>(0, 0, size.Width, size.Height), 0,
-//                         &col, true);
     // Things rendered over the UI are here
 
 	if (rendering_character)
@@ -1135,191 +1129,12 @@ void CGame::UpdateScreen()
 //         visible.draw(sprite);
 //     }
 
-	int _fps = fps.getFPS();
-	int ui_temp_frequency = ui_update_frequency;
-	if (ui_temp_frequency >= _fps)
-		ui_temp_frequency = _fps - 1;
-	if (ui_temp_frequency == 0)
-		ui_temp_frequency = 1;
-	if (_fps == 0)
-		_fps = 2;
-	bool ui_update = false;
-	if (responsive_ui)
-        ui_update = true;
-	if (_fps == 0)
-		ui_update = true;
-	else if (!(counter % ui_temp_frequency))
-		ui_update = true;
-
-	counter++;
-	dirty_html = true;
-
-/*
-	if (!(counter % 20))
-	{
-        json o;
-        o["success"] = false;
-        o["message"] = "Invalid data";
-        uiFull->mView->Emit("test", o);
-	}*/
-
-//     if (!(counter % 20))
-//     {
-//         json o;
-//         o["success"] = false;
-//         o["message"] = "Invalid data";
-//         //uiFull->mView->Emit("test", o);
-// 		cef_ui->panel->view->emit("test", o);
-//     }
-
-    {
-        ui::ui_panel * panel = cef_ui->panel;
-        if (panel != nullptr ) {
-            sf::Lock lock(panel->view->sfmutex);
-            visible.draw(panel->sprite);
-        }
+    ui::ui_panel * panel = cef_ui->panel;
+    if (panel != nullptr) {
+        sf::Lock lock(panel->view->sfmutex);
+        visible.draw(panel->sprite);
     }
 
-/*
-	{
-        for (std::pair<std::string, HTMLUIPanel *> entry : htmlUI->panels) {
-            auto * panel = entry.second;
-            sf::Lock lock(panel->mView->mMutex);
-            if (panel != nullptr/ * && !panel->mView->GetBrowser()->IsLoading()* /) {
-                visible.draw(panel->mSprite);
-            }
-        }
-	}*/
-/*
-    for (std::pair<std::string, HTMLUIPanel *> entry : htmlUI->panels) {
-        auto * panel = entry.second;
-        if (panel != nullptr && !panel->mView->GetBrowser()->IsLoading()) {
-            visible.draw(panel->mSprite);
-        }
-    }*/
-
-	if (dirty_html && ui_update /*(responsive_ui || (_fps > 0)?(!(counter% (_fps / ui_update_frequency))):1)*/)
-	{
-
-
-/*
-		//std::cout << "ui update" << counter << "\n";
-        std::unique_lock<std::recursive_mutex> l(G_pGame->_html_m);
-        
-		using namespace ultralight;
-
-		Surface* surface = view->surface();
-		BitmapSurface* bitmap_surface = (BitmapSurface*)surface;
-		RefPtr<Bitmap> bitmap = bitmap_surface->bitmap();
-		void* pixels = bitmap->LockPixels();
-		view->surface()->ClearDirtyBounds();
-
-		int64_t width = bitmap->width();
-		int64_t height = bitmap->height();
-		int64_t stride = bitmap->row_bytes();
-
-        // color swap ultralight -> SFML
-
-        static int64_t buffersize;
-		static uint8_t * test = nullptr;
-        //static uint8_t test2[6291456];
-        //static uint8_t test3[12582912];
-		//12582912
-/ *
-		// for when the view size changes (if ever)
-		if (reset_ui_surface_buffer)
-		{
-			delete[] test;
-			test = nullptr;
-		}* /
-		if (!test)
-		{
-            buffersize = width * height * 4 + 5;
-            test = new uint8_t[buffersize];
-		}
-
-        memcpy(test, pixels, int64_t(width) * height * 4);
-        //memcpy(test3, pixels, int64_t(width) * height * 4);
-
-#pragma loop(hint_parallel(2))
-		for (int64_t i = 0; i < width * height * 4; i += 4)
-		{
-			// ultralight dumps abgr (rgba)
-			// sfml expects bgra (argb)
-            test[i + 0] = test[i + 0] ^ test[i + 2];
-            test[i + 2] = (uint8_t)test[i + 2] ^ (uint8_t)test[i + 0];
-            test[i + 0] = test[i + 0] ^ test[i + 2];
-		}
-
-		sf::Image img;
-		img.create(width, height, test);
-
-		if (take_screen)
-		{
-			img.saveToFile(fmt::format("{}.png", counter));
-			take_screen = false;
-		}
-
-		bitmap->UnlockPixels();
-		_html_tex = sf::Texture();
-		_html_tex.loadFromImage(img);
-		_html_spr = sf::Sprite();
-		_html_spr.setTexture(_html_tex);
-
-
-
-#ifdef DEBUG_INSPECTOR
-        if (inspectoractive)
-        {
-            Surface* surface = inspector_view->surface();
-            BitmapSurface* bitmap_surface = (BitmapSurface*)surface;
-            RefPtr<Bitmap> bitmap = bitmap_surface->bitmap();
-            void* pixels = bitmap->LockPixels();
-
-            uint32_t width = bitmap->width();
-            uint32_t height = bitmap->height();
-            uint32_t stride = bitmap->row_bytes();
-
-            // color swap ultralight -> SFML
-
-            static int64_t buffersize;
-            static char* test = nullptr;
-            if (!test)
-            {
-                buffersize = width * height * 4 + 5;
-                test = new char[buffersize];
-            }
-
-            memcpy(test, pixels, int64_t(width) * height * 4);
-
-            for (int i = 0; i < width * height * 4; i += 4)
-            {
-                // ultralight dumps abgr (rgba)
-                // sfml expects bgra (argb)
-                test[i + 0] = test[i + 0] ^ test[i + 2];
-                test[i + 2] = test[i + 2] ^ test[i + 0];
-                test[i + 0] = test[i + 0] ^ test[i + 2];
-            }
-
-            sf::Image img;
-            img.create(width, height, (uint8_t*)test);
-
-            bitmap->UnlockPixels();
-            _html_tex_inspector.loadFromImage(img);
-            _html_spr_inspector.setTexture(_html_tex_inspector);
-			_html_spr_inspector.setPosition(0, screenheight_v);
-        }
-#endif
-		*/
-
-
-		dirty_html = false;
-	}
-
-    //draw(_html_spr);
-#ifdef DEBUG_INSPECTOR
-    draw(_html_spr_inspector);
-#endif
 
     //float diffx = static_cast<float>(screenwidth_v) / screenwidth;
     //float diffy = static_cast<float>(screenheight_v) / screenheight;
@@ -1607,7 +1422,7 @@ void CGame::CalcViewPoint(uint64_t dwTime)
 
 void CGame::handle_connect(const asio::error_code& e)
 {
-	if (!e)//TODO: see why boost no longer likes quick connects
+	if (!e)
 	{
 		_socket = new_connection_;
 
@@ -1625,12 +1440,13 @@ void CGame::handle_connect(const asio::error_code& e)
 	}
 	else
 	{
-        printf("%s\n", e.message().c_str());
+        printf("Unable to connect: %s\n", e.message().c_str());
 		new_connection_->stop();
 	    new_connection_.reset(new connection(io_service_, *this, request_handler_, ctx));
         loggedin = false;
         new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
         _socket = nullptr;
+        ChangeGameMode(GAMEMODE_ONMAINMENU);
 	}
 }
 
@@ -1977,7 +1793,8 @@ void CGame::receive_message_from_ui(std::string name, json o)
             }
 			else if (message == "cancelwaiting" || message == "cancelconnect" || message == "disconnect")
 			{
-				_socket->stop();
+				if (_socket)
+					_socket->stop();
 				//PlaySound('E', 14, 5);
 				if (m_bSoundFlag) m_pESound[38].stop();
 				if ((m_bSoundFlag) && (m_bMusicStat == true))
@@ -1999,6 +1816,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
             }
 			else if (message == "loadingcomplete")
 			{
+				isloaded = true;
 				if (m_cGameMode == GAMEMODE_ONLOADING)
 				{
 
@@ -2048,8 +1866,8 @@ void CGame::receive_message_from_ui(std::string name, json o)
 				CHECK_ARGS(2);
                 std::unique_lock<std::mutex> l(screenupdate);
                 SetVirtualResolution(int16_t(obj["x"].get<int16_t>()), int16_t(obj["y"].get<int16_t>()));
-                visible.create(screenwidth_v, screenheight_v + inspector_size);
-                bg.create(screenwidth_v + 300, screenheight_v + 300 + inspector_size);
+                visible.create(screenwidth_v, screenheight_v);
+                bg.create(screenwidth_v + 300, screenheight_v + 300);
                 return;
             }
 		}
@@ -2057,6 +1875,14 @@ void CGame::receive_message_from_ui(std::string name, json o)
     catch (std::exception & ex)
     {
     }
+}
+
+void CGame::load_settings()
+{
+}
+
+void CGame::save_settings()
+{
 }
 
 void CGame::OnEvent(sf::Event event)
@@ -2192,11 +2018,11 @@ void CGame::OnEvent(sf::Event event)
         case sf::Event::Resized:
             break;
         case sf::Event::LostFocus:
-            window.setFramerateLimit(45);//set to var
+            window.setFramerateLimit(frame_limit_bg);//set to var
             break;
         case sf::Event::GainedFocus:
             if (m_cGameMode != GAMEMODE_ONLOADING)
-				window.setFramerateLimit(120);
+				window.setFramerateLimit(frame_limit);
 			else
                 window.setFramerateLimit(0);
             break;
@@ -9063,7 +8889,7 @@ void CGame::ChangeGameMode(char cMode)
 	}
 	std::cout << "Changing game mode: " << get_game_mode(cMode) << "\n";
 	if (m_cGameMode == GAMEMODE_ONLOADING)
-		window.setFramerateLimit(120);
+		window.setFramerateLimit(frame_limit);
 	m_cGameMode = cMode;
 	m_cGameModeCount = 0;
 	m_dwTime = G_dwGlobalTime;

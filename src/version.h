@@ -1,6 +1,7 @@
 
-#define UPPER_VERSION               1
-#define LOWER_VERSION               31
+#define UPPER_VERSION               0
+#define LOWER_VERSION               0
+#define PATCH_VERSION               1
 
 #define BUILDDATE			0
 

@@ -397,11 +397,8 @@ public:
 	bool dirty_html = false;
     sf::Texture _html_tex;
     sf::Sprite _html_spr;
-    sf::Texture _html_tex_inspector;
-    sf::Sprite _html_spr_inspector;
 	std::recursive_mutex _html_m;
 	std::recursive_mutex _html_eventm;
-	bool inspectoractive = false;
 
 	std::queue<std::function<void(void)>> _html_eventqueue;
 
@@ -415,7 +412,6 @@ public:
 
 	void send_message_to_ui(std::string msg, json param = {});
 
-	int inspector_size = 0;
 	bool inside_vm = false;
     bool responsive_ui = false;
     int ui_update_frequency = 3;
@@ -435,28 +431,26 @@ public:
 
 	uint64_t ui_delay = 10;
 
+	uint32_t testx = 0;
+	uint32_t testy = 0;
+
+	bool isloaded = false;
+    uint32_t frame_limit = 60;
+    uint32_t frame_limit_bg = 30;
+
+    void load_settings();
+    void save_settings();
+
 	void receive_message_from_ui(std::string name, json obj);
 
     bool CreateRenderer(bool fs = false)
 	{
 		fullscreen = fs;
-		//when streaming, vsync on = screen capture nogo
-		//has to use "game capture" (render hook)
-		//vsync better for production though - include option for players to choose                                    \/
-// 		device = createDevice(driverType,irr::core::dimension2d<uint32_t>(screenwidth, screenheight), 32, fullscreen, false, vsync, this);
-// 		if (device == 0)
-// 		{
-// 			MessageBox(0, "Cannot create video device!", "ERROR!", MB_OK);
-// 			return false; // could not create selected driver.
-// 		}
-		//device->setEventReceiver(this);
 
         sprintf(winName, "Helbreath Xtreme %u.%u.%u Renderer: %s", HBF_MAJOR, HBF_MINOR, HBF_LOWER, _renderer.c_str());
 
         //Style::Fullscreen
-        window.create(sf::VideoMode(screenwidth, screenheight + inspector_size), winName, (fullscreen ? Style::Fullscreen : (Style::Close)));
-
-		//window.setFramerateLimit(120);
+        window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Close)));
 
         handle = window.getSystemHandle();
 
@@ -464,7 +458,6 @@ public:
 		cef_input = new ui::ui_input(cef_ui);
 
 		cef_panel = cef_ui->create_panel("main", "http://localhost:8080/", 0, 0, screenwidth, screenheight);
-		//cef_panel = cef_ui->create_panel("main", "https://discord.com/login", 0, 0, screenwidth, screenheight);
 
 
         if (vsync)
@@ -472,14 +465,9 @@ public:
         else
             window.setVerticalSyncEnabled(false);
 
-#ifdef DEBUG_INSPECTOR
-		inspector_size = 300;
-#endif
-        visible.create(screenwidth_v, screenheight_v + inspector_size);
-        bg.create(screenwidth_v + 300, screenheight_v + 300 + inspector_size);
+        visible.create(screenwidth_v, screenheight_v);
+        bg.create(screenwidth_v + 300, screenheight_v + 300);
         charselect.create(256, 256);
-
-        //create some fonts
 
         sf::Font s;
         s.loadFromFile(workingdirectory + "fonts/Arya-Regular.ttf");
