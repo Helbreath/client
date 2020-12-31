@@ -1679,31 +1679,34 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 send_message_to_ui("gamemode", { {"mode", get_game_mode()} });
                 return;
             }
-            else if (message == "movetestsprite")
+            if (message == "movetestsprite")
             {
                 testx = obj["x"].get<uint32_t>();
                 testy = obj["y"].get<uint32_t>();
+                return;
             }
-            else if (message == "chat")
+            if (message == "chat")
             {
                 CHECK_ARGS(1);
                 bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, obj["message"].get<std::string>().c_str(), 0);
                 return;
             }
-            else if (message == "changegamemode")
+            if (message == "changegamemode")
             {
                 // add some limitations to prevent abuse in ui
                 CHECK_ARGS(1);
                 int16_t mode = get_game_mode(obj["mode"].get<std::string>());
                 ChangeGameMode(mode);
+                return;
             }
-            else if (message == "changecursor")
+            if (message == "changecursor")
             {
                 CHECK_ARGS(1);
                 if (obj.is_number())
                     m_stMCursor.sCursorFrame = obj.get<uint16_t>();
+                return;
             }
-            else if (message == "rendercharacter")
+            if (message == "rendercharacter")
             {
                 CHECK_ARGS(3);
                 if (obj["do"] == "start")
@@ -1723,7 +1726,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 }
                 return;
             }
-            else if (message == "selectcharacter")
+            if (message == "selectcharacter")
             {
                 CHECK_ARGS(1);
                 int charid = obj["charid"].get<uint8_t>();
@@ -1734,7 +1737,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 }
                 return;
             }
-            else if (message == "entergame")
+            if (message == "entergame")
             {
                 if (m_pCharList[m_cCurFocus] != nullptr)
                 {
@@ -1761,13 +1764,13 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 }
                 return;
             }
-            else if (message == "exit")
+            if (message == "exit")
             {
                 ChangeGameMode(GAMEMODE_NULL);
                 isrunning = false;
                 return;
             }
-            else if (message == "mainmenuconnect")
+            if (message == "mainmenuconnect")
             {
                 ChangeGameMode(GAMEMODE_ONCONNECTING);
                 m_dwConnectMode = MSGID_REQUEST_LOGIN;
@@ -1780,7 +1783,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                         std::placeholders::_1));
                 return;
             }
-            else if (message == "cancelwaiting" || message == "cancelconnect" || message == "disconnect")
+            if (message == "cancelwaiting" || message == "cancelconnect" || message == "disconnect")
             {
                 if (_socket)
                     _socket->stop();
@@ -1793,18 +1796,18 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 ChangeGameMode(GAMEMODE_ONMAINMENU);
                 return;
             }
-            else if (message == "playsound")
+            if (message == "playsound")
             {
                 CHECK_ARGS(3);
                 PlaySound(obj[0].get<std::string>(), obj[1].get<int>(), obj[2].get<int>());
                 return;
             }
-            else if (message == "startload")
+            if (message == "startload")
             {
                 ChangeGameMode(GAMEMODE_ONLOADING);
                 return;
             }
-            else if (message == "loadingcomplete")
+            if (message == "loadingcomplete")
             {
                 isloaded = true;
                 if (m_cGameMode == GAMEMODE_ONLOADING)
@@ -1830,7 +1833,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 }
                 return;
             }
-            else if (message == "music")
+            if (message == "music")
             {
                 if (obj["status"] == false)
                 {
@@ -1851,7 +1854,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 m_pBGM.play();
                 return;
             }
-            else if (message == "resolution")
+            if (message == "resolution")
             {
                 CHECK_ARGS(2);
                 std::unique_lock<std::mutex> l(screenupdate);
