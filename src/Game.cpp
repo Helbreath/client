@@ -1802,7 +1802,6 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 if ((m_bSoundFlag) && (m_bMusicStat == true))
                     m_pBGM.stop();
                 isItemLoaded = false;
-                ChangeGameMode(GAMEMODE_ONMAINMENU);
                 return;
             }
             if (message == "playsound")
