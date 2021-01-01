@@ -566,11 +566,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Image Include="favicon.ico" />
     <Image Include="Res\favicon.ico" />
-    <Image Include="Res\_OK.bmp" />
-    <Image Include="Res\htmlview(24).BMP" />
-    <Image Include="Res\icon1.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Res\resource.h" />
