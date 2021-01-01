@@ -325,7 +325,7 @@ void CSprite::draw_to(int sX, int sY, int sFrame, uint64_t dwTime, Color color, 
     if (m_bIsSurfaceEmpty)
         if (_iOpenSprite() == false)
             return;
-    if (sFrame >= m_iTotalFrame)
+    if (sFrame >= m_iTotalFrame || sFrame < 0)
     {
         std::cout << "Sprite out_of_bounds! - " << sFrame << " - " << m_cPakFileName << '\n';
         return;
