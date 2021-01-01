@@ -249,7 +249,7 @@ public:
     MsgQueue loginpipe;
     std::shared_ptr<MsgQueueEntry> GetLoginMsgQueue();
 
-    connection_ptr _socket;
+    connection_ptr _socket = nullptr;
     void start(connection_ptr c);
     void stop(connection_ptr c);
     void handle_stop();
@@ -353,18 +353,18 @@ public:
     bool capslock;
     bool fullscreen;
     char oldmode;
-    bool fullscreenswap;
-    bool vsync;
-    uint64_t foregroundfpstarget;
-    uint64_t foregroundfps;
-    uint64_t foregroundframetime;
-    uint64_t backgroundfpstarget;
-    uint64_t backgroundfps;
-    uint64_t backgroundframetime;
+    bool fullscreenswap = false;
+    bool vsync = false;
+    uint64_t foregroundfpstarget = 60;
+    uint64_t foregroundfps = 0;
+    uint64_t foregroundframetime = 1000 / foregroundfpstarget;
+    uint64_t backgroundfpstarget = 45;
+    uint64_t backgroundfps = 0;
+    uint64_t backgroundframetime = 1000 / backgroundfpstarget;
     uint64_t time1;
     uint64_t time2;
 
-    bool wasinactive;
+    bool wasinactive = false;
 
     std::string _renderer;
 
@@ -490,7 +490,7 @@ public:
 
     bool KeyIsDown[sf::Keyboard::Key::KeyCount];
 
-    shared_ptr<CCharInfo> selectedchar;
+    shared_ptr<CCharInfo> selectedchar = nullptr;
 
     bool clipmousegame = false;
     bool clipmousewindow;
@@ -573,6 +573,7 @@ public:
     int m_iQuestCount;
     void ResponseQuestList(char * pData);
 
+/*
     void * operator new(size_t size)
     {
         return HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, size);
@@ -581,7 +582,7 @@ public:
     void operator delete(void * mem)
     {
         HeapFree(GetProcessHeap(), HEAP_NO_SERIALIZE, mem);
-    };
+    };*/
 
     void ItemEquipHandler(char cItemID);
     void ReleaseEquipHandler(char cEquipPos);

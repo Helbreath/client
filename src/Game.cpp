@@ -476,22 +476,12 @@ CGame::CGame()
     ctx.add_certificate_authority(buffer_);
     //ctx.use_tmp_dh(dh_buff);
 
-    selectedchar = nullptr;
-    autologin = false;
-    _socket = nullptr;
-
-    wasinactive = false;
-    fullscreenswap = false;
-    vsync = false;
     oldmode = gamemode = 0;
     int i;
     srand((unsigned)time(0));
     ReadSettings();
 
-    foregroundfpstarget = 120;
-    backgroundfpstarget = 45;
-    foregroundframetime = 1000 / foregroundfpstarget;
-    backgroundframetime = 1000 / backgroundfpstarget;
+    m_stMCursor.sCursorFrame = 0;
 
     if (!autoresolution)
     {
@@ -513,6 +503,25 @@ CGame::CGame()
     {
         SetVirtualResolution(800, 600);
     }
+
+    for (i = 0; i < MAXMENUITEMS; i++)
+        m_pTitles[i] = 0;
+    m_iTitleIndex = -1;
+
+    for (i = 0; i < MAXITEMSTATS; i++)
+        m_pBuildItemListStats[i] = 0;
+
+    m_hPakFile = nullptr;
+
+    memset(&m_rcBodyRect, 0, sizeof(m_rcBodyRect));
+    memset(&m_rcPlayerRect, 0, sizeof(m_rcBodyRect));
+
+    memset(m_cItemDrop, 0, sizeof(m_cItemDrop));
+
+    m_chatDisplay = nullptr;
+
+    for (i = 0; i < MAXWHISPERMSG; i++)
+        m_pWhisperMsg[i] = 0;
 
 #ifdef _DEBUG
     m_bToggleScreen = true;
