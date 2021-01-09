@@ -1880,9 +1880,9 @@ void CGame::UpdateScreen_OnGame()
     if (iUpdateRet && m_iLU_Point > 0)
         PutString_SprFont(GetWidth() - 80, GetHeight() - 90, "Level Up", 250, 250, 0); // 800x600 Resolution xRisenx added x+160 and y+120
                                                                                        //if (m_cGameModeCount < 6) //DIRECTX m_DDraw.DrawShadowBox(0,0,639,479);
-    if (m_cGameModeCount < 6)                                                          //DIRECTX m_DDraw.DrawShadowBox(0,0,799,599); // 800x600 Resolution xRisenx
+    //if (m_cGameModeCount < 6)                                                          //DIRECTX m_DDraw.DrawShadowBox(0,0,799,599); // 800x600 Resolution xRisenx
                                                                                        //if (m_cGameModeCount < 2) //DIRECTX m_DDraw.DrawShadowBox(0,0,639,479);
-        if (m_cGameModeCount < 2)                                                      //DIRECTX m_DDraw.DrawShadowBox(0,0,799,599); // 800x600 Resolution xRisenx
+        //if (m_cGameModeCount < 2)                                                      //DIRECTX m_DDraw.DrawShadowBox(0,0,799,599); // 800x600 Resolution xRisenx
 
             //if( iUpdateRet == 0 ) m_iFrameCount++;
             //else m_iFrameCount+=256;
