@@ -494,10 +494,6 @@ public:
 
     std::string workingdirectory = "";
 
-    bool IsKeyDown(sf::Keyboard::Key keyCode) const { return KeyIsDown[keyCode]; }
-
-    bool KeyIsDown[sf::Keyboard::Key::KeyCount];
-
     shared_ptr<CCharInfo> selectedchar = nullptr;
 
     bool clipmousegame = false;
@@ -824,15 +820,13 @@ public:
     int m_iAgreeView;
     void _LoadAgreementTextContents(char cType);
     void UpdateScreen_OnAgreement();
-    void UpdateScreen_OnCreateNewAccount();
+    //void UpdateScreen_OnCreateNewAccount();
 #endif
 
     void UpdateFriendsStatus();
     void UseShortCut(int num);
     void UpdateScreen();
-    void UpdateScreen_OnMainMenu();
     void UpdateScreen_OnGame();
-    void UpdateScreen_OnConnecting();
     void UpdateScreen_OnWaitInitData();
     void UpdateScreen_OnLoading(bool bActive);
     void UpdateScreen_OnConnectionLost();
@@ -843,7 +837,6 @@ public:
     void UpdateScreen_OnWaitingResponse();
     void UpdateScreen_OnCreateNewCharacter();
     void UpdateScreen_OnSelectCharacter();
-    void UpdateScreen_OnLogResMsg();
     void UpdateScreen_OnSelectCharacter(short sX, short sY, short msX, short msY, bool bIgnoreFocus = false);
     void UpdateScreen_OnChangePassword();
     void UpdateScreen_OnLoading_Progress();
@@ -940,9 +933,6 @@ public:
     void ReleaseTimeoverChatMsg();
     void ChatMsgHandler(char * pData);
     void ReleaseUnusedSprites();
-    void OnKeyUp(WPARAM wParam);
-    void OnSysKeyDown(WPARAM wParam);
-    void OnSysKeyUp(WPARAM wParam);
     void ChangeGameMode(char cMode);
     void PutFontString(std::string fontname, int iX, int iY, std::string pString, Color color = Color(255, 255, 255, 255));
     void PutChatString(int iX, int iY, char * pString, Color color = Color(255, 255, 255, 255));
@@ -983,7 +973,6 @@ public:
     char cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMoveCheck = false, bool isMIM = false);
     void CommandProcessor(short msX, short msY, short indexX, short indexY, char cLB, char cRB, char cMB);
     void CalcViewPoint(uint64_t dwTime);
-    void OnKeyDown(WPARAM wParam);
     void Quit();
     bool bInit(void * hWnd, void * hInst, char * pCmdLine);
 
