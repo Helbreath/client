@@ -398,7 +398,8 @@ void CGame::stop(connection_ptr c)
         //ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
         _socket.reset();
         new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
-        gamemode = 0;
+        socketmode(0);
+        loggedin = false;
         //post socket closing
     }
     catch (std::exception & e)
@@ -476,12 +477,15 @@ CGame::CGame()
     ctx.add_certificate_authority(buffer_);
     //ctx.use_tmp_dh(dh_buff);
 
-    oldmode = gamemode = 0;
+    socketmode(0);
+    oldmode = 0;
     int i;
     srand((unsigned)time(0));
     ReadSettings();
 
     m_stMCursor.sCursorFrame = 0;
+
+    loggedin = false;
 
     if (!autoresolution)
     {
@@ -21300,7 +21304,7 @@ CP_SKIPMOUSEBUTTONSTATUS:;
         return;
     if ((dwTime - m_dwCommandTime) < 300)
     {
-        gamemode = 0;
+        socketmode(0);
         _socket->stop();
         m_bEscPressed = false;
         PlaySound('E', 14, 5);
@@ -23871,7 +23875,7 @@ void CGame::NotifyMsg_ForceDisconn(char * pData)
     }
     else
     {
-        gamemode = 0;
+        socketmode(0);
         _socket->stop();
         m_bEscPressed = false;
         if (m_bSoundFlag)
