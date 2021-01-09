@@ -517,6 +517,8 @@ CGame::CGame()
 
     m_hPakFile = nullptr;
 
+    memset(m_cCurLocation, 0, sizeof(m_cCurLocation));
+
     memset(&m_rcBodyRect, 0, sizeof(m_rcBodyRect));
     memset(&m_rcPlayerRect, 0, sizeof(m_rcBodyRect));
 
@@ -1147,8 +1149,6 @@ void CGame::UpdateScreen()
 
     setRenderTarget(DS_VISIBLE);
 
-    visible.display();
-
     // Things rendered over the UI are here
 
     if (isloaded)
@@ -1196,17 +1196,10 @@ void CGame::UpdateScreen()
     //         visible.draw(sprite);
     //     }
 
-    ui::ui_panel * panel = cef_ui->panel;
-    if (panel != nullptr)
-    {
-        sf::Lock lock(panel->view->sfmutex);
-        visible.draw(panel->sprite);
-    }
-
-    //float diffx = static_cast<float>(screenwidth_v) / screenwidth;
-    //float diffy = static_cast<float>(screenheight_v) / screenheight;
-    int mx = m_stMCursor.sX; // *diffx;
-    int my = m_stMCursor.sY; // *diffy;
+    float diffx = static_cast<float>(screenwidth) / screenwidth_v;
+    float diffy = static_cast<float>(screenheight) / screenheight_v;
+    int mx = m_stMCursor.sX*diffx;
+    int my = m_stMCursor.sY*diffy;
 
     //test code
     char cfps[20];
@@ -1217,22 +1210,27 @@ void CGame::UpdateScreen()
     _text.setString(cfps);
     _text.setPosition(5, 5);
     _text.setFillColor(Color(255, 255, 255, 255));
-    _text.setCharacterSize(10);
+    _text.setCharacterSize(14);
 
-    //     PutFontStringSize("test", 5, 5, "10", sf::Color::White, 10);
-    //     PutFontStringSize("test", 5, 20, "12", sf::Color::White, 12);
-    //     PutFontStringSize("test", 5, 40, "15", sf::Color::White, 15);
-    //     PutFontStringSize("test", 5, 60, "18", sf::Color::White, 18);
-    //     PutFontStringSize("test", 5, 90, "25", sf::Color::White, 25);
-    //     PutFontStringSize("test", 5, 120, "30", sf::Color::White, 30);
-
-    if (m_pBGM.Stopped || m_pBGM.getBuffer() == nullptr)
+    if ((m_pBGM.Stopped || m_pBGM.getBuffer() == nullptr) && get_game_mode() == GAMEMODE_ONMAINGAME)
     {
-        //StartBGM();
+        StartBGM();
     }
 
-    //if (scale_ui_with_virtual && !hide_ui)
-    //    draw(_html_spr);
+    if (get_game_mode() == GAMEMODE_ONMAINGAME)
+    {
+        sf::Sprite sprite = sf::Sprite(bg.getTexture());
+        visible.draw(sprite);
+    }
+
+    ui::ui_panel * panel = cef_ui->panel;
+    if (panel != nullptr)
+    {
+        sf::Lock lock(panel->view->sfmutex);
+        visible.draw(panel->sprite);
+    }
+
+    visible.display();
 
     sf::Sprite sprite = sf::Sprite(visible.getTexture());
     sprite.setPosition(0, 0);
@@ -1241,9 +1239,6 @@ void CGame::UpdateScreen()
     window.clear();
 
     window.draw(sprite);
-
-    //if (!scale_ui_with_virtual && !hide_ui)
-    //	window.draw(_html_spr);
 
     // draw mouse over everything - this draws it full size at every virtual resolution.
     // this needs to go above `window.draw(sprite);` and draw to `visible` above to scale with virtual resolution
@@ -1263,11 +1258,12 @@ void CGame::UpdateScreen()
 
     m_stMCursor.sZ = 0;
 
+
     sf::Text TESTTEXT;
 
     TESTTEXT.setFont(_font.at("arya"));
 
-    TESTTEXT.setString(cfps);
+    TESTTEXT.setString(fmt::format("({},{}) o ({},{})", mx, my, m_stMCursor.sX, m_stMCursor.sY));
     TESTTEXT.setFillColor(Color(255, 255, 255, 255));
     TESTTEXT.setCharacterSize(20);
     TESTTEXT.setColor(Color(255, 255, 255, 255));
@@ -1277,7 +1273,7 @@ void CGame::UpdateScreen()
     window.draw(_text);
 }
 
-std::string CGame::get_game_mode()
+std::string CGame::get_game_mode_str()
 {
     switch (m_cGameMode)
     {
@@ -1297,12 +1293,12 @@ std::string CGame::get_game_mode()
             return "maingame";
         case GAMEMODE_ONCONNECTIONLOST:
             return "connectionlost";
-        case GAMEMODE_ONMSG:
-            return "msg";
-        case GAMEMODE_ONCREATENEWACCOUNT:
-            return "createnewaccount";
-        case GAMEMODE_ONLOGIN:
-            return "login";
+//         case GAMEMODE_ONMSG:
+//             return "msg";
+//         case GAMEMODE_ONCREATENEWACCOUNT:
+//             return "createnewaccount";
+//         case GAMEMODE_ONLOGIN:
+//             return "login";
         case GAMEMODE_ONQUERYFORCELOGIN:
             return "queryforcelogin";
         case GAMEMODE_ONSELECTCHARACTER:
@@ -1317,12 +1313,12 @@ std::string CGame::get_game_mode()
             return "logresmsg";
         case GAMEMODE_ONVERSIONNOTMATCH:
             return "versionnotmatch";
-        case GAMEMODE_ONINTRODUCTION:
-            return "introduction";
-        case GAMEMODE_ONAGREEMENT:
-            return "agreement";
-        case GAMEMODE_ONSELECTSERVER:
-            return "selectserver";
+//         case GAMEMODE_ONINTRODUCTION:
+//             return "introduction";
+//         case GAMEMODE_ONAGREEMENT:
+//             return "agreement";
+//         case GAMEMODE_ONSELECTSERVER:
+//             return "selectserver";
     }
     return "unknown";
 }
@@ -1663,6 +1659,45 @@ char CGame::cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMo
     return 0;
 }
 
+void CGame::send_characters_to_ui()
+{
+    json o;
+    for (auto & character : m_pCharList)
+    {
+        json obj;
+        obj["id"] = character->id;
+        obj["name"] = character->m_cName;
+        obj["appr1"] = character->m_sAppr1;
+        obj["appr2"] = character->m_sAppr2;
+        obj["appr3"] = character->m_sAppr3;
+        obj["appr4"] = character->m_sAppr4;
+        obj["headAppr"] = character->m_sHeadApprValue;
+        obj["bodyAppr"] = character->m_sBodyApprValue;
+        obj["armAppr"] = character->m_sArmApprValue;
+        obj["legAppr"] = character->m_sLegApprValue;
+        obj["gender"] = character->m_sSex;
+        obj["skinColor"] = character->m_sSkinCol;
+        obj["level"] = character->m_sLevel;
+        obj["experience"] = character->m_iExp;
+        obj["strength"] = character->m_sStr;
+        obj["vitality"] = character->m_sVit;
+        obj["dexterity"] = character->m_sDex;
+        obj["intelligence"] = character->m_sInt;
+        obj["magic"] = character->m_sMag;
+        obj["charisma"] = character->m_sChr;
+        obj["apprColor"] = character->m_iApprColor;
+        obj["year"] = character->m_iYear;
+        obj["month"] = character->m_iMonth;
+        obj["day"] = character->m_iDay;
+        obj["hour"] = character->m_iHour;
+        obj["minute"] = character->m_iMinute;
+        obj["maploc"] = character->m_cMapName;
+        o.push_back(obj);
+    }
+
+    send_message_to_ui("characterlist", o);
+}
+
 void CGame::send_message_to_ui(std::string msg, json param)
 {
     // 	std::unique_lock<std::mutex> l(ui_outgoing_event_m);
@@ -1693,8 +1728,40 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 }
                 else
                     send_message_to_ui("postload");
-                send_message_to_ui("logindetails", { G_pGame->m_cAccountName, G_pGame->m_cAccountPassword });
-                send_message_to_ui("gamemode", { {"mode", get_game_mode()} });
+                //send_message_to_ui("logindetails", { G_pGame->m_cAccountName, G_pGame->m_cAccountPassword });
+                send_message_to_ui("gamemode", { {"mode", get_game_mode_str()} });
+                return;
+            }
+            if (message == "deletecharacter")
+            {
+                CHECK_ARGS(1);
+                SendCharacterDelete(obj["name"].get<std::string>());
+                return;
+            }
+            if (message == "getcharacters")
+            {
+                send_characters_to_ui();
+                return;
+            }
+            if (message == "createcharacter")
+            {
+                CHECK_ARGS(7);
+
+                player_name = obj["name"].get<std::string>();
+                m_cGender = obj["gender"].get<uint8_t>();
+                m_cSkinCol = obj["gender"].get<uint8_t>();
+                m_cSkinCol = obj["gender"].get<uint8_t>();
+                m_cHairStyle = obj["gender"].get<uint8_t>();
+                m_cHairCol = obj["gender"].get<uint8_t>();
+                m_cUnderCol = obj["gender"].get<uint8_t>();
+                m_createStat[STAT_STR] = obj["stats"][STAT_STR].get<uint8_t>();
+                m_createStat[STAT_VIT] = obj["stats"][STAT_VIT].get<uint8_t>();
+                m_createStat[STAT_DEX] = obj["stats"][STAT_DEX].get<uint8_t>();
+                m_createStat[STAT_INT] = obj["stats"][STAT_INT].get<uint8_t>();
+                m_createStat[STAT_MAG] = obj["stats"][STAT_MAG].get<uint8_t>();
+                m_createStat[STAT_CHR] = obj["stats"][STAT_CHR].get<uint8_t>();
+
+                SendLoginCommand(MSGID_REQUEST_CREATENEWCHARACTER);
                 return;
             }
             if (message == "movetestsprite")
@@ -1747,39 +1814,28 @@ void CGame::receive_message_from_ui(std::string name, json o)
             if (message == "selectcharacter")
             {
                 CHECK_ARGS(1);
-                int charid = obj["charid"].get<uint8_t>();
-                if (m_pCharList.size() > charid)
-                {
-                    m_cCurFocus = charid;
-                    selectedchar = m_pCharList[charid];
-                }
+                uint64_t charid = obj["charid"].get<uint64_t>();
+                for (auto & character : m_pCharList)
+                    if (character->id == charid)
+                        selectedchar = character;
                 return;
             }
             if (message == "entergame")
             {
-                if (m_pCharList[m_cCurFocus] != nullptr)
-                {
-                    //m_cPlayerName
-                }
-                int charid = obj["charid"].get<uint8_t>();
-                if (m_pCharList.size() > charid)
-                {
-                    player_name = m_pCharList[m_cCurFocus]->m_cName;
-                    m_iLevel = m_pCharList[m_cCurFocus]->m_sLevel;
+                if (selectedchar == nullptr)
+                    return;
+                player_name = selectedchar->m_cName;
+                m_iLevel = selectedchar->m_sLevel;
 
-                    m_cCurFocus = charid;
-                    selectedchar = m_pCharList[charid];
-
-                    m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
-                    m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
-                    ChangeGameMode(GAMEMODE_ONCONNECTING);
-                    m_dwConnectMode = MSGID_REQUEST_ENTERGAME;
-                    m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
-                    ZeroMemory(m_cMsg, sizeof(m_cMsg));
-                    strcpy(m_cMsg, "33");
-                    ZeroMemory(m_cMapName, sizeof(m_cMapName));
-                    memcpy(m_cMapName, m_pCharList[m_cCurFocus]->m_cMapName.c_str(), 10);
-                }
+                m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
+                m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
+                ChangeGameMode(GAMEMODE_ONCONNECTING);
+                m_dwConnectMode = MSGID_REQUEST_ENTERGAME;
+                m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
+                ZeroMemory(m_cMsg, sizeof(m_cMsg));
+                strcpy(m_cMsg, "33");
+                ZeroMemory(m_cMapName, sizeof(m_cMapName));
+                memcpy(m_cMapName, m_pCharList[m_cCurFocus]->m_cMapName.c_str(), 10);
                 return;
             }
             if (message == "exit")
@@ -1801,7 +1857,18 @@ void CGame::receive_message_from_ui(std::string name, json o)
                         std::placeholders::_1));
                 return;
             }
-            if (message == "cancelwaiting" || message == "cancelconnect" || message == "disconnect")
+            if (message == "disconnect")
+            {
+                //PlaySound('E', 14, 5);
+                if (m_bSoundFlag)
+                    m_pESound[38].stop();
+                if ((m_bSoundFlag) && (m_bMusicStat == true))
+                    m_pBGM.stop();
+                isItemLoaded = false;
+                ChangeGameMode(GAMEMODE_ONMAINMENU);
+                return;
+            }
+            if (message == "cancelwaiting" || message == "cancelconnect")
             {
                 if (_socket)
                     _socket->stop();
@@ -1884,29 +1951,41 @@ void CGame::receive_message_from_ui(std::string name, json o)
     }
     catch (std::exception & ex)
     {
+        std::cout << ex.what() << "\n";
     }
 }
 
 void CGame::load_settings()
 {
+
 }
 
 void CGame::save_settings()
 {
+
 }
 
 void CGame::OnEvent(sf::Event event)
 {
+    //TODO: fix
+/*
+    if (event.type == sf::Event::KeyPressed && event.key.code == Keyboard::F5)
+    {
+        auto view = cef_ui->core->create_view(screenwidth, screenheight, "http://localhost:8080/", true, cef_ui);
+        cef_panel = cef_ui->panel = new ui::ui_panel(cef_panel->view, "http://localhost:8080/", 0, 0, screenwidth, screenheight);
+
+        return;
+    }*/
+
     if (cef_input->capture_event(event))
         return;
-    //     if (htmlInput->CaptureEvent(event)) {
-    //         return;
-    //     }
 
     switch (event.type)
     {
         case sf::Event::TextEntered:
         {
+            std::string s = ((char *)event.text.unicode) + 4;
+            std::cout << s << "\n";
             /*
                 std::string s = ((char *)event.text.unicode) + 4;
                 if (s == "-")
@@ -1936,6 +2015,13 @@ void CGame::OnEvent(sf::Event event)
         {
             switch (event.key.code)
             {
+                case Keyboard::F5:
+#ifdef _DEBUG
+                    cef_panel = cef_ui->create_panel("main", "http://localhost:8080/", 0, 0, screenwidth, screenheight);
+#else
+                    cef_panel = cef_ui->create_panel("main", "https://helbreath.io/ui/", 0, 0, screenwidth, screenheight);
+#endif
+                    break;
                 case Keyboard::Escape:
                     clipmousegame = !clipmousegame;
                     window.setMouseCursorGrabbed(clipmousegame);
@@ -2148,6 +2234,25 @@ bool CGame::_bCheckMoveable(short sx, short sy)
     return true;
 }
 
+bool CGame::SendCharacterDelete(std::string name)
+{
+    StreamWrite sw;
+
+    if (_socket == nullptr)
+        return false;
+
+    strcpy(m_cWorldServerName, "Xtreme");
+
+    sw.WriteInt(MSGID_REQUEST_DELETECHARACTER);
+    sw.WriteString("", 12);
+    sw.WriteString(m_cAccountName, 60);
+    sw.WriteString(m_cAccountPassword, 60);
+    sw.WriteString(name, 10);
+    sw.WriteString(m_cWorldServerName, 30);
+    _socket->write(sw);
+    return true;
+}
+
 bool CGame::SendLoginCommand(uint32_t dwMsgID)
 {
     char * cp, cMsg[300], macAddress[24], cKey;
@@ -2186,20 +2291,6 @@ bool CGame::SendLoginCommand(uint32_t dwMsgID)
             sw.WriteShort(m_wEnterGameType);
             sw.WriteString(m_cWorldServerName, 30);
             break;
-
-            /*case MSGID_REQUEST_CHANGEPASSWORD:
-            sw.WriteString(m_cNewPassword, 10);
-            sw.WriteString(m_cNewPassConfirm, 10);
-            break;
-
-        case MSGID_REQUEST_CREATENEWACCOUNT:
-            sw.WriteString(m_cEmailAddr, 50);
-            sw.WriteString(m_cAccountAge, 10);
-            sw.WriteString(m_cAccountCountry, 17);
-            sw.WriteString(m_cAccountSSN, 28);
-            sw.WriteString(m_cAccountQuiz, 45);
-            sw.WriteString(m_cAccountAnswer, 20);
-            break;*/
 
         case MSGID_REQUEST_CREATENEWCHARACTER:
             sw.WriteString(player_name, 10);
@@ -2498,8 +2589,6 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
             case MSGID_REQUEST_INITPLAYER:
                 // to Game Server
                 sw.WriteString(player_name, 10);
-                sw.WriteString(m_cAccountName, 10);
-                sw.WriteString(m_cAccountPassword, 10);
                 sw.WriteByte(m_bIsObserverMode);
                 sw.WriteString(m_cGameServerName, 20);
 
@@ -3715,7 +3804,7 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
     StreamRead sr = StreamRead(pData, dwMsgSize);
 
     dwpMsgID = sr.ReadInt();
-    sr.ReadShort();
+    uint32_t unused = sr.ReadInt();
 
     if (dwpMsgID & MSGIDTYPE_MOTION)
     {
@@ -3759,7 +3848,7 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
 
         case MSGID_RESPONSE_INITDATA:
             printf("InitDataResponseHandler\n");
-            InitDataResponseHandler(pData);
+            InitDataResponseHandler(sr);
             break;
 
         case MSGID_RESPONSE_MOTION:
@@ -3923,9 +4012,6 @@ void CGame::ConnectionEstablishHandler(char cWhere)
                 case MSGID_REQUEST_LOGIN:
                     SendLoginCommand(MSGID_REQUEST_LOGIN);
                     break;
-                case MSGID_REQUEST_CREATENEWACCOUNT:
-                    SendLoginCommand(MSGID_REQUEST_CREATENEWACCOUNT);
-                    break;
                 case MSGID_REQUEST_CREATENEWCHARACTER:
                     SendLoginCommand(MSGID_REQUEST_CREATENEWCHARACTER);
                     break;
@@ -3953,7 +4039,7 @@ void CGame::InitPlayerResponseHandler(char * pData)
     switch (*wp)
     {
         case MSGTYPE_CONFIRM:
-            //bSendCommand(MSGID_REQUEST_INITDATA);
+            bSendCommand(MSGID_REQUEST_INITDATA);
             LoadMuteList();
             ChangeGameMode(GAMEMODE_ONWAITINGINITDATA);
             break;
@@ -3988,285 +4074,6 @@ void MakeEffectSpr(char * FileName, short sStart, short sCount, bool bAlphaEffec
     }
 }
 
-/*
-void CGame::MakeSprite( Lchar* FileName, short sStart, short sCount, bool bAlphaEffect )
-{
-    int iTotalimage;
-    uint32_t nCount;
-    char PathName[50];
-    std::vector<int> framePositions;
-
-    wsprintfA( PathName, "sprites\\%s.pak", FileName );
-    HANDLE //m_hPakFile = CreateFileA(PathName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-    ReadFramePositions(m_hPakFile, framePositions, sCount);
-    if( m_hPakFile == INVALID_HANDLE_VALUE ) {	//return;
-    //besk: the default pak is only useful if the client fills m_stFrame[mobnum][] with some nonzero values,
-        //		otherwise client will still crash when the mob appears.
-        strcpy(PathName, "sprites\\SKE.pak");//besk add: default pak
-        //m_hPakFile = CreateFileA(PathName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-        if (m_hPakFile == INVALID_HANDLE_VALUE) return;
-        char cTempFileName[64];
-        strcpy(cTempFileName, "SKE");
-        SetFilePointer(m_hPakFile, 20, NULL, FILE_BEGIN);
-        ReadFile(m_hPakFile, (char *)&iTotalimage, 4, &nCount, NULL);
-
-        for( short i=0 ; i < sCount && i < iTotalimage; i++ ){
-            if( i < iTotalimage ) m_pSprite[i+sStart] = CSprite::CreateSprite(LcTempFileName, i, bAlphaEffect);
-            //m_pSprite[i+sStart] = CSprite::CreateSprite(LcTempFileName, i, bAlphaEffect);
-        }
-        //CloseHandle(m_hPakFile);
-    } else {
-    SetFilePointer(m_hPakFile, 20, NULL, FILE_BEGIN);
-    ReadFile(m_hPakFile, (char *)&iTotalimage, 4, &nCount, NULL);
-    for( short i=0 ; i < sCount && i < iTotalimage; i++ ) {
-        m_pSprite[i+sStart] = CSprite::CreateSprite(LFileName, i, bAlphaEffect);
-    }
-    //CloseHandle(m_hPakFile);
-    }
-}
-
-void CGame::MakeLegionSprite( char* FileName, short sStart, short sCount, bool bAlphaEffect )
-{
-    int iTotalimage;
-    uint32_t nCount;
-    char PathName[50];
-    std::vector<int> framePositions;
-
-    wsprintfA( PathName, "sprites\\%s.lpk", FileName );
-    HANDLE //m_hPakFile = CreateFileA(PathName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-    if( m_hPakFile == INVALID_HANDLE_VALUE ) return;
-    ReadFramePositions(m_hPakFile, framePositions, sCount);
-    SetFilePointer(m_hPakFile, 20, NULL, FILE_BEGIN);
-    ReadFile(m_hPakFile, (char *)&iTotalimage, 4, &nCount, NULL);
-    iTotalimage ^= 712345;
-    for( short i=0 ; i < sCount && i < iTotalimage; i++ ) {
-        m_pSprite[i+sStart] = CSprite::CreateSprite(LFileName, i, bAlphaEffect);
-    }
-    //CloseHandle(m_hPakFile);
-}
-
-void CGame::MakeTileSpr( Lchar* FileName, short sStart, short sCount, bool bAlphaEffect )
-{
-    int iTotalimage;
-    uint32_t nCount;
-    char PathName[28];
-    std::vector<int> framePositions;
-
-    wsprintfA( PathName, "sprites\\%s.pak", FileName );
-    HANDLE //m_hPakFile = CreateFileA(PathName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-    if( m_hPakFile == INVALID_HANDLE_VALUE ) return;
-    ReadFramePositions(m_hPakFile, framePositions, sCount);
-    SetFilePointer(m_hPakFile, 20, NULL, FILE_BEGIN);
-    ReadFile(m_hPakFile, (char *)&iTotalimage, 4, &nCount, NULL);
-    for( short i=0 ; i < sCount && i < iTotalimage; i++ ) {
-        m_pTileSpr[i+sStart] = CSprite::CreateSprite(LFileName, i, bAlphaEffect);
-    }
-    //CloseHandle(m_hPakFile);
-}
-
-void CGame::MakeLegionTileSpr( char* FileName, short sStart, short sCount, bool bAlphaEffect )
-{
-    int iTotalimage;
-    uint32_t nCount;
-    char PathName[28];
-    std::vector<int> framePositions;
-
-    wsprintfA( PathName, "sprites\\%s.lpk", FileName );
-    HANDLE //m_hPakFile = CreateFileA(PathName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-    if( m_hPakFile == INVALID_HANDLE_VALUE ) return;
-    ReadFramePositions(m_hPakFile, framePositions, sCount);
-    SetFilePointer(m_hPakFile, 20, NULL, FILE_BEGIN);
-    ReadFile(m_hPakFile, (char *)&iTotalimage, 4, &nCount, NULL);
-    iTotalimage ^= 712345;
-    for( short i=0 ; i < sCount && i < iTotalimage ; i++ ) {
-        m_pTileSpr[i+sStart] = CSprite::CreateSprite(LFileName, i, bAlphaEffect);
-    }
-    //CloseHandle(m_hPakFile);
-}
-
-void CGame::MakeEffectSpr( Lchar* FileName, short sStart, short sCount, bool bAlphaEffect )
-{
-    int iTotalimage;
-    uint32_t nCount;
-    char PathName[28];
-    std::vector<int> framePositions;
-
-    wsprintfA( PathName, "sprites\\%s.pak", FileName );
-    HANDLE //m_hPakFile = CreateFileA(PathName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-    if( m_hPakFile == INVALID_HANDLE_VALUE ) return;
-    ReadFramePositions(m_hPakFile, framePositions, sCount);
-    SetFilePointer(m_hPakFile, 20, NULL, FILE_BEGIN);
-    ReadFile(m_hPakFile, (char *)&iTotalimage, 4, &nCount, NULL);
-    for( short i=0 ; i < sCount ; i++ ) {
-        if( i < iTotalimage ) m_pEffectSpr[i+sStart] = CSprite::CreateSprite(LFileName, i, bAlphaEffect);
-    }
-    //CloseHandle(m_hPakFile);
-}
-
-void CGame::MakeLegionEffectSpr( char* FileName, short sStart, short sCount, bool bAlphaEffect )
-{
-    int iTotalimage;
-    uint32_t nCount;
-    char PathName[28];
-    std::vector<int> framePositions;
-
-    wsprintfA( PathName, "sprites\\%s.lpk", FileName );
-    HANDLE //m_hPakFile = CreateFileA(PathName, GENERIC_READ, NULL, NULL, OPEN_EXISTING, NULL, NULL);
-    if( m_hPakFile == INVALID_HANDLE_VALUE ) return;
-    ReadFramePositions(m_hPakFile, framePositions, sCount);
-    SetFilePointer(m_hPakFile, 20, NULL, FILE_BEGIN);
-    ReadFile(m_hPakFile, (char *)&iTotalimage, 4, &nCount, NULL);
-    iTotalimage ^= 712345;
-    for( short i=0 ; i < sCount ; i++ ) {
-        if( i < iTotalimage ) m_pEffectSpr[i+sStart] = CSprite::CreateSprite(LFileName, i, bAlphaEffect);
-    }
-    //CloseHandle(m_hPakFile);
-}
-*/
-
-/*
-void CGame::ProcessUI(shared_ptr<UIMsgQueueEntry> msg)
-{
-    WebString method_name = msg->obj.ToObject().GetProperty(WSLit("method_name")).ToString();
-    JSArray args = msg->obj.ToObject().GetProperty(WSLit("args")).ToArray();
-
-    if (method_name == WSLit("log"))
-    {
-        std::string buffer = "";
-        int i = 0;
-        while (i < args.size())
-        {
-            JSValue entry = args.At(i);
-            buffer = buffer + Awesomium::ToString(entry.ToString()) + " ";
-            i++;
-        }
-        printf("[JS] > %s\n", buffer.c_str());
-        return;
-    }
-    else if (method_name == WSLit("chatMessage"))
-    {
-        if (msg->obj.IsString())
-        {
-            string chatmessage = ToString(args.At(0).ToString());
-            bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, chatmessage.c_str(), 0);
-        }
-        else
-        {
-            __debugbreak();
-        }
-    }
-    else if (method_name == WSLit("renderCharacter"))
-    {
-        if (args.size() < 2)
-        {
-            return;
-        }
-        else
-        {
-            charselectx = args.At(0).ToInteger();
-            charselecty = args.At(1).ToInteger();
-        }
-    }
-    else if (method_name == WSLit("cancelLogin"))
-    {
-        if (_socket)
-        {
-            _socket->stop();
-            _socket = nullptr;
-            ChangeGameMode(GAMEMODE_ONLOGIN);
-        }
-    }
-    else if (method_name == WSLit("dialogRects"))
-    {
-        if (args.size() > 0)
-        {
-            dialogs.clear();
-            for (int i = 0; i < args.size(); ++i)
-            {
-                JSObject obj = args.At(i).ToObject();
-                int16_t x1 = obj.GetProperty(WSLit("x1")).ToInteger();
-                int16_t y1 = obj.GetProperty(WSLit("y1")).ToInteger();
-                int16_t x2 = obj.GetProperty(WSLit("x2")).ToInteger();
-                int16_t y2 = obj.GetProperty(WSLit("y2")).ToInteger();
-
-                dialogs.push_back(sf::Rect<int16_t>({ x1, y1, x2, y2 }));
-            }
-        }
-        else
-        {
-            printf("Invalid dialogRects params");
-        }
-    }
-    else if (method_name == WSLit("login"))
-    {
-        if (args.size() < 2)
-        {
-            return;
-        }
-        else
-        {
-            WebString username = args.At(0).ToString();
-            WebString password = args.At(1).ToString();
-
-            if (username.IsEmpty() || password.IsEmpty())
-            {
-                return;
-            }
-
-            m_cAccountName = ToString(username);
-            m_cAccountPassword = ToString(password);
-            StartLogin();
-            ChangeGameMode(GAMEMODE_ONCONNECTING);
-            m_dwConnectMode = MSGID_REQUEST_LOGIN;
-            return;
-        }
-    }
-    else if (method_name == WSLit("selectCharacter"))
-    {
-        if (args.size() == 0)
-        {
-            return;
-        }
-        else
-        {
-            int16_t selectid = static_cast<int16_t>(args.At(0).ToInteger());
-
-            if (m_pCharList.size() > selectid)
-            {
-                m_cCurFocus = selectid;
-                selectedchar = m_pCharList[selectid];
-            }
-            return;
-        }
-    }
-    else if (method_name == WSLit("enterGame"))
-    {
-        if (m_pCharList[m_cCurFocus] != 0)
-        {
-            if (m_pCharList[m_cCurFocus]->m_sSex != 0)
-            {
-                ZeroMemory(m_cPlayerName, sizeof(m_cPlayerName));
-                strcpy(m_cPlayerName, m_pCharList[m_cCurFocus]->m_cName.c_str());
-                m_iLevel = (int)m_pCharList[m_cCurFocus]->m_sLevel;
-                if (m_Misc.bCheckValidString(m_cPlayerName) == true)
-                {
-                    m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
-                    m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
-                    ChangeGameMode(GAMEMODE_ONCONNECTING);
-                    m_dwConnectMode = MSGID_REQUEST_ENTERGAME;
-                    m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
-                    ZeroMemory(m_cMsg, sizeof(m_cMsg));
-                    strcpy(m_cMsg, "33");
-                    ZeroMemory(m_cMapName, sizeof(m_cMapName));
-                    memcpy(m_cMapName, m_pCharList[m_cCurFocus]->m_cMapName.c_str(), 10);
-                    return;
-                }
-                return;
-            }
-        }
-    }
-}*/
-
 void CGame::OnTimer()
 {
     // check for ui events no matter the game mode
@@ -4283,15 +4090,6 @@ void CGame::OnTimer()
         return;
     uint64_t dwTime = unixtime();
 
-    /*
-    {
-        std::lock_guard<std::mutex> lock(uimut);
-        while (uiqueue.size() > 0)
-        {
-            shared_ptr<UIMsgQueueEntry> entry = GetUIMsgQueue();
-            ProcessUI(entry);
-        }
-    }*/
     {
         std::lock_guard<std::mutex> lock(socketmut);
         while (loginpipe.size() > 0)
@@ -4299,9 +4097,7 @@ void CGame::OnTimer()
             shared_ptr<CGame::MsgQueueEntry> entry = GetLoginMsgQueue();
             LogResponseHandler(entry->size, entry->data);
         }
-    }
-    {
-        std::lock_guard<std::mutex> lock(socketmut);
+
         while (socketpipe.size() > 0)
         {
             shared_ptr<CGame::MsgQueueEntry> entry = GetMsgQueue();
@@ -4338,23 +4134,6 @@ void CGame::OnTimer()
 
         if ((dwTime - m_dwCheckChatTime) > 2000)
         {
-            //#ifndef _DEBUG
-            // 			if( CheckCheating() /*|| CheckHackProgram()*/ )
-            // 				{
-            // 				MessageBoxA(*(HWND*)m_hWnd, "Error Code: 1600\n\nClient.exe has detected an illegal program or modification.\n\nGame Closing.", "Hack detected!", MB_OK | MB_ICONERROR);
-            // 				ChangeGameMode(GAMEMODE_ONQUIT);
-            // 				_socket->stop();
-            // 				m_bEscPressed = false;
-            // 				PlaySound('E', 14, 5);
-            // // 				if (m_bSoundFlag) m_pESound[38]->bStop();
-            // // 				if ((m_bSoundFlag) && (m_bMusicStat == TRUE))
-            // // 				{
-            // // 					if (m_pBGM != NULL) m_pBGM->bStop();
-            // // 				}//DIRECTX
-            // 				exit(1600);
-            // 			}
-            //#endif
-
             m_dwCheckChatTime = dwTime;
             ReleaseTimeoverChatMsg();
             if (m_cCommandCount >= 6)
@@ -4363,7 +4142,7 @@ void CGame::OnTimer()
                 if (m_iNetLagCount >= 7)
                 {
                     ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
-                    gamemode = 0;
+                    socketmode(0);
                     _socket->stop();
                     return;
                 }
@@ -5086,10 +4865,6 @@ void CGame::InitPlayerCharacteristics(char * pData)
     ip = (int *)cp;
     m_iSP = *ip;
     cp += 4;
-
-    /*ip   = (int *)cp;
-    m_iAC = *ip;
-    cp += 4;*/
 
     ip = (int *)cp;
     m_iDefenseRatio = *ip; // Defense Display in Action Bar xRisenx
@@ -8878,16 +8653,16 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
     StreamRead sr(pData, size);
 
     uint16_t wResponse;
-    uint16_t wServerUpperVersion, wServerLowerVersion;
+    uint16_t wServerUpperVersion, wServerLowerVersion, wServerPatchVersion;
     string charname;
 
-    sr.ReadInt();
-    wResponse = sr.ReadShort();
+    uint32_t unused = sr.ReadInt();
+    wResponse = sr.ReadInt();
 
     switch (wResponse)
     {
         case LOGRESMSGTYPE_CHARACTERDELETED:
-            /*m_iAccountStatus = (int)*/ sr.ReadByte();
+            m_iAccountStatus = (int)sr.ReadByte();
             m_iTotalChar = (int)sr.ReadByte();
             m_pCharList.clear();
 
@@ -8898,7 +8673,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 
             for (int i = 0; i < m_iTotalChar; i++)
             {
-                shared_ptr<CCharInfo> character(new CCharInfo());
+                shared_ptr<CCharInfo> character = make_shared<CCharInfo>();
                 character->m_cName = sr.ReadString(10);
                 if (sr.ReadByte() == 0)
                 {
@@ -8907,6 +8682,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
                 }
                 else
                 {
+                    character->id = sr.ReadInt64();
                     character->m_sAppr1 = sr.ReadShort();
                     character->m_sAppr2 = sr.ReadShort();
                     character->m_sAppr3 = sr.ReadShort();
@@ -8935,19 +8711,18 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
                 }
                 m_pCharList.push_back(character);
             }
+            send_characters_to_ui();
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
             ZeroMemory(m_cMsg, sizeof(m_cMsg));
             strcpy(m_cMsg, "3A");
             break;
 
         case LOGRESMSGTYPE_CONFIRM:
-            /*
-            htmlUI->Emit("login", true, "");
-            {JSValue res = htmlUI->view->CreateGlobalJavascriptObject(WSLit("client.game"));}*/
             loggedin = true;
             wServerUpperVersion = sr.ReadShort();
             wServerLowerVersion = sr.ReadShort();
-            /*m_iAccountStatus = (int)*/ sr.ReadByte();
+            wServerPatchVersion = sr.ReadShort();
+            m_iAccountStatus = (int)sr.ReadByte();
             m_iAccntYear = sr.ReadShort();
             m_iAccntMonth = sr.ReadShort();
             m_iAccntDay = sr.ReadShort();
@@ -8964,7 +8739,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 
             for (int i = 0; i < m_iTotalChar; i++)
             {
-                std::shared_ptr<CCharInfo> character(new CCharInfo());
+                shared_ptr<CCharInfo> character = make_shared<CCharInfo>();
                 character->m_cName = sr.ReadString(10);
                 if (sr.ReadByte() == 0)
                 {
@@ -8973,6 +8748,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
                 }
                 else
                 {
+                    character->id = sr.ReadInt64();
                     character->m_sAppr1 = sr.ReadShort();
                     character->m_sAppr2 = sr.ReadShort();
                     character->m_sAppr3 = sr.ReadShort();
@@ -9003,23 +8779,31 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
             }
             m_iTimeLeftSecAccount = sr.ReadInt();
             m_iTimeLeftSecIP = sr.ReadInt();
+            for (int i = 0; i < 32; ++i)
+                key[i] = sr.ReadByte();
+            has_key = true;
+            send_characters_to_ui();
             ChangeGameMode(GAMEMODE_ONSELECTCHARACTER);
             ClearContents_OnSelectCharacter();
 
-            // #ifndef _DEBUG
-            // 		if ( (wServerUpperVersion!=UPPER_VERSION) || (wServerLowerVersion!=LOWER_VERSION) )
-            // 			ChangeGameMode(GAMEMODE_ONVERSIONNOTMATCH);
-            // #endif
+#ifndef _DEBUG
+            if (wServerUpperVersion != UPPER_VERSION || wServerLowerVersion != LOWER_VERSION || wServerPatchVersion != PATCH_VERSION)
+                ChangeGameMode(GAMEMODE_ONVERSIONNOTMATCH);
+#endif
             break;
 
         case LOGRESMSGTYPE_REJECT:
+        {
+            std::string rcv_string = sr.ReadString();
             m_iBlockYear = sr.ReadInt();
             m_iBlockMonth = sr.ReadInt();
             m_iBlockDay = sr.ReadInt();
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
+            send_message_to_ui("logresmsg", { { "status", "failed" }, { "message", rcv_string} });
             ZeroMemory(m_cMsg, sizeof(m_cMsg));
             strcpy(m_cMsg, "7H");
             break;
+        }
 
         case LOGRESMSGTYPE_NOTENOUGHPOINT:
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
@@ -9034,6 +8818,8 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
             break;
 
         case LOGRESMSGTYPE_SERVICENOTAVAILABLE:
+            send_message_to_ui("logresmsg", { { "status", "failed" }, { "reason", "Service not available" } });
+            break;
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
             ZeroMemory(m_cMsg, sizeof(m_cMsg));
             strcpy(m_cMsg, "7");
@@ -9101,7 +8887,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 
             for (int i = 0; i < m_iTotalChar; i++)
             {
-                shared_ptr<CCharInfo> character(new CCharInfo());
+                shared_ptr<CCharInfo> character = make_shared<CCharInfo>();
                 character->m_cName = sr.ReadString(10);
                 if (sr.ReadByte() == 0)
                 {
@@ -9110,6 +8896,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
                 }
                 else
                 {
+                    character->id = sr.ReadInt64();
                     character->m_sAppr1 = sr.ReadShort();
                     character->m_sAppr2 = sr.ReadShort();
                     character->m_sAppr3 = sr.ReadShort();
@@ -9138,6 +8925,9 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
                 }
                 m_pCharList.push_back(character);
             }
+            send_characters_to_ui();
+            send_message_to_ui("logresmsg", { { "status", "success" } });
+            break;
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
             ZeroMemory(m_cMsg, sizeof(m_cMsg));
             strcpy(m_cMsg, "47");
@@ -9145,12 +8935,16 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
         }
 
         case LOGRESMSGTYPE_NEWCHARACTERFAILED:
+            send_message_to_ui("logresmsg", { { "status", "failed" }, { "reason", "Failed" } });
+            break;
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
             ZeroMemory(m_cMsg, sizeof(m_cMsg));
             strcpy(m_cMsg, "28");
             break;
 
         case LOGRESMSGTYPE_ALREADYEXISTINGCHARACTER:
+            send_message_to_ui("logresmsg", { { "status", "failed" }, { "reason", "Character name already exists" } });
+            break;
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
             ZeroMemory(m_cMsg, sizeof(m_cMsg));
             strcpy(m_cMsg, "29");
@@ -9162,16 +8956,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
 
         case ENTERGAMERESTYPE_CONFIRM:
         {
-            int iGameServerPort;
-            char cGameServerAddr[16];
-            ZeroMemory(cGameServerAddr, sizeof(cGameServerAddr));
-            string gameserveraddress = sr.ReadString(16);
-            memcpy(cGameServerAddr, gameserveraddress.c_str(), (gameserveraddress.length() < 16) ? gameserveraddress.length() : 16);
-            iGameServerPort = sr.ReadShort();
-            ZeroMemory(m_cGameServerName, sizeof(m_cGameServerName));
-            string gameservername = sr.ReadString(20);
-            memcpy(m_cGameServerName, gameservername.c_str(), (gameservername.length() < 20) ? gameservername.length() : 20);
-            gamemode = 1;
+            socketmode(1);
             printf("ENTERGAMERESTYPE_CONFIRM\n");
             ConnectionEstablishHandler(SERVERTYPE_GAME);
         }
@@ -9331,6 +9116,8 @@ void CGame::ChangeGameMode(char cMode)
     m_cGameModeCount = 0;
     m_dwTime = G_dwGlobalTime;
     //update_ui_game_mode();
+    if (cMode <= GAMEMODE_ONMAINMENU && _socket && _socket->socket().is_open())
+        _socket->stop();
     if (cef_ui->core->view)
     {
         send_message_to_ui("gamemode", { {"mode", get_game_mode(cMode)} });
@@ -12006,27 +11793,6 @@ void CGame::CrusadeWarResult(int iWinnerSide)
     DisableDialogBox(36);
     DisableDialogBox(37);
     DisableDialogBox(38);
-}
-
-void CGame::_Draw_UpdateScreen_OnCreateNewAccount()
-{
-    //DIRECTX m_DDraw.ClearBackB4();
-    /*
-    DrawNewDialogBox(SPRID_INTERFACE_ND_NEWACCOUNT, 0,0,0, true);
-    PutString2((800/2)-80, (600/2)-120, m_cAccountName, 200,200,200);
-    PutString( (800/2)-80, (600/2)-120+20, m_cAccountPassword,video::SColor(255,200,200,200), true, 1);
-    PutString( (800/2)-80, (600/2)-120+20*2, m_cAccountPassword,video::SColor(255,200,200,200), true, 1);
-    PutString2((800/2)-80, (600/2)-120+20*3, m_cAccountCountry, 200,200,200);
-    PutString2((800/2)-80, (600/2)-120+20*4, m_cAccountSSN, 200,200,200);
-    PutString2((800/2)-80, (600/2)-120+20*5, m_cEmailAddr, 200,200,200);*/
-    /*//DIRECTX m_DDraw.ClearBackB4();
-    DrawNewDialogBox(SPRID_INTERFACE_ND_NEWACCOUNT, 0,0,0, TRUE);
-    PutString2(329, 110, m_cAccountName, 200,200,200);
-    PutString( 329, 125, m_cAccountPassword,video::SColor(255,200,200,200), TRUE, 1);
-    PutString( 329, 140, m_cAccountPassword,video::SColor(255,200,200,200), TRUE, 1);
-    PutString2(300, 202, m_cAccountCountry, 200,200,200);
-    PutString2(300, 218, m_cAccountSSN, 200,200,200);
-    PutString2(194, 257, m_cEmailAddr, 200,200,200);*/
 }
 
 void CGame::DrawChatMsgBox(short sX, short sY, int iChatIndex, bool bIsPreDC)
@@ -20832,6 +20598,7 @@ void CGame::StartBGM()
     bgmbuffer.loadFromFile(cWavFileName);
     m_pBGM.setBuffer(bgmbuffer);
     m_pBGM.setVolume(m_cMusicVolume); //TODO: update in game later
+    m_pBGM.setLoop(true);
     m_pBGM.play();
 }
 
@@ -25888,7 +25655,7 @@ void CGame::RequestTeleportAndWaitData()
     ChangeGameMode(GAMEMODE_ONWAITINGINITDATA);
 }
 
-void CGame::InitDataResponseHandler(char * pData)
+void CGame::InitDataResponseHandler(StreamRead & sr)
 {
     lock_guard<std::mutex> lock(screenupdate);
     int * ip, i;
@@ -25978,69 +25745,24 @@ void CGame::InitDataResponseHandler(char * pData)
         m_pChatMsgList[i] = 0;
     }
 
-    cp = (char *)(pData + INDEX2_MSGTYPE + 2);
-
-    // PlayerObjectID
-    sp = (short *)cp;
-    m_sPlayerObjectID = *sp;
-    cp += 4;
-
-    sp = (short *)cp;
-    sX = *sp;
-    cp += 2;
-
-    sp = (short *)cp;
-    sY = *sp;
-    cp += 2;
-
-    sp = (short *)cp;
-    m_sPlayerType = *sp;
-    cp += 2;
-
-    sp = (short *)cp;
-    m_sPlayerAppr1 = *sp;
-    cp += 2;
-
-    sp = (short *)cp;
-    m_sPlayerAppr2 = *sp;
-    cp += 2;
-
-    sp = (short *)cp;
-    m_sPlayerAppr3 = *sp;
-    cp += 2;
-
-    sp = (short *)cp;
-    m_sPlayerAppr4 = *sp;
-    cp += 2;
-
-    ip = (int *)cp;
-    m_iPlayerApprColor = *ip;
-    cp += 4;
-
-    sp = (short *)cp;
-    m_sPlayerHeadApprValue = *sp; // Re-Coding Sprite xRisenx
-    cp += 2;
-
-    sp = (short *)cp;
-    m_sPlayerBodyApprValue = *sp; // Re-Coding Sprite xRisenx
-    cp += 2;
-
-    sp = (short *)cp;
-    m_sPlayerArmApprValue = *sp; // Re-Coding Sprite xRisenx
-    cp += 2;
-
-    sp = (short *)cp;
-    m_sPlayerLegApprValue = *sp; // Re-Coding Sprite xRisenx
-    cp += 2;
-
-    // CLEROTH - BLACK FIX <- you mean my fix I made 13 years ago. tyvm
-    ip = (int *)cp;
-    m_iPlayerStatus = *ip;
-    cp += 4;
+    m_sPlayerObjectID = sr.ReadInt64();
+    sX = sr.ReadShort();
+    sY = sr.ReadShort();
+    m_sPlayerType = sr.ReadShort();
+    m_sPlayerAppr1 = sr.ReadShort();
+    m_sPlayerAppr2 = sr.ReadShort();
+    m_sPlayerAppr3 = sr.ReadShort();
+    m_sPlayerAppr4 = sr.ReadShort();
+    m_iPlayerApprColor = sr.ReadInt();
+    m_sPlayerHeadApprValue = sr.ReadShort();
+    m_sPlayerBodyApprValue = sr.ReadShort();
+    m_sPlayerArmApprValue = sr.ReadShort();
+    m_sPlayerLegApprValue = sr.ReadShort();
+    m_iPlayerStatus = sr.ReadInt();
 
     ZeroMemory(m_cMapName, sizeof(m_cMapName));
     ZeroMemory(m_cMapMessage, sizeof(m_cMapMessage));
-    memcpy(m_cMapName, cp, 10);
+    memcpy(m_cMapName, sr.ReadString(10).c_str() , 10);
     m_cMapIndex = GetOfficialMapName(m_cMapName, m_cMapMessage);
     if (m_cMapIndex < 0)
     {
@@ -26052,36 +25774,19 @@ void CGame::InitDataResponseHandler(char * pData)
         m_dialogBoxes[9].sSizeX = 128;
         m_dialogBoxes[9].sSizeY = 128;
     }
-    cp += 10;
 
     strcpy(cPreCurLocation, m_cCurLocation);
     ZeroMemory(m_cCurLocation, sizeof(m_cCurLocation));
-    memcpy(m_cCurLocation, cp, 10);
-    cp += 10;
-
-    G_cSpriteAlphaDegree = *cp;
-    cp++;
-
-    SetWeatherStatus((Weather)*cp);
-    cp++;
-
-    ip = (int *)cp;
-    m_iContribution = *ip;
+    memcpy(m_cCurLocation, sr.ReadString(10).c_str(), 10);
+    G_cSpriteAlphaDegree = sr.ReadByte();
+    SetWeatherStatus((Weather)sr.ReadByte());
+    m_iContribution = sr.ReadInt();
     //	m_iContributionPrice = 0;
-    cp += 4;
-    bIsObserverMode = (bool)*cp;
-    cp++;
-    ip = (int *)cp;
-    //	m_iRating = *ip;
-    cp += 4;
-    ip = (int *)cp;
-    m_iHP = *ip;
-    cp += 4;
-    ip = (int *)cp;
-    m_iLucky = *ip;
-    cp += 4;
-    m_cDiscount = (char)*cp;
-    cp++;
+    bIsObserverMode = (bool)sr.ReadByte();
+    m_iRating = sr.ReadInt();
+    m_iHP = sr.ReadInt64();
+    m_iLucky = sr.ReadInt();
+    m_cDiscount = (char)sr.ReadByte();
 
     ZeroMemory(cMapFileName, sizeof(cMapFileName));
     strcat(cMapFileName, "data\\mapdata\\");

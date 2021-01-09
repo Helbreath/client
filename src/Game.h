@@ -57,6 +57,7 @@
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Window/ContextSettings.hpp>
 
 #include "streams.h"
 
@@ -395,8 +396,6 @@ public:
 
     std::queue<std::function<void(void)>> _html_eventqueue;
 
-    void send_key_to_ui(sf::Keyboard::Key key);
-
     void ShowReceivedString(bool bIsHide = false);
     void StartInputString(int left, int top, uint32_t len, char * pBuffer, bool bIsHide = false, int right = 0);
     void EndInputString();
@@ -404,6 +403,7 @@ public:
     void ClearInputString();
 
     void send_message_to_ui(std::string msg, json param = {});
+    void send_characters_to_ui();
 
     bool inside_vm = false;
     bool responsive_ui = false;
@@ -485,9 +485,10 @@ public:
     void PutFontStringSize(std::string fontname, int iX, int iY, std::string text, Color color, int size);
     void create_load_list();
 
-    std::string get_game_mode();
+    std::string get_game_mode_str();
     std::string get_game_mode(int _gamemode);
     int16_t get_game_mode(std::string _gamemode);
+    int16_t get_game_mode() { return m_cGameMode; };
 
     std::map<string, sf::Font> _font;
     sf::Text _text;
@@ -962,7 +963,7 @@ public:
     void OnTimer();
     void _ReadMapData(short sPivotX, short sPivotY, char * pData);
     void MotionEventHandler(char * pData);
-    void InitDataResponseHandler(char * pData);
+    void InitDataResponseHandler(StreamRead & sr);
     void InitPlayerResponseHandler(char * pData);
     void ConnectionEstablishHandler(char cWhere);
     void MotionResponseHandler(char * pData);
@@ -970,6 +971,7 @@ public:
     void DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, short sModX, short sModY, short msX, short msY);
     bool bSendCommand(uint32_t dwMsgID, uint16_t wCommand = 0, char cDir = 0, int iV1 = 0, int iV2 = 0, int iV3 = 0, char const * const pString = 0, int iV4 = 0);
     bool SendLoginCommand(uint32_t dwMsgID);
+    bool SendCharacterDelete(std::string name);
     char cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMoveCheck = false, bool isMIM = false);
     void CommandProcessor(short msX, short msY, short indexX, short indexY, char cLB, char cRB, char cMB);
     void CalcViewPoint(uint64_t dwTime);
@@ -1309,6 +1311,7 @@ public:
     int m_iCameraShakingDegree;
     int m_iSuperAttackLeft;
     int m_iAccntYear, m_iAccntMonth, m_iAccntDay;
+    int m_iAccountStatus = 0;
     int m_iIpYear, m_iIpMonth, m_iIpDay;
     int m_iDownSkillIndex;
 
@@ -1339,7 +1342,7 @@ public:
 
     short m_sItemEquipmentStatus[MAXITEMEQUIPPOS];
     short m_sPlayerX, m_sPlayerY;
-    short m_sPlayerObjectID;
+    uint64_t m_sPlayerObjectID;
     short m_sPlayerType;
     short m_sPlayerAppr1, m_sPlayerAppr2, m_sPlayerAppr3, m_sPlayerAppr4;
     short m_sPlayerHeadApprValue, m_sPlayerBodyApprValue, m_sPlayerArmApprValue, m_sPlayerLegApprValue;
