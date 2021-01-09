@@ -8,8 +8,11 @@
 #define MSG_HOMEPAGE			"http://www.helbreathx.net"
 #define MSG_HOMEPAGE2			"http://forum.helbreathx.net"
 
-//#define SERVER_IP			"69.30.230.122"
+#ifdef _DEBUG
 #define SERVER_IP			"127.0.0.1"
+#else
+#define SERVER_IP			"69.30.230.122"
+#endif
 #define SERVER_PORT			2848
 
 #define ENGLISH 0

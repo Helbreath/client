@@ -48,7 +48,7 @@ bool isvm()
     return ((cpuInfo[2] >> 31) & 1) == 1;
 }
 
-#define BUFSIZE 512
+#define BUFSIZE 2048
 
 int main(int argc, char * argv[])
 {
@@ -371,6 +371,7 @@ int main(int argc, char * argv[])
     Initialize("");
 
     G_pGame->window.setMouseCursorGrabbed(G_pGame->clipmousegame);
+    //G_pGame->window.setMouseCursorGrabbed(true);
     G_pGame->window.setMouseCursorVisible(false);
 
     G_pGame->m_pSprite[SPRID_MOUSECURSOR] = CSprite::CreateSprite("interface", 0, false);
