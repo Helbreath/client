@@ -1829,13 +1829,14 @@ void CGame::receive_message_from_ui(std::string name, json o)
 
                 m_pSprite[SPRID_INTERFACE_ND_LOGIN]->_iCloseSprite();
                 m_pSprite[SPRID_INTERFACE_ND_MAINMENU]->_iCloseSprite();
-                ChangeGameMode(GAMEMODE_ONCONNECTING);
+                SendLoginCommand(MSGID_REQUEST_ENTERGAME);
                 m_dwConnectMode = MSGID_REQUEST_ENTERGAME;
                 m_wEnterGameType = ENTERGAMEMSGTYPE_NEW;
                 ZeroMemory(m_cMsg, sizeof(m_cMsg));
                 strcpy(m_cMsg, "33");
                 ZeroMemory(m_cMapName, sizeof(m_cMapName));
                 memcpy(m_cMapName, m_pCharList[m_cCurFocus]->m_cMapName.c_str(), 10);
+                ChangeGameMode(GAMEMODE_ONCONNECTING);
                 return;
             }
             if (message == "exit")
@@ -8963,32 +8964,14 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
         break;
 
         case ENTERGAMERESTYPE_REJECT:
+        {
+            std::string rcv_string = sr.ReadString();
+            m_iBlockYear = sr.ReadInt();
+            m_iBlockMonth = sr.ReadInt();
+            m_iBlockDay = sr.ReadInt();
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
-            ZeroMemory(m_cMsg, sizeof(m_cMsg));
-            switch (sr.ReadByte())
-            {
-                case 1:
-                    strcpy(m_cMsg, "3E");
-                    break;
-                case 2:
-                    strcpy(m_cMsg, "3F");
-                    break;
-                case 3:
-                    strcpy(m_cMsg, "33");
-                    break;
-                case 4:
-                    strcpy(m_cMsg, "3D");
-                    break;
-                case 5:
-                    strcpy(m_cMsg, "3G");
-                    break;
-                case 6:
-                    strcpy(m_cMsg, "3Z");
-                    break;
-                case 7:
-                    strcpy(m_cMsg, "3J");
-                    break;
-            }
+            send_message_to_ui("logresmsg", { { "status", "failed" }, { "message", rcv_string} });
+        }
             break;
 
         case ENTERGAMERESTYPE_FORCEDISCONN:
