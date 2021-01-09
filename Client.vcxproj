@@ -142,7 +142,7 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>lib64release;lib64;C:\Code\vcpkg\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>bin\bin\</OutDir>
+    <OutDir>bin\bin_r\</OutDir>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
   </PropertyGroup>
@@ -161,6 +161,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug default res|x64'" Label="Vcpkg">
     <VcpkgConfiguration>Debug</VcpkgConfiguration>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <VcpkgConfiguration>Release</VcpkgConfiguration>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug 1024 res|Win32'">
     <Midl>
@@ -559,10 +562,10 @@
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>C:\Code\x-client\bin\bin\upx.exe --best --ultra-brute bin/bin/Client.exe -obin/bin/HBx.exe</Command>
+      <Command>C:\Code\x-client\bin\bin_r\upx.exe --best --ultra-brute bin/bin/Client.exe -obin/bin_r/HBx.exe</Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>del C:\Code\x-client\bin\bin\HBx.exe</Command>
+      <Command>del C:\Code\x-client\bin\bin_r\HBx.exe</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
