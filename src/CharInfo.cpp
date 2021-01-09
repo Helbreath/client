@@ -10,6 +10,7 @@
 
 CCharInfo::CCharInfo()
 {
+    id = 0;
     m_iApprColor = 0;
     m_iYear   = 0;
     m_iMonth  = 0;
