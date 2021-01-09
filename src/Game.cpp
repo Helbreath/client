@@ -1152,7 +1152,12 @@ void CGame::UpdateScreen()
         // movable window character select test
         _tmp_sOwnerType = 1;
         _tmp_cDir = 1;
+        uint8_t oldTarget = getRenderTarget();
+        setRenderTarget(DS_CS, true, Color(0, 0, 0, 0));
         DrawObject_OnMove_ForMenu(0, 0, testx, testy, false, G_dwGlobalTime, 0, 0);
+        sf::Image img = charselect.getTexture().copyToImage();
+        send_message_to_ui("charsprite", { { "data", base64_encode(img.getPixelsPtr(), img.getSize().x * img.getSize().y * 4) } });
+        setRenderTarget(oldTarget);
     }
 
     if (rendering_character)
