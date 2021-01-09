@@ -166,6 +166,10 @@ class connection;
 using connection_ptr = std::shared_ptr<connection>;
 using namespace nlohmann;
 
+using std::string;
+using std::make_shared;
+using std::make_unique;
+
 #define FONT_BUILTIN 0
 #define FONT_TREBMS6PX 1
 #define FONT_TREBMS8PX 2
@@ -442,14 +446,21 @@ public:
 
         sprintf(winName, "Helbreath Xtreme %u.%u.%u Renderer: %s", UPPER_VERSION, LOWER_VERSION, PATCH_VERSION, _renderer.c_str());
 
-        window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Close)));
+        sf::ContextSettings context;
+        context.antialiasingLevel = 16;
+
+        window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Close)), context);
 
         handle = window.getSystemHandle();
 
         cef_ui = new ui::ui_game(this, handle);
         cef_input = new ui::ui_input(cef_ui);
 
-        cef_panel = cef_ui->create_panel("main", "http://localhost:8080/", 0, 0, screenwidth, screenheight);
+#ifdef _DEBUG
+        cef_panel = cef_ui->create_panel("main", "http://localhost:8080/", 0, 0, screenwidth_v, screenheight_v);
+#else
+        cef_panel = cef_ui->create_panel("main", "https://helbreath.io/ui/", 0, 0, screenwidth_v, screenheight_v);
+#endif
 
         if (vsync)
             window.setVerticalSyncEnabled(true);
