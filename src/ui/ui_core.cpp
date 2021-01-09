@@ -63,29 +63,6 @@ void ui_game::run_cef_thread()
 
         if (core->view)
             core->view->send_emitters();
-
-        /*
-                while (sRegSchemeQueue.size() > 0)
-                {
-                    CefRegisterSchemeHandlerFactory(sRegSchemeQueue.front().mName, sRegSchemeQueue.front().mDomain, sRegSchemeQueue.front().mFactory);
-                    std::cout << fmt::format("Registering Scheme Handler {} - {}\n", sRegSchemeQueue.front().mName, sRegSchemeQueue.front().mDomain);
-                    sRegSchemeQueue.pop();
-                }*/
-
-                /*
-                        while (sViewQueue.size() > 0)
-                        {
-                            GetInstance()->AddBrowserToInterface(sViewQueue.front());
-                            sViewQueue.pop();
-                        }*/
-
-                        /*
-                                for (std::pair<std::string, HTMLUIPanel *> entry : G_pGame->htmlUI->panels) {
-                                    auto * panel = entry.second;
-                                    if (panel != nullptr && !panel->mView->GetBrowser()->IsLoading()) {
-                                        panel->paint();
-                                    }
-                                }*/
     }
 }
 

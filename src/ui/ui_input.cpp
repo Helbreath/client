@@ -2,6 +2,7 @@
 #include "ui_input.hpp"
 #include "ui_panel.hpp"
 #include "ui_core.hpp"
+#include "../Game.h"
 
 #include <map>
 #include <WinUser.h>
@@ -150,17 +151,21 @@ bool ui_input::capture_event(sf::Event event)
 
 bool ui_input::ui_capture_mouse_move(sf::Event event)
 {
-
     if (event.type == sf::Event::MouseMoved)
     {
+        float diffx = static_cast<float>(_ui->game->screenwidth_v) / _ui->game->screenwidth;
+        float diffy = static_cast<float>(_ui->game->screenheight_v) / _ui->game->screenheight;
+        uint16_t x = uint16_t(event.mouseMove.x * diffx);
+        uint16_t y = uint16_t(event.mouseMove.y * diffy);
+
         if (
-            event.mouseMove.x >= _ui->panel->x && event.mouseMove.x <= _ui->panel->x + _ui->panel->width &&
-            event.mouseMove.y >= _ui->panel->y && event.mouseMove.y <= _ui->panel->y + _ui->panel->height
+            x >= _ui->panel->x && x <= _ui->panel->x + _ui->panel->width &&
+            y >= _ui->panel->y && y <= _ui->panel->y + _ui->panel->height
             )
         {
             _ui->panel->has_focus = true;
             _ui->panel->view->send_focus_event(true);
-            _ui->panel->view->send_mouse_move_event(event.mouseMove.x - _ui->panel->x, event.mouseMove.y - _ui->panel->y, false);
+            _ui->panel->view->send_mouse_move_event(x - _ui->panel->x, y - _ui->panel->y, false);
             _ui->panel->view->update_texture();
             return false;
         }
@@ -195,12 +200,17 @@ bool ui_input::ui_capture_mouse_move(sf::Event event)
 bool ui_input::ui_capture_mouse_button(sf::Event event)
 {
 
+    float diffx = static_cast<float>(_ui->game->screenwidth_v) / _ui->game->screenwidth;
+    float diffy = static_cast<float>(_ui->game->screenheight_v) / _ui->game->screenheight;
+    uint16_t x = uint16_t(event.mouseButton.x * diffx);
+    uint16_t y = uint16_t(event.mouseButton.y * diffy);
+
     bool inPanel = (
-        event.mouseButton.x >= this->_ui->panel->x && event.mouseButton.x <= this->_ui->panel->x + this->_ui->panel->width &&
-        event.mouseButton.y >= this->_ui->panel->y && event.mouseButton.y <= this->_ui->panel->y + this->_ui->panel->height
+        x >= this->_ui->panel->x && x <= this->_ui->panel->x + this->_ui->panel->width &&
+        y >= this->_ui->panel->y && y <= this->_ui->panel->y + this->_ui->panel->height
         );
     if ((event.type == sf::Event::MouseButtonReleased && this->_ui->panel->mouse_down) || inPanel) {
-        this->_ui->panel->view->send_mouse_click_event(event.mouseButton.x, event.mouseButton.y, event.mouseButton.button, (event.type == sf::Event::MouseButtonReleased), 1);
+        this->_ui->panel->view->send_mouse_click_event(x, y, event.mouseButton.button, (event.type == sf::Event::MouseButtonReleased), 1);
         if (event.type == sf::Event::MouseButtonPressed) {
             this->_ui->panel->mouse_down = true;
             this->_ui->panel->has_focus = true;
