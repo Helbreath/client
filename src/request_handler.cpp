@@ -15,7 +15,7 @@ void request_handler::handle_request(const request & req)
         connection & c = *req.connection;
         //client->lastpackettime = timestamp;
 
-        if (c.client.gamemode == 1)
+        if (c.client.socketmode() == 1)
         {
             std::lock_guard<std::mutex> lock(c.client.socketmut);
             c.client.PutMsgQueue(c.client.socketpipe, req.data, req.size);

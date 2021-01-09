@@ -1124,7 +1124,7 @@ void CGame::UpdateScreen_OnWaitInitData()
         {
             isItemLoaded = false;
             ChangeGameMode(GAMEMODE_ONMAINMENU);
-            gamemode = 0;
+            socketmode(0);
             if (_socket)
             {
                 _socket->stop();
@@ -1841,7 +1841,7 @@ void CGame::UpdateScreen_OnGame()
     // Logout
     if (m_cLogOutCount == 0)
     {
-        gamemode = 0;
+        socketmode(0);
         isItemLoaded = false;
         _socket->stop();
         m_bEscPressed = false;

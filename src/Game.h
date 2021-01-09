@@ -347,7 +347,15 @@ public:
         }
     };
 
-    bool gamemode;
+    void socketmode(bool _socketmode)
+    {
+        socketmode_ = _socketmode;
+    }
+    bool socketmode()
+    {
+        return socketmode_;
+    }
+    bool socketmode_;
 
     int16_t lastchar;
     bool capslock;
