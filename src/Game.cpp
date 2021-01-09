@@ -1105,11 +1105,11 @@ void CGame::UpdateScreen()
     switch (m_cGameMode)
     {
         case GAMEMODE_ONCONNECTING:
-            UpdateScreen_OnConnecting();
+            m_stMCursor.sCursorFrame = 8;
             break;
 
         case GAMEMODE_ONMAINMENU:
-            UpdateScreen_OnMainMenu();
+            m_stMCursor.sCursorFrame = 0;
             break;
 
         case GAMEMODE_ONLOADING:
@@ -1133,7 +1133,7 @@ void CGame::UpdateScreen()
             break;
 
         case GAMEMODE_ONLOGRESMSG:
-            UpdateScreen_OnLogResMsg();
+            m_stMCursor.sCursorFrame = 0;
             break;
 
         case GAMEMODE_ONCONNECTIONLOST:
