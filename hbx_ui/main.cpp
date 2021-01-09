@@ -55,7 +55,7 @@ ProcessType GetProcessType(const CefRefPtr<CefCommandLine> & command_line) {
 #ifdef _DEBUG
 //////////////////////////////////////////////////////////////////////////
 // debug named pipes
-#define BUFSIZE 512
+#define BUFSIZE 2048
 HANDLE hPipe;
 LPTSTR lpvMessage = TEXT("Default message from client.");
 TCHAR  chBuf[BUFSIZE];
