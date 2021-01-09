@@ -10,7 +10,8 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
+using std::ofstream;
+using std::string;
 
 /**
 ** Exceptions:
@@ -391,7 +392,7 @@ public:
 
     string ReadString()
     {
-        uint32_t sz = ReadByte();
+        uint32_t sz = ReadShort();
         if (sz == 0)
         {
             return "";
