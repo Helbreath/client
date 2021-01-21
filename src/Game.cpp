@@ -1869,6 +1869,21 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 ChangeGameMode(GAMEMODE_ONMAINMENU);
                 return;
             }
+#if defined(_DEBUG) || defined(ADMIN_CLIENT)
+            if (message == "logout")
+            {
+                //PlaySound('E', 14, 5);
+                if (_socket)
+                    _socket->stop();
+                if (m_bSoundFlag)
+                    m_pESound[38].stop();
+                if ((m_bSoundFlag) && (m_bMusicStat == true))
+                    m_pBGM.stop();
+                isItemLoaded = false;
+                ChangeGameMode(GAMEMODE_ONMAINMENU);
+                return;
+            }
+#endif
             if (message == "cancelwaiting" || message == "cancelconnect")
             {
                 if (_socket)
