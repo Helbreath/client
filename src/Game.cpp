@@ -2,7 +2,6 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "newsocket.h"
 #include "Game.h"
 #include "buffer.h"
 #include <algorithm>
@@ -336,6 +335,12 @@ shared_ptr<CGame::MsgQueueEntry> CGame::GetLoginMsgQueue()
     return msg;
 }
 
+void CGame::on_message(websocketpp::connection_hdl hdl, message_ptr msg)
+{
+    std::cout << "ws msg\n";
+    std::cout << msg->get_payload();
+}
+
 void CGame::PutMsgQueue(MsgQueue & q, char * data, uint32_t size)
 {
     //poco_information(*logger, "PutMsgQueue()");
@@ -360,60 +365,102 @@ shared_ptr<CGame::MsgQueueEntry> CGame::GetMsgQueue()
     return msg;
 }
 
-void CGame::start(connection_ptr c)
+void CGame::perform_connect()
 {
-    _socket = c;
-    c->start();
-}
-
-void CGame::stop(connection_ptr c)
-{
-    if (c == nullptr)
+    asio::error_code ec;
+    conn = ws.get_connection(fmt::format("wss://{}:8443", SERVER_IP), ec);
+    if (ec)
     {
-        //consoleLogger->trace("Invalid socket being closed");
+        std::cout << "unable to connect to server - " << ec.message() << '\n';
         return;
     }
-    try
+
+//     conn->set_message_handler([&](websocketpp::connection_hdl hdl, message_ptr msg)
+//     {
+//         std::cout << "ws msg\n";
+//         std::cout << msg->get_payload();
+//     });
+    conn->set_open_handler([&](websocketpp::connection_hdl hdl)
     {
-        c->stop();
-
-        //
-        switch (m_cGameMode)
-        {
-            case GAMEMODE_ONCONNECTING:
-            case GAMEMODE_ONMAINGAME:
-            case GAMEMODE_ONLOGIN:
-            case GAMEMODE_ONSELECTCHARACTER:
-            case GAMEMODE_ONLOGRESMSG:
-                // play mode. connection stop here would typically indicate a disconnect
-                ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
-                break;
-            case GAMEMODE_ONMAINMENU:
-                break;
-            default:
-                ChangeGameMode(GAMEMODE_ONMAINMENU);
-                break;
-        }
-
-        //ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
-        _socket.reset();
-        new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
+        ConnectionEstablishHandler(SERVERTYPE_LOG);
+    });
+    conn->set_close_handler([&](websocketpp::connection_hdl hdl)
+    {
+        std::cout << "ws close\n";
+        conn.reset();
+        connection_loss_gamemode();
         socketmode(0);
         loggedin = false;
-        //post socket closing
-    }
-    catch (std::exception & e)
+    });
+    conn->set_fail_handler([&](websocketpp::connection_hdl hdl)
     {
-        printf("exception: %s\n", e.what());
+        std::cout << "ws fail\n";
+        conn.reset();
+        connection_loss_gamemode();
+        socketmode(0);
+        loggedin = false;
+    });
+
+    ws.connect(conn);
+}
+
+void CGame::write(const void * data, const uint64_t size)
+{
+    conn->send(data, size, websocketpp::frame::opcode::binary);
+}
+
+void CGame::write(StreamWrite & sw)
+{
+    conn->send((void*)sw.data, sw.position, websocketpp::frame::opcode::binary);
+}
+
+void CGame::write(json & obj)
+{
+    conn->send(obj.dump(-1, 0x32, false, nlohmann::detail::error_handler_t::ignore), websocketpp::frame::opcode::text);
+}
+
+void CGame::connection_loss_gamemode()
+{
+    switch (m_cGameMode)
+    {
+        case GAMEMODE_ONCONNECTING:
+        case GAMEMODE_ONMAINGAME:
+        case GAMEMODE_ONLOGIN:
+        case GAMEMODE_ONSELECTCHARACTER:
+        case GAMEMODE_ONLOGRESMSG:
+            // play mode. connection stop here would typically indicate a disconnect
+            ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
+            break;
+        case GAMEMODE_ONMAINMENU:
+            break;
+        default:
+            ChangeGameMode(GAMEMODE_ONMAINMENU);
+            break;
     }
 }
 
 void CGame::handle_stop()
 {
-    stop(_socket);
-    stop(new_connection_);
+    close(1000, "handle_stop()");
     io_service_.stop();
 }
+
+void CGame::close(uint32_t code, const std::string & reason)
+{
+    try
+    {
+        if (conn)
+        {
+            conn->close(code, reason);
+            conn.reset();
+        }
+    }
+    catch (std::exception & ex)
+    {
+        std::cout << ex.what() << '\n';
+    }
+}
+
 /*
 
 char itoh(int num)
@@ -458,24 +505,53 @@ char itoh(int num)
 
 CGame::CGame()
     : io_service_(),
-    signals_(io_service_),
-    ctx(asio::ssl::context::tlsv13_client)
+    signals_(io_service_)/*,
+    ctx(asio::ssl::context::tlsv13_client)*/
 {
-    unsigned char cert[] = SSL_CERT;
-    unsigned char dh[] = SSL_DH_PARAM;
+    using namespace websocketpp::log;
 
-    SSL_DECODE(cert);
-    SSL_DECODE(dh);
+    auto logsettings = alevel::all ^ alevel::frame_header ^ alevel::frame_payload ^ alevel::control;
 
-    std::string str = (char *)cert;
-    std::string dhstr = (char *)dh;
-    asio::const_buffer buffer_(str.c_str(), str.length());
-    asio::const_buffer dh_buff(dhstr.c_str(), dhstr.length());
-    ctx.set_options(
-        asio::ssl::context::default_workarounds | asio::ssl::context::no_sslv2 | asio::ssl::context::single_dh_use);
-    ctx.set_verify_mode(asio::ssl::verify_peer);
-    ctx.add_certificate_authority(buffer_);
+    ws.clear_access_channels(websocketpp::log::alevel::all);
+    ws.clear_error_channels(websocketpp::log::alevel::all);
+
+    ws.set_access_channels(logsettings);
+    ws.set_error_channels(logsettings);
+
+
     //ctx.use_tmp_dh(dh_buff);
+
+
+    ws.init_asio(&io_service_);
+    ws.set_message_handler(std::bind(&CGame::on_message, this, std::placeholders::_1, std::placeholders::_2));
+    ws.set_open_handler([&](websocketpp::connection_hdl hdl)
+    {
+        conn = ws.get_con_from_hdl(hdl);
+        std::cout << "WS Connection\n";
+    });
+
+    ws.set_tls_init_handler([&](websocketpp::connection_hdl)
+    {
+        context_ptr ctx = std::make_shared<asio::ssl::context>(asio::ssl::context::tlsv13_client);
+        unsigned char cert[] = SSL_CERT;
+        unsigned char dh[] = SSL_DH_PARAM;
+
+        SSL_DECODE(cert);
+        SSL_DECODE(dh);
+
+        std::string str = (char *)cert;
+        std::string dhstr = (char *)dh;
+        asio::const_buffer buffer_(str.c_str(), str.length());
+        asio::const_buffer dh_buff(dhstr.c_str(), dhstr.length());
+
+        ctx->set_options(asio::ssl::context::default_workarounds | asio::ssl::context::no_sslv2 | asio::ssl::context::no_sslv3 | asio::ssl::context::single_dh_use);
+        ctx->set_verify_mode(asio::ssl::verify_none);
+        //ctx->add_certificate_authority(buffer_);
+
+        ctx->use_tmp_dh(dh_buff);
+
+        return ctx;
+    });
 
     socketmode(0);
     oldmode = 0;
@@ -545,7 +621,6 @@ CGame::CGame()
     m_cWhisperIndex = MAXWHISPERMSG;
     m_cGameModeCount = 0;
     memset(m_cMapName, 0, sizeof(m_cMapName));
-    _socket = nullptr;
     //	m_pGSock   = 0;
     m_pMapData = 0;
     m_cCommandCount = 0;
@@ -974,7 +1049,7 @@ bool CGame::bInit(void * hWnd, void * hInst, char * pCmdLine)
     //m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  12,   20,   30),  &m_wR[15], &m_wG[15], &m_wB[15]); // Black
 
     memset(m_cWorldServerName, 0, sizeof(m_cWorldServerName));
-    socketthread = std::shared_ptr<std::thread>(new std::thread(std::bind(&asio::io_context::run, &io_service_)));
+    socketthread = std::make_shared<std::thread>(std::bind(static_cast<asio::io_context::count_type(asio::io_context:: *)()>(&asio::io_context::run), &io_service_));
 
     return true;
 }
@@ -1077,10 +1152,7 @@ void CGame::Quit()
     delete m_pMapData;
 
     //if (m_pGSock != NULL) delete m_pGSock;
-    if (_socket != nullptr)
-        _socket = nullptr;
-    if (new_connection_ != nullptr)
-        new_connection_ = nullptr;
+    close(1000, "~");
     io_service_.stop();
 }
 
@@ -1154,14 +1226,24 @@ void CGame::UpdateScreen()
     if (isloaded)
     {
         // movable window character select test
+/*
+        static int dir = 0;
         _tmp_sOwnerType = 1;
-        _tmp_cDir = 1;
-        uint8_t oldTarget = getRenderTarget();
-        setRenderTarget(DS_CS, true, Color(0, 0, 0, 0));
-        DrawObject_OnMove_ForMenu(0, 0, testx, testy, false, G_dwGlobalTime, 0, 0);
-        sf::Image img = charselect.getTexture().copyToImage();
-        send_message_to_ui("charsprite", { { "data", base64_encode(img.getPixelsPtr(), img.getSize().x * img.getSize().y * 4) } });
-        setRenderTarget(oldTarget);
+        _tmp_cDir = int((G_dwGlobalTime % 8000) / 1000) + 1;
+        _tmp_cFrame = m_cMenuFrame = ((G_dwGlobalTime % 800) / 100);
+        if (G_dwGlobalTime % 100)
+        {
+            uint8_t oldTarget = getRenderTarget();
+            setRenderTarget(DS_CS, true, Color(0, 0, 0, 0));
+            DrawObject_OnMove_ForMenu(0, 0, 127, 127, false, G_dwGlobalTime, 0, 0);
+            sf::Image img = charselect.getTexture().copyToImage();
+            std::vector<unsigned char> out;
+            img.flipVertically();
+            img.saveToMemory(out, "jpg");
+            send_message_to_ui("charsprite", { { "data", base64_encode(out.data(), out.size()) }, { "dir", (int)_tmp_cDir }, { "key", G_dwGlobalTime % 100 } });
+            setRenderTarget(oldTarget);
+            dir = _tmp_cDir;
+        }*/
     }
 
     if (rendering_character)
@@ -1211,6 +1293,10 @@ void CGame::UpdateScreen()
     _text.setPosition(5, 5);
     _text.setFillColor(Color(255, 255, 255, 255));
     _text.setCharacterSize(14);
+
+    std::string pingstr;
+
+    pingstr = fmt::format("Ping: {}", (ping/(1000*1000))/2);
 
     if ((m_pBGM.Stopped || m_pBGM.getBuffer() == nullptr) && get_game_mode() == GAMEMODE_ONMAINGAME)
     {
@@ -1271,6 +1357,11 @@ void CGame::UpdateScreen()
     G_pGame->draw_to(TESTTEXT, DS_WIN);
 
     window.draw(_text);
+
+    _text.setPosition(5, 25);
+    _text.setString(pingstr);
+    window.draw(_text);
+
 }
 
 std::string CGame::get_game_mode_str()
@@ -1553,36 +1644,6 @@ void CGame::CalcViewPoint(uint64_t dwTime)
     }
 }
 
-void CGame::handle_connect(const asio::error_code & e)
-{
-    if (!e)
-    {
-        _socket = new_connection_;
-
-        start(new_connection_);
-        new_connection_.reset(new connection(io_service_, *this, request_handler_, ctx));
-        printf("handle_connect()\n");
-        //if (new_connection_->socket().lowest_layer().is_open())
-        {
-            ConnectionEstablishHandler(SERVERTYPE_LOG);
-        }
-        //else
-        {
-            //    printf("Unable to connect\n");
-        }
-    }
-    else
-    {
-        printf("Unable to connect: %s\n", e.message().c_str());
-        new_connection_->stop();
-        new_connection_.reset(new connection(io_service_, *this, request_handler_, ctx));
-        loggedin = false;
-        new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
-        _socket = nullptr;
-        ChangeGameMode(GAMEMODE_ONMAINMENU);
-    }
-}
-
 char _tmp_cTmpDirX[9] = { 0, 0, 1, 1, 1, 0, -1, -1, -1 };
 char _tmp_cTmpDirY[9] = { 0, -1, -1, 0, 1, 1, 1, 0, -1 };
 char CGame::cGetNextMoveDir(short sX, short sY, short dstX, short dstY, bool bMoveCheck, bool isMIM)
@@ -1852,10 +1913,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 ZeroMemory(m_cMsg, sizeof(m_cMsg));
                 strcpy(m_cMsg, "11");
 
-                asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
-                new_connection_->socket().async_connect(endpoint,
-                    std::bind(&CGame::handle_connect, this,
-                        std::placeholders::_1));
+                perform_connect();
                 return;
             }
             if (message == "disconnect")
@@ -1873,8 +1931,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
             if (message == "logout")
             {
                 //PlaySound('E', 14, 5);
-                if (_socket)
-                    _socket->stop();
+                close(1000, "adminlogout");
                 if (m_bSoundFlag)
                     m_pESound[38].stop();
                 if ((m_bSoundFlag) && (m_bMusicStat == true))
@@ -1886,8 +1943,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
 #endif
             if (message == "cancelwaiting" || message == "cancelconnect")
             {
-                if (_socket)
-                    _socket->stop();
+                close(1000, "cancel");
                 //PlaySound('E', 14, 5);
                 if (m_bSoundFlag)
                     m_pESound[38].stop();
@@ -1912,8 +1968,8 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 isloaded = true;
                 if (m_cGameMode == GAMEMODE_ONLOADING)
                 {
-
-                    new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
+                    perform_connect();
+                    //new_connection_ = std::make_shared<connection>(io_service_, *this, request_handler_, ctx);
 
                     // Let the UI know we're done loading
                     if (autologin)
@@ -1923,10 +1979,10 @@ void CGame::receive_message_from_ui(std::string name, json o)
                         ZeroMemory(m_cMsg, sizeof(m_cMsg));
                         strcpy(m_cMsg, "11");
 
-                        asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
-                        new_connection_->socket().async_connect(endpoint,
-                            std::bind(&CGame::handle_connect, this,
-                                std::placeholders::_1));
+//                         asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
+//                         new_connection_->socket().async_connect(endpoint,
+//                             std::bind(&CGame::handle_connect, this,
+//                                 std::placeholders::_1));
                     }
                     else
                         ChangeGameMode(GAMEMODE_ONMAINMENU);
@@ -1992,16 +2048,16 @@ void CGame::OnEvent(sf::Event event)
 
         return;
     }*/
-
-    if (cef_input->capture_event(event))
-        return;
+    cef_input->capture_event(event);
+//     if (cef_input->capture_event(event))
+//         return;
 
     switch (event.type)
     {
         case sf::Event::TextEntered:
         {
-            std::string s = ((char *)event.text.unicode) + 4;
-            std::cout << s << "\n";
+//             std::string s = ((char *)event.text.unicode) + 3;
+//             std::cout << s << "\n";
             /*
                 std::string s = ((char *)event.text.unicode) + 4;
                 if (s == "-")
@@ -2037,6 +2093,9 @@ void CGame::OnEvent(sf::Event event)
 #else
                     cef_panel = cef_ui->create_panel("main", "https://helbreath.io/ui/", 0, 0, screenwidth, screenheight);
 #endif
+                    break;
+                case Keyboard::M:
+                    m_pBGM.stop();
                     break;
                 case Keyboard::Escape:
                     clipmousegame = !clipmousegame;
@@ -2254,9 +2313,6 @@ bool CGame::SendCharacterDelete(std::string name)
 {
     StreamWrite sw;
 
-    if (_socket == nullptr)
-        return false;
-
     strcpy(m_cWorldServerName, "Xtreme");
 
     sw.WriteInt(MSGID_REQUEST_DELETECHARACTER);
@@ -2265,7 +2321,7 @@ bool CGame::SendCharacterDelete(std::string name)
     sw.WriteString(m_cAccountPassword, 60);
     sw.WriteString(name, 10);
     sw.WriteString(m_cWorldServerName, 30);
-    _socket->write(sw);
+    write(sw);
     return true;
 }
 
@@ -2275,8 +2331,6 @@ bool CGame::SendLoginCommand(uint32_t dwMsgID)
 
     StreamWrite sw;
 
-    if (_socket == nullptr)
-        return false;
     memset(cMsg, 0, sizeof(cMsg));
     cKey = (char)(rand() % 255) + 1;
 
@@ -2331,7 +2385,7 @@ bool CGame::SendLoginCommand(uint32_t dwMsgID)
             break;
     }
 
-    _socket->write(sw);
+    write(sw);
     return true;
 }
 
@@ -2347,8 +2401,6 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
 
     StreamWrite sw;
 
-    if (_socket == nullptr)
-        return false;
     dwTime = unixtime();
 
     cKey = (char)(rand() % 255) + 1;
@@ -2400,7 +2452,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
             }
         }*/
 
-        _socket->write(sw);
+        write(sw);
 
         m_cCommandCount++;
     }
@@ -2413,23 +2465,23 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
             case MSGID_PINGMAP:
                 sw.WriteShort(iV1);
                 sw.WriteShort(iV2);
-                _socket->write(sw);
+                write(sw);
                 break;
 
             case MSGID_REQ_GUILDBOARD:
                 sw.WriteInt((m_gldBoard.size() > 0) ? m_gldBoard[m_gldBoard.size() - 1]->id : 0);
-                _socket->write(sw);
+                write(sw);
                 break;
 
             case MSGID_REQ_MAILBOX:
                 sw.WriteInt((m_mails.size() > 0) ? m_mails[m_mails.size() - 1]->id : 0);
-                _socket->write(sw);
+                write(sw);
                 break;
 
             case MSGID_REQ_DELETEMAIL:
             case MSGID_REQ_DELETEGUILDPOST:
                 sw.WriteInt(iV1);
-                _socket->write(sw);
+                write(sw);
                 break;
 
                 // 		case MSGID_REQ_SENDMAIL:
@@ -2577,13 +2629,13 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                 // 			break;
 
             case MSGID_REQUEST_RESTART:
-                _socket->write(sw);
+                write(sw);
                 break;
 
             case MSGID_REQUEST_PANNING:
                 sw.WriteByte(cDir);
 
-                _socket->write(sw);
+                write(sw);
                 break;
 
             case MSGID_REQUEST_SETITEMPOS:
@@ -2592,12 +2644,12 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                 sw.WriteShort(iV1);
                 sw.WriteShort(iV2);
 
-                _socket->write(sw);
+                write(sw);
                 break;
 
             case MSGID_COMMAND_CHECKCONNECTION:
-                sw.WriteInt(dwTime);
-                _socket->write(sw);
+                sw.WriteInt64(std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+                write(sw);
 
                 break;
 
@@ -2608,7 +2660,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                 sw.WriteByte(m_bIsObserverMode);
                 sw.WriteString(m_cGameServerName, 20);
 
-                _socket->write(sw);
+                write(sw);
 
                 //m_bIsObserverMode = FALSE;
                 break;
@@ -2621,7 +2673,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                 sw.WriteShort(m_luStat[STAT_MAG]);
                 sw.WriteShort(m_luStat[STAT_CHR]);
 
-                _socket->write(sw);
+                write(sw);
                 break;
 
             case MSGID_COMMAND_CHATMSG:
@@ -2636,7 +2688,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                 sw.WriteString(player_name);
                 sw.WriteString(string(pString));
 
-                _socket->write(sw);
+                write(sw);
                 break;
 
             case MSGID_COMMAND_COMMON:
@@ -2655,7 +2707,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                         sw.WriteByte(m_dialogBoxes[26].sV4);
                         sw.WriteByte(m_dialogBoxes[26].sV5);
                         sw.WriteByte(m_dialogBoxes[26].sV6);
-                        _socket->write(sw);
+                        write(sw);
                         break;
 
                     case COMMONTYPE_REQ_CREATEPOTION:
@@ -2665,7 +2717,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                         sw.WriteByte(m_dialogBoxes[26].sV4);
                         sw.WriteByte(m_dialogBoxes[26].sV5);
                         sw.WriteByte(m_dialogBoxes[26].sV6);
-                        _socket->write(sw);
+                        write(sw);
 
                         break;
 
@@ -2678,7 +2730,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                         sw.WriteByte(m_dialogBoxes[26].sV4);
                         sw.WriteByte(m_dialogBoxes[26].sV5);
                         sw.WriteByte(m_dialogBoxes[26].sV6);
-                        _socket->write(sw);
+                        write(sw);
 
                         break;
 
@@ -2689,7 +2741,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                         sw.WriteByte(m_dialogBoxes[40].sV4);
                         sw.WriteByte(m_dialogBoxes[40].sV5);
                         sw.WriteByte(m_dialogBoxes[40].sV6);
-                        _socket->write(sw);
+                        write(sw);
                         break;
 
                     default:
@@ -2699,7 +2751,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                             sw.WriteInt(iV2);
                             sw.WriteInt(iV3);
                             sw.WriteInt(dwTime);
-                            _socket->write(sw);
+                            write(sw);
                         }
                         else
                         {
@@ -2708,7 +2760,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                             sw.WriteInt(iV3);
                             sw.WriteString(pString, strlen(pString)); //TODO: fix potential bugs (make std::string)
                             sw.WriteInt(iV4);
-                            _socket->write(sw);
+                            write(sw);
                         }
                         break;
                 }
@@ -2749,7 +2801,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
             case MSGID_REQUEST_TELEPORT:
                 sw.WriteShort(MSGTYPE_CONFIRM);
 
-                _socket->write(sw);
+                write(sw);
 
                 m_bIsTeleportRequested = true;
                 break;
@@ -2757,28 +2809,28 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
             case MSGID_REQUEST_CIVILRIGHT:
                 sw.WriteShort(MSGTYPE_CONFIRM);
 
-                _socket->write(sw);
+                write(sw);
                 break;
 
             case MSGID_REQGUILDSUMMONS:
                 cp = (char *)(cMsg + INDEX2_MSGTYPE);
                 Push(cp, (char *)pString, 10);
 
-                _socket->write(cMsg, cp - cMsg);
+                write(cMsg, cp - cMsg);
                 break;
 
             case MSGID_RSPGUILDSUMMONS:
                 cp = (char *)(cMsg + INDEX2_MSGTYPE);
                 Push(cp, (uint8_t)iV1);
 
-                _socket->write(cMsg, cp - cMsg);
+                write(cMsg, cp - cMsg);
                 break;
 
             case MSGID_REQUEST_RETRIEVEITEM_GUILDBANK:
                 cp = (char *)(cMsg + INDEX2_MSGTYPE);
                 Push(cp, (uint32_t)iV1);
 
-                _socket->write(cMsg, cp - cMsg);
+                write(cMsg, cp - cMsg);
                 break;
                 //
                 // 		case MSGID_REQUEST_RETRIEVEITEM:
@@ -2817,7 +2869,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                 sw.WriteShort((uint16_t)-m_luStat[STAT_MAG]);
                 sw.WriteShort((uint16_t)-m_luStat[STAT_CHR]);
 
-                _socket->write(sw);
+                write(sw);
                 break;
 
                 // #ifdef TitleClient
@@ -2843,13 +2895,13 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
 
                 sw.WriteString(pString, strlen(pString) + 1);
 
-                _socket->write(sw);
+                write(sw);
                 break;
 
             case MSGID_REQUEST_LGNPTS:
             case MSGID_REQUEST_LGNSVC:
 
-                _socket->write(sw);
+                write(sw);
                 break;
 
             case MSGID_REQUEST_SETRECALLPNT:
@@ -2858,7 +2910,7 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                 cp = (char *)(cMsg + INDEX2_MSGTYPE + 2);
                 *cp = (char)iV1;
 
-                _socket->write(cMsg, 7);
+                write(cMsg, 7);
                 break;
 
             default:
@@ -2877,12 +2929,12 @@ bool CGame::bSendCommand(uint32_t dwMsgID, uint16_t wCommand, char cDir, int iV1
                     sw.WriteShort(iV3);
                     sw.WriteInt(dwTime);
 
-                    _socket->write(sw);
+                    write(sw);
                 }
                 else
                 {
                     sw.WriteInt(dwTime);
-                    _socket->write(sw);
+                    write(sw);
                 }
 
                 m_cCommandCount++;
@@ -3820,7 +3872,7 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
     StreamRead sr = StreamRead(pData, dwMsgSize);
 
     dwpMsgID = sr.ReadInt();
-    uint32_t unused = sr.ReadInt();
+    uint32_t unused = sr.ReadShort();
 
     if (dwpMsgID & MSGIDTYPE_MOTION)
     {
@@ -3832,6 +3884,10 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
 
     switch (dwpMsgID)
     {
+        case MSGID_COMMAND_CHECKCONNECTION:
+            ping = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count() - sr.ReadInt64();
+            break;
+
         case MSGID_MODIFYTILE:
             printf("ReceiveModifyTile\n");
             ReceiveModifyTile(sr);
@@ -3869,7 +3925,7 @@ void CGame::GameRecvMsgHandler(uint32_t dwMsgSize, char * pData)
 
         case MSGID_RESPONSE_MOTION:
             printf("MotionResponseHandler\n");
-            MotionResponseHandler(pData);
+            MotionResponseHandler(sr);
             break;
 
         case MSGID_EVENT_COMMON:
@@ -4128,7 +4184,7 @@ void CGame::OnTimer()
             m_dwCheckSprTime = dwTime;
             if (m_bIsProgramActive)
                 ReleaseUnusedSprites();
-            if (_socket != nullptr && loggedin)
+            if (conn != nullptr && loggedin)
                 bSendCommand(MSGID_COMMAND_CHECKCONNECTION, MSGTYPE_CONFIRM, 0, 0, 0, 0, 0);
         }
     }
@@ -4159,7 +4215,7 @@ void CGame::OnTimer()
                 {
                     ChangeGameMode(GAMEMODE_ONCONNECTIONLOST);
                     socketmode(0);
-                    _socket->stop();
+                    close(1000, "netlagcount");
                     return;
                 }
             }
@@ -8448,21 +8504,21 @@ bool CGame::_bGetIsStringIsNumber(char * pStr)
     return true;
 }
 
-void CGame::RequestFullObjectData(uint16_t wObjectID)
+void CGame::RequestFullObjectData(uint64_t wObjectID)
 {
     char cMsg[256];
-    int iRet;
+    int iRet = 0;
     uint32_t * dwp;
-    uint16_t * wp;
+    uint64_t * wp;
 
     ZeroMemory(cMsg, sizeof(cMsg));
 
     dwp = (uint32_t *)(cMsg + INDEX4_MSGID);
     *dwp = MSGID_REQUEST_FULLOBJECTDATA;
-    wp = (uint16_t *)(cMsg + INDEX2_MSGTYPE);
+    wp = (uint64_t *)(cMsg + INDEX2_MSGTYPE);
     *wp = wObjectID;
 
-    _socket->write(cMsg, 6);
+    write(cMsg, 10);
 }
 
 void CGame::DrawStatusText(int sX, int sY)
@@ -8673,7 +8729,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
     string charname;
 
     uint32_t unused = sr.ReadInt();
-    wResponse = sr.ReadInt();
+    wResponse = sr.ReadShort();
 
     switch (wResponse)
     {
@@ -9114,8 +9170,8 @@ void CGame::ChangeGameMode(char cMode)
     m_cGameModeCount = 0;
     m_dwTime = G_dwGlobalTime;
     //update_ui_game_mode();
-    if (cMode <= GAMEMODE_ONMAINMENU && _socket && _socket->socket().is_open())
-        _socket->stop();
+    if (cMode <= GAMEMODE_ONMAINMENU)
+        close(1000, "gamemodechange");
     if (cef_ui->core->view)
     {
         send_message_to_ui("gamemode", { {"mode", get_game_mode(cMode)} });
@@ -9215,7 +9271,8 @@ void CGame::ChatMsgHandler(char * pData)
 {
     int i, iObjectID, iLoc;
     short * sp, sX, sY;
-    char * cp, cMsgType, cName[21], cTemp[100], cMsg[100], cTxt1[100], cTxt2[100];
+    char * cp;
+    char cMsgType, cName[21], cTemp[100], cMsg[100], cTxt1[100], cTxt2[100];
     uint64_t dwTime;
     uint16_t * wp;
     bool bFlag;
@@ -14742,12 +14799,11 @@ void CGame::_LoadAgreementTextContents(char cType)
 
 void CGame::StartLogin()
 {
-    if (_socket == nullptr)
+    if (conn == nullptr)
     {
         loggedin = false;
 
-        asio::ip::tcp::endpoint endpoint(asio::ip::make_address_v4(m_cLogServerAddr), m_iLogServerPort);
-        new_connection_->socket().async_connect(endpoint, std::bind(&CGame::handle_connect, this, std::placeholders::_1));
+
     }
     else
     {
@@ -20600,7 +20656,7 @@ void CGame::StartBGM()
     m_pBGM.play();
 }
 
-void CGame::MotionResponseHandler(char * pData)
+void CGame::MotionResponseHandler(StreamRead & sr)
 {
     uint16_t * wp, wResponse;
     short * sp, sX, sY;
@@ -20609,12 +20665,10 @@ void CGame::MotionResponseHandler(char * pData)
     //						          0 3        4 5						 6 7		8 9		   10	    11
     // Confirm Code(4) | MsgSize(4) | MsgID(4) | OBJECTMOVE_CONFIRM(2) | Loc-X(2) | Loc-Y(2) | Dir(1) | MapData ...
     // Confirm Code(4) | MsgSize(4) | MsgID(4) | OBJECTMOVE_REJECT(2)  | Loc-X(2) | Loc-Y(2)
-    wp = (uint16_t *)(pData + INDEX2_MSGTYPE);
-    wResponse = *wp;
+    sr.position = 0;
+    uint32_t msg_event = sr.ReadInt();
 
-    cp = (char *)(pData + INDEX2_MSGTYPE + 2);
-
-    switch (wResponse)
+    switch (msg_event)
     {
         case OBJECTMOTION_CONFIRM:
             m_cCommandCount--;
@@ -21070,7 +21124,7 @@ CP_SKIPMOUSEBUTTONSTATUS:;
     if ((dwTime - m_dwCommandTime) < 300)
     {
         socketmode(0);
-        _socket->stop();
+        close(1000, "speedhack");
         m_bEscPressed = false;
         PlaySound('E', 14, 5);
         if (m_bSoundFlag)
@@ -23641,7 +23695,7 @@ void CGame::NotifyMsg_ForceDisconn(char * pData)
     else
     {
         socketmode(0);
-        _socket->stop();
+        close(1000, "forcedisconnect");
         m_bEscPressed = false;
         if (m_bSoundFlag)
             m_pESound[38].stop();

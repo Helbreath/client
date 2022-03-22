@@ -2,7 +2,6 @@
 #define COMMON_H
 #pragma once
 
-#include "newsocket.h"
 #include <iostream>
 #include <sstream>
 #include <memory>

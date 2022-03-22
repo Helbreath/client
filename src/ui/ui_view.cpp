@@ -1,5 +1,6 @@
 
 #include "ui_view.hpp"
+#include <iostream>
 
 namespace ui
 {

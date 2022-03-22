@@ -9,9 +9,9 @@
 #pragma once
 #endif // _MSC_VER >= 1000
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 #include <cstring>
 #include <vector>
 #include <functional>
@@ -58,6 +58,13 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window/ContextSettings.hpp>
+
+#include <websocketpp/config/asio_client.hpp>
+#include <websocketpp/client.hpp>
+
+using ws_client = websocketpp::client<websocketpp::config::asio_tls_client>;
+using message_ptr = ws_client::message_ptr;
+using context_ptr = std::shared_ptr<asio::ssl::context>;
 
 #include "streams.h"
 
@@ -254,15 +261,23 @@ public:
     MsgQueue loginpipe;
     std::shared_ptr<MsgQueueEntry> GetLoginMsgQueue();
 
-    connection_ptr _socket = nullptr;
-    void start(connection_ptr c);
-    void stop(connection_ptr c);
+    void on_message(websocketpp::connection_hdl hdl, message_ptr msg);
+
+    ws_client ws;
+    ws_client::connection_ptr conn;
+
+    void perform_connect();
+    void connection_loss_gamemode();
+
+    void write(const void * data, const uint64_t size);
+    void write(StreamWrite & sw);
+    void write(json & obj);
+
     void handle_stop();
-    void handle_connect(const asio::error_code & e);
+    void close(uint32_t code, const std::string & reason);
+
     asio::io_context io_service_;
     asio::signal_set signals_;
-    connection_ptr new_connection_;
-    request_handler request_handler_;
     bool loggedin;
 
     std::mutex uimtx;
@@ -434,6 +449,8 @@ public:
     bool isloaded = false;
     uint32_t frame_limit = 60;
     uint32_t frame_limit_bg = 30;
+
+    uint64_t ping = 0;
 
     void load_settings();
     void save_settings();
@@ -881,7 +898,7 @@ public:
     void _LoadTextDlgContents(int cType);
     int _iLoadTextDlgContents2(int iType);
     void DrawChatMsgs(short sX, short sY, short dX, short dY);
-    void RequestFullObjectData(uint16_t wObjectID);
+    void RequestFullObjectData(uint64_t wObjectID);
     bool bInitSkillCfgList();
     bool bCheckImportantFile();
     void DlgBoxDoubleClick_Inventory();
@@ -977,7 +994,7 @@ public:
     void InitDataResponseHandler(StreamRead & sr);
     void InitPlayerResponseHandler(char * pData);
     void ConnectionEstablishHandler(char cWhere);
-    void MotionResponseHandler(char * pData);
+    void MotionResponseHandler(StreamRead & sr);
     void GameRecvMsgHandler(uint32_t dwMsgSize, char * pData);
     void DrawObjects(short sPivotX, short sPivotY, short sDivX, short sDivY, short sModX, short sModY, short msX, short msY);
     bool bSendCommand(uint32_t dwMsgID, uint16_t wCommand = 0, char cDir = 0, int iV1 = 0, int iV2 = 0, int iV3 = 0, char const * const pString = 0, int iV4 = 0);
@@ -1504,7 +1521,7 @@ public:
 
     bool m_partyAutoAccept;
 
-    asio::ssl::context ctx;
+    //asio::ssl::context ctx;
 
     bool m_ekScreenshot;
     uint64_t m_ekSSTime;

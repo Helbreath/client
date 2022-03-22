@@ -18,13 +18,14 @@
 #include <queue>
 #include <mutex>
 #include "../json.hpp"
+#include <functional>
 
 namespace ui
 {
 
-class ui_game;
+using namespace nlohmann;
 
-using json = nlohmann::json;
+class ui_game;
 
 struct update_rect
 {

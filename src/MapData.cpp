@@ -1576,7 +1576,7 @@ bool __fastcall CMapData::bSetOwner(uint16_t wObjectID, int sX, int sY, int sTyp
     }
     iChatIndex = 0;
 
-    if ((wObjectID < 30000) && (sAction != OBJECTNULLACTION))
+    if ((wObjectID < 30000) && (sAction != OBJECTNULLACTION) && (sAction != OBJECTSTOP))
     {
         cTmpName = pName;
         dX = sX; // -m_sPivotX;

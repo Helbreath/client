@@ -1,6 +1,5 @@
 
 
-#include "newsocket.h"
 #include "Game.h"
 #include "buffer.h"
 #include <algorithm>
@@ -1125,10 +1124,6 @@ void CGame::UpdateScreen_OnWaitInitData()
             isItemLoaded = false;
             ChangeGameMode(GAMEMODE_ONMAINMENU);
             socketmode(0);
-            if (_socket)
-            {
-                _socket->stop();
-            }
         }
         m_bEscPressed = false;
         return;
@@ -1161,10 +1156,6 @@ void CGame::UpdateScreen_OnQuit()
 
     if (m_cGameModeCount == 0)
     {
-        if (_socket)
-        {
-            _socket->stop();
-        }
         m_bEscPressed = false;
         m_bEnterPressed = false;
         m_bEnterPressed = false;
@@ -1295,6 +1286,7 @@ void CGame::UpdateScreen_OnGame()
     iUpdateRet = 1;
     if (m_cGameModeCount == 0)
     {
+        m_bIsRedrawPDBGS = true;
         //DIRECTX m_DDraw.ClearBackB4();
         //DIRECTX m_DDraw.ResetFrameCnt();
         m_dwFPStime = m_dwCheckConnTime = m_dwCheckSprTime = m_dwCheckChatTime = dwTime;
@@ -1843,7 +1835,7 @@ void CGame::UpdateScreen_OnGame()
     {
         socketmode(0);
         isItemLoaded = false;
-        _socket->stop();
+        conn->close(1000, "logout");
         m_bEscPressed = false;
 
         PlaySound('E', 14, 5);

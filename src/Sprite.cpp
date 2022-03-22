@@ -149,7 +149,7 @@ bool CSprite::_pMakeSpriteSurface()
         unsigned char * decrypted = new unsigned char[filesize * 1.5];
         unsigned long long decrypted_len;
 
-        if (crypto_aead_xchacha20poly1305_ietf_decrypt(decrypted, &decrypted_len, NULL, m_lpDib, filesize, 0, 0, header, G_pGame->key) != -1)
+        if (crypto_aead_xchacha20poly1305_ietf_decrypt(decrypted, &decrypted_len, NULL, m_lpDib, filesize, 0, 0, header, /*G_pGame->*/key) != -1)
         {
             delete[] m_lpDib;
             m_lpDib = new unsigned char[decrypted_len];

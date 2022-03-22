@@ -111,12 +111,6 @@
     <ClInclude Include="src\Msg.h">
       <Filter>net</Filter>
     </ClInclude>
-    <ClInclude Include="src\newsocket.h">
-      <Filter>net</Filter>
-    </ClInclude>
-    <ClInclude Include="src\request_handler.h">
-      <Filter>net</Filter>
-    </ClInclude>
     <ClInclude Include="src\streams.h">
       <Filter>net</Filter>
     </ClInclude>
@@ -127,9 +121,6 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="src\ItemBag.h" />
-    <ClInclude Include="src\json.hpp">
-      <Filter>ui</Filter>
-    </ClInclude>
     <ClInclude Include="src\ui\ui_core.hpp">
       <Filter>ui\new_ui</Filter>
     </ClInclude>
@@ -141,6 +132,9 @@
     </ClInclude>
     <ClInclude Include="src\ui\ui_view.hpp">
       <Filter>ui\new_ui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\json.hpp">
+      <Filter>ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -204,12 +198,6 @@
       <Filter>map</Filter>
     </ClCompile>
     <ClCompile Include="src\Msg.cpp">
-      <Filter>net</Filter>
-    </ClCompile>
-    <ClCompile Include="src\newsocket.cpp">
-      <Filter>net</Filter>
-    </ClCompile>
-    <ClCompile Include="src\request_handler.cpp">
       <Filter>net</Filter>
     </ClCompile>
     <ClCompile Include="src\buffer.cpp">
