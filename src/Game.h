@@ -1598,6 +1598,30 @@ public:
     void NotifyMsg_NpcHuntingWinner(char * pData);
 
     bool m_bHackMoveBlocked;
+
+    std::map<int, std::string> game_mode_map = {
+        { GAMEMODE_NULL, "null" },
+        { GAMEMODE_ONQUIT, "quit" },
+        { GAMEMODE_ONMAINMENU, "main-menu" },
+        { GAMEMODE_ONCONNECTING, "connecting" },
+        { GAMEMODE_ONLOADING, "loading" },
+        { GAMEMODE_ONWAITINGINITDATA, "waiting-init-data" },
+        { GAMEMODE_ONMAINGAME, "main-game" },
+        { GAMEMODE_ONCONNECTIONLOST, "connection-lost" },
+        { GAMEMODE_ONMSG, "msg" },
+        { GAMEMODE_ONCREATENEWACCOUNT, "create-new-account" },
+        { GAMEMODE_ONLOGIN, "login" },
+        { GAMEMODE_ONQUERYFORCELOGIN, "query-force-login" },
+        { GAMEMODE_ONSELECTCHARACTER, "select-character" },
+        { GAMEMODE_ONCREATENEWCHARACTER, "create-new-character" },
+        { GAMEMODE_ONWAITINGRESPONSE, "waiting-response" },
+        { GAMEMODE_ONQUERYDELETECHARACTER, "query-delete-character" },
+        { GAMEMODE_ONLOGRESMSG, "log-res-msg" },
+        { GAMEMODE_ONVERSIONNOTMATCH, "version-not-match" },
+        { GAMEMODE_ONINTRODUCTION, "introduction" },
+        { GAMEMODE_ONAGREEMENT, "agreement" },
+        { GAMEMODE_ONSELECTSERVER, "select-server" },
+    };
 };
 
 #endif // !defined(AFX_GAME_H__0089D9E3_74E6_11D2_A8E6_00001C7030A6__INCLUDED_)

@@ -798,7 +798,7 @@ void CGame::UpdateScreen_OnLoading(bool bActive)
 
     double percent = ((double(data_max) - data_list.size()) / double(data_max)) * 100;
 
-    send_message_to_ui("loadingprogress", { {"val", percent}, {"label", progress_label} });
+    send_message_to_ui("loading-progress", { {"val", percent}, {"label", progress_label} });
 
     /*
     // mass convert

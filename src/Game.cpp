@@ -1366,148 +1366,31 @@ void CGame::UpdateScreen()
 
 std::string CGame::get_game_mode_str()
 {
-    switch (m_cGameMode)
+    for (auto & mode : game_mode_map)
     {
-        case GAMEMODE_NULL:
-            return "null";
-        case GAMEMODE_ONQUIT:
-            return "quit";
-        case GAMEMODE_ONMAINMENU:
-            return "mainmenu";
-        case GAMEMODE_ONCONNECTING:
-            return "connecting";
-        case GAMEMODE_ONLOADING:
-            return "loading";
-        case GAMEMODE_ONWAITINGINITDATA:
-            return "waitinginitdata";
-        case GAMEMODE_ONMAINGAME:
-            return "maingame";
-        case GAMEMODE_ONCONNECTIONLOST:
-            return "connectionlost";
-//         case GAMEMODE_ONMSG:
-//             return "msg";
-//         case GAMEMODE_ONCREATENEWACCOUNT:
-//             return "createnewaccount";
-//         case GAMEMODE_ONLOGIN:
-//             return "login";
-        case GAMEMODE_ONQUERYFORCELOGIN:
-            return "queryforcelogin";
-        case GAMEMODE_ONSELECTCHARACTER:
-            return "selectcharacter";
-        case GAMEMODE_ONCREATENEWCHARACTER:
-            return "createnewcharacter";
-        case GAMEMODE_ONWAITINGRESPONSE:
-            return "waitingresponse";
-        case GAMEMODE_ONQUERYDELETECHARACTER:
-            return "querydeletecharacter";
-        case GAMEMODE_ONLOGRESMSG:
-            return "logresmsg";
-        case GAMEMODE_ONVERSIONNOTMATCH:
-            return "versionnotmatch";
-//         case GAMEMODE_ONINTRODUCTION:
-//             return "introduction";
-//         case GAMEMODE_ONAGREEMENT:
-//             return "agreement";
-//         case GAMEMODE_ONSELECTSERVER:
-//             return "selectserver";
+        if (mode.first == m_cGameMode)
+            return mode.second;
     }
     return "unknown";
 }
 
 std::string CGame::get_game_mode(int _gamemode)
 {
-    switch (_gamemode)
+    for (auto & mode : game_mode_map)
     {
-        case GAMEMODE_NULL:
-            return "null";
-        case GAMEMODE_ONQUIT:
-            return "quit";
-        case GAMEMODE_ONMAINMENU:
-            return "mainmenu";
-        case GAMEMODE_ONCONNECTING:
-            return "connecting";
-        case GAMEMODE_ONLOADING:
-            return "loading";
-        case GAMEMODE_ONWAITINGINITDATA:
-            return "waitinginitdata";
-        case GAMEMODE_ONMAINGAME:
-            return "maingame";
-        case GAMEMODE_ONCONNECTIONLOST:
-            return "connectionlost";
-        case GAMEMODE_ONMSG:
-            return "msg";
-        case GAMEMODE_ONCREATENEWACCOUNT:
-            return "createnewaccount";
-        case GAMEMODE_ONLOGIN:
-            return "login";
-        case GAMEMODE_ONQUERYFORCELOGIN:
-            return "queryforcelogin";
-        case GAMEMODE_ONSELECTCHARACTER:
-            return "selectcharacter";
-        case GAMEMODE_ONCREATENEWCHARACTER:
-            return "createnewcharacter";
-        case GAMEMODE_ONWAITINGRESPONSE:
-            return "waitingresponse";
-        case GAMEMODE_ONQUERYDELETECHARACTER:
-            return "querydeletecharacter";
-        case GAMEMODE_ONLOGRESMSG:
-            return "logresmsg";
-        case GAMEMODE_ONVERSIONNOTMATCH:
-            return "versionnotmatch";
-        case GAMEMODE_ONINTRODUCTION:
-            return "introduction";
-        case GAMEMODE_ONAGREEMENT:
-            return "agreement";
-        case GAMEMODE_ONSELECTSERVER:
-            return "selectserver";
+        if (mode.first == _gamemode)
+            return mode.second;
     }
     return "unknown";
 }
 
 int16_t CGame::get_game_mode(std::string _gamemode)
 {
-    if (_gamemode == "null")
-        return GAMEMODE_NULL;
-    if (_gamemode == "quit")
-        return GAMEMODE_ONQUIT;
-    if (_gamemode == "mainmenu")
-        return GAMEMODE_ONMAINMENU;
-    if (_gamemode == "connecting")
-        return GAMEMODE_ONCONNECTING;
-    if (_gamemode == "loading")
-        return GAMEMODE_ONLOADING;
-    if (_gamemode == "waitinginitdata")
-        return GAMEMODE_ONWAITINGINITDATA;
-    if (_gamemode == "maingame")
-        return GAMEMODE_ONMAINGAME;
-    if (_gamemode == "connectionlost")
-        return GAMEMODE_ONCONNECTIONLOST;
-    if (_gamemode == "msg")
-        return GAMEMODE_ONMSG;
-    if (_gamemode == "createnewaccount")
-        return GAMEMODE_ONCREATENEWACCOUNT;
-    if (_gamemode == "login")
-        return GAMEMODE_ONLOGIN;
-    if (_gamemode == "queryforcelogin")
-        return GAMEMODE_ONQUERYFORCELOGIN;
-    if (_gamemode == "selectcharacter")
-        return GAMEMODE_ONSELECTCHARACTER;
-    if (_gamemode == "createnewcharacter")
-        return GAMEMODE_ONCREATENEWCHARACTER;
-    if (_gamemode == "waitingresponse")
-        return GAMEMODE_ONWAITINGRESPONSE;
-    if (_gamemode == "querydeletecharacter")
-        return GAMEMODE_ONQUERYDELETECHARACTER;
-    if (_gamemode == "logresmsg")
-        return GAMEMODE_ONLOGRESMSG;
-    if (_gamemode == "versionnotmatch")
-        return GAMEMODE_ONVERSIONNOTMATCH;
-    if (_gamemode == "introduction")
-        return GAMEMODE_ONINTRODUCTION;
-    if (_gamemode == "agreement")
-        return GAMEMODE_ONAGREEMENT;
-    if (_gamemode == "selectserver")
-        return GAMEMODE_ONSELECTSERVER;
+    for (auto & mode : game_mode_map)
+    {
+        if (mode.second == _gamemode)
+            return mode.first;
+    }
     return GAMEMODE_NULL;
 }
 
@@ -1756,7 +1639,7 @@ void CGame::send_characters_to_ui()
         o.push_back(obj);
     }
 
-    send_message_to_ui("characterlist", o);
+    send_message_to_ui("character-list", o);
 }
 
 void CGame::send_message_to_ui(std::string msg, json param)
@@ -1835,7 +1718,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, obj["message"].get<std::string>().c_str(), 0);
                 return;
             }
-            if (message == "change-gamemode")
+            if (message == "change-game-mode")
             {
                 // add some limitations to prevent abuse in ui
                 CHECK_ARGS(1);
@@ -8868,7 +8751,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
             m_iBlockMonth = sr.ReadInt();
             m_iBlockDay = sr.ReadInt();
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
-            send_message_to_ui("logresmsg", { { "status", "failed" }, { "message", rcv_string} });
+            send_message_to_ui("log-res-msg", { { "status", "failed" }, { "message", rcv_string} });
             ZeroMemory(m_cMsg, sizeof(m_cMsg));
             strcpy(m_cMsg, "7H");
             break;
@@ -8887,7 +8770,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
             break;
 
         case LOGRESMSGTYPE_SERVICENOTAVAILABLE:
-            send_message_to_ui("logresmsg", { { "status", "failed" }, { "reason", "Service not available" } });
+            send_message_to_ui("log-res-msg", { { "status", "failed" }, { "reason", "Service not available" } });
             break;
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
             ZeroMemory(m_cMsg, sizeof(m_cMsg));
@@ -8995,7 +8878,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
                 m_pCharList.push_back(character);
             }
             send_characters_to_ui();
-            send_message_to_ui("logresmsg", { { "status", "success" } });
+            send_message_to_ui("log-res-msg", { { "status", "success" } });
             break;
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
             ZeroMemory(m_cMsg, sizeof(m_cMsg));
@@ -9004,7 +8887,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
         }
 
         case LOGRESMSGTYPE_NEWCHARACTERFAILED:
-            send_message_to_ui("logresmsg", { { "status", "failed" }, { "reason", "Failed" } });
+            send_message_to_ui("log-res-msg", { { "status", "failed" }, { "reason", "Failed" } });
             break;
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
             ZeroMemory(m_cMsg, sizeof(m_cMsg));
@@ -9012,7 +8895,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
             break;
 
         case LOGRESMSGTYPE_ALREADYEXISTINGCHARACTER:
-            send_message_to_ui("logresmsg", { { "status", "failed" }, { "reason", "Character name already exists" } });
+            send_message_to_ui("log-res-msg", { { "status", "failed" }, { "reason", "Character name already exists" } });
             break;
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
             ZeroMemory(m_cMsg, sizeof(m_cMsg));
@@ -9038,7 +8921,7 @@ void CGame::LogResponseHandler(uint32_t size, char * pData)
             m_iBlockMonth = sr.ReadInt();
             m_iBlockDay = sr.ReadInt();
             ChangeGameMode(GAMEMODE_ONLOGRESMSG);
-            send_message_to_ui("logresmsg", { { "status", "failed" }, { "message", rcv_string} });
+            send_message_to_ui("log-res-msg", { { "status", "failed" }, { "message", rcv_string} });
         }
             break;
 
@@ -9171,7 +9054,7 @@ void CGame::ChangeGameMode(char cMode)
         close(1000, "gamemodechange");
     if (cef_ui->core->view)
     {
-        send_message_to_ui("gamemode", { {"mode", get_game_mode(cMode)} });
+        send_message_to_ui("game-mode", { {"mode", get_game_mode(cMode)} });
     }
 
     if (cMode == GAMEMODE_ONSELECTCHARACTER)
