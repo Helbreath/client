@@ -24,6 +24,12 @@ class CGame;
 namespace ui
 {
 
+class dev_tools_client : public CefClient
+{
+private:
+    IMPLEMENT_REFCOUNTING(dev_tools_client);
+};
+
 using json = nlohmann::json;
 
 class ui_core;
@@ -34,7 +40,7 @@ class ui_game
 {
 public:
     ui_game(CGame * _game, sf::WindowHandle _handle);
-    ~ui_game() {}
+    ~ui_game() = default;
 
     ui_panel * create_panel(std::string name, std::string url, int x, int y, int width, int height);
 
@@ -48,6 +54,7 @@ public:
     void run_cef_thread();
 
     bool is_running = true;
+    bool begin_shutdown = false;
 };
 
 class ui_core : public CefApp,
@@ -64,34 +71,37 @@ class ui_core : public CefApp,
 {
 public:
     ui_core(sf::WindowHandle _handle, CGame * _game) : handle(_handle), view(nullptr), game(_game) {}
-    ~ui_core() {}
+    ~ui_core() = default;
+
+    // on exit signal
+    std::condition_variable cv;
 
     // CefClient
-    virtual CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override { return this; }
-    virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
-    virtual CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
-    virtual CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
-    virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
-    virtual CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
-    virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() override { return this; }
+    CefRefPtr<CefContextMenuHandler> GetContextMenuHandler() override { return this; }
+    CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() override { return this; }
+    CefRefPtr<CefLoadHandler> GetLoadHandler() override { return this; }
+    CefRefPtr<CefRequestHandler> GetRequestHandler() override { return this; }
+    CefRefPtr<CefDisplayHandler> GetDisplayHandler() override { return this; }
+    CefRefPtr<CefRenderHandler> GetRenderHandler() override { return this; }
+    CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() override { return this; }
 
 
     // CefLoadHandler
-    virtual void OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, TransitionType transition_type) override;
-    virtual void OnLoadEnd(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, int httpStatusCode) override;
-    virtual void OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, ErrorCode errorCode, const CefString & errorText, const CefString & failedUrl) override;
+    void OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, TransitionType transition_type) override;
+    void OnLoadEnd(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, int httpStatusCode) override;
+    void OnLoadError(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, ErrorCode errorCode, const CefString & errorText, const CefString & failedUrl) override;
 
     // CefRenderHandler
-    virtual void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect & rect) override;
-    virtual void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList & dirtyRects, const void * buffer, int width, int height) override;
-    virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX, int viewY, int & screenX, int & screenY) override;
+    void GetViewRect(CefRefPtr<CefBrowser> browser, CefRect & rect) override;
+    void OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList & dirtyRects, const void * buffer, int width, int height) override;
+    bool GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX, int viewY, int & screenX, int & screenY) override;
 
     // CefKeyboardHandler
-    virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent & e, CefEventHandle os_event) override;
+    bool OnKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent & e, CefEventHandle os_event) override;
 
     // CefLifeSpanHandler
-    virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
-    virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
+    void OnAfterCreated(CefRefPtr<CefBrowser> browser) override;
+    void OnBeforeClose(CefRefPtr<CefBrowser> browser) override;
 
     // CefRenderProcessHandler
 //     virtual void OnBrowserCreated(CefRefPtr<CefBrowser> browser, CefRefPtr<CefDictionaryValue> extra_info) override;
@@ -101,14 +111,14 @@ public:
 //     virtual void OnUncaughtException(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefV8Context> context, CefRefPtr<CefV8Exception> exception, CefRefPtr<CefV8StackTrace> stackTrace) override;
 
     // CefBrowserProcessHandler
-    virtual void OnBeforeChildProcessLaunch(CefRefPtr<CefCommandLine> command_line) override;
-    virtual void OnContextInitialized() override;
-    virtual CefRefPtr<CefClient> GetDefaultClient() override { return this; };
+    void OnBeforeChildProcessLaunch(CefRefPtr<CefCommandLine> command_line) override;
+    void OnContextInitialized() override;
+    CefRefPtr<CefClient> GetDefaultClient() override { return this; };
 
     // CefClient
-    virtual bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefProcessId source_process, CefRefPtr<CefProcessMessage> message) override;
-    virtual void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) override;
-    virtual bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags) override;
+    bool OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefProcessId source_process, CefRefPtr<CefProcessMessage> message) override;
+    void OnBeforeContextMenu(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, CefRefPtr<CefMenuModel> model) override;
+    bool OnContextMenuCommand(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefRefPtr<CefContextMenuParams> params, int command_id, EventFlags event_flags) override;
 
 
     void add_browser_to_interface(ui_view * view);
@@ -121,7 +131,18 @@ public:
 
     ui_view * create_view(int width, int height, const std::string & url, bool transparent, ui_game * ui);
 
-private:
+    void create_dev_tools()
+    {
+        CefWindowInfo windowInfo;
+        windowInfo.SetAsPopup(nullptr, "Developer Tools");
+        windowInfo.style = WS_VISIBLE | WS_OVERLAPPEDWINDOW;
+        windowInfo.x = 0;
+        windowInfo.y = 0;
+        windowInfo.width = 640;
+        windowInfo.height = 480;
+        panel->view->browser->GetHost()->ShowDevTools(windowInfo, new dev_tools_client(), CefBrowserSettings(), { 0, 0 });
+    }
+
     IMPLEMENT_REFCOUNTING(ui_core);
 };
 

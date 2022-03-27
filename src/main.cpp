@@ -55,10 +55,10 @@ int main(int argc, char * argv[])
     //////////////////////////////////////////////////////////////////////////
     // debug named pipes
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(PIPELOG)
     std::thread pipethead([&] {
         std::vector<std::thread> pipethreadlist;
-        for (;;)
+        while (isrunning)
         {
             HANDLE hPipe = CreateNamedPipeA(
                 "\\\\.\\pipe\\stupidcefdebuglog", // pipe name
@@ -69,7 +69,7 @@ int main(int argc, char * argv[])
                 PIPE_UNLIMITED_INSTANCES,         // max. instances
                 BUFSIZE,                          // output buffer size
                 BUFSIZE,                          // input buffer size
-                0,                                // client time-out
+                5000,                                // client time-out
                 NULL);                            // default security attribute
             BOOL fConnected = FALSE;
             fConnected = ConnectNamedPipe(hPipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
@@ -90,7 +90,7 @@ int main(int argc, char * argv[])
                     {
                         printf("\nERROR - Pipe Server Failure:\n");
                         printf("   InstanceThread got an unexpected NULL value in lpvParam.\n");
-                        printf("   InstanceThread exitting.\n");
+                        printf("   InstanceThread exiting.\n");
                         if (pchReply != NULL)
                             HeapFree(hHeap, 0, pchReply);
                         if (pchRequest != NULL)
@@ -102,7 +102,7 @@ int main(int argc, char * argv[])
                     {
                         printf("\nERROR - Pipe Server Failure:\n");
                         printf("   InstanceThread got an unexpected NULL heap allocation.\n");
-                        printf("   InstanceThread exitting.\n");
+                        printf("   InstanceThread exiting.\n");
                         if (pchReply != NULL)
                             HeapFree(hHeap, 0, pchReply);
                         return;
@@ -112,7 +112,7 @@ int main(int argc, char * argv[])
                     {
                         printf("\nERROR - Pipe Server Failure:\n");
                         printf("   InstanceThread got an unexpected NULL heap allocation.\n");
-                        printf("   InstanceThread exitting.\n");
+                        printf("   InstanceThread exiting.\n");
                         if (pchRequest != NULL)
                             HeapFree(hHeap, 0, pchRequest);
                         return;
@@ -136,7 +136,10 @@ int main(int argc, char * argv[])
                             NULL);        // not overlapped I/O
 
                         if (!fSuccess)
+                        {
+                            std::cout << "Failure in pipe read\n";
                             break;
+                        }
 
                         std::cout << "!!CEF!!: " << pchRequest << "\n";
                     }
@@ -396,6 +399,7 @@ int main(int argc, char * argv[])
 
             if (event.type == sf::Event::Closed)
             {
+                isrunning = false;
                 window.close();
                 break;
             }
@@ -412,12 +416,19 @@ int main(int argc, char * argv[])
 
             window.display();
         }
-
     }
     isrunning = false;
+    G_pGame->cef_ui->begin_shutdown = true;
 
-    G_pGame->cef_ui->is_running = false;
+#if defined(_DEBUG) && defined(PIPELOG)
+    pipethead.join();
+#endif
+
+    std::mutex m;
+    std::unique_lock<std::mutex> l(m);
+    G_pGame->cef_ui->core->cv.wait(l);
     cef_thread.join();
+    G_pGame->cef_ui->is_running = false;
 
     G_pGame->signals_.cancel();
     G_pGame->Quit();

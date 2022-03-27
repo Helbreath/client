@@ -88,7 +88,7 @@ int main(int argc, char * argv[]) {
     // Enable High-DPI support on Windows 7 or newer.
     CefEnableHighDPISupport();
 
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(PIPELOG)
     //////////////////////////////////////////////////////////////////////////
     // debug named pipes
     while (1)

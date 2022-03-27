@@ -118,7 +118,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NOMINMAX;WIN32_LEAN_AND_MEAN;FMT_HEADER_ONLY;ASIO_HAS_STD_CHRONO;_HAS_AUTO_PTR_ETC=1;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;ASIO_NO_DEPRECATED;ASIO_STANDALONE;ASIO_HEADER_ONLY;_WIN32_WINNT=0x0601;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PIPELOG;NOMINMAX;WIN32_LEAN_AND_MEAN;FMT_HEADER_ONLY;ASIO_HAS_STD_CHRONO;_HAS_AUTO_PTR_ETC=1;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;_CRT_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;ASIO_NO_DEPRECATED;ASIO_STANDALONE;ASIO_HEADER_ONLY;_WIN32_WINNT=0x0601;WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>..\Shared\;C:\Code\vcpkg\installed\x64-windows\include;C:\Code\x-client\include;F:\Code\aegis.cpp\lib\json\single_include;C:\Code\x-client\cef</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>

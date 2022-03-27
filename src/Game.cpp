@@ -2089,10 +2089,15 @@ void CGame::OnEvent(sf::Event event)
             {
                 case Keyboard::F5:
 #ifdef _DEBUG
-                    cef_panel = cef_ui->create_panel("main", "http://localhost:8080/", 0, 0, screenwidth, screenheight);
+                    cef_ui->panel->view->browser->GetMainFrame()->LoadURL("http://localhost:3000/");
+                    cef_ui->panel->view->get_current_url();
+                    cef_panel = cef_ui->create_panel("main", "http://localhost:3000/", 0, 0, screenwidth, screenheight);
 #else
                     cef_panel = cef_ui->create_panel("main", "https://helbreath.io/ui/", 0, 0, screenwidth, screenheight);
 #endif
+                    break;
+                case Keyboard::F7:
+                    cef_ui->core->create_dev_tools();
                     break;
                 case Keyboard::M:
                     m_pBGM.stop();

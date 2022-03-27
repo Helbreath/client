@@ -63,7 +63,15 @@ void ui_game::run_cef_thread()
 
         if (core->view)
             core->view->send_emitters();
+
+        if (begin_shutdown)
+        {
+            core->view->browser->GetHost()->CloseBrowser(true);
+            is_running = false;
+        }
     }
+
+    CefShutdown();
 }
 
 void ui_core::OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, TransitionType transition_type)
@@ -87,22 +95,6 @@ void ui_core::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect & rect)
         rect = CefRect(0, 0, 800, 600);
     else
         rect = CefRect(0, 0, view->get_width(), view->get_height());
-
-
-    //     if (!sViews.count(browser->GetIdentifier()))
-    //     {
-    //         rect = CefRect(0, 0, 1024, 768);
-    //         return;
-    //     }
-    //     HTMLUIView * view = sViews[browser->GetIdentifier()];
-    //     if (!view)
-    //     {
-    //         rect = CefRect(0, 0, 1024, 768);
-    //         return;
-    //     }
-    // 
-    //     rect = CefRect(0, 0, view->GetWidth(), view->GetHeight());
-    //     return;
 }
 
 void ui_core::OnPaint(CefRefPtr<CefBrowser> browser, PaintElementType type, const RectList & dirtyRects, const void * buffer, int width, int height)
@@ -213,9 +205,11 @@ void ui_core::OnAfterCreated(CefRefPtr<CefBrowser> browser)
 void ui_core::OnBeforeClose(CefRefPtr<CefBrowser> browser)
 {
     if (view && view->browser)
+    {
         view->clear_browser();
-    //     if (sViews.count(browser->GetIdentifier()))
-    //         sViews[browser->GetIdentifier()]->ClearBrowser();
+        view->Release();
+    }
+    cv.notify_all();
 }
 
 void ui_core::OnBeforeChildProcessLaunch(CefRefPtr<CefCommandLine> command_line)
@@ -253,16 +247,23 @@ void ui_core::OnContextInitialized()
 
 bool ui_core::OnProcessMessageReceived(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, CefProcessId source_process, CefRefPtr<CefProcessMessage> message)
 {
-    auto name = message->GetName();
+    CefString name = message->GetName();
 
     // js callback from renderer - always has a single string as an argument. the JSON.stringify-ied object parameter
-    if (name == "SendJsonMessage")
+    if (name.ToString() == "SendJsonMessage")
     {
         auto arg = message->GetArgumentList()->GetString(0);
 
         {
             std::unique_lock l(game->ui_event_m);
-            game->ui_events.emplace(name, std::move(json::parse(arg.ToString())));
+            try
+            {
+                game->ui_events.emplace(name, std::move(json::parse(arg.ToString())));
+            }
+            catch (std::exception & ex)
+            {
+                std::cout << "Error parsing json : " << arg.ToString() << '\n';
+            }
         }
     }
     return false;
@@ -291,6 +292,8 @@ void ui_core::add_browser_to_interface(ui_view * view)
     browser_settings.javascript = STATE_ENABLED;
     browser_settings.universal_access_from_file_urls = STATE_ENABLED;
     browser_settings.file_access_from_file_urls = STATE_ENABLED;
+    browser_settings.local_storage = STATE_ENABLED;
+    browser_settings.webgl = STATE_ENABLED;
 
 
     view->browser = CefBrowserHost::CreateBrowserSync(info, this, view->get_current_url(), browser_settings, NULL, NULL);

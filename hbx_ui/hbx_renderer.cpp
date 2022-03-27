@@ -12,7 +12,7 @@ extern void send_pipe_message(std::string msg);
 class method_handler : public CefV8Handler
 {
 public:
-    method_handler(CefRefPtr<CefBrowser> browser, CefRefPtr<CefV8Handler> js_stringify) : browser(browser), js_stringify(js_stringify) {};
+    method_handler(CefRefPtr<CefBrowser> browser) : browser(browser) {};
     virtual ~method_handler() {};
 
     virtual bool Execute(const CefString & name, CefRefPtr<CefV8Value> object, const CefV8ValueList & arguments, CefRefPtr<CefV8Value> & retval, CefString & exception) override
@@ -29,18 +29,19 @@ public:
             message->GetArgumentList()->SetString(0, arguments.begin()->get()->GetStringValue());
 
             browser->GetMainFrame()->SendProcessMessage(PID_BROWSER, message);
+            return true;
         }
         else if (name == "log")
         {
             send_pipe_message("console.log: " + arguments.begin()->get()->GetStringValue().ToString());
+            return true;
         }
 
         // Function does not exist.
-        return true;
+        return false;
     }
 
     CefRefPtr<CefBrowser> browser;
-    CefRefPtr<CefV8Handler> js_stringify;
 
     IMPLEMENT_REFCOUNTING(method_handler);
 };
@@ -101,16 +102,12 @@ public:
     {
         js_context = context;
         js_object = context->GetGlobal();
-        js_stringify = js_object->GetValue("JSON")->GetValue("stringify")->GetFunctionHandler();
-        js_handler = new method_handler(browser, js_stringify);
+        js_handler = new method_handler(browser);
         this->browser = browser;
 
         has_context = true;
         has_receive = false;
 
-//         CefRefPtr<CefV8Value> client = CefV8Value::CreateObject(NULL, NULL);
-//         client->SetValue("log", CefV8Value::CreateFunction("log", js_handler), V8_PROPERTY_ATTRIBUTE_NONE);
-//         js_object->SetValue("client", client, V8_PROPERTY_ATTRIBUTE_NONE);
         js_object->SetValue("SendJsonMessage", CefV8Value::CreateFunction("SendJsonMessage", js_handler), V8_PROPERTY_ATTRIBUTE_NONE);
         js_object->SetValue("log", CefV8Value::CreateFunction("log", js_handler), V8_PROPERTY_ATTRIBUTE_NONE);
     }

@@ -474,7 +474,7 @@ public:
         cef_input = new ui::ui_input(cef_ui);
 
 #ifdef _DEBUG
-        cef_panel = cef_ui->create_panel("main", "http://localhost:8080/", 0, 0, screenwidth_v, screenheight_v);
+        cef_panel = cef_ui->create_panel("main", "http://localhost:3000/", 0, 0, screenwidth_v, screenheight_v);
 #else
         cef_panel = cef_ui->create_panel("main", "https://helbreath.io/ui/", 0, 0, screenwidth_v, screenheight_v);
 #endif
