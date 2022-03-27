@@ -1780,31 +1780,29 @@ void CGame::receive_message_from_ui(std::string name, json o)
             json obj = o["data"];
             std::cout << fmt::format("From JS: {} - Data: {}\n", message, obj.dump());
 
-            if (message == "onload")
+            if (message == "on-load")
             {
+                send_message_to_ui("game-version", { {"version", fmt::format("{}.{}.{}", UPPER_VERSION, LOWER_VERSION, PATCH_VERSION)} });
                 if (m_cGameMode == GAMEMODE_NULL)
-                {
-                    send_message_to_ui("gameversion", { {"version", fmt::format("{}.{}.{}", UPPER_VERSION, LOWER_VERSION, PATCH_VERSION)} });
-                    send_message_to_ui("startload");
-                }
+                    send_message_to_ui("start-load");
                 else
-                    send_message_to_ui("postload");
+                    send_message_to_ui("post-load");
                 //send_message_to_ui("logindetails", { G_pGame->m_cAccountName, G_pGame->m_cAccountPassword });
-                send_message_to_ui("gamemode", { {"mode", get_game_mode_str()} });
+                send_message_to_ui("game-mode", { {"mode", get_game_mode_str()} });
                 return;
             }
-            if (message == "deletecharacter")
+            if (message == "delete-character")
             {
                 CHECK_ARGS(1);
                 SendCharacterDelete(obj["name"].get<std::string>());
                 return;
             }
-            if (message == "getcharacters")
+            if (message == "get-characters")
             {
                 send_characters_to_ui();
                 return;
             }
-            if (message == "createcharacter")
+            if (message == "create-character")
             {
                 CHECK_ARGS(7);
 
@@ -1825,7 +1823,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 SendLoginCommand(MSGID_REQUEST_CREATENEWCHARACTER);
                 return;
             }
-            if (message == "movetestsprite")
+            if (message == "move-test-sprite")
             {
                 testx = obj["x"].get<uint32_t>();
                 testy = obj["y"].get<uint32_t>();
@@ -1837,22 +1835,22 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 bSendCommand(MSGID_COMMAND_CHATMSG, 0, 0, 0, 0, 0, obj["message"].get<std::string>().c_str(), 0);
                 return;
             }
-            if (message == "changegamemode")
+            if (message == "change-gamemode")
             {
                 // add some limitations to prevent abuse in ui
                 CHECK_ARGS(1);
-                int16_t mode = get_game_mode(obj["mode"].get<std::string>());
+                int16_t mode = get_game_mode(obj.get<std::string>());
                 ChangeGameMode(mode);
                 return;
             }
-            if (message == "changecursor")
+            if (message == "change-cursor")
             {
                 CHECK_ARGS(1);
                 if (obj.is_number())
                     m_stMCursor.sCursorFrame = obj.get<uint16_t>();
                 return;
             }
-            if (message == "rendercharacter")
+            if (message == "render-character")
             {
                 CHECK_ARGS(3);
                 if (obj["do"] == "start")
@@ -1872,7 +1870,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 }
                 return;
             }
-            if (message == "selectcharacter")
+            if (message == "select-character")
             {
                 CHECK_ARGS(1);
                 uint64_t charid = obj["charid"].get<uint64_t>();
@@ -1881,7 +1879,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                         selectedchar = character;
                 return;
             }
-            if (message == "entergame")
+            if (message == "enter-game")
             {
                 if (selectedchar == nullptr)
                     return;
@@ -1906,7 +1904,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 isrunning = false;
                 return;
             }
-            if (message == "mainmenuconnect")
+            if (message == "main-menu-connect")
             {
                 ChangeGameMode(GAMEMODE_ONCONNECTING);
                 m_dwConnectMode = MSGID_REQUEST_LOGIN;
@@ -1941,7 +1939,7 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 return;
             }
 #endif
-            if (message == "cancelwaiting" || message == "cancelconnect")
+            if (message == "cancel-waiting" || message == "cancel-connect")
             {
                 close(1000, "cancel");
                 //PlaySound('E', 14, 5);
@@ -1952,18 +1950,18 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 isItemLoaded = false;
                 return;
             }
-            if (message == "playsound")
+            if (message == "play-sound")
             {
                 CHECK_ARGS(3);
-                PlaySound(obj[0].get<std::string>(), obj[1].get<int>(), obj[2].get<int>());
+                PlaySound(obj["type"].get<std::string>(), obj["id"].get<int>(), obj["distance"].get<int>());
                 return;
             }
-            if (message == "startload")
+            if (message == "start-load")
             {
                 ChangeGameMode(GAMEMODE_ONLOADING);
                 return;
             }
-            if (message == "loadingcomplete")
+            if (message == "loading-complete")
             {
                 isloaded = true;
                 if (m_cGameMode == GAMEMODE_ONLOADING)
@@ -1998,16 +1996,10 @@ void CGame::receive_message_from_ui(std::string name, json o)
                 }
 
                 std::string track;
-                if (obj.size() < 2)
-                    track = "data\\music\\aresden.wav";
-                else
+                if (obj.count("file"))
                     track = obj["file"].get<std::string>();
 
-                m_pBGM.stop();
-                bgmbuffer.loadFromFile(track);
-                m_pBGM.setBuffer(bgmbuffer);
-                m_pBGM.setVolume(m_cMusicVolume);
-                m_pBGM.play();
+                StartBGM(track);
                 return;
             }
             if (message == "resolution")
@@ -20612,49 +20604,49 @@ void CGame::NotifyMsg_Heldenian(char * pData)
     m_iHeldenianElvineDead = *wp;
 }
 
-void CGame::StartBGM()
+void CGame::StartBGM(std::string location)
 {
     if (m_bSoundFlag == false)
     {
         m_pBGM.stop();
         return;
     }
-    char cWavFileName[32];
-    ZeroMemory(cWavFileName, sizeof(cWavFileName));
-    if (m_bIsXmas == true)
-        strcpy(cWavFileName, "data\\music\\Carol.wav");
+    std::string filename;
+
+    if (!location.empty())
+        filename = fmt::format("data\\music\\{}.wav", location);
+    else if (m_bIsXmas == true)
+        filename = "data\\music\\Carol.wav";
     else
     {
         if (memcmp(m_cCurLocation, "aresden", 7) == 0)
-            strcpy(cWavFileName, "data\\music\\aresden.wav");
+            location = "aresden";
         else if (memcmp(m_cCurLocation, "elvine", 6) == 0)
-            strcpy(cWavFileName, "data\\music\\elvine.wav");
+            location = "elvine.wav";
         else if (memcmp(m_cCurLocation, "dglv", 4) == 0)
-            strcpy(cWavFileName, "data\\music\\dungeon.wav");
+            location = "dungeon.wav";
         else if (memcmp(m_cCurLocation, "middled1", 8) == 0)
-            strcpy(cWavFileName, "data\\music\\dungeon.wav");
+            location = "dungeon.wav";
         else if (memcmp(m_cCurLocation, "middleland", 10) == 0)
-            strcpy(cWavFileName, "data\\music\\middleland.wav");
+            location = "middleland.wav";
         else if (memcmp(m_cCurLocation, "druncncity", 10) == 0)
-            strcpy(cWavFileName, "data\\music\\druncncity.wav");
+            location = "druncncity.wav";
         else if (memcmp(m_cCurLocation, "inferniaA", 9) == 0)
-            strcpy(cWavFileName, "data\\music\\middleland.wav");
+            location = "middleland.wav";
         else if (memcmp(m_cCurLocation, "inferniaB", 9) == 0)
-            strcpy(cWavFileName, "data\\music\\middleland.wav");
+            location = "middleland.wav";
         else if (memcmp(m_cCurLocation, "maze", 4) == 0)
-            strcpy(cWavFileName, "data\\music\\dungeon.wav");
+            location = "dungeon.wav";
         else if (memcmp(m_cCurLocation, "abaddon", 7) == 0)
-            strcpy(cWavFileName, "data\\music\\abaddon.wav");
-        else if (strcmp(m_cCurLocation, "istria") == 0)
-            strcpy(cWavFileName, "data\\music\\istria.wav");
-        else if (strcmp(m_cCurLocation, "astoria") == 0)
-            strcpy(cWavFileName, "data\\music\\astoria.wav");
+            location = "abaddon.wav";
         else
-            strcpy(cWavFileName, "data\\music\\MainTm.wav");
+            location = "MainTm.wav";
+        
+        filename = fmt::format("data\\music\\{}.wav", location);
     }
 
     m_pBGM.stop();
-    bgmbuffer.loadFromFile(cWavFileName);
+    bgmbuffer.loadFromFile(filename);
     m_pBGM.setBuffer(bgmbuffer);
     m_pBGM.setVolume(m_cMusicVolume); //TODO: update in game later
     m_pBGM.setLoop(true);

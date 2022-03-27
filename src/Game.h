@@ -1015,7 +1015,7 @@ public:
     void SetGold(uint32_t val);
     LONG GetRegKey(HKEY key, LPCTSTR subkey, LPTSTR retdata);
     void GoHomepage(bool _web);
-    void StartBGM();
+    void StartBGM(std::string location = "");
 
     void DebugLog(char * cStr);
     int bHasHeroSet(short HeadApprValue, short BodyApprValue, short ArmApprValue, short LegApprValue, char OwnerType);
