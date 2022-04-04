@@ -171,7 +171,7 @@ extern void * G_hWnd;
 
 class connection;
 using connection_ptr = std::shared_ptr<connection>;
-using namespace nlohmann;
+using nlohmann::json;
 
 using std::string;
 using std::make_shared;
@@ -424,6 +424,7 @@ public:
     void send_message_to_ui(std::string msg, json param = {});
     void send_characters_to_ui();
 
+    bool captured = false;
     bool inside_vm = false;
     bool responsive_ui = false;
     int ui_update_frequency = 3;

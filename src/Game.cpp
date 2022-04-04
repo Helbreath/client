@@ -1646,7 +1646,8 @@ void CGame::send_message_to_ui(std::string msg, json param)
 {
     // 	std::unique_lock<std::mutex> l(ui_outgoing_event_m);
     // 	ui_outgoing_events.emplace(msg, std::move(param));
-    cef_ui->core->view->emit(msg, std::move(param));
+    if (cef_ui && cef_ui->core && cef_ui->core->view && cef_ui->core->view->browser)
+        cef_ui->core->view->emit(msg, std::move(param));
 }
 
 #define CHECK_ARGS(x)   \
@@ -1923,9 +1924,158 @@ void CGame::OnEvent(sf::Event event)
 
         return;
     }*/
-    cef_input->capture_event(event);
-//     if (cef_input->capture_event(event))
-//         return;
+
+    captured = false;
+
+    switch (event.type)
+    {
+        case sf::Event::KeyPressed:
+        {
+            switch (event.key.code)
+            {
+                case Keyboard::F5:
+#ifdef _DEBUG
+                    cef_ui->panel->view->browser->GetMainFrame()->LoadURL("http://localhost:3000");
+                    cef_ui->panel->view->get_current_url();
+                    cef_panel = cef_ui->create_panel("main", "http://localhost:3000", 0, 0, screenwidth, screenheight);
+#else
+                    cef_ui->panel->view->browser->GetMainFrame()->LoadURL("https://helbreath.io/ui");
+                    cef_panel = cef_ui->create_panel("main", "https://helbreath.io/ui", 0, 0, screenwidth, screenheight);
+#endif
+                    captured = true;
+                    break;
+                case Keyboard::F7:
+                    cef_ui->core->create_dev_tools();
+                    captured = true;
+                    break;
+                case Keyboard::Escape:
+                    if (m_bCtrlPressed)
+                    {
+                        clipmousegame = !clipmousegame;
+                        window.setMouseCursorGrabbed(clipmousegame);
+                    }
+                    captured = true;
+                    break;
+                case Keyboard::LShift:
+                    m_bShiftPressed = true;
+                    break;
+                case Keyboard::LControl:
+                    m_bCtrlPressed = true;
+                    break;
+                case Keyboard::LAlt:
+                    m_altPressed = true;
+                    break;
+                case Keyboard::Tab:
+                    break;
+                case Keyboard::Return:
+                    if (event.key.alt)
+                    {
+                        fullscreen = !fullscreen;
+                        window.close();
+                        window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? Style::Fullscreen : (Style::Resize | Style::Close)));
+                        captured = true;
+                    }
+                    else
+                    {
+                        m_bEnterPressed = true;
+                    }
+                    break;
+                case Keyboard::F12:
+                    CreateScreenShot();
+                    break;
+
+                case Keyboard::F6:
+                    calcoldviewport = !calcoldviewport;
+                    if (!calcoldviewport)
+                    {
+                        AddEventList("Switched to new viewport code.");
+                    }
+                    else
+                    {
+                        AddEventList("Switched to old viewport code.");
+                    }
+                    break;
+            }
+            break;
+        }
+        case sf::Event::KeyReleased:
+        {
+            if (event.key.code == Keyboard::Backspace)
+            {
+            }
+            if (event.key.code == Keyboard::Tab)
+            {
+            }
+            /*
+                ultralight::KeyEvent evt;
+
+                evt.type = ultralight::KeyEvent::kType_KeyUp;
+                evt.native_key_code = event.key.code;
+                {
+                    std::unique_lock<std::recursive_mutex> l(_html_eventm);
+                    _html_eventqueue.emplace([evt = std::move(evt)]() {
+                        view->FireKeyEvent(evt);
+                    });
+                }*/
+
+            switch (event.key.code)
+            {
+                case Keyboard::Escape:
+                    break;
+                case Keyboard::LShift:
+                    m_bShiftPressed = false;
+                    break;
+                case Keyboard::LControl:
+                    m_bCtrlPressed = false;
+                    break;
+                case Keyboard::LAlt:
+                    m_altPressed = false;
+                    break;
+                case Keyboard::Tab:
+                    break;
+                case Keyboard::Return:
+                    break;
+                case Keyboard::F12:
+                    break;
+                case Keyboard::F5:
+                    break;
+            }
+            break;
+        }
+        case sf::Event::Resized:
+            break;
+        case sf::Event::LostFocus:
+            window.setFramerateLimit(frame_limit_bg); //set to var
+            break;
+        case sf::Event::GainedFocus:
+            if (m_cGameMode != GAMEMODE_ONLOADING)
+                window.setFramerateLimit(frame_limit);
+            else
+                window.setFramerateLimit(0);
+            break;
+        case sf::Event::MouseWheelScrolled:
+            if (event.mouseWheelScroll.wheel == sf::Mouse::VerticalWheel)
+            {
+            }
+            else if (event.mouseWheelScroll.wheel == sf::Mouse::HorizontalWheel)
+            {
+            }
+            else
+            {
+            }
+            break;
+    }
+
+    // some keys can skip ui checks (such as screenshot)
+
+    if (!captured)
+        captured = cef_input->capture_event(event);
+
+    // let UI know user clicked within itself and further key presses will go to ui 
+    if (event.type == sf::Event::MouseButtonPressed)
+        send_message_to_ui("captured", captured);
+
+    // some keys will handled even if captured
 
     switch (event.type)
     {

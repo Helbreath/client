@@ -41,7 +41,8 @@ void ui_game::run_cef_thread()
     settings.windowless_rendering_enabled = true;
     settings.external_message_pump = true;
     settings.remote_debugging_port = 9222;
-    settings.background_color = cef_color_t(0x00ffffff);
+    //settings.background_color = cef_color_t(0x00ffffff);
+    settings.background_color = cef_color_t(0x00000000);
 
     CefString(&settings.browser_subprocess_path).FromASCII(fmt::format("{}\\bin\\{}", std::filesystem::current_path().string(), "hbx_ui.exe").c_str());
 
@@ -49,29 +50,49 @@ void ui_game::run_cef_thread()
 
     CefInitialize(sArgs, settings, CefRefPtr<ui::ui_core>(core), NULL);
 
-    while (is_running)
+//     while (is_running)
+//     {
+//         CefDoMessageLoopWork();
+// 
+//         std::this_thread::sleep_for(std::chrono::milliseconds(game->ui_delay));
+// 
+//         if (core->create_browser)
+//         {
+//             core->add_browser_to_interface(core->view);
+//             core->create_browser = false;
+//         }
+// 
+//         if (core->view)
+//             core->view->send_emitters();
+// 
+//         if (begin_shutdown)
+//         {
+//             if (core->view)
+//                 core->view->browser->GetHost()->CloseBrowser(true);
+//         }
+//     }
+}
+
+void ui_game::do_work()
+{
+    CefDoMessageLoopWork();
+
+    //std::this_thread::sleep_for(std::chrono::milliseconds(game->ui_delay));
+
+    if (core->create_browser)
     {
-        CefDoMessageLoopWork();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(game->ui_delay));
-
-        if (core->create_browser)
-        {
-            core->add_browser_to_interface(core->view);
-            core->create_browser = false;
-        }
-
-        if (core->view)
-            core->view->send_emitters();
-
-        if (begin_shutdown)
-        {
-            core->view->browser->GetHost()->CloseBrowser(true);
-            is_running = false;
-        }
+        core->add_browser_to_interface(core->view);
+        core->create_browser = false;
     }
 
-    CefShutdown();
+    if (core->view)
+        core->view->send_emitters();
+
+    if (begin_shutdown)
+    {
+        if (core->view)
+            core->view->browser->GetHost()->CloseBrowser(true);
+    }
 }
 
 void ui_core::OnLoadStart(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, TransitionType transition_type)
@@ -206,10 +227,11 @@ void ui_core::OnBeforeClose(CefRefPtr<CefBrowser> browser)
 {
     if (view && view->browser)
     {
-        view->clear_browser();
+        //view->clear_browser();
         view->Release();
     }
     cv.notify_all();
+    this->game->cef_ui->is_running = false;
 }
 
 void ui_core::OnBeforeChildProcessLaunch(CefRefPtr<CefCommandLine> command_line)

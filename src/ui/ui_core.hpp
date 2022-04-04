@@ -52,6 +52,7 @@ public:
     ui_panel * panel = nullptr; // single panel for SPA ui design
 
     void run_cef_thread();
+    void do_work();
 
     bool is_running = true;
     bool begin_shutdown = false;

@@ -205,11 +205,23 @@ bool ui_input::ui_capture_mouse_button(sf::Event event)
     uint16_t x = uint16_t(event.mouseButton.x * diffx);
     uint16_t y = uint16_t(event.mouseButton.y * diffy);
 
-    bool inPanel = (
-        x >= this->_ui->panel->x && x <= this->_ui->panel->x + this->_ui->panel->width &&
-        y >= this->_ui->panel->y && y <= this->_ui->panel->y + this->_ui->panel->height
-        );
-    if ((event.type == sf::Event::MouseButtonReleased && this->_ui->panel->mouse_down) || inPanel) {
+    // whether the click is on the ui panel
+    bool in_panel = false;
+
+    auto texture = _ui->panel->sprite.getTexture();
+    if (texture)
+    {
+        auto img = texture->copyToImage();
+        auto pixel = img.getPixel(x, y);
+        if (pixel.toInteger() != 0)
+            in_panel = true;
+    }
+
+//     bool inPanel = (
+//         x >= this->_ui->panel->x && x <= this->_ui->panel->x + this->_ui->panel->width &&
+//         y >= this->_ui->panel->y && y <= this->_ui->panel->y + this->_ui->panel->height
+//         );
+    if ((event.type == sf::Event::MouseButtonReleased && this->_ui->panel->mouse_down) || in_panel) {
         this->_ui->panel->view->send_mouse_click_event(x, y, event.mouseButton.button, (event.type == sf::Event::MouseButtonReleased), 1);
         if (event.type == sf::Event::MouseButtonPressed) {
             this->_ui->panel->mouse_down = true;
@@ -222,7 +234,7 @@ bool ui_input::ui_capture_mouse_button(sf::Event event)
             this->_ui->panel->mouse_down = false;
         }
     }
-    else if (event.type == sf::Event::MouseButtonPressed && !inPanel) {
+    else if (event.type == sf::Event::MouseButtonPressed && !in_panel) {
         this->_ui->panel->has_focus = false;
         this->_ui->panel->view->send_focus_event(false);
     }

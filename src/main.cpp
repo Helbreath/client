@@ -386,13 +386,15 @@ int main(int argc, char * argv[])
     sf::Event event;
     sf::RenderWindow & window = G_pGame->window;
 
-    std::thread cef_thread(std::bind(&ui::ui_game::run_cef_thread, G_pGame->cef_ui));
+    //std::thread cef_thread(std::bind(&ui::ui_game::run_cef_thread, G_pGame->cef_ui));
+    G_pGame->cef_ui->run_cef_thread();
 
     while (window.isOpen() && isrunning)
     {
         //timers first
         G_pGame->OnTimer();
         G_pGame->fps.update();
+        G_pGame->cef_ui->do_work();
 
         while (window.pollEvent(event))
         {
@@ -418,17 +420,18 @@ int main(int argc, char * argv[])
         }
     }
     isrunning = false;
-    G_pGame->cef_ui->begin_shutdown = true;
+    //G_pGame->cef_ui->begin_shutdown = true;
+    CefShutdown();
 
 #if defined(_DEBUG) && defined(PIPELOG)
     pipethead.join();
 #endif
 
-    std::mutex m;
-    std::unique_lock<std::mutex> l(m);
-    G_pGame->cef_ui->core->cv.wait(l);
-    cef_thread.join();
-    G_pGame->cef_ui->is_running = false;
+//     std::mutex m;
+//     std::unique_lock<std::mutex> l(m);
+//     G_pGame->cef_ui->core->cv.wait(l);
+//     cef_thread.join();
+//     G_pGame->cef_ui->is_running = false;
 
     G_pGame->signals_.cancel();
     G_pGame->Quit();
