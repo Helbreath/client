@@ -82,8 +82,6 @@ END
 // Bitmap
 //
 
-IDB_BIT_DLG             BITMAP                  "htmlview(24).BMP"
-IDB_BIT_OKBN            BITMAP                  "_OK.bmp"
 #endif    // Korean (Korea) resources
 /////////////////////////////////////////////////////////////////////////////
 
