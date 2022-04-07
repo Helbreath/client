@@ -4,16 +4,7 @@
   "version": "0.0.1",
   "homepage": "https://helbreathx.net",
   "dependencies": [
-    {
-      "name": "websocketpp",
-      "version>=": "0.8.2#2",
-      "default-features": false
-    },
-    {
-      "name": "asio",
-      "version>=": "1.22.1",
-      "default-features": false
-    },
+    "ixwebsocket",
     "sfml",
     "openssl",
     "zlib",

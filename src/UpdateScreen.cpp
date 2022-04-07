@@ -10,7 +10,6 @@
 #include <iostream>
 
 #include "lan_eng.h"
-#include <asio/ssl.hpp>
 
 extern void MakeSprite(char * FileName, int iStart, short sCount, bool bAlphaEffect);
 extern void MakeTileSpr(char * FileName, short sStart, short sCount, bool bAlphaEffect);
@@ -1075,11 +1074,11 @@ void helbreath::UpdateScreen_OnConnecting()
         m_bEscPressed = false;
         dwCTime = dwMTime = unixtime();
 
-        if (conn == nullptr)
+        if (is_closed())
         {
             perform_connect();
         }
-        else if (conn->get_state() == websocketpp::session::state::value::open)
+        else if (is_connected())
         {
             ConnectionEstablishHandler(SERVERTYPE_LOG);
             return;
@@ -1094,9 +1093,9 @@ void helbreath::UpdateScreen_OnConnecting()
         {
             isItemLoaded = false;
             ChangeGameMode(GAMEMODE_ONMAINMENU);
-            if (conn)
+            if (is_closed())
             {
-                conn->close(websocketpp::close::status::going_away, "cancel");
+                close(ix::WebSocketCloseConstants::kNormalClosureCode, "cancel");
             }
         }
         m_bEscPressed = false;
@@ -1239,7 +1238,7 @@ void helbreath::UpdateScreen_OnQuit()
         m_bEscPressed = false;
         m_bEnterPressed = false;
         ChangeGameMode(GAMEMODE_NULL);
-        io_context_.stop();
+        close(ix::WebSocketCloseConstants::kNormalClosureCode, "quit");
         window.close();
         return;
     }
@@ -1251,7 +1250,7 @@ void helbreath::UpdateScreen_OnQuit()
     if ((cMIresult) && (iMIbuttonNum == 1))
     {
         ChangeGameMode(GAMEMODE_NULL);
-        io_context_.stop();
+        close(ix::WebSocketCloseConstants::kNormalClosureCode, "quit");
         window.close();
         return;
     }
@@ -1904,7 +1903,7 @@ void helbreath::UpdateScreen_OnGame()
     {
         socketmode(0);
         isItemLoaded = false;
-        conn->close(1000, "logout");
+        close(1000, "logout");
         m_bEscPressed = false;
 
         PlaySound('E', 14, 5);

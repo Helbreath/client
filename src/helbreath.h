@@ -13,7 +13,6 @@
 #include <vector>
 #include <functional>
 #include <mutex>
-#include <asio/signal_set.hpp>
 #include <queue>
 
 #include <process.h>
@@ -54,18 +53,14 @@
 #include <atomic>
 #include <mutex>
 #include <future>
+#include <memory>
 
 #include "Title.h"
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
+#include <ixwebsocket/IXWebSocketCloseConstants.h>
 
-#include <websocketpp/config/asio_client.hpp>
-#include <websocketpp/client.hpp>
-
-using ws_client = websocketpp::client<websocketpp::config::asio_tls_client>;
-using message_ptr = ws_client::message_ptr;
-using context_ptr = std::shared_ptr<asio::ssl::context>;
 using sf::Keyboard;
 
 #include "streams.h"
@@ -74,6 +69,13 @@ using sf::Keyboard;
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
+
+namespace ix
+{
+class WebSocket;
+struct WebSocketMessage;
+using WebSocketMessagePtr = std::unique_ptr<WebSocketMessage>;
+};
 
 
 #define BTNSZX 74
@@ -269,31 +271,30 @@ public:
     MsgQueue loginpipe;
     std::shared_ptr<MsgQueueEntry> GetLoginMsgQueue();
 
-    void on_message(websocketpp::connection_hdl hdl, message_ptr msg);
+    std::unique_ptr<ix::WebSocket> ws;
 
-    ws_client ws;
-    ws_client::connection_ptr conn;
+    void on_message(const ix::WebSocketMessagePtr & msg);
+    bool is_connected() const;
+    bool is_closed() const;
+    bool is_connecting() const;
+    bool is_closing() const;
 
     void perform_connect();
     void connection_loss_gamemode();
 
-    void write(const void * data, const uint64_t size);
+    void write(const char * data, const uint64_t size);
     void write(StreamWrite & sw);
     void write(nlohmann::json & obj);
 
     void handle_stop();
-    void close(uint32_t code, const std::string & reason);
+    void close(uint32_t code = ix::WebSocketCloseConstants::kNormalClosureCode, const std::string & reason = ix::WebSocketCloseConstants::kNormalClosureMessage);
 
-    asio::io_context io_context_;
-    asio::signal_set signals_;
     bool loggedin;
 
     std::mutex uimtx;
     std::mutex screenupdate;
     std::mutex socketmut;
     std::mutex uimut;
-
-    std::shared_ptr<std::thread> socketthread;
 
     sf::RenderTexture visible;
     sf::RenderTexture bg;

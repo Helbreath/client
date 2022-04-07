@@ -295,12 +295,9 @@ int main(int argc, char * argv[])
     }
     isrunning = false;
 
-    game->signals_.cancel();
     game->Quit();
-    game->socketthread->join();
     if (window.isOpen())
         window.close();
-    game->io_context_.stop();
     delete game;
 
 #if !defined(_DEBUG) && !defined(UNLIMITED_CLIENTS)

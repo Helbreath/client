@@ -10,7 +10,6 @@
 #include <iostream>
 
 #include "lan_eng.h"
-#include <asio/ssl.hpp>
 
 extern helbreath * game;
 

@@ -10,9 +10,12 @@
 #include <iostream>
 
 #include "lan_eng.h"
-#include <asio/ssl.hpp>
 #include <fmt/format.h>
 #include <SFML/Window/ContextSettings.hpp>
+
+#include <ixwebsocket/IXNetSystem.h>
+#include <ixwebsocket/IXWebSocket.h>
+#include <ixwebsocket/IXUserAgent.h>
 
 extern helbreath * game;
 
@@ -71,10 +74,6 @@ uint32_t unixseconds()
 #endif
     return tstruct.time;
 }
-
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 void helbreath::ReadSettings()
 {
@@ -333,10 +332,51 @@ shared_ptr<helbreath::MsgQueueEntry> helbreath::GetLoginMsgQueue()
     return msg;
 }
 
-void helbreath::on_message(websocketpp::connection_hdl hdl, message_ptr msg)
+void helbreath::on_message(const ix::WebSocketMessagePtr & msg)
 {
-    std::cout << "ws msg\n";
-    std::cout << msg->get_payload();
+    if (msg->type == ix::WebSocketMessageType::Message)
+    {
+        std::cout << "received message: " << msg->str << std::endl;
+        std::cout << "> " << std::flush;
+    }
+    else if (msg->type == ix::WebSocketMessageType::Open)
+    {
+        ConnectionEstablishHandler(SERVERTYPE_LOG);
+    }
+    else if (msg->type == ix::WebSocketMessageType::Error)
+    {
+        std::cout << "ws error\n";
+        connection_loss_gamemode();
+        socketmode(0);
+        loggedin = false;
+    }
+    else if (msg->type == ix::WebSocketMessageType::Close)
+    {
+        std::cout << "ws close\n";
+        connection_loss_gamemode();
+        socketmode(0);
+        loggedin = false;
+    }
+}
+
+bool helbreath::is_connected() const
+{
+    return ws->getReadyState() == ix::ReadyState::Open;
+}
+
+bool helbreath::is_closed() const
+{
+    return ws->getReadyState() == ix::ReadyState::Closed;
+}
+
+bool helbreath::is_connecting() const
+{
+    return ws->getReadyState() == ix::ReadyState::Connecting;
+}
+
+bool helbreath::is_closing() const
+{
+    return ws->getReadyState() == ix::ReadyState::Closing;
 }
 
 void helbreath::PutMsgQueue(MsgQueue & q, char * data, uint32_t size)
@@ -365,56 +405,25 @@ shared_ptr<helbreath::MsgQueueEntry> helbreath::GetMsgQueue()
 
 void helbreath::perform_connect()
 {
-    asio::error_code ec;
-    conn = ws.get_connection(fmt::format("wss://{}:8443", SERVER_IP), ec);
-    if (ec)
-    {
-        std::cout << "unable to connect to server - " << ec.message() << '\n';
-        return;
-    }
-
-//     conn->set_message_handler([&](websocketpp::connection_hdl hdl, message_ptr msg)
-//     {
-//         std::cout << "ws msg\n";
-//         std::cout << msg->get_payload();
-//     });
-    conn->set_open_handler([&](websocketpp::connection_hdl hdl)
-    {
-        ConnectionEstablishHandler(SERVERTYPE_LOG);
-    });
-    conn->set_close_handler([&](websocketpp::connection_hdl hdl)
-    {
-        std::cout << "ws close\n";
-        conn.reset();
-        connection_loss_gamemode();
-        socketmode(0);
-        loggedin = false;
-    });
-    conn->set_fail_handler([&](websocketpp::connection_hdl hdl)
-    {
-        std::cout << "ws fail\n";
-        conn.reset();
-        connection_loss_gamemode();
-        socketmode(0);
-        loggedin = false;
-    });
-
-    ws.connect(conn);
+    ws->disableAutomaticReconnection();
+    ws->setUrl(fmt::format("wss://{}:8443", SERVER_IP));
+    ws->start();
 }
 
-void helbreath::write(const void * data, const uint64_t size)
+void helbreath::write(const char * data, const uint64_t size)
 {
-    conn->send(data, size, websocketpp::frame::opcode::binary);
+    std::string s{ data, size };
+    ws->send(s, true);
 }
 
 void helbreath::write(StreamWrite & sw)
 {
-    conn->send((void*)sw.data, sw.position, websocketpp::frame::opcode::binary);
+    ws->send(sw.data, true);
 }
 
 void helbreath::write(nlohmann::json & obj)
 {
-    conn->send(obj.dump(-1, 0x32, false, nlohmann::detail::error_handler_t::ignore), websocketpp::frame::opcode::text);
+    ws->send(obj.dump(-1, 0x32, false, nlohmann::detail::error_handler_t::ignore));
 }
 
 void helbreath::connection_loss_gamemode()
@@ -440,23 +449,11 @@ void helbreath::connection_loss_gamemode()
 void helbreath::handle_stop()
 {
     close(1000, "handle_stop()");
-    io_context_.stop();
 }
 
 void helbreath::close(uint32_t code, const std::string & reason)
 {
-    try
-    {
-        if (conn)
-        {
-            conn->close(code, reason);
-            conn.reset();
-        }
-    }
-    catch (std::exception & ex)
-    {
-        std::cout << ex.what() << '\n';
-    }
+    ws->close(code, "handle_stop()");
 }
 
 /*
@@ -502,54 +499,14 @@ char itoh(int num)
 }*/
 
 helbreath::helbreath()
-    : io_context_(),
-    signals_(io_context_)/*,
-    ctx(asio::ssl::context::tlsv13_client)*/
 {
-    using namespace websocketpp::log;
+#if defined(WIN32)
+    ix::initNetSystem();
+#endif
 
-    auto logsettings = alevel::all ^ alevel::frame_header ^ alevel::frame_payload ^ alevel::control;
+    ws = std::make_unique<ix::WebSocket>();
 
-    ws.clear_access_channels(websocketpp::log::alevel::all);
-    ws.clear_error_channels(websocketpp::log::alevel::all);
-
-    ws.set_access_channels(logsettings);
-    ws.set_error_channels(logsettings);
-
-
-    //ctx.use_tmp_dh(dh_buff);
-
-
-    ws.init_asio(&io_context_);
-    ws.set_message_handler(std::bind(&helbreath::on_message, this, std::placeholders::_1, std::placeholders::_2));
-    ws.set_open_handler([&](websocketpp::connection_hdl hdl)
-    {
-        conn = ws.get_con_from_hdl(hdl);
-        std::cout << "WS Connection\n";
-    });
-
-    ws.set_tls_init_handler([&](websocketpp::connection_hdl)
-    {
-        context_ptr ctx = std::make_shared<asio::ssl::context>(asio::ssl::context::tlsv13_client);
-        unsigned char cert[] = SSL_CERT;
-        unsigned char dh[] = SSL_DH_PARAM;
-
-        SSL_DECODE(cert);
-        SSL_DECODE(dh);
-
-        std::string str = (char *)cert;
-        std::string dhstr = (char *)dh;
-        asio::const_buffer buffer_(str.c_str(), str.length());
-        asio::const_buffer dh_buff(dhstr.c_str(), dhstr.length());
-
-        ctx->set_options(asio::ssl::context::default_workarounds | asio::ssl::context::no_sslv2 | asio::ssl::context::no_sslv3 | asio::ssl::context::single_dh_use);
-        ctx->set_verify_mode(asio::ssl::verify_none);
-        //ctx->add_certificate_authority(buffer_);
-
-        ctx->use_tmp_dh(dh_buff);
-
-        return ctx;
-    });
+    ws->setOnMessageCallback(std::bind(&helbreath::on_message, this, std::placeholders::_1));
 
     socketmode(0);
     oldmode = 0;
@@ -721,13 +678,6 @@ helbreath::helbreath()
     m_iTimeLeftSecIP = 0;
     m_bWhisper = true;
     m_bShout = true;
-
-    signals_.add(SIGINT);
-    signals_.add(SIGTERM);
-#if defined(SIGQUIT)
-    signals_.add(SIGQUIT);
-#endif // defined(SIGQUIT)
-    signals_.async_wait(std::bind(&helbreath::handle_stop, this));
 }
 
 helbreath::~helbreath()
@@ -1045,7 +995,6 @@ bool helbreath::bInit()
     //m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  12,   20,   30),  &m_wR[15], &m_wG[15], &m_wB[15]); // Black
 
     memset(m_cWorldServerName, 0, sizeof(m_cWorldServerName));
-    socketthread = std::make_shared<std::thread>(std::bind(static_cast<asio::io_context::count_type(asio::io_context:: *)()>(&asio::io_context::run), &io_context_));
 
     return true;
 }
@@ -1149,7 +1098,6 @@ void helbreath::Quit()
 
     //if (m_pGSock != NULL) delete m_pGSock;
     close(1000, "~");
-    io_context_.stop();
 }
 
 /*
@@ -3861,7 +3809,7 @@ void helbreath::OnTimer()
             m_dwCheckSprTime = dwTime;
             if (m_bIsProgramActive)
                 ReleaseUnusedSprites();
-            if (conn != nullptr && loggedin)
+            if (is_connected() && loggedin)
                 bSendCommand(MSGID_COMMAND_CHECKCONNECTION, MSGTYPE_CONFIRM, 0, 0, 0, 0, 0);
         }
     }
@@ -14464,11 +14412,9 @@ void helbreath::_LoadAgreementTextContents(char cType)
 
 void helbreath::StartLogin()
 {
-    if (conn == nullptr)
+    if (!is_connected())
     {
         loggedin = false;
-
-
     }
     else
     {
