@@ -17,7 +17,6 @@
 #include <filesystem>
 
 #include <intrin.h>
-#include <sodium.h>
 #include <fmt/format.h>
 
 char G_cSpriteAlphaDegree;
@@ -156,8 +155,6 @@ int main(int argc, char * argv[])
         return -1;
     }
 #endif
-
-    sodium_init();
 
     /*
     {
@@ -303,7 +300,7 @@ int main(int argc, char * argv[])
     game->socketthread->join();
     if (window.isOpen())
         window.close();
-    game->io_service_.stop();
+    game->io_context_.stop();
     delete game;
 
 #if !defined(_DEBUG) && !defined(UNLIMITED_CLIENTS)

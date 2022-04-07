@@ -59,7 +59,6 @@
 
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
-#include <SFML/Window/ContextSettings.hpp>
 
 #include <websocketpp/config/asio_client.hpp>
 #include <websocketpp/client.hpp>
@@ -285,7 +284,7 @@ public:
     void handle_stop();
     void close(uint32_t code, const std::string & reason);
 
-    asio::io_context io_service_;
+    asio::io_context io_context_;
     asio::signal_set signals_;
     bool loggedin;
 
@@ -450,49 +449,7 @@ public:
     void load_settings();
     void save_settings();
 
-    bool CreateRenderer(bool fs = false)
-    {
-        fullscreen = fs;
-
-        sprintf(winName, "Helbreath Xtreme %u.%u.%u Renderer: %s", UPPER_VERSION, LOWER_VERSION, PATCH_VERSION, _renderer.c_str());
-
-        sf::ContextSettings context;
-        context.antialiasingLevel = 16;
-
-        window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? sf::Style::Fullscreen : (sf::Style::Close)), context);
-
-        handle = window.getSystemHandle();
-
-        if (vsync)
-            window.setVerticalSyncEnabled(true);
-        else
-            window.setVerticalSyncEnabled(false);
-
-        visible.create(screenwidth_v, screenheight_v);
-        bg.create(screenwidth_v + 300, screenheight_v + 300);
-        charselect.create(256, 256);
-
-        sf::Font s;
-        s.loadFromFile(workingdirectory + "fonts/Arya-Regular.ttf");
-        _font.insert(pair<string, sf::Font>("arya", s));
-
-        s.loadFromFile(workingdirectory + "fonts/OpenSans-Regular.ttf");
-        _font.insert(pair<string, sf::Font>("default", s));
-
-        s.loadFromFile(workingdirectory + "fonts/PoetsenOne-Regular.ttf");
-        _font.insert(pair<string, sf::Font>("test", s));
-
-        sf::Image img;
-        img.create(screenwidth_v, screenheight_v);
-        _html_tex.loadFromImage(img);
-        _html_spr.setTexture(_html_tex);
-
-        create_load_list();
-
-        _text.setFont(_font.at("arya"));
-
-        return true;
-    }
+    bool CreateRenderer(bool fs = false);
     sf::WindowHandle handle;
     void PutFontStringSize(std::string fontname, int iX, int iY, std::string text, Color color, int size);
     void create_load_list();
@@ -505,7 +462,7 @@ public:
     std::map<string, sf::Font> _font;
     sf::Text _text;
 
-    std::string workingdirectory = "";
+    std::string workingdirectory;
 
     shared_ptr<CCharInfo> selectedchar = nullptr;
 

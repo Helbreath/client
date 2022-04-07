@@ -12,6 +12,7 @@
 #include "lan_eng.h"
 #include <asio/ssl.hpp>
 #include <fmt/format.h>
+#include <SFML/Window/ContextSettings.hpp>
 
 extern helbreath * game;
 
@@ -439,7 +440,7 @@ void helbreath::connection_loss_gamemode()
 void helbreath::handle_stop()
 {
     close(1000, "handle_stop()");
-    io_service_.stop();
+    io_context_.stop();
 }
 
 void helbreath::close(uint32_t code, const std::string & reason)
@@ -501,8 +502,8 @@ char itoh(int num)
 }*/
 
 helbreath::helbreath()
-    : io_service_(),
-    signals_(io_service_)/*,
+    : io_context_(),
+    signals_(io_context_)/*,
     ctx(asio::ssl::context::tlsv13_client)*/
 {
     using namespace websocketpp::log;
@@ -519,7 +520,7 @@ helbreath::helbreath()
     //ctx.use_tmp_dh(dh_buff);
 
 
-    ws.init_asio(&io_service_);
+    ws.init_asio(&io_context_);
     ws.set_message_handler(std::bind(&helbreath::on_message, this, std::placeholders::_1, std::placeholders::_2));
     ws.set_open_handler([&](websocketpp::connection_hdl hdl)
     {
@@ -1044,7 +1045,7 @@ bool helbreath::bInit()
     //m_Misc.ColorTransfer(//DIRECTX m_DDraw.m_cPixelFormat,video::SColor(255,  12,   20,   30),  &m_wR[15], &m_wG[15], &m_wB[15]); // Black
 
     memset(m_cWorldServerName, 0, sizeof(m_cWorldServerName));
-    socketthread = std::make_shared<std::thread>(std::bind(static_cast<asio::io_context::count_type(asio::io_context:: *)()>(&asio::io_context::run), &io_service_));
+    socketthread = std::make_shared<std::thread>(std::bind(static_cast<asio::io_context::count_type(asio::io_context:: *)()>(&asio::io_context::run), &io_context_));
 
     return true;
 }
@@ -1148,7 +1149,7 @@ void helbreath::Quit()
 
     //if (m_pGSock != NULL) delete m_pGSock;
     close(1000, "~");
-    io_service_.stop();
+    io_context_.stop();
 }
 
 /*
@@ -1598,6 +1599,50 @@ void helbreath::load_settings()
 void helbreath::save_settings()
 {
 
+}
+
+bool helbreath::CreateRenderer(bool fs /*= false*/)
+{
+    fullscreen = fs;
+
+    sprintf(winName, "Helbreath Xtreme %u.%u.%u Renderer: %s", UPPER_VERSION, LOWER_VERSION, PATCH_VERSION, _renderer.c_str());
+
+    sf::ContextSettings context;
+    context.antialiasingLevel = 16;
+
+    window.create(sf::VideoMode(screenwidth, screenheight), winName, (fullscreen ? sf::Style::Fullscreen : (sf::Style::Close)), context);
+
+    handle = window.getSystemHandle();
+
+    if (vsync)
+        window.setVerticalSyncEnabled(true);
+    else
+        window.setVerticalSyncEnabled(false);
+
+    visible.create(screenwidth_v, screenheight_v);
+    bg.create(screenwidth_v + 300, screenheight_v + 300);
+    charselect.create(256, 256);
+
+    sf::Font s;
+    s.loadFromFile(workingdirectory + "fonts/Arya-Regular.ttf");
+    _font.insert(pair<string, sf::Font>("arya", s));
+
+    s.loadFromFile(workingdirectory + "fonts/OpenSans-Regular.ttf");
+    _font.insert(pair<string, sf::Font>("default", s));
+
+    s.loadFromFile(workingdirectory + "fonts/PoetsenOne-Regular.ttf");
+    _font.insert(pair<string, sf::Font>("test", s));
+
+    sf::Image img;
+    img.create(screenwidth_v, screenheight_v);
+    _html_tex.loadFromImage(img);
+    _html_spr.setTexture(_html_tex);
+
+    create_load_list();
+
+    _text.setFont(_font.at("arya"));
+
+    return true;
 }
 
 void helbreath::OnEvent(sf::Event event)

@@ -1239,7 +1239,7 @@ void helbreath::UpdateScreen_OnQuit()
         m_bEscPressed = false;
         m_bEnterPressed = false;
         ChangeGameMode(GAMEMODE_NULL);
-        io_service_.stop();
+        io_context_.stop();
         window.close();
         return;
     }
@@ -1251,7 +1251,7 @@ void helbreath::UpdateScreen_OnQuit()
     if ((cMIresult) && (iMIbuttonNum == 1))
     {
         ChangeGameMode(GAMEMODE_NULL);
-        io_service_.stop();
+        io_context_.stop();
         window.close();
         return;
     }

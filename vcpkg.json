@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "x-client",
+  "version": "0.0.1",
+  "homepage": "https://helbreathx.net",
+  "dependencies": [
+    {
+      "name": "websocketpp",
+      "version>=": "0.8.2#2",
+      "default-features": false
+    },
+    {
+      "name": "asio",
+      "version>=": "1.22.1",
+      "default-features": false
+    },
+    "sfml",
+    "openssl",
+    "zlib",
+    "fmt",
+    "libsodium"
+  ],
+  "builtin-baseline": "423d9f01a7195a9fd13998500d57f532344eae38"
+}
