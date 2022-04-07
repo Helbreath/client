@@ -6,7 +6,7 @@
 
 #include "sprite.h"
 #include "helbreath.h"
-#include <sodium.h>
+#include <sodium/crypto_secretstream_xchacha20poly1305.h>
 
 extern char G_cSpriteAlphaDegree;
 extern bool isrunning;
