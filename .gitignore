@@ -43,3 +43,6 @@ bin/screenshots/*
 *.brs
 bin/data/*
 bin/
+/.vs
+/vcpkg_installed
+/x64
